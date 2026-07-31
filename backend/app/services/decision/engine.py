@@ -71,6 +71,10 @@ class DecisionService:
                 if frame.action == "打开" and frame.target == "unknown"
                 else f"请明确指令的{missing_slot}。"
             )
+        elif any(node.quality_label == EvidenceStatus.SUSPICIOUS for node in evidence):
+            decision = DecisionLabel.REVIEW
+            explanations.append("存在多源证据冲突或可疑证据，需要人工复核")
+            review_question = "检测到多源状态不一致，请确认当前车辆状态后再执行。"
         elif score >= float(self.thresholds["pass"]):
             decision = DecisionLabel.PASS
             explanations.append("语义明确、强制证据完整且未命中阶段一硬性安全规则")

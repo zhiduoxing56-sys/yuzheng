@@ -35,6 +35,32 @@ class SafetyGateService:
                 observed={"missing_types": missing},
             )
         ]
+        tampered = [
+            node.evidence_type
+            for node in evidence
+            if node.mandatory and node.quality_label == EvidenceStatus.TAMPERED
+        ]
+        stale = [
+            node.evidence_type
+            for node in evidence
+            if node.mandatory and node.quality_label == EvidenceStatus.STALE
+        ]
+        checks.extend(
+            [
+                GateCheck(
+                    rule_id="MANDATORY_EVIDENCE_INTEGRITY",
+                    hit=bool(tampered),
+                    reason="强制证据被篡改" if tampered else "强制证据完整性正常",
+                    observed={"tampered_types": tampered},
+                ),
+                GateCheck(
+                    rule_id="MANDATORY_EVIDENCE_FRESHNESS",
+                    hit=bool(stale),
+                    reason="强制证据陈旧且补召失败" if stale else "强制证据时效性正常",
+                    observed={"stale_types": stale},
+                ),
+            ]
+        )
         for rule in self.rules:
             applicable = frame.action == rule.get("action") and frame.target == rule.get("target")
             node = by_type.get(str(rule.get("evidence_type")))

@@ -1,5 +1,9 @@
 from app.core.config import load_yaml
 from app.models.schemas import EvidenceStatus, SemanticFrame, VehicleState
+import math
+
+import pytest
+
 from app.services.evidence.demand import EvidenceDemandService
 from app.services.evidence.repository import EvidenceRepository
 
@@ -29,7 +33,14 @@ def test_open_door_generates_exact_mandatory_evidence() -> None:
     assert demand.required_types == expected
     assert updated.required_evidence_types == expected
     assert demand.priority == 100
-    assert demand.query_vector == []
+    assert len(demand.query_vector) == 768
+    assert math.sqrt(sum(value * value for value in demand.query_vector)) == pytest.approx(1.0)
+    assert demand.vectorization_metadata is not None
+    assert demand.vectorization_metadata.dimension == 768
+    assert demand.vectorization_metadata.normalized is True
+    _, repeated = EvidenceDemandService(load_yaml("action_evidence_map.yaml")).build(frame)
+    assert repeated.query_vector == demand.query_vector
+    assert repeated.vectorization_metadata.vector_digest == demand.vectorization_metadata.vector_digest
 
 
 def test_minimal_repository_uses_real_snapshot_values() -> None:

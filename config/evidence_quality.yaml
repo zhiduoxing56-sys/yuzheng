@@ -1,0 +1,36 @@
+alignment_weights:
+  ecr: 0.35
+  ecs: 0.25
+  ef: 0.20
+  sas: 0.20
+
+freshness:
+  default:
+    decay_coefficient: 0.02
+    validity_seconds: 30
+  vehicle_speed:
+    decay_coefficient: 0.35
+    validity_seconds: 3
+  gear_position:
+    decay_coefficient: 0.12
+    validity_seconds: 10
+  door_lock_state:
+    decay_coefficient: 0.08
+    validity_seconds: 15
+  occupant_role:
+    decay_coefficient: 0.02
+    validity_seconds: 60
+  speaker_zone:
+    decay_coefficient: 0.05
+    validity_seconds: 30
+  vehicle_mode:
+    decay_coefficient: 0.03
+    validity_seconds: 60
+
+conflicts:
+  vehicle_speed_delta: 8.0
+  moving_speed_threshold: 5.0
+
+window:
+  short_length: 8
+

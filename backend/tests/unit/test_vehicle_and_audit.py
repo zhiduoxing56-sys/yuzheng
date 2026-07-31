@@ -71,3 +71,48 @@ def test_audit_hash_chain_survives_compatible_model_evolution(pipeline) -> None:
     assert restored.final_decision.final_decision == restored.final_decision.decision
     assert restored.final_decision.score_factors.evidence_coverage_applicable is True
     assert pipeline.audit_repository.verify_chain() is True
+
+
+def test_stage_one_record_without_stage_two_fields_still_validates(pipeline) -> None:
+    result = pipeline.process_text(TextCommandRequest(text="打开车门"))
+
+    with sqlite3.connect(pipeline.audit_repository.database_path) as connection:
+        row = connection.execute(
+            "SELECT record_json FROM audit_records WHERE turn_id = ?", (result.turn_id,)
+        ).fetchone()
+        raw = json.loads(row[0])
+        for field in (
+            "vectorization_metadata",
+            "query_vector_digest",
+            "retrieval_metadata",
+            "mandatory_recall_records",
+            "missing_evidence_types",
+            "evidence_subgraph",
+            "evidence_subgraph_summary",
+        ):
+            raw.pop(field)
+        raw["evidence_demand"].pop("vectorization_metadata")
+        raw["evidence_demand"]["query_vector"] = []
+
+        payload = dict(raw)
+        payload.pop("previous_hash")
+        payload.pop("current_hash")
+        digest = hashlib.sha256(
+            (
+                raw["previous_hash"]
+                + json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            ).encode("utf-8")
+        ).hexdigest()
+        raw["current_hash"] = digest
+        connection.execute(
+            "UPDATE audit_records SET record_json = ?, current_hash = ? WHERE turn_id = ?",
+            (json.dumps(raw, ensure_ascii=False), digest, result.turn_id),
+        )
+
+    restored = pipeline.audit_repository.get_by_turn(result.turn_id)
+    assert restored is not None
+    assert restored.vectorization_metadata is None
+    assert restored.retrieval_metadata is None
+    assert restored.evidence_subgraph is None
+    assert restored.evidence_demand.query_vector == []
+    assert pipeline.audit_repository.verify_chain() is True

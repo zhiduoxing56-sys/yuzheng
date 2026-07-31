@@ -1,0 +1,5 @@
+M: 16
+ef_construction: 200
+ef_search: 30
+top_k: 20
+

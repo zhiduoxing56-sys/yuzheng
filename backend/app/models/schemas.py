@@ -98,6 +98,7 @@ class EvidenceDemand(StrictModel):
     risk_level: str
     query_text: str
     query_vector: list[float] = Field(default_factory=list)
+    vectorization_metadata: "VectorizationMetadata | None" = None
     required_types: list[str] = Field(default_factory=list)
     optional_types: list[str] = Field(default_factory=list)
     priority: int = Field(default=0, ge=0, le=100)
@@ -131,6 +132,60 @@ class EvidenceEdge(StrictModel):
     reason: str
 
 
+class VectorizationMetadata(StrictModel):
+    implementation: str
+    model_name: str
+    dimension: int = Field(gt=0)
+    normalized: bool
+    real_model_inference: bool
+    vector_digest: str
+    degradation_reason: str | None = None
+
+
+class RetrievalMetadata(StrictModel):
+    implementation: str
+    index_node_count: int = Field(ge=0)
+    vector_dimension: int = Field(gt=0)
+    M: int = Field(gt=0)
+    ef_construction: int = Field(gt=0)
+    ef_search: int = Field(gt=0)
+    top_k: int = Field(gt=0)
+    candidate_count: int = Field(ge=0)
+    duration_ms: float = Field(ge=0)
+    empty_index: bool
+    degraded: bool
+    degradation_reason: str | None = None
+    excluded_types: list[str] = Field(default_factory=list)
+    last_built_at: datetime | None = None
+
+
+class MandatoryRecallRecord(StrictModel):
+    evidence_type: str
+    status: str
+    candidate_node_ids: list[str] = Field(default_factory=list)
+    recalled_node_id: str | None = None
+    source: str | None = None
+    reason: str
+
+
+class EvidenceQualityMetrics(StrictModel):
+    ecr: float | None = Field(default=None, ge=0, le=1)
+    evidence_coverage_applicable: bool
+    ecs: float = Field(ge=0, le=1)
+    ef: float = Field(ge=0, le=1)
+    sas: float = Field(ge=0, le=1)
+    eas: float = Field(ge=0, le=1)
+    conflict_count: int = Field(default=0, ge=0)
+    short_term_availability: dict[str, float | None] = Field(default_factory=dict)
+    long_term_availability: dict[str, float | None] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_coverage_semantics(self) -> "EvidenceQualityMetrics":
+        if self.evidence_coverage_applicable != (self.ecr is not None):
+            raise ValueError("ECR 与 evidence_coverage_applicable 语义不一致")
+        return self
+
+
 class EvidenceSubgraph(StrictModel):
     graph_id: str = Field(default_factory=lambda: make_id("GRAPH"))
     turn_id: str
@@ -138,10 +193,14 @@ class EvidenceSubgraph(StrictModel):
     edges: list[EvidenceEdge] = Field(default_factory=list)
     required_types: list[str] = Field(default_factory=list)
     retrieved_types: list[str] = Field(default_factory=list)
+    mandatory_recalled_types: list[str] = Field(default_factory=list)
     missing_types: list[str] = Field(default_factory=list)
-    quality_metrics: dict[str, float] = Field(default_factory=dict)
+    quality_metrics: EvidenceQualityMetrics | None = None
+    retrieval_metadata: RetrievalMetadata | None = None
     corrected_weights: dict[str, float] = Field(default_factory=dict)
-    decision_confidence: float = Field(default=0, ge=0, le=1)
+    decision_confidence: float | None = Field(default=None, ge=0, le=1)
+    advanced_reasoning_applied: bool = False
+    advanced_reasoning_status: str = "NOT_APPLICABLE_STAGE2"
 
 
 class ValidationResult(StrictModel):
@@ -275,11 +334,23 @@ class VehicleStatePatch(StrictModel):
     safety_constraint: str | None = None
 
 
+class EvidenceObservationInput(StrictModel):
+    evidence_type: str
+    source: str
+    value: Any = None
+    unit: str | None = None
+    age_seconds: float = Field(default=0, ge=0)
+    available: bool = True
+    integrity_valid: bool = True
+    expires_in_seconds: float | None = None
+
+
 class TextCommandRequest(StrictModel):
     text: str = Field(min_length=1, max_length=500)
     speaker_zone: str = "driver"
     speaker_role: str = "driver"
     state_overrides: VehicleStatePatch | None = None
+    evidence_overrides: list[EvidenceObservationInput] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def reject_blank_text(self) -> "TextCommandRequest":
@@ -297,8 +368,14 @@ class AuditRecord(StrictModel):
     evidence_demand: EvidenceDemand
     candidate_recall_results: list[EvidenceNode]
     mandatory_supplement_records: list[dict[str, Any]] = Field(default_factory=list)
+    vectorization_metadata: VectorizationMetadata | None = None
+    query_vector_digest: str = ""
+    retrieval_metadata: RetrievalMetadata | None = None
+    mandatory_recall_records: list[MandatoryRecallRecord] = Field(default_factory=list)
+    missing_evidence_types: list[str] = Field(default_factory=list)
     evidence_subgraph: EvidenceSubgraph | None = None
-    evidence_quality_metrics: dict[str, float] = Field(default_factory=dict)
+    evidence_subgraph_summary: dict[str, Any] = Field(default_factory=dict)
+    evidence_quality_metrics: EvidenceQualityMetrics | dict[str, float] = Field(default_factory=dict)
     conflict_records: list[dict[str, Any]] = Field(default_factory=list)
     safety_gate_result: SafetyGateResult
     score_details: DecisionScoreFactors
@@ -318,6 +395,12 @@ class TextCommandResponse(StrictModel):
     semantic_frame: SemanticFrame
     evidence_demand: EvidenceDemand
     evidence: list[EvidenceNode]
+    query_vector: list[float]
+    retrieval_metadata: RetrievalMetadata
+    candidate_evidence: list[EvidenceNode]
+    mandatory_recall_records: list[MandatoryRecallRecord]
+    evidence_subgraph: EvidenceSubgraph
+    quality_metrics: EvidenceQualityMetrics
     safety_gate: SafetyGateResult
     decision: DecisionResult
     audit: AuditRecord
@@ -328,3 +411,29 @@ class HealthResponse(StrictModel):
     service: str
     stage: str
     database: str
+
+
+class IndexRebuildRequest(StrictModel):
+    exclude_types: list[str] = Field(default_factory=list)
+
+
+class IndexStatus(StrictModel):
+    implementation: str
+    node_count: int = Field(ge=0)
+    dimension: int = Field(gt=0)
+    M: int = Field(gt=0)
+    ef_construction: int = Field(gt=0)
+    ef_search: int = Field(gt=0)
+    top_k: int = Field(gt=0)
+    degraded: bool
+    degradation_reason: str | None = None
+    excluded_types: list[str] = Field(default_factory=list)
+    last_built_at: datetime | None = None
+
+
+class CurrentEvidenceResponse(StrictModel):
+    nodes: list[EvidenceNode]
+    evidence_type_count: int = Field(ge=0)
+    node_count: int = Field(ge=0)
+    short_term_availability: dict[str, float | None] = Field(default_factory=dict)
+    long_term_availability: dict[str, float | None] = Field(default_factory=dict)

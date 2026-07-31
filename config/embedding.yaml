@@ -1,0 +1,4 @@
+dimension: 768
+preferred_model: paraphrase-multilingual-MiniLM-L12-v2
+allow_download: false
+
