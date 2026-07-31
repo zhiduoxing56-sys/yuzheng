@@ -15,6 +15,10 @@ def test_stage2_evidence_and_index_apis_return_runtime_data(api_client) -> None:
 
     assert command.status_code == 200
     assert len(body["query_vector"]) == 768
+    assert body["evidence_demand"]["vectorization_metadata"]["model_name"] == "BAAI/bge-base-zh-v1.5"
+    assert body["evidence_demand"]["vectorization_metadata"]["real_model_inference"] is True
+    assert body["retrieval_metadata"]["implementation"] == "hnswlib"
+    assert body["retrieval_metadata"]["degraded"] is False
     assert body["retrieval_metadata"]["candidate_count"] == len(body["candidate_evidence"])
     assert body["evidence_subgraph"]["turn_id"] == turn_id
     assert body["quality_metrics"]["ecr"] == 1.0

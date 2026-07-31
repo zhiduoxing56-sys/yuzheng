@@ -36,6 +36,11 @@ def test_parked_door_command_has_complete_retrieval_quality_and_graph(pipeline) 
     assert result.decision.final_decision == DecisionLabel.PASS
     assert set(result.evidence_demand.required_types) == OPEN_DOOR_REQUIRED
     assert len(result.query_vector) == 768
+    assert result.evidence_demand.vectorization_metadata.model_name == "BAAI/bge-base-zh-v1.5"
+    assert result.evidence_demand.vectorization_metadata.real_model_inference is True
+    assert result.evidence_demand.vectorization_metadata.degradation_reason is None
+    assert result.retrieval_metadata.implementation == "hnswlib"
+    assert result.retrieval_metadata.degraded is False
     assert result.retrieval_metadata.candidate_count == len(result.candidate_evidence)
     assert result.quality_metrics.ecr == 1.0
     assert result.quality_metrics.evidence_coverage_applicable is True

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import math
-from pathlib import Path
+from functools import lru_cache
 from typing import Any, Protocol
 
 import numpy as np
@@ -72,27 +72,42 @@ class LocalSentenceTransformerEmbeddingService:
     implementation = "local_sentence_transformer"
     real_model_inference = True
 
-    def __init__(self, model_path: Path, dimension: int) -> None:
+    def __init__(self, model_name: str, dimension: int) -> None:
         from sentence_transformers import SentenceTransformer
 
-        self._model = SentenceTransformer(str(model_path), local_files_only=True)
-        self.model_name = model_path.name
+        self._model = SentenceTransformer(model_name, local_files_only=True)
+        dimension_getter = getattr(self._model, "get_embedding_dimension", None)
+        native_dimension = (
+            dimension_getter()
+            if dimension_getter is not None
+            else self._model.get_sentence_embedding_dimension()
+        )
+        if native_dimension != dimension:
+            raise ValueError(
+                f"model dimension mismatch: expected {dimension}, got {native_dimension}"
+            )
+        self.model_name = model_name
         self.dimension = dimension
         self.degradation_reason = None
 
-    def encode(self, text: str) -> tuple[list[float], VectorizationMetadata]:
+    @lru_cache(maxsize=4096)
+    def _encode_cached(self, text: str) -> tuple[tuple[float, ...], str]:
         raw = np.asarray(
             self._model.encode([text], normalize_embeddings=True, show_progress_bar=False)[0],
             dtype=np.float64,
         )
-        if raw.size < self.dimension:
-            repeats = int(math.ceil(self.dimension / raw.size))
-            projected = np.tile(raw, repeats)[: self.dimension]
-        else:
-            projected = raw[: self.dimension]
-        projected = _normalize(projected)
+        if raw.size != self.dimension:
+            raise ValueError(
+                f"model inference dimension mismatch: expected {self.dimension}, got {raw.size}"
+        )
+        projected = _normalize(raw)
         values = projected.astype(np.float32).tolist()
         vector_digest = hashlib.sha256(np.asarray(values, dtype=np.float32).tobytes()).hexdigest()
+        return tuple(values), vector_digest
+
+    def encode(self, text: str) -> tuple[list[float], VectorizationMetadata]:
+        cached_values, vector_digest = self._encode_cached(text)
+        values = list(cached_values)
         return values, VectorizationMetadata(
             implementation=self.implementation,
             model_name=self.model_name,
@@ -103,35 +118,11 @@ class LocalSentenceTransformerEmbeddingService:
         )
 
 
-def _find_local_model(preferred_model: str) -> Path | None:
-    model_root = (
-        Path.home()
-        / ".cache"
-        / "huggingface"
-        / "hub"
-        / f"models--sentence-transformers--{preferred_model}"
-        / "snapshots"
-    )
-    if not model_root.is_dir():
-        return None
-    snapshots = sorted(path for path in model_root.iterdir() if path.is_dir())
-    return snapshots[-1] if snapshots else None
-
-
 def build_embedding_service(config: dict[str, Any]) -> EmbeddingService:
     dimension = int(config.get("dimension", 768))
     preferred_model = str(config.get("preferred_model", ""))
-    model_path = _find_local_model(preferred_model)
-    if model_path is None:
-        return DeterministicHashEmbeddingService(
-            dimension,
-            f"local model not found: {preferred_model}",
-        )
     try:
-        # 先做轻量二进制兼容检查，避免损坏的 sklearn 阻塞 sentence-transformers 导入。
-        import sklearn  # noqa: F401
-
-        return LocalSentenceTransformerEmbeddingService(model_path, dimension)
+        return LocalSentenceTransformerEmbeddingService(preferred_model, dimension)
     except Exception as exc:
         return DeterministicHashEmbeddingService(
             dimension,
