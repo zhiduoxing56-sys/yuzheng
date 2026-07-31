@@ -1,0 +1,8 @@
+rules:
+  - id: MOVING_DOOR_OPEN_PROHIBITED
+    action: 打开
+    target: 车门
+    evidence_type: vehicle_speed
+    operator: gt
+    threshold: 0
+    reason: 行驶中禁止打开车门
