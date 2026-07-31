@@ -60,4 +60,9 @@ class SafetyGateService:
                 )
             )
         reasons = [check.reason for check in checks if check.hit]
-        return SafetyGateResult(blocked=bool(reasons), checks=checks, reasons=reasons)
+        return SafetyGateResult(
+            blocked=bool(reasons),
+            mandatory_evidence_missing=bool(missing),
+            checks=checks,
+            reasons=reasons,
+        )

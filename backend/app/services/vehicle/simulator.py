@@ -17,7 +17,8 @@ class SimulatorVehicleAdapter:
             return self._state.model_copy(deep=True)
 
     def update_state(self, patch: VehicleStatePatch) -> VehicleState:
-        updates = patch.model_dump(exclude_none=True)
+        # exclude_unset 区分“未提供字段”和“显式设置为 null（证据不可用）”。
+        updates = patch.model_dump(exclude_unset=True)
         with self._lock:
             state_data = self._state.model_dump()
             state_data.update(updates)

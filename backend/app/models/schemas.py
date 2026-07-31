@@ -162,21 +162,62 @@ class GateCheck(StrictModel):
 
 class SafetyGateResult(StrictModel):
     blocked: bool
+    mandatory_evidence_missing: bool = False
     checks: list[GateCheck]
     reasons: list[str]
+
+
+class DecisionScoreFactors(StrictModel):
+    semantic_quality: float = Field(ge=0, le=1)
+    evidence_coverage: float | None = Field(default=None, ge=0, le=1)
+    evidence_coverage_applicable: bool
+    applied_weights: dict[str, float] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def infer_legacy_applicability(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "evidence_coverage_applicable" not in data:
+            data = dict(data)
+            data["evidence_coverage_applicable"] = data.get("evidence_coverage") is not None
+        return data
+
+    @model_validator(mode="after")
+    def validate_coverage_semantics(self) -> "DecisionScoreFactors":
+        if self.evidence_coverage_applicable != (self.evidence_coverage is not None):
+            raise ValueError("evidence_coverage 与 evidence_coverage_applicable 语义不一致")
+        return self
 
 
 class DecisionResult(StrictModel):
     turn_id: str
     decision: DecisionLabel
+    final_decision: DecisionLabel
     safety_score: float = Field(ge=0, le=1)
+    soft_safety_score: float = Field(ge=0, le=1)
     gate_blocked: bool
     gate_reasons: list[str] = Field(default_factory=list)
-    score_factors: dict[str, float] = Field(default_factory=dict)
+    score_factors: DecisionScoreFactors
     explanations: list[str] = Field(default_factory=list)
     review_question: str | None = None
     authorization_token: str | None = None
     created_at: datetime = Field(default_factory=utc_now)
+
+    @model_validator(mode="before")
+    @classmethod
+    def fill_compatibility_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            data = dict(data)
+            data.setdefault("final_decision", data.get("decision"))
+            data.setdefault("soft_safety_score", data.get("safety_score"))
+        return data
+
+    @model_validator(mode="after")
+    def validate_compatibility_fields(self) -> "DecisionResult":
+        if self.decision != self.final_decision:
+            raise ValueError("decision 与 final_decision 必须一致")
+        if abs(self.safety_score - self.soft_safety_score) > 1e-9:
+            raise ValueError("safety_score 是 soft_safety_score 的兼容字段，两者必须一致")
+        return self
 
 
 class VehicleState(StrictModel):
@@ -260,7 +301,7 @@ class AuditRecord(StrictModel):
     evidence_quality_metrics: dict[str, float] = Field(default_factory=dict)
     conflict_records: list[dict[str, Any]] = Field(default_factory=list)
     safety_gate_result: SafetyGateResult
-    score_details: dict[str, float]
+    score_details: DecisionScoreFactors
     final_decision: DecisionResult
     review_process: list[dict[str, Any]] = Field(default_factory=list)
     vehicle_execution_request: dict[str, Any] | None = None

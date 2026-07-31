@@ -11,8 +11,13 @@ from app.models.schemas import AuditRecord
 GENESIS_HASH = "0" * 64
 
 
-def canonical_json(record: AuditRecord) -> str:
-    data = record.model_dump(mode="json", exclude={"previous_hash", "current_hash"})
+def canonical_json(record: AuditRecord | dict[str, object]) -> str:
+    if isinstance(record, AuditRecord):
+        data = record.model_dump(mode="json", exclude={"previous_hash", "current_hash"})
+    else:
+        data = dict(record)
+        data.pop("previous_hash", None)
+        data.pop("current_hash", None)
     return json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
@@ -105,8 +110,12 @@ class AuditRepository:
                 "SELECT record_json, previous_hash, current_hash FROM audit_records ORDER BY rowid"
             ).fetchall()
         for row in rows:
-            record = AuditRecord.model_validate_json(row["record_json"])
-            expected = hashlib.sha256((previous_hash + canonical_json(record)).encode("utf-8")).hexdigest()
+            raw_record = json.loads(row["record_json"])
+            record = AuditRecord.model_validate(raw_record)
+            # 摘要必须基于当时实际落盘的原始字段，模型升级补充的兼容默认值不能改变旧摘要。
+            expected = hashlib.sha256(
+                (previous_hash + canonical_json(raw_record)).encode("utf-8")
+            ).hexdigest()
             if (
                 record.previous_hash != previous_hash
                 or record.current_hash != expected

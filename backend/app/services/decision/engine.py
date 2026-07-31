@@ -5,6 +5,7 @@ from typing import Any
 from app.models.schemas import (
     DecisionLabel,
     DecisionResult,
+    DecisionScoreFactors,
     EvidenceNode,
     EvidenceStatus,
     SafetyGateResult,
@@ -34,11 +35,22 @@ class DecisionService:
             for node in mandatory
             if node.quality_label in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
         ]
-        evidence_coverage = len(usable) / len(mandatory) if mandatory else 1.0
-        score = (
-            float(self.weights["semantic_quality"]) * semantic_quality
-            + float(self.weights["evidence_coverage"]) * evidence_coverage
-        )
+        required_count = len(frame.required_evidence_types)
+        evidence_coverage_applicable = required_count > 0
+        evidence_coverage = len(usable) / required_count if evidence_coverage_applicable else None
+
+        active_weights = {"semantic_quality": float(self.weights["semantic_quality"])}
+        if evidence_coverage_applicable:
+            active_weights["evidence_coverage"] = float(self.weights["evidence_coverage"])
+        active_weight_total = sum(active_weights.values())
+        applied_weights = {
+            name: round(weight / active_weight_total, 4) for name, weight in active_weights.items()
+        }
+        applied_weights.setdefault("evidence_coverage", 0.0)
+
+        score = applied_weights["semantic_quality"] * semantic_quality
+        if evidence_coverage is not None:
+            score += applied_weights["evidence_coverage"] * evidence_coverage
         score = round(max(0.0, min(1.0, score)), 4)
 
         incomplete = frame.action == "unknown" or frame.target == "unknown"
@@ -73,13 +85,19 @@ class DecisionService:
         return DecisionResult(
             turn_id=frame.turn_id,
             decision=decision,
+            final_decision=decision,
             safety_score=score,
+            soft_safety_score=score,
             gate_blocked=gate.blocked,
             gate_reasons=gate.reasons,
-            score_factors={
-                "semantic_quality": round(semantic_quality, 4),
-                "evidence_coverage": round(evidence_coverage, 4),
-            },
+            score_factors=DecisionScoreFactors(
+                semantic_quality=round(semantic_quality, 4),
+                evidence_coverage=(
+                    round(evidence_coverage, 4) if evidence_coverage is not None else None
+                ),
+                evidence_coverage_applicable=evidence_coverage_applicable,
+                applied_weights=applied_weights,
+            ),
             explanations=explanations,
             review_question=review_question,
         )
