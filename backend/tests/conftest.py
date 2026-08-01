@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import os
 from pathlib import Path
 
 import pytest
@@ -13,6 +14,15 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from app.core.pipeline import CommandPipeline  # noqa: E402
 from app.main import create_app  # noqa: E402
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Keep pytest temporary files inside the repository without changing TEMP/TMP."""
+    if config.option.basetemp is None:
+        repository_root = BACKEND_ROOT.parent
+        base_temp = repository_root / "tmp" / f"pytest-{os.getpid()}"
+        base_temp.parent.mkdir(parents=True, exist_ok=True)
+        config.option.basetemp = str(base_temp)
 
 
 @pytest.fixture

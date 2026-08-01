@@ -29,7 +29,7 @@ FORBIDDEN_SUFFIXES = {".db", ".db-wal", ".db-shm", ".pyc", ".pyo"}
 
 def _tracked_files() -> list[PurePosixPath]:
     completed = subprocess.run(
-        ["git", "ls-files", "-z"],
+        ["git", "-c", f"safe.directory={PROJECT_ROOT.as_posix()}", "ls-files", "-z"],
         cwd=PROJECT_ROOT,
         check=True,
         capture_output=True,

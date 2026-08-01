@@ -112,18 +112,46 @@ class VoiceTrustResult(StrictModel):
     speaker_zone: str
     speaker_role: str
     la_score: float = Field(ge=0, le=1)
-    pa_score: float = Field(ge=0, le=1)
-    replay_risk: float = Field(ge=0, le=1)
+    pa_raw_score: float | None = Field(
+        default=None,
+        description="官方 PA 模型原始、未校准的 bonafide 方向标量",
+    )
+    pa_score: float = Field(
+        ge=0,
+        le=1,
+        description="sigmoid 映射后的 0～1 归一化真人可信分数，不是校准概率",
+    )
+    replay_risk: float = Field(
+        ge=0,
+        le=1,
+        description="由归一化 PA 分数生成的工程风险值：1 - pa_score",
+    )
     synthetic_risk: float = Field(ge=0, le=1)
     zone_risk: float = Field(ge=0, le=1)
     trust_score: float = Field(ge=0, le=1)
     input_trust_label: str
     audio_fingerprint: str
     spectrum_anomaly_score: float | None = Field(default=None, ge=0, le=1)
-    score_weights: dict[str, float] = Field(default_factory=dict)
-    score_thresholds: dict[str, float] = Field(default_factory=dict)
     model_metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=utc_now)
+
+    @model_validator(mode="before")
+    @classmethod
+    def discard_legacy_research_fields(cls, data: Any) -> Any:
+        """Read older audit rows without re-emitting removed research fields."""
+        if isinstance(data, dict):
+            data = dict(data)
+            for field in (
+                "la_model_score",
+                "pa_model_score",
+                "la_model_status",
+                "pa_model_status",
+                "spectrum_score_applied",
+                "score_weights",
+                "score_thresholds",
+            ):
+                data.pop(field, None)
+        return data
 
 
 class TranscriptionResult(StrictModel):

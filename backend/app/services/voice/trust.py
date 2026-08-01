@@ -38,6 +38,7 @@ class VoiceTrustScorer:
         speaker_zone: str,
         speaker_role: str,
         la_score: float,
+        pa_raw_score: float | None = None,
         pa_score: float,
         audio_fingerprint: str,
         spectrum_anomaly_score: float,
@@ -72,6 +73,9 @@ class VoiceTrustScorer:
             speaker_zone=speaker_zone,
             speaker_role=speaker_role,
             la_score=round(float(la_score), 6),
+            pa_raw_score=(
+                round(float(pa_raw_score), 6) if pa_raw_score is not None else None
+            ),
             pa_score=round(float(pa_score), 6),
             replay_risk=round(float(risk_vec[1]), 6),
             synthetic_risk=round(float(risk_vec[0]), 6),
@@ -80,7 +84,5 @@ class VoiceTrustScorer:
             input_trust_label=label,
             audio_fingerprint=audio_fingerprint,
             spectrum_anomaly_score=round(spectrum_anomaly_score, 6),
-            score_weights=dict(self.weight_map),
-            score_thresholds=dict(self.thresholds),
             model_metadata=metadata,
         )

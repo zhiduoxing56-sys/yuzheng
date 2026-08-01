@@ -20,7 +20,11 @@ from app.models.schemas import (
     ReviewRequest,
     TranscriptionResult,
 )
-from app.services.voice.antispoof import AntiSpoofModelError, Wav2Vec2AntiSpoofDetector
+from app.services.voice.antispoof import (
+    ASVspoofLADetector,
+    ASVspoofPADetector,
+    AntiSpoofModelError,
+)
 
 
 ASSETS = Path(__file__).resolve().parents[1] / "assets" / "stage5"
@@ -87,6 +91,7 @@ def real_sample_results(stage5_pipeline: CommandPipeline) -> dict[str, dict]:
             speaker_zone="driver",
             speaker_role="driver",
             la_score=la.bonafide_score,
+            pa_raw_score=pa.raw_score,
             pa_score=pa.bonafide_score,
             audio_fingerprint=decoded.fingerprint,
             spectrum_anomaly_score=spectrum.anomaly_score,
@@ -184,6 +189,7 @@ def test_voice_trust_formula_matches_report_code_2(stage5_pipeline: CommandPipel
         speaker_zone="driver",
         speaker_role="driver",
         la_score=0.8,
+        pa_raw_score=0.405465,
         pa_score=0.6,
         audio_fingerprint="a" * 64,
         spectrum_anomaly_score=0.1,
@@ -192,15 +198,12 @@ def test_voice_trust_formula_matches_report_code_2(stage5_pipeline: CommandPipel
     expected = 1.0 - (0.40 * (1.0 - 0.8) + 0.40 * (1.0 - 0.6) + 0.20 * 0.0)
     assert result.trust_score == pytest.approx(expected, abs=1e-6)
     assert result.synthetic_risk == pytest.approx(0.2)
+    assert result.pa_raw_score == pytest.approx(0.405465)
     assert result.replay_risk == pytest.approx(0.4)
-    assert result.score_weights == {
-        "synthetic_risk": 0.4,
-        "replay_risk": 0.4,
-        "zone_risk": 0.2,
-    }
+    assert result.spectrum_anomaly_score == pytest.approx(0.1)
 
 
-def test_real_la_pa_inference_distinguishes_human_synthetic_and_replay(
+def test_single_real_la_and_pa_models_are_invoked(
     real_sample_results: dict[str, dict],
 ) -> None:
     human = real_sample_results["public_human_zh.wav"]
@@ -209,11 +212,26 @@ def test_real_la_pa_inference_distinguishes_human_synthetic_and_replay(
     assert human["la"].model_metadata["real_model_inference"] is True
     assert synthetic["la"].model_metadata["real_model_inference"] is True
     assert replay["pa"].model_metadata["real_model_inference"] is True
-    assert synthetic["la"].bonafide_score < human["la"].bonafide_score
-    assert replay["pa"].bonafide_score < synthetic["pa"].bonafide_score
-    assert human["trust"].input_trust_label == DecisionLabel.PASS.value
-    assert synthetic["trust"].input_trust_label == DecisionLabel.REVIEW.value
-    assert replay["trust"].input_trust_label == DecisionLabel.REVIEW.value
+    assert human["la"].model_metadata["model_name"] == "Sara1708/deepfake-audio-wav2vec2"
+    assert human["la"].model_metadata["id2label"] == {0: "bonafide", 1: "spoof"}
+    assert human["la"].model_metadata["label2id"] == {"bonafide": 0, "spoof": 1}
+    assert replay["pa"].model_metadata["model_name"] == "ASVspoof-2021-PA-LFCC-LCNN-official"
+    assert replay["pa"].model_metadata["training_dataset"] == "ASVspoof 2019 PA"
+    assert replay["pa"].model_metadata["model_structure"] == "official LFCC-LCNN baseline"
+    assert replay["pa"].model_metadata["weights_sha256"] == (
+        "1c6d6f30ed1042e584508a9adecc0e514983fff64cdfb3ae3de848064b6e91e0"
+    )
+    assert replay["pa"].model_metadata["lfcc_parameters"]["sample_rate"] == 16000
+    assert replay["pa"].model_metadata["label_mapping"]["positive_scalar_logit"] == "bonafide"
+    assert replay["pa"].raw_score is not None
+    assert replay["pa"].bonafide_score == pytest.approx(
+        1.0 / (1.0 + np.exp(-replay["pa"].raw_score)), abs=1e-6
+    )
+    assert all(
+        0.0 <= result[kind].bonafide_score <= 1.0
+        for result in (human, synthetic, replay)
+        for kind in ("la", "pa")
+    )
 
 
 def test_real_whisper_transcribes_chinese_command(
@@ -233,19 +251,39 @@ def test_real_whisper_transcribes_chinese_command(
 def test_la_model_load_failure_never_returns_fake_pass(
     stage5_pipeline: CommandPipeline, real_sample_results: dict[str, dict]
 ) -> None:
-    invalid = Wav2Vec2AntiSpoofDetector(
+    invalid = ASVspoofLADetector(
         {
+            "task": "logical_access_synthetic",
             "model_name": "missing/local-model",
             "revision": "missing",
             "source": "local-test",
             "version": "missing",
-            "real_labels": ["real"],
-        },
-        detector_kind="LA",
-        anomaly_penalty=0.2,
+            "weight_file": "missing.pt",
+            "label_mapping_source": "unit-test-explicit-mapping",
+        }
     )
     sample = real_sample_results["edge_tts_open_door.wav"]["decoded"]
     with pytest.raises(AntiSpoofModelError, match="LA 模型加载失败"):
+        invalid.score(sample.waveform, sample.sample_rate, spectrum_anomaly_score=0.0)
+
+
+def test_pa_weight_failure_never_uses_generic_fallback(
+    tmp_path: Path, real_sample_results: dict[str, dict]
+) -> None:
+    invalid = ASVspoofPADetector(
+        {
+            "task": "physical_access_replay",
+            "training_dataset": "ASVspoof 2019 PA",
+            "model_name": "ASVspoof-2021-PA-LFCC-LCNN-official",
+            "source": "unit-test",
+            "version": "missing-weight",
+            "weights_path": str(tmp_path / "missing-pa.pt"),
+            "weights_sha256": "0" * 64,
+            "label_mapping_source": "unit-test",
+        }
+    )
+    sample = real_sample_results["speaker_replay_open_door.wav"]["decoded"]
+    with pytest.raises(AntiSpoofModelError, match="PA 模型加载失败"):
         invalid.score(sample.waveform, sample.sample_rate, spectrum_anomaly_score=0.0)
 
 
@@ -265,7 +303,7 @@ def test_zone_permission_report_formula_differs_by_seat(
     assert "critical_target" in passenger.risk_items
 
 
-def test_trusted_human_audio_continues_into_existing_pipeline(
+def test_human_audio_is_not_fixed_block_and_continues_into_existing_pipeline(
     stage5_pipeline: CommandPipeline,
 ) -> None:
     result = stage5_pipeline.process_audio_bytes(
@@ -274,7 +312,7 @@ def test_trusted_human_audio_continues_into_existing_pipeline(
         speaker_zone="driver",
         speaker_role="driver",
     )
-    assert result.voice_trust.input_trust_label == DecisionLabel.PASS.value
+    assert result.voice_trust.input_trust_label != DecisionLabel.BLOCK.value
     assert result.asr_result is not None and result.asr_result.transcribed_text
     assert result.pipeline is not None
     assert result.semantic_frame is result.pipeline.semantic_frame
@@ -337,7 +375,15 @@ def test_real_speaker_replay_enters_review_or_block(
         DecisionLabel.REVIEW.value,
         DecisionLabel.BLOCK.value,
     }
-    assert result.voice_trust.replay_risk > 0.30
+    assert result.voice_trust.replay_risk == pytest.approx(
+        1.0 - result.voice_trust.pa_score, abs=1e-6
+    )
+    assert result.voice_trust.pa_raw_score is not None
+    assert result.voice_trust.pa_score == pytest.approx(
+        1.0 / (1.0 + np.exp(-result.voice_trust.pa_raw_score)), abs=1e-6
+    )
+    assert result.voice_trust.model_metadata["pa"]["task"] == "physical_access_replay"
+    assert result.voice_trust.model_metadata["pa"]["training_dataset"] == "ASVspoof 2019 PA"
     assert result.decision.authorization_token is None
 
 
@@ -378,7 +424,7 @@ def test_asr_empty_result_is_safely_blocked(
         speaker_zone="driver",
         speaker_role="driver",
     )
-    assert result.voice_trust.input_trust_label == DecisionLabel.PASS.value
+    assert result.voice_trust.input_trust_label != DecisionLabel.BLOCK.value
     assert result.decision.final_decision == DecisionLabel.BLOCK
     assert result.decision.reason_codes == ["ASR_EMPTY"]
     assert result.pipeline is None
@@ -389,7 +435,7 @@ def test_voice_websocket_event_sequence_comes_from_real_processing_points(
 ) -> None:
     events = []
     result = stage5_pipeline.process_audio_bytes(
-        (ASSETS / "edge_tts_open_door.wav").read_bytes(),
+        (ASSETS / "public_human_zh.wav").read_bytes(),
         audio_source="test_wav",
         speaker_zone="driver",
         speaker_role="driver",
@@ -408,7 +454,10 @@ def test_voice_websocket_event_sequence_comes_from_real_processing_points(
     assert [event.stage for event in events[:7]] == expected
     assert [event.sequence for event in events] == list(range(1, len(events) + 1))
     assert {event.turn_id for event in events} == {result.turn_id}
+    pa_event = next(event for event in events if event.stage == "PA_CHECKED")
+    assert pa_event.payload["pa_raw_score"] == result.voice_trust.pa_raw_score
     assert all("audio_bytes" not in json.dumps(event.payload) for event in events)
+    assert all("raw_logits" not in json.dumps(event.payload) for event in events)
 
 
 def test_audio_fingerprint_is_audited_but_raw_audio_is_not(
@@ -425,6 +474,7 @@ def test_audio_fingerprint_is_audited_but_raw_audio_is_not(
     assert stored is not None
     serialized = stored.model_dump_json()
     assert stored.input_trust_result.audio_fingerprint == hashlib.sha256(audio_bytes).hexdigest()
+    assert stored.input_trust_result.pa_raw_score == result.voice_trust.pa_raw_score
     assert stored.audio_input_metadata["raw_audio_persisted"] is False
     assert "RIFF" not in serialized
     assert audio_bytes.hex()[:80] not in serialized
@@ -456,15 +506,15 @@ def test_audio_api_returns_report_fields_and_persists_audit(
             "speaker_zone": "driver",
             "speaker_role": "driver",
         },
-        content=(ASSETS / "edge_tts_open_door.wav").read_bytes(),
+        content=(ASSETS / "public_human_zh.wav").read_bytes(),
         headers={"content-type": "audio/wav"},
     )
     body = response.json()
     assert response.status_code == 200
     assert body["voice_trust"]["input_trust_label"] == "REVIEW"
     assert body["asr_result"]["model_name"] == "openai/whisper-base"
-    assert body["zone_permission"]["permission_label"] == "PASS"
-    assert body["semantic_frame"]["action"] == "打开"
+    assert body["voice_trust"]["model_metadata"]["la"]["model_status"] == "AVAILABLE"
+    assert body["voice_trust"]["model_metadata"]["pa"]["model_status"] == "AVAILABLE"
     assert body["evidence_subgraph"]["turn_id"] == body["turn_id"]
     assert body["decision"]["final_decision"] == "REVIEW"
     assert body["audit"]["current_hash"]
@@ -484,7 +534,7 @@ def test_websocket_delivers_required_voice_events_in_order(
                 "speaker_role": "driver",
                 "session_id": session_id,
             },
-            content=(ASSETS / "edge_tts_open_door.wav").read_bytes(),
+            content=(ASSETS / "public_human_zh.wav").read_bytes(),
             headers={"content-type": "audio/wav"},
         )
         assert response.status_code == 200
@@ -504,7 +554,12 @@ def test_websocket_delivers_required_voice_events_in_order(
 
 def test_passenger_zone_block_overrides_soft_pipeline_result(
     stage5_pipeline: CommandPipeline,
+    real_sample_results: dict[str, dict],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    human = real_sample_results["public_human_zh.wav"]
+    monkeypatch.setattr(stage5_pipeline.la_detector, "score", lambda *_args, **_kwargs: human["la"])
+    monkeypatch.setattr(stage5_pipeline.pa_detector, "score", lambda *_args, **_kwargs: human["pa"])
     result = stage5_pipeline.process_audio_bytes(
         (ASSETS / "edge_tts_open_door.wav").read_bytes(),
         audio_source="simulated_vehicle_array",

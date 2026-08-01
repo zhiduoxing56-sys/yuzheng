@@ -65,7 +65,7 @@ from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 from app.services.asr.whisper import ASRModelError, WhisperASRService
-from app.services.voice.antispoof import Wav2Vec2AntiSpoofDetector
+from app.services.voice.antispoof import ASVspoofLADetector, ASVspoofPADetector
 from app.services.voice.audio import AudioInputService, DecodedAudio
 from app.services.voice.spectrum import SpectrumAnalyzer
 from app.services.voice.trust import VoiceTrustScorer
@@ -99,20 +99,8 @@ class CommandPipeline:
         self.voice_config = load_yaml("voice.yaml")
         self.audio_input_service = AudioInputService(self.voice_config["audio"])
         self.spectrum_analyzer = SpectrumAnalyzer(self.voice_config["spectrum"])
-        anomaly_penalty = float(
-            self.voice_config["spectrum"].get("model_score_anomaly_penalty", 0.20)
-        )
-        self.la_detector = Wav2Vec2AntiSpoofDetector(
-            self.voice_config["la"],
-            detector_kind="LA",
-            anomaly_penalty=anomaly_penalty,
-            spectrum_auxiliary=self.voice_config["spectrum"].get("la_auxiliary"),
-        )
-        self.pa_detector = Wav2Vec2AntiSpoofDetector(
-            self.voice_config["pa"],
-            detector_kind="PA",
-            anomaly_penalty=anomaly_penalty,
-        )
+        self.la_detector = ASVspoofLADetector(self.voice_config["la"])
+        self.pa_detector = ASVspoofPADetector(self.voice_config["pa"])
         self.voice_trust_scorer = VoiceTrustScorer(self.voice_config["trust"])
         self.zone_permission_service = ZonePermissionService(
             self.voice_config["zone_permission"]
@@ -534,8 +522,13 @@ class CommandPipeline:
             "LA 合成音检测完成",
             {
                 "la_score": la.bonafide_score,
+                "model_status": la.model_status,
                 "inference_duration": la.inference_duration,
-                "model": la.model_metadata,
+                "model": {
+                    "name": la.model_metadata["model_name"],
+                    "task": la.model_metadata["task"],
+                    "status": la.model_status,
+                },
             },
         )
         pa = self.pa_detector.score(
@@ -547,9 +540,15 @@ class CommandPipeline:
             "PA_CHECKED",
             "PA 重放攻击检测完成",
             {
+                "pa_raw_score": pa.raw_score,
                 "pa_score": pa.bonafide_score,
+                "model_status": pa.model_status,
                 "inference_duration": pa.inference_duration,
-                "model": pa.model_metadata,
+                "model": {
+                    "name": pa.model_metadata["model_name"],
+                    "task": pa.model_metadata["task"],
+                    "status": pa.model_status,
+                },
             },
         )
         trust = self.voice_trust_scorer.score(
@@ -558,6 +557,7 @@ class CommandPipeline:
             speaker_zone=decoded.speaker_zone,
             speaker_role=speaker_role,
             la_score=la.bonafide_score,
+            pa_raw_score=pa.raw_score,
             pa_score=pa.bonafide_score,
             audio_fingerprint=decoded.fingerprint,
             spectrum_anomaly_score=spectrum.anomaly_score,
@@ -567,7 +567,19 @@ class CommandPipeline:
         emit(
             "VOICE_TRUST_DECIDED",
             "报告公式的语音可信评分完成",
-            trust.model_dump(mode="json"),
+            {
+                "la_score": trust.la_score,
+                "pa_raw_score": trust.pa_raw_score,
+                "pa_score": trust.pa_score,
+                "synthetic_risk": trust.synthetic_risk,
+                "replay_risk": trust.replay_risk,
+                "zone_risk": trust.zone_risk,
+                "trust_score": trust.trust_score,
+                "input_trust_label": trust.input_trust_label,
+                "la_model_status": la.model_status,
+                "pa_model_status": pa.model_status,
+                "spectrum_anomaly_score": trust.spectrum_anomaly_score,
+            },
         )
         if trust.input_trust_label == DecisionLabel.BLOCK.value:
             transcription = TranscriptionResult(
