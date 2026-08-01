@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -166,6 +166,11 @@ class RetrievalMetadata(StrictModel):
     ef_search: int = Field(gt=0)
     top_k: int = Field(gt=0)
     candidate_count: int = Field(ge=0)
+    canonical_node_count: int = Field(default=0, ge=0)
+    ephemeral_node_count: int = Field(default=0, ge=0)
+    index_update_count: int = Field(default=0, ge=0)
+    index_rebuild_count: int = Field(default=0, ge=0)
+    deduplicated_count: int = Field(default=0, ge=0)
     duration_ms: float = Field(ge=0)
     empty_index: bool
     degraded: bool
@@ -267,6 +272,9 @@ class MemoryLink(StrictModel):
     layer: str
     reason: str
     conflict: bool = False
+    support_adjustment: float = 0.0
+    risk_adjustment: float = 0.0
+    final_adjustment: float = 0.0
 
 
 class MemoryPropagationResult(StrictModel):
@@ -296,6 +304,7 @@ class CausalCorrectionResult(StrictModel):
     causal_graph: dict[str, Any] = Field(default_factory=dict)
     candidate_edges: list[CausalEdge] = Field(default_factory=list)
     pruned_edges: list[CausalEdge] = Field(default_factory=list)
+    removed_edges: list[CausalEdge] = Field(default_factory=list)
     semantic_prior: dict[str, float] = Field(default_factory=dict)
     historical_support: dict[str, float] = Field(default_factory=dict)
     posterior_weights: dict[str, float] = Field(default_factory=dict)
@@ -307,6 +316,8 @@ class CausalCorrectionResult(StrictModel):
     learning_record_ids: list[str] = Field(default_factory=list)
     excluded_record_count: int = Field(default=0, ge=0)
     advanced_reasoning_applied: bool = True
+    feature_cutoff: Literal["pre_decision"] = "pre_decision"
+    used_features: list[str] = Field(default_factory=list)
     duration_ms: float = Field(default=0, ge=0)
 
 
@@ -421,6 +432,7 @@ class DecisionResult(StrictModel):
     soft_safety_score: float = Field(ge=0, le=1)
     gate_blocked: bool
     gate_reasons: list[str] = Field(default_factory=list)
+    score_evaluation_mode: Literal["normal", "diagnostic_after_gate"] = "normal"
     score_factors: DecisionScoreFactors
     explanations: list[str] = Field(default_factory=list)
     review_question: str | None = None
@@ -484,6 +496,7 @@ class VehicleState(StrictModel):
     ultrasonic_distance: float | None = Field(default=5, ge=0)
     surround_camera_state: str | None = "AVAILABLE"
     emergency_flag: bool | None = False
+    collision_state: str | bool | None = "NONE"
     safety_constraint: str | None = "ENABLED"
     updated_at: datetime = Field(default_factory=utc_now)
 
@@ -512,6 +525,7 @@ class VehicleStatePatch(StrictModel):
     ultrasonic_distance: float | None = Field(default=None, ge=0)
     surround_camera_state: str | None = None
     emergency_flag: bool | None = None
+    collision_state: str | bool | None = None
     safety_constraint: str | None = None
 
 
@@ -569,6 +583,7 @@ class AuditRecord(StrictModel):
     vertical_propagation: list[MemoryLink] = Field(default_factory=list)
     causal_candidate_edges: list[CausalEdge] = Field(default_factory=list)
     causal_pruned_edges: list[CausalEdge] = Field(default_factory=list)
+    causal_removed_edges: list[CausalEdge] = Field(default_factory=list)
     causal_posterior: dict[str, float] = Field(default_factory=dict)
     causal_entropy: float | None = Field(default=None, ge=0, le=1)
     decision_confidence: float | None = Field(default=None, ge=0, le=1)
@@ -636,6 +651,11 @@ class IndexStatus(StrictModel):
     ef_construction: int = Field(gt=0)
     ef_search: int = Field(gt=0)
     top_k: int = Field(gt=0)
+    canonical_node_count: int = Field(default=0, ge=0)
+    ephemeral_node_count: int = Field(default=0, ge=0)
+    index_update_count: int = Field(default=0, ge=0)
+    index_rebuild_count: int = Field(default=0, ge=0)
+    deduplicated_count: int = Field(default=0, ge=0)
     degraded: bool
     degradation_reason: str | None = None
     excluded_types: list[str] = Field(default_factory=list)
@@ -655,6 +675,7 @@ class CausalStatus(StrictModel):
     excluded_record_count: int = Field(default=0, ge=0)
     candidate_edge_count: int = Field(default=0, ge=0)
     pruned_edge_count: int = Field(default=0, ge=0)
+    removed_edge_count: int = Field(default=0, ge=0)
     graph_node_count: int = Field(default=0, ge=0)
     graph_edge_count: int = Field(default=0, ge=0)
     last_rebuilt_at: datetime | None = None

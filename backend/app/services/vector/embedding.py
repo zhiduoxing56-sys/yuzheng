@@ -4,6 +4,7 @@ import hashlib
 import math
 from functools import lru_cache
 from threading import RLock
+from time import perf_counter
 from typing import Any, Protocol
 
 import numpy as np
@@ -17,6 +18,7 @@ class EmbeddingService(Protocol):
     model_name: str
     real_model_inference: bool
     degradation_reason: str | None
+    model_load_ms: float
 
     def encode(self, text: str) -> tuple[list[float], VectorizationMetadata]: ...
 
@@ -37,6 +39,7 @@ class DeterministicHashEmbeddingService:
     def __init__(self, dimension: int = 768, degradation_reason: str | None = None) -> None:
         self.dimension = dimension
         self.degradation_reason = degradation_reason
+        self.model_load_ms = 0.0
 
     def encode(self, text: str) -> tuple[list[float], VectorizationMetadata]:
         normalized_text = " ".join(text.strip().lower().split())
@@ -74,6 +77,7 @@ class LocalSentenceTransformerEmbeddingService:
     real_model_inference = True
 
     def __init__(self, model_name: str, dimension: int) -> None:
+        started = perf_counter()
         from sentence_transformers import SentenceTransformer
 
         self._model = SentenceTransformer(model_name, local_files_only=True)
@@ -93,6 +97,7 @@ class LocalSentenceTransformerEmbeddingService:
         self._cache_hits = 0
         self._cache_misses = 0
         self._cache_lock = RLock()
+        self.model_load_ms = round((perf_counter() - started) * 1000, 4)
 
     @lru_cache(maxsize=4096)
     def _encode_cached(

@@ -34,7 +34,8 @@ def test_text_api_returns_pipeline_data_and_persists_audit(api_client) -> None:
     assert body["safety_gate"]["mandatory_evidence_missing"] is False
     assert body["decision"]["decision"] == DecisionLabel.BLOCK.value
     assert body["decision"]["final_decision"] == DecisionLabel.BLOCK.value
-    assert body["decision"]["soft_safety_score"] == 1.0
+    assert body["decision"]["soft_safety_score"] == 0.975
+    assert body["decision"]["score_evaluation_mode"] == "diagnostic_after_gate"
     assert body["decision"]["gate_blocked"] is True
     assert body["decision"]["gate_reasons"] == ["行驶中禁止打开车门"]
     assert body["audit"]["current_hash"]

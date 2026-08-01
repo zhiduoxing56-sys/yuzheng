@@ -28,13 +28,13 @@ class DecisionService:
         self.trust_mapping = {
             key: float(value) for key, value in config["evidence_trust_mapping"].items()
         }
-        self.necessity = {
-            key: float(value) for key, value in config["safety_necessity_by_risk"].items()
-        }
+        self.necessity = config["necessity_evidence"]
         if abs(sum(self.weights.values()) - 1.0) > 1e-9:
             raise ValueError("五维评分权重之和必须为 1")
-        if self.weights["Cnec"] > self.weights["Cjb"] / 5 + 1e-9:
-            raise ValueError("Cnec 权重不得超过 Cjb 权重的五分之一")
+        if self.weights["Cnec"] > 0.025 + 1e-9:
+            raise ValueError("Cnec 权重不得超过 0.025")
+        if self.weights["Cnec"] > self.weights["Cjb"] * 0.1 + 1e-9:
+            raise ValueError("Cnec 权重不得超过 Cjb 权重的十分之一")
 
     @staticmethod
     def _clamp(value: float) -> float:
@@ -71,6 +71,83 @@ class DecisionService:
             reason = "历史不足，使用校验状态可信度均值"
         return self._clamp(value), True, reason
 
+    @staticmethod
+    def _truthy(value: Any) -> bool:
+        if isinstance(value, bool):
+            return value
+        return str(value).upper() in {"TRUE", "1", "YES", "ACTIVE", "DETECTED"}
+
+    def _necessity_score(
+        self, frame: SemanticFrame, evidence: list[EvidenceNode]
+    ) -> tuple[float, str]:
+        latest: dict[str, EvidenceNode] = {}
+        for node in evidence:
+            current = latest.get(node.evidence_type)
+            if current is None or (node.timestamp, node.node_id) > (
+                current.timestamp,
+                current.node_id,
+            ):
+                latest[node.evidence_type] = node
+
+        emergency_node = latest.get("emergency_flag")
+        emergency_score = (
+            float(self.necessity.get("emergency_flag_score", 1.0))
+            if emergency_node is not None and self._truthy(emergency_node.value)
+            else 0.0
+        )
+        collision_node = latest.get("collision_state")
+        collision_states = {
+            str(value).upper() for value in self.necessity.get("collision_states", [])
+        }
+        collision_supported = collision_node is not None and (
+            self._truthy(collision_node.value)
+            or str(collision_node.value).upper() in collision_states
+        )
+        if collision_supported:
+            emergency_score = max(
+                emergency_score,
+                float(self.necessity.get("collision_state_score", 1.0)),
+            )
+
+        action_key = f"{frame.action}|{frame.target}"
+        critical_actions = self.necessity.get("safety_critical_actions", {})
+        action_cap = float(critical_actions.get(action_key, 0.0))
+        safety_evidence_score = 0.0
+        evidence_reasons: list[str] = []
+        if action_cap > 0:
+            obstacle = latest.get("front_obstacle_distance")
+            threshold = float(self.necessity.get("front_obstacle_threshold_m", 5.0))
+            if (
+                obstacle is not None
+                and isinstance(obstacle.value, (int, float))
+                and obstacle.value <= threshold
+            ):
+                safety_evidence_score = max(
+                    safety_evidence_score,
+                    float(self.necessity.get("front_obstacle_score", 0.9)),
+                )
+                evidence_reasons.append("前方障碍距离达到制动必要性阈值")
+            brake = latest.get("brake_state")
+            required_states = {
+                str(value).upper()
+                for value in self.necessity.get("brake_required_states", [])
+            }
+            if brake is not None and str(brake.value).upper() in required_states:
+                safety_evidence_score = max(
+                    safety_evidence_score,
+                    float(self.necessity.get("brake_required_score", 0.9)),
+                )
+                evidence_reasons.append("制动状态表明存在安全必要性")
+        safety_critical_score = action_cap * safety_evidence_score
+        score = self._clamp(max(emergency_score, safety_critical_score))
+        reasons = []
+        if emergency_score > 0:
+            reasons.append("真实紧急或碰撞证据支持")
+        reasons.extend(evidence_reasons)
+        if not reasons:
+            reasons.append("没有真实紧急、碰撞、障碍或制动必要性证据")
+        return score, "；".join(reasons)
+
     def decide(
         self,
         frame: SemanticFrame,
@@ -94,13 +171,7 @@ class DecisionService:
         ccov = len(covered) / required_count if required_count else None
         ctrust, trust_applicable, trust_reason = self._trust(evidence, causal)
         cjb = self._clamp(1.0 - validation.jailbreak_risk)
-        emergency_supported = any(
-            node.evidence_type == "emergency_flag" and bool(node.value)
-            for node in evidence
-        )
-        safety_necessity = self.necessity.get(frame.risk_level, 0.2)
-        emergency_necessity = 1.0 if emergency_supported else 0.0
-        cnec = max(safety_necessity, emergency_necessity)
+        cnec, necessity_reason = self._necessity_score(frame, evidence)
 
         values: dict[str, tuple[float | None, bool, str]] = {
             "Csem": (csem, True, "语义置信度经歧义惩罚"),
@@ -110,7 +181,7 @@ class DecisionService:
             "Cnec": (
                 cnec,
                 True,
-                "取真实紧急证据与动作安全必要性的较大值；紧急措辞不计入",
+                f"Cnec=max(emergency_score,safety_critical_score)：{necessity_reason}；紧急措辞不计入",
             ),
         }
         if incomplete:
@@ -154,6 +225,7 @@ class DecisionService:
             decision = DecisionLabel.BLOCK
             explanations.extend(gate.reasons)
             explanations.append("硬性安全门优先于五维软评分，其他证据不能抵消风险")
+            explanations.append("软评分仅作为硬规则阻断后的诊断评分，不参与最终裁决")
         elif incomplete:
             decision = DecisionLabel.REVIEW
             missing_slot = (
@@ -196,6 +268,7 @@ class DecisionService:
             soft_safety_score=score,
             gate_blocked=gate.blocked,
             gate_reasons=gate.reasons,
+            score_evaluation_mode=("diagnostic_after_gate" if gate.blocked else "normal"),
             score_factors=DecisionScoreFactors(
                 semantic_quality=round(csem, 4),
                 evidence_coverage=round(ccov, 4) if ccov is not None else None,

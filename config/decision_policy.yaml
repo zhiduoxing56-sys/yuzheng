@@ -6,11 +6,11 @@ thresholds:
   review: 0.50
 
 five_factor_weights:
-  Csem: 0.20
-  Ccov: 0.25
-  Ctrust: 0.25
-  Cjb: 0.25
-  Cnec: 0.05
+  Csem: 0.210
+  Ccov: 0.255
+  Ctrust: 0.255
+  Cjb: 0.255
+  Cnec: 0.025
 
 evidence_trust_mapping:
   VALID: 1.0
@@ -19,7 +19,14 @@ evidence_trust_mapping:
   TAMPERED: 0.0
   MISSING: 0.0
 
-safety_necessity_by_risk:
-  R3: 1.0
-  R2: 0.6
-  R1: 0.2
+necessity_evidence:
+  emergency_flag_score: 1.0
+  collision_state_score: 1.0
+  collision_states: [COLLISION, IMMINENT, DETECTED, TRUE]
+  front_obstacle_threshold_m: 5.0
+  front_obstacle_score: 0.9
+  brake_required_states: [REQUIRED, EMERGENCY, ACTIVE]
+  brake_required_score: 0.9
+  safety_critical_actions:
+    打开|制动: 1.0
+    减速|速度: 0.8

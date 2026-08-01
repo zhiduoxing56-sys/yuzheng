@@ -34,6 +34,7 @@ class CausalCorrectionService:
         self._records: list[AuditRecord] = []
         self._candidate_edges: list[CausalEdge] = []
         self._pruned_edges: list[CausalEdge] = []
+        self._removed_edges: list[CausalEdge] = []
         self._last_rebuilt_at = None
         self._excluded_count = 0
 
@@ -83,16 +84,10 @@ class CausalCorrectionService:
             )
             for (source, target, relation), count in sorted(edge_counts.items())
         ]
-        graph = nx.DiGraph()
-        pruned: list[CausalEdge] = []
-        for edge in candidates:
-            graph.add_edge(edge.source, edge.target)
-            if nx.is_directed_acyclic_graph(graph):
-                pruned.append(edge)
-            else:
-                graph.remove_edge(edge.source, edge.target)
+        pruned, removed = self.prune_candidate_edges(candidates)
         self._candidate_edges = candidates
         self._pruned_edges = pruned
+        self._removed_edges = removed
         self._last_rebuilt_at = utc_now()
         return self.status()
 
@@ -107,6 +102,7 @@ class CausalCorrectionService:
             excluded_record_count=self._excluded_count,
             candidate_edge_count=len(self._candidate_edges),
             pruned_edge_count=len(self._pruned_edges),
+            removed_edge_count=len(self._removed_edges),
             graph_node_count=len(nodes),
             graph_edge_count=len(self._pruned_edges),
             last_rebuilt_at=self._last_rebuilt_at,
@@ -114,6 +110,41 @@ class CausalCorrectionService:
                 "sufficient" if len(self._records) >= self.sufficient_count else "insufficient"
             ),
         )
+
+    @staticmethod
+    def prune_candidate_edges(
+        edges: list[CausalEdge],
+    ) -> tuple[list[CausalEdge], list[CausalEdge]]:
+        """Deterministically remove edges that would introduce a directed cycle."""
+        graph = nx.DiGraph()
+        kept: list[CausalEdge] = []
+        removed: list[CausalEdge] = []
+        for edge in sorted(
+            edges,
+            key=lambda item: (
+                item.source,
+                item.target,
+                item.relation,
+                -item.support,
+                -item.sample_count,
+            ),
+        ):
+            graph.add_edge(edge.source, edge.target)
+            if nx.is_directed_acyclic_graph(graph):
+                kept.append(edge)
+                continue
+            graph.remove_edge(edge.source, edge.target)
+            removed.append(
+                edge.model_copy(
+                    update={
+                        "reason": (
+                            f"removed to preserve DAG: adding {edge.source}->{edge.target} "
+                            "would create a directed cycle"
+                        )
+                    }
+                )
+            )
+        return kept, removed
 
     @staticmethod
     def _rounded_distribution(values: dict[str, float]) -> dict[str, float]:
@@ -147,6 +178,20 @@ class CausalCorrectionService:
                 latest[node.evidence_type] = node
             current_nodes = [latest[key] for key in sorted(latest)]
             keys = [node.node_id for node in current_nodes]
+
+        used_features = [
+            f"semantic.action={frame.action}",
+            f"semantic.target={frame.target}",
+            f"semantic.risk_level={frame.risk_level}",
+        ]
+        used_features.extend(
+            f"evidence.{node.evidence_type}.status={node.quality_label.value}"
+            for node in current_nodes
+        )
+        used_features.extend(
+            f"memory.pre_decision_weight.{node.evidence_type}={memory.post_weights.get(node.node_id, 0.5):.6f}"
+            for node in current_nodes
+        )
 
         risk_prior = self.risk_priors.get(frame.risk_level, 0.75)
         raw_priors: dict[str, float] = {}
@@ -207,10 +252,12 @@ class CausalCorrectionService:
             causal_graph={
                 "nodes": graph_nodes,
                 "edges": [edge.model_dump(mode="json") for edge in self._pruned_edges],
+                "removed_edges": [edge.model_dump(mode="json") for edge in self._removed_edges],
                 "acyclic": True,
             },
             candidate_edges=self._candidate_edges,
             pruned_edges=self._pruned_edges,
+            removed_edges=self._removed_edges,
             semantic_prior=serialized_prior,
             historical_support={key: round(value, 8) for key, value in historical.items()},
             posterior_weights=serialized_posterior,
@@ -224,5 +271,7 @@ class CausalCorrectionService:
             learning_record_ids=[record.audit_id for record in self._records],
             excluded_record_count=self._excluded_count,
             advanced_reasoning_applied=True,
+            feature_cutoff="pre_decision",
+            used_features=used_features,
             duration_ms=round(duration_ms, 4),
         )

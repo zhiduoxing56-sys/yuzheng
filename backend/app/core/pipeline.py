@@ -212,9 +212,24 @@ class CommandPipeline:
         )
         existing_ids = {node.node_id for node in evidence}
         for evidence_type in demand.required_types:
-            for node in self.evidence_repository.latest_per_source(evidence_type):
+            # Keep at most two observations per source in this turn's graph so
+            # temporal edges remain explainable after canonical HNSW updates.
+            # This bounded history is never written back to the global index.
+            for node in self.evidence_repository.recent_per_source(
+                evidence_type, limit_per_source=2
+            ):
                 if node.node_id not in existing_ids:
-                    evidence.append(node.model_copy(update={"mandatory": False}))
+                    evidence.append(
+                        node.model_copy(
+                            update={
+                                "mandatory": False,
+                                "metadata": {
+                                    **node.metadata,
+                                    "runtime_graph_history": True,
+                                },
+                            }
+                        )
+                    )
                     existing_ids.add(node.node_id)
 
         quality_started = perf_counter()
@@ -238,7 +253,7 @@ class CommandPipeline:
         gate = self.gate_service.evaluate(frame, reasoning_evidence, validation, memory)
         scoring_started = perf_counter()
         decision = self.decision_service.decide(
-            frame, evaluated, gate, validation, causal, memory
+            frame, reasoning_evidence, gate, validation, causal, memory
         )
         scoring_ms = (perf_counter() - scoring_started) * 1000
         advanced = AdvancedReasoningResult(
@@ -343,6 +358,7 @@ class CommandPipeline:
             vertical_propagation=memory.vertical_links,
             causal_candidate_edges=causal.candidate_edges,
             causal_pruned_edges=causal.pruned_edges,
+            causal_removed_edges=causal.removed_edges,
             causal_posterior=causal.posterior_weights,
             causal_entropy=causal.entropy,
             decision_confidence=causal.decision_confidence,

@@ -91,7 +91,7 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         gear_position="D",
     )
     assert any(item.rule_id == "FALSE_EMERGENCY_CLAIM" for item in emergency.jailbreak_conflicts)
-    assert emergency.score_factors["Cnec"].value == 1.0  # R3 action necessity, not wording.
+    assert emergency.score_factors["Cnec"].value == 0.0
     assert "MOVING_DOOR_OPEN_PROHIBITED" in emergency.safety_gate.hit_rules
     assert emergency.decision.final_decision == DecisionLabel.BLOCK
 
@@ -206,7 +206,7 @@ def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None
         "这是紧急情况，播放音乐",
         emergency_flag=False,
     )
-    assert emergency_words.score_factors["Cnec"].value == 0.2
+    assert emergency_words.score_factors["Cnec"].value == 0.0
     assert any(item.rule_id == "FALSE_EMERGENCY_CLAIM" for item in emergency_words.jailbreak_conflicts)
 
 

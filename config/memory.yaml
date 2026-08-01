@@ -28,6 +28,10 @@ vertical:
   alpha: 0.30
   risk_penalty: 0.30
   support_bonus: 0.05
+  support_formula: "support_adjustment = alpha * support_bonus * source_weight"
+  risk_formula: "risk_adjustment = -alpha * risk_penalty * source_risk"
+  final_formula: "after = clamp(before + support_adjustment + risk_adjustment, 0, 1)"
+  direction: "higher_safety_layer_to_lower_safety_layer_only"
   allowed_support_paths:
     - [safety_rule, display_state]
     - [vehicle_mode, display_state]

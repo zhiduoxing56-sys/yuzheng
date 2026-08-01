@@ -8,7 +8,7 @@ import pytest
 from app.core.config import load_yaml
 from app.models.schemas import VehicleState
 from app.services.evidence.repository import EvidenceRepository
-from app.services.index.hnsw import HNSWIndexService
+from app.services.index.hnsw import HNSWIndexService, evidence_key
 from app.services.vector import embedding as embedding_module
 from app.services.vector.embedding import DeterministicHashEmbeddingService, build_embedding_service
 
@@ -136,5 +136,5 @@ def test_index_build_search_empty_fallback_and_status(monkeypatch) -> None:
     assert all(0 <= similarity <= 1 for _, similarity in results)
     assert metadata.empty_index is False
     assert metadata.candidate_count == 2
-    expected = max(0.0, sum(a * b for a, b in zip(query, index._vectors[results[0][0].node_id])))
+    expected = max(0.0, sum(a * b for a, b in zip(query, index._vectors[evidence_key(results[0][0])])))
     assert results[0][1] == pytest.approx(expected, abs=1e-6)

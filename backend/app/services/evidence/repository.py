@@ -30,6 +30,7 @@ LAYER_BY_TYPE = {
     "front_obstacle_distance": "L3_EMERGENCY",
     "rear_obstacle_distance": "L3_EMERGENCY",
     "ultrasonic_distance": "L3_EMERGENCY",
+    "collision_state": "L3_EMERGENCY",
     "vehicle_speed": "L2_DRIVING",
     "gear_position": "L2_DRIVING",
     "vehicle_mode": "L2_DRIVING",
@@ -275,6 +276,27 @@ class EvidenceRepository:
         for node in self.latest_observations(evidence_type):
             latest.setdefault(node.source, node)
         return list(latest.values())
+
+    def recent_per_source(
+        self, evidence_type: str, *, limit_per_source: int = 2
+    ) -> list[EvidenceNode]:
+        """Return bounded source history for the runtime graph only.
+
+        These nodes already exist in the evidence repository.  The caller must
+        not upsert this historical view into the global semantic index.
+        """
+        if limit_per_source < 1:
+            return []
+        grouped: dict[str, list[EvidenceNode]] = {}
+        for node in self.latest_observations(evidence_type):
+            source_nodes = grouped.setdefault(node.source, [])
+            if len(source_nodes) < limit_per_source:
+                source_nodes.append(node)
+        return [
+            node
+            for source in sorted(grouped)
+            for node in grouped[source]
+        ]
 
     def latest_usable(self, evidence_type: str) -> EvidenceNode | None:
         observations = self.latest_observations(evidence_type)

@@ -25,7 +25,8 @@ python -m pip install -r backend\requirements-optional.txt
 文本 → SemanticFrame → EvidenceDemand/768维向量
      → 语义候选检索 → 强制覆盖检查/补召/MISSING
      → ECR/ECS/EF/SAS/EAS → 运行时证据子图
-     → 阶段一硬门 → PASS/REVIEW/BLOCK → SQLite 哈希链
+     → 双重记忆/因果修正/声明对齐 → 完整硬门/五维评分
+     → PASS/REVIEW/BLOCK → SQLite 哈希链
 ```
 
 证据仓库维护车辆状态历史、环境、乘员身份与权限、系统模式、传感器健康和安全规则。运行时图直接由本轮真实证据构建，支持 `REQUIRES`、`SUPPORTS`、`RULE_CONSTRAINED`、`PERMISSION_BOUND`、`CONFLICTS`、`TEMPORAL` 和 `DERIVED_FROM` 边，不返回固定演示图。
@@ -53,8 +54,8 @@ python -m pip install -r backend\requirements-optional.txt
 ## 测试
 
 ```powershell
-python -m compileall -q backend\app backend\tests
-python -m pytest -v --durations=30
+D:\software\anaconda\envs\yuzheng311\python.exe -m compileall -q backend\app backend\tests
+D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=40
 ```
 
 阶段边界和真实/降级实现状态见 [docs/实现状态.md](docs/实现状态.md)。需求唯一基线为仓库中的作品报告 PDF。
@@ -66,9 +67,13 @@ python -m pytest -v --durations=30
 ## 阶段三核心语义
 
 - 双重记忆只允许高安全层向低安全层传播，默认 `alpha=0.3`；冲突证据只会抑制，不会被横向传播抬高。
+- 纵向传播显式记录 `support_adjustment`、`risk_adjustment` 和 `final_adjustment`，公式为 `clamp(before + support_adjustment + risk_adjustment, 0, 1)`。
 - 因果统计只读取 `record_quality=VALID` 且 `eligible_for_learning=true` 的审计记录；历史不足时仍返回归一化的拉普拉斯平滑先验并标记 `insufficient`。
-- `soft_safety_score` 是硬门前五维评分；`final_decision` 是硬门覆盖后的结果。任何硬门命中都强制 `BLOCK`，高软评分不能抵消。
+- 因果当前轮只使用 `feature_cutoff=pre_decision` 列出的裁决前特征；当前轮裁决和车辆执行结果不进入当前轮后验。
+- 五维权重为 Csem=0.210、Ccov=0.255、Ctrust=0.255、Cjb=0.255、Cnec=0.025。Cnec 仅由紧急标志、碰撞、障碍距离或制动必要性等真实证据提高，紧急措辞本身不加分。
+- `soft_safety_score` 是五维软评分；`final_decision` 是硬门优先后的结果。硬门命中时 `score_evaluation_mode=diagnostic_after_gate`，该分数仅供诊断，不能抵消硬门或作为放行置信度。
 - 无强制证据时 `Ccov=null`、`applicable=false`，其权重被剔除后重新归一化；模糊指令使用 `diagnostic_only`，不执行强制补召。
+- HNSW 只保存按类型、来源和实体稳定键去重的当前规范证据；MISSING 和运行时派生节点不入索引，本轮图和审计仍保留完整节点。`GET /api/index/status` 可观察更新、重建、去重和临时节点计数。
 - 审计质量侧表不参与原审计摘要计算，更新分类不会改变旧哈希链；篡改审计正文仍会导致验链失败。
 
 阶段三新增接口：`GET /api/turns/{turn_id}`、`GET /api/reasoning/turn/{turn_id}`、`GET /api/causal/status`、`POST /api/causal/rebuild`、`GET /api/audits/learning-status`、`GET /api/audits/verify-chain`。

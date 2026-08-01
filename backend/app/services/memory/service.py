@@ -177,15 +177,21 @@ class DualMemoryService:
                 if not source_risky and not support_allowed:
                     continue
                 before = adjusted[target.node_id]
+                support_adjustment = 0.0
+                risk_adjustment = 0.0
                 if source_risky:
                     risk = max(1.0 - pre[source.node_id], 0.5)
-                    after = max(0.0, before - alpha * risk_penalty * risk)
+                    risk_adjustment = -alpha * risk_penalty * risk
                     reason = "高安全层异常风险向低层单向传播"
                 else:
-                    after = min(1.0, before + alpha * support_bonus * pre[source.node_id])
+                    support_adjustment = alpha * support_bonus * pre[source.node_id]
                     reason = "领域规则允许的高层有效支持"
+                after = max(0.0, min(1.0, before + support_adjustment + risk_adjustment))
                 if target.quality_label in {EvidenceStatus.TAMPERED, EvidenceStatus.MISSING}:
                     after = 0.0
+                    support_adjustment = 0.0
+                    risk_adjustment = -before
+                final_adjustment = after - before
                 adjusted[target.node_id] = after
                 link_weight = min(1.0, alpha * max(pre[source.node_id], 1.0 - pre[source.node_id]))
                 vertical_links.append(
@@ -195,8 +201,15 @@ class DualMemoryService:
                         relation=EvidenceRelation.VERTICAL_PROPAGATION,
                         weight=round(link_weight, 6),
                         layer=f"{source.layer}->{target.layer}",
-                        reason=reason,
+                        reason=(
+                            f"{reason}; support_adjustment={support_adjustment:.6f}; "
+                            f"risk_adjustment={risk_adjustment:.6f}; "
+                            f"final_adjustment={final_adjustment:.6f}"
+                        ),
                         conflict=source_risky,
+                        support_adjustment=round(support_adjustment, 6),
+                        risk_adjustment=round(risk_adjustment, 6),
+                        final_adjustment=round(final_adjustment, 6),
                     )
                 )
                 paths.append(
@@ -206,6 +219,9 @@ class DualMemoryService:
                         "from_layer": source.layer,
                         "to_layer": target.layer,
                         "before": round(before, 6),
+                        "support_adjustment": round(support_adjustment, 6),
+                        "risk_adjustment": round(risk_adjustment, 6),
+                        "final_adjustment": round(final_adjustment, 6),
                         "after": round(after, 6),
                         "reason": reason,
                     }

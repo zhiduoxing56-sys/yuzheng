@@ -30,7 +30,9 @@ def test_parked_driver_open_door_passes_and_is_audited(pipeline) -> None:
     assert result.safety_gate.mandatory_evidence_missing is False
     assert result.decision.decision == DecisionLabel.PASS
     assert result.decision.final_decision == DecisionLabel.PASS
-    assert result.decision.soft_safety_score == 1.0
+    assert result.decision.soft_safety_score == 0.975
+    assert result.decision.score_factors.five_factors["Cnec"].value == 0.0
+    assert result.decision.score_evaluation_mode == "normal"
     assert result.decision.score_factors.evidence_coverage == 1.0
     assert result.decision.score_factors.evidence_coverage_applicable is True
     assert pipeline.audit_repository.get_by_turn(result.turn_id) is not None
@@ -58,8 +60,10 @@ def test_moving_driver_open_door_hits_hard_gate_and_blocks(pipeline) -> None:
     assert result.decision.decision == DecisionLabel.BLOCK
     assert result.decision.final_decision == DecisionLabel.BLOCK
     assert result.decision.gate_blocked is True
-    assert result.decision.soft_safety_score == 1.0
-    assert result.decision.safety_score == 1.0
+    assert result.decision.soft_safety_score == 0.975
+    assert result.decision.safety_score == 0.975
+    assert result.decision.score_factors.five_factors["Cnec"].value == 0.0
+    assert result.decision.score_evaluation_mode == "diagnostic_after_gate"
     assert pipeline.audit_repository.get_by_turn(result.turn_id).final_decision.decision == DecisionLabel.BLOCK
 
 
