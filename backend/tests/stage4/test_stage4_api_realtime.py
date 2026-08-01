@@ -157,13 +157,21 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
         )
         worker.start()
         execution_events = []
-        while not execution_events or execution_events[-1]["stage"] != "VEHICLE_EXECUTED":
+        while not execution_events or not (
+            execution_events[-1]["stage"] == "AUDIT_SAVED"
+            and "status" in execution_events[-1]["payload"]
+        ):
             execution_events.append(websocket.receive_json())
         worker.join(timeout=30)
     assert execution_holder[0].json()["accepted"] is True
     execution_stages = [event["stage"] for event in execution_events]
-    assert "VEHICLE_PRECHECKED" in execution_stages
-    assert execution_stages[-1] == "VEHICLE_EXECUTED"
+    execution_tail = execution_stages[execution_stages.index("VEHICLE_PRECHECKED") :]
+    assert execution_tail == [
+        "VEHICLE_PRECHECKED",
+        "TOKEN_CONSUMED",
+        "VEHICLE_EXECUTED",
+        "AUDIT_SAVED",
+    ]
     assert [event["sequence"] for event in execution_events] == list(
         range(1, len(execution_events) + 1)
     )
@@ -184,6 +192,17 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
         )
         received = await asyncio.wait_for(first[1].get(), timeout=1)
         assert received.session_id == "a"
+        broker.publish(
+            PipelineEvent(
+                session_id="a",
+                turn_id="TURN_TEST_2",
+                sequence=1,
+                stage="AUDIT_SAVED",
+                summary="second request",
+            )
+        )
+        received_second = await asyncio.wait_for(first[1].get(), timeout=1)
+        assert received_second.sequence == received.sequence + 1
         assert second[1].empty()
         broker.unsubscribe("a", first)
         broker.unsubscribe("b", second)

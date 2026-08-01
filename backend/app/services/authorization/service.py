@@ -13,6 +13,7 @@ from typing import Any
 from app.core.config import PROJECT_ROOT
 from app.models.schemas import (
     AuthorizationGrant,
+    AuthorizationKeyMetadata,
     AuthorizationTokenMetadata,
     AuthorizationTokenStatus,
     SemanticFrame,
@@ -21,6 +22,7 @@ from app.models.schemas import (
     make_id,
     utc_now,
 )
+from app.core.redaction import SensitiveDataRedactor
 from app.services.workflow.repository import WorkflowRepository
 
 
@@ -30,16 +32,33 @@ def _b64encode(value: bytes) -> str:
 
 def _b64decode(value: str) -> bytes:
     padding = "=" * (-len(value) % 4)
-    return base64.urlsafe_b64decode(value + padding)
+    decoded = base64.urlsafe_b64decode(value + padding)
+    if _b64encode(decoded) != value:
+        raise ValueError("non-canonical base64url encoding")
+    return decoded
 
 
 def state_snapshot_digest(state: VehicleState) -> str:
-    data = state.model_dump(mode="json", exclude={"updated_at"})
+    data = state.model_dump(
+        mode="json",
+        exclude={
+            "updated_at",
+            "state_epoch_id",
+            "started_at",
+            "reset_count",
+            "last_reset_at",
+            "reset_reason",
+        },
+    )
     canonical = json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 class AuthorizationTokenError(ValueError):
+    pass
+
+
+class AuthorizationKeyError(RuntimeError):
     pass
 
 
@@ -55,27 +74,108 @@ class AuthorizationTokenService:
         self.repository = repository
         self.ttl_seconds = int(config.get("token_ttl_seconds", 30))
         self.executable_actions = set(config.get("executable_actions", []))
+        self.revoked_tokens_on_startup = 0
+        self.repository.expire_due_issued_tokens()
         if secret is not None:
-            self._secret = secret
+            self._secret = self._validate_secret(secret, "injected_test_secret")
             self.secret_source = "injected_test_secret"
+            self.key_metadata = self._activate_key(self._secret, self.secret_source)
         else:
-            self._secret, self.secret_source = self._load_secret()
+            self._secret, self.secret_source, self.key_metadata = self._load_secret()
 
-    def _load_secret(self) -> tuple[bytes, str]:
+    @staticmethod
+    def _validate_secret(value: bytes, source: str) -> bytes:
+        if source == "local_file" and len(value) != 32:
+            raise AuthorizationKeyError("授权密钥文件格式无效：必须为32字节")
+        if source != "local_file" and not 32 <= len(value) <= 4096:
+            raise AuthorizationKeyError("授权密钥长度无效：必须至少32字节")
+        return value
+
+    @staticmethod
+    def _fingerprint(value: bytes) -> str:
+        return hashlib.sha256(value).hexdigest()
+
+    def _revoke_issued(self, reason: str) -> int:
+        revoked = self.repository.revoke_all_issued_tokens(
+            SensitiveDataRedactor.redact_text(reason)
+        )
+        self.revoked_tokens_on_startup += len(revoked)
+        return len(revoked)
+
+    def _activate_key(self, value: bytes, source: str) -> AuthorizationKeyMetadata:
+        fingerprint = self._fingerprint(value)
+        previous = self.repository.key_metadata()
+        changed = previous is not None and previous.fingerprint != fingerprint
+        if changed:
+            self._revoke_issued(
+                f"授权密钥指纹发生变化，旧密钥 {previous.key_id} 已失效"
+            )
+        version = previous.key_version + 1 if changed else (previous.key_version if previous else 1)
+        created_at = utc_now() if changed or previous is None else previous.created_at
+        metadata = AuthorizationKeyMetadata(
+            key_id=f"KEY_{fingerprint[:16]}",
+            key_version=version,
+            created_at=created_at,
+            fingerprint=fingerprint,
+            source=source,
+            status="ACTIVE",
+        )
+        self.repository.store_key_metadata(metadata)
+        return metadata
+
+    def _invalidate_and_fail(self, message: str) -> None:
+        safe_message = SensitiveDataRedactor.redact_text(message)
+        self._revoke_issued(safe_message)
+        previous = self.repository.key_metadata()
+        if previous is not None:
+            self.repository.store_key_metadata(previous.model_copy(update={"status": "INVALID"}))
+        raise AuthorizationKeyError(safe_message)
+
+    def _load_secret(self) -> tuple[bytes, str, AuthorizationKeyMetadata]:
         env_name = str(
             self.config.get("secret_environment_variable", "YUZHENG_TOKEN_SECRET")
         )
-        env_value = os.getenv(env_name)
-        if env_value:
-            return env_value.encode("utf-8"), "environment_variable"
-        relative = Path(str(self.config.get("secret_file", "data/secrets/authorization.key")))
+        if env_name in os.environ:
+            env_value = os.environ.get(env_name, "").encode("utf-8")
+            try:
+                value = self._validate_secret(env_value, "environment_variable")
+            except AuthorizationKeyError as exc:
+                self._invalidate_and_fail(str(exc))
+            metadata = self._activate_key(value, "environment_variable")
+            return value, "environment_variable", metadata
+        key_file_env = str(
+            self.config.get("secret_file_environment_variable", "YUZHENG_TOKEN_KEY_FILE")
+        )
+        configured_path = os.getenv(
+            key_file_env,
+            str(self.config.get("secret_file", "data/secrets/authorization.key")),
+        )
+        relative = Path(configured_path)
         path = relative if relative.is_absolute() else PROJECT_ROOT / relative
-        path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists():
-            return path.read_bytes(), "local_file"
+            try:
+                raw = path.read_bytes()
+            except OSError as exc:
+                self._invalidate_and_fail(
+                    f"授权密钥文件不可读: {type(exc).__name__}"
+                )
+            try:
+                value = self._validate_secret(raw, "local_file")
+            except AuthorizationKeyError as exc:
+                self._invalidate_and_fail(str(exc))
+            metadata = self._activate_key(value, "local_file")
+            return value, "local_file", metadata
+        self._revoke_issued("授权密钥文件丢失，旧ISSUED令牌已撤销")
+        path.parent.mkdir(parents=True, exist_ok=True)
         value = secrets.token_bytes(32)
-        path.write_bytes(value)
-        return value, "local_file"
+        try:
+            path.write_bytes(value)
+        except OSError as exc:
+            raise AuthorizationKeyError(
+                f"无法创建授权密钥文件: {type(exc).__name__}"
+            ) from None
+        metadata = self._activate_key(value, "local_file")
+        return value, "local_file", metadata
 
     def is_executable(self, frame: SemanticFrame) -> bool:
         return f"{frame.action}|{frame.target}" in self.executable_actions
@@ -106,6 +206,8 @@ class AuthorizationTokenService:
             "issued_at": issued_at.isoformat().replace("+00:00", "Z"),
             "expires_at": expires_at.isoformat().replace("+00:00", "Z"),
             "nonce": nonce,
+            "key_id": self.key_metadata.key_id,
+            "key_version": self.key_metadata.key_version,
             "state_snapshot_digest": snapshot_digest,
         }
         payload_bytes = json.dumps(
@@ -128,6 +230,7 @@ class AuthorizationTokenService:
             expires_at=expires_at,
             state_snapshot_digest=snapshot_digest,
             token_digest=token_digest,
+            key_id=self.key_metadata.key_id,
             status=AuthorizationTokenStatus.ISSUED,
         )
         self.repository.insert_token(
@@ -142,6 +245,7 @@ class AuthorizationTokenService:
                 "token_digest": token_digest,
                 "expires_at": metadata.expires_at.isoformat(),
                 "state_snapshot_digest": snapshot_digest,
+                "key_id": self.key_metadata.key_id,
             },
         )
         return AuthorizationGrant(authorization_token=raw_token, metadata=metadata)
@@ -156,7 +260,10 @@ class AuthorizationTokenService:
     ) -> tuple[dict[str, Any], AuthorizationTokenMetadata]:
         try:
             encoded_payload, encoded_signature = raw_token.split(".", 1)
-            supplied_signature = _b64decode(encoded_signature)
+            try:
+                supplied_signature = _b64decode(encoded_signature)
+            except Exception as exc:
+                raise AuthorizationTokenError("授权令牌摘要不匹配") from exc
             expected_signature = hmac.new(
                 self._secret, encoded_payload.encode("ascii"), hashlib.sha256
             ).digest()
@@ -175,6 +282,11 @@ class AuthorizationTokenService:
             raise AuthorizationTokenError("授权令牌与持久化摘要不一致")
         if metadata.status != AuthorizationTokenStatus.ISSUED:
             raise AuthorizationTokenError(f"授权令牌状态不可用: {metadata.status.value}")
+        payload_key_id = str(payload.get("key_id", "legacy"))
+        if metadata.key_id not in {"legacy", self.key_metadata.key_id}:
+            raise AuthorizationTokenError("授权令牌密钥标识已失效")
+        if metadata.key_id != "legacy" and payload_key_id != metadata.key_id:
+            raise AuthorizationTokenError("授权令牌密钥标识不匹配")
         if metadata.expires_at <= utc_now():
             self.repository.transition_token(
                 token_id,

@@ -83,6 +83,8 @@ class WorkflowEventType(str, Enum):
     TOKEN_REJECTED = "TOKEN_REJECTED"
     TOKEN_EXPIRED = "TOKEN_EXPIRED"
     TOKEN_CONSUMED = "TOKEN_CONSUMED"
+    TOKEN_REVOKED = "TOKEN_REVOKED"
+    KEY_INVALIDATED = "KEY_INVALIDATED"
     EXECUTION_REQUESTED = "EXECUTION_REQUESTED"
     PRE_EXECUTION_CHECK_PASSED = "PRE_EXECUTION_CHECK_PASSED"
     PRE_EXECUTION_CHECK_FAILED = "PRE_EXECUTION_CHECK_FAILED"
@@ -469,7 +471,7 @@ class DecisionResult(StrictModel):
     score_factors: DecisionScoreFactors
     explanations: list[str] = Field(default_factory=list)
     review_question: str | None = None
-    authorization_token: str | None = None
+    authorization_token: str | None = Field(default=None, repr=False)
     jailbreak_risk: float = Field(default=0, ge=0, le=1)
     decision_confidence: float = Field(default=0, ge=0, le=1)
     advanced_reasoning: AdvancedReasoningResult | None = None
@@ -506,6 +508,11 @@ class AdvancedDecisionResult(StrictModel):
 
 
 class VehicleState(StrictModel):
+    state_epoch_id: str = ""
+    started_at: datetime = Field(default_factory=utc_now)
+    reset_count: int = Field(default=0, ge=0)
+    last_reset_at: datetime | None = None
+    reset_reason: str | None = None
     vehicle_speed: float | None = Field(default=0, ge=0)
     gear_position: str | None = "P"
     door_lock_state: str | None = "UNLOCKED"
@@ -576,7 +583,7 @@ class EvidenceObservationInput(StrictModel):
 
 
 class TextCommandRequest(StrictModel):
-    text: str = Field(min_length=1, max_length=500)
+    text: str = Field(min_length=1, max_length=2048)
     speaker_zone: str = "driver"
     speaker_role: str = "driver"
     state_overrides: VehicleStatePatch | None = None
@@ -687,6 +694,10 @@ class HealthResponse(StrictModel):
     index_implementation: str = ""
     vehicle_adapter: str = ""
     token_secret_source: str = ""
+    token_key_id: str = ""
+    token_key_version: int = Field(default=0, ge=0)
+    token_key_status: str = ""
+    revoked_tokens_on_startup: int = Field(default=0, ge=0)
     workflow_event_store: str = ""
     websocket_ready: bool = False
 
@@ -764,8 +775,8 @@ class WorkflowChainVerification(StrictModel):
 
 class ReviewRequest(StrictModel):
     action: ReviewAction
-    confirmation_text: str | None = Field(default=None, max_length=200)
-    corrected_text: str | None = Field(default=None, max_length=500)
+    confirmation_text: str | None = Field(default=None, max_length=2048)
+    corrected_text: str | None = Field(default=None, max_length=2048)
     cancel_reason: str | None = Field(default=None, max_length=500)
 
     @model_validator(mode="after")
@@ -786,11 +797,21 @@ class AuthorizationTokenMetadata(StrictModel):
     expires_at: datetime
     state_snapshot_digest: str
     token_digest: str
+    key_id: str = "legacy"
     status: AuthorizationTokenStatus
 
 
+class AuthorizationKeyMetadata(StrictModel):
+    key_id: str
+    key_version: int = Field(ge=1)
+    created_at: datetime
+    fingerprint: str
+    source: str
+    status: str
+
+
 class AuthorizationGrant(StrictModel):
-    authorization_token: str
+    authorization_token: str = Field(repr=False)
     metadata: AuthorizationTokenMetadata
 
 
@@ -810,7 +831,7 @@ class VehicleExecutionResult(StrictModel):
 
 
 class ExecuteRequest(StrictModel):
-    authorization_token: str = Field(min_length=20)
+    authorization_token: str = Field(min_length=20, repr=False)
     session_id: str | None = Field(default=None, min_length=1, max_length=100)
 
 
@@ -873,3 +894,5 @@ class TurnTimeline(StrictModel):
     audits: list[AuditRecord] = Field(default_factory=list)
     workflow_events: list[WorkflowEvent] = Field(default_factory=list)
     ordered_items: list[dict[str, Any]] = Field(default_factory=list)
+    historical_execution_state: list[VehicleExecutionResult] = Field(default_factory=list)
+    current_simulator_state: VehicleState

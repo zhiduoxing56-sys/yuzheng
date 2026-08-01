@@ -4,7 +4,13 @@ from threading import RLock
 from time import perf_counter
 from typing import Any
 
-from app.models.schemas import VehicleExecutionResult, VehicleState, VehicleStatePatch, utc_now
+from app.models.schemas import (
+    VehicleExecutionResult,
+    VehicleState,
+    VehicleStatePatch,
+    make_id,
+    utc_now,
+)
 
 
 class SimulatorVehicleAdapter:
@@ -18,7 +24,18 @@ class SimulatorVehicleAdapter:
         action_config: dict[str, Any] | None = None,
     ) -> None:
         self._lock = RLock()
-        self._initial_state = initial_state or VehicleState()
+        started_at = utc_now()
+        base_state = initial_state or VehicleState()
+        self._initial_state = base_state.model_copy(
+            update={
+                "state_epoch_id": make_id("EPOCH"),
+                "started_at": started_at,
+                "reset_count": 0,
+                "last_reset_at": None,
+                "reset_reason": "service_started",
+                "updated_at": started_at,
+            }
+        )
         self._state = self._initial_state.model_copy(deep=True)
         self._actions = dict((action_config or {}).get("actions", {}))
         self._last_feedback: VehicleExecutionResult | None = None
@@ -92,10 +109,20 @@ class SimulatorVehicleAdapter:
         with self._lock:
             return self._last_feedback.model_copy(deep=True) if self._last_feedback else None
 
-    def reset(self) -> VehicleState:
+    def reset(self, reason: str = "manual_reset") -> VehicleState:
         with self._lock:
+            reset_at = utc_now()
+            next_count = self._state.reset_count + 1
             self._state = self._initial_state.model_copy(
-                deep=True, update={"updated_at": utc_now()}
+                deep=True,
+                update={
+                    "state_epoch_id": make_id("EPOCH"),
+                    "started_at": reset_at,
+                    "reset_count": next_count,
+                    "last_reset_at": reset_at,
+                    "reset_reason": reason,
+                    "updated_at": reset_at,
+                },
             )
             self._last_feedback = None
             return self._state.model_copy(deep=True)

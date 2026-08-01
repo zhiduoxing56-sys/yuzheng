@@ -8,6 +8,7 @@ from threading import RLock
 from typing import Any
 
 from app.models.schemas import (
+    AuthorizationKeyMetadata,
     AuthorizationTokenMetadata,
     AuthorizationTokenStatus,
     VehicleExecutionResult,
@@ -17,6 +18,7 @@ from app.models.schemas import (
     make_id,
     utc_now,
 )
+from app.core.redaction import SensitiveDataRedactor
 from app.services.audit.repository import GENESIS_HASH
 
 
@@ -71,6 +73,7 @@ class WorkflowRepository:
                     nonce_digest TEXT NOT NULL,
                     state_snapshot_digest TEXT NOT NULL,
                     token_digest TEXT NOT NULL UNIQUE,
+                    key_id TEXT,
                     status TEXT NOT NULL,
                     status_reason TEXT,
                     consumed_at TEXT,
@@ -89,8 +92,24 @@ class WorkflowRepository:
                 );
                 CREATE INDEX IF NOT EXISTS idx_execution_root
                     ON vehicle_execution_events(root_turn_id, created_at);
+                CREATE TABLE IF NOT EXISTS authorization_key_state (
+                    singleton_id INTEGER PRIMARY KEY CHECK(singleton_id = 1),
+                    key_id TEXT NOT NULL,
+                    key_version INTEGER NOT NULL,
+                    created_at TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    source TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
+            token_columns = {
+                str(row["name"])
+                for row in connection.execute("PRAGMA table_info(authorization_tokens)").fetchall()
+            }
+            if "key_id" not in token_columns:
+                connection.execute("ALTER TABLE authorization_tokens ADD COLUMN key_id TEXT")
 
     def append_event(
         self,
@@ -117,7 +136,7 @@ class WorkflowRepository:
                 "parent_turn_id": parent_turn_id,
                 "sequence_no": sequence_no,
                 "event_type": event_type.value,
-                "payload": payload or {},
+                "payload": SensitiveDataRedactor.redact(payload or {}),
                 "created_at": utc_now().isoformat().replace("+00:00", "Z"),
             }
             current_hash = hashlib.sha256(
@@ -211,8 +230,8 @@ class WorkflowRepository:
                 INSERT INTO authorization_tokens (
                     token_id, root_turn_id, turn_id, action, target, area,
                     issued_at, expires_at, nonce_digest, state_snapshot_digest,
-                    token_digest, status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    token_digest, key_id, status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     metadata.token_id,
@@ -226,6 +245,7 @@ class WorkflowRepository:
                     nonce_digest,
                     metadata.state_snapshot_digest,
                     metadata.token_digest,
+                    metadata.key_id,
                     metadata.status.value,
                     utc_now().isoformat(),
                 ),
@@ -244,8 +264,143 @@ class WorkflowRepository:
             expires_at=str(row["expires_at"]),
             state_snapshot_digest=str(row["state_snapshot_digest"]),
             token_digest=str(row["token_digest"]),
+            key_id=str(row["key_id"] or "legacy"),
             status=AuthorizationTokenStatus(str(row["status"])),
         )
+
+    def key_metadata(self) -> AuthorizationKeyMetadata | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM authorization_key_state WHERE singleton_id = 1"
+            ).fetchone()
+        if row is None:
+            return None
+        return AuthorizationKeyMetadata(
+            key_id=str(row["key_id"]),
+            key_version=int(row["key_version"]),
+            created_at=str(row["created_at"]),
+            fingerprint=str(row["fingerprint"]),
+            source=str(row["source"]),
+            status=str(row["status"]),
+        )
+
+    def store_key_metadata(self, metadata: AuthorizationKeyMetadata) -> None:
+        with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute(
+                """
+                INSERT INTO authorization_key_state (
+                    singleton_id, key_id, key_version, created_at,
+                    fingerprint, source, status, updated_at
+                ) VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(singleton_id) DO UPDATE SET
+                    key_id=excluded.key_id,
+                    key_version=excluded.key_version,
+                    created_at=excluded.created_at,
+                    fingerprint=excluded.fingerprint,
+                    source=excluded.source,
+                    status=excluded.status,
+                    updated_at=excluded.updated_at
+                """,
+                (
+                    metadata.key_id,
+                    metadata.key_version,
+                    metadata.created_at.isoformat(),
+                    metadata.fingerprint,
+                    metadata.source,
+                    metadata.status,
+                    utc_now().isoformat(),
+                ),
+            )
+            connection.commit()
+
+    def count_tokens(self, status: AuthorizationTokenStatus) -> int:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT COUNT(*) AS count FROM authorization_tokens WHERE status = ?",
+                (status.value,),
+            ).fetchone()
+        return int(row["count"])
+
+    def revoke_all_issued_tokens(self, reason: str) -> list[AuthorizationTokenMetadata]:
+        """Atomically removes every startup-invalid token from ISSUED state."""
+        safe_reason = SensitiveDataRedactor.redact_text(reason)
+        with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            rows = connection.execute(
+                "SELECT * FROM authorization_tokens WHERE status = ? ORDER BY created_at",
+                (AuthorizationTokenStatus.ISSUED.value,),
+            ).fetchall()
+            tokens = [self._token_from_row(row) for row in rows]
+            if tokens:
+                connection.execute(
+                    "UPDATE authorization_tokens SET status = ?, status_reason = ? "
+                    "WHERE status = ?",
+                    (
+                        AuthorizationTokenStatus.REVOKED.value,
+                        safe_reason,
+                        AuthorizationTokenStatus.ISSUED.value,
+                    ),
+                )
+            connection.commit()
+        roots: set[str] = set()
+        for token in tokens:
+            if token.root_turn_id not in roots:
+                self.append_event(
+                    root_turn_id=token.root_turn_id,
+                    related_turn_id=token.turn_id,
+                    event_type=WorkflowEventType.KEY_INVALIDATED,
+                    payload={"key_id": token.key_id, "reason": safe_reason},
+                )
+                roots.add(token.root_turn_id)
+            self.append_event(
+                root_turn_id=token.root_turn_id,
+                related_turn_id=token.turn_id,
+                event_type=WorkflowEventType.TOKEN_REVOKED,
+                payload={
+                    "token_id": token.token_id,
+                    "token_digest": token.token_digest,
+                    "key_id": token.key_id,
+                    "reason": safe_reason,
+                },
+            )
+        return tokens
+
+    def expire_due_issued_tokens(self) -> list[AuthorizationTokenMetadata]:
+        """Atomically closes tokens whose wall-clock lifetime elapsed while idle."""
+        now = utc_now()
+        with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            rows = connection.execute(
+                "SELECT * FROM authorization_tokens WHERE status = ? AND expires_at <= ? "
+                "ORDER BY created_at",
+                (AuthorizationTokenStatus.ISSUED.value, now.isoformat()),
+            ).fetchall()
+            tokens = [self._token_from_row(row) for row in rows]
+            if tokens:
+                connection.execute(
+                    "UPDATE authorization_tokens SET status = ?, status_reason = ? "
+                    "WHERE status = ? AND expires_at <= ?",
+                    (
+                        AuthorizationTokenStatus.EXPIRED.value,
+                        "服务启动时清理已超过有效期的令牌",
+                        AuthorizationTokenStatus.ISSUED.value,
+                        now.isoformat(),
+                    ),
+                )
+            connection.commit()
+        for token in tokens:
+            self.append_event(
+                root_turn_id=token.root_turn_id,
+                related_turn_id=token.turn_id,
+                event_type=WorkflowEventType.TOKEN_EXPIRED,
+                payload={
+                    "token_id": token.token_id,
+                    "token_digest": token.token_digest,
+                    "reason": "服务启动时清理已超过有效期的令牌",
+                },
+            )
+        return tokens
 
     def get_token(self, token_id: str) -> AuthorizationTokenMetadata | None:
         with self._connect() as connection:
@@ -304,19 +459,22 @@ class WorkflowRepository:
         token_id: str,
         result: VehicleExecutionResult,
     ) -> None:
+        safe_result = VehicleExecutionResult.model_validate(
+            SensitiveDataRedactor.redact(result.model_dump(mode="json"))
+        )
         with self._connect() as connection:
             connection.execute(
                 "INSERT INTO vehicle_execution_events "
                 "(execution_id, root_turn_id, turn_id, token_id, status, result_json, created_at) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (
-                    result.execution_id,
+                    safe_result.execution_id,
                     root_turn_id,
                     turn_id,
                     token_id,
-                    result.status,
-                    result.model_dump_json(),
-                    result.created_at.isoformat(),
+                    safe_result.status,
+                    safe_result.model_dump_json(),
+                    safe_result.created_at.isoformat(),
                 ),
             )
 

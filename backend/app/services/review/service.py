@@ -14,6 +14,7 @@ from app.models.schemas import (
     WorkflowEventType,
     utc_now,
 )
+from app.core.redaction import SensitiveDataRedactor
 
 if TYPE_CHECKING:
     from app.core.pipeline import CommandPipeline
@@ -111,6 +112,9 @@ class ReviewService:
         return status, latest
 
     def review(self, turn_id: str, request: ReviewRequest) -> ReviewResult:
+        request = ReviewRequest.model_validate(
+            SensitiveDataRedactor.redact(request.model_dump(mode="json"))
+        )
         status, latest = self._validate_entry(turn_id)
         root = status.root_turn_id
         next_attempt = status.review_attempts + 1

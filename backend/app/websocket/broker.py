@@ -5,6 +5,7 @@ from collections import defaultdict
 from threading import RLock
 
 from app.models.schemas import PipelineEvent
+from app.core.redaction import SensitiveDataRedactor
 
 
 class PipelineEventBroker:
@@ -16,6 +17,7 @@ class PipelineEventBroker:
         self._subscribers: dict[
             str, list[tuple[asyncio.AbstractEventLoop, asyncio.Queue[PipelineEvent]]]
         ] = defaultdict(list)
+        self._session_sequences: dict[str, int] = {}
 
     def subscribe(
         self, session_id: str
@@ -36,6 +38,7 @@ class PipelineEventBroker:
                 subscribers.remove(subscription)
             if not subscribers:
                 self._subscribers.pop(session_id, None)
+                self._session_sequences.pop(session_id, None)
 
     @staticmethod
     def _put_nowait(queue: asyncio.Queue[PipelineEvent], event: PipelineEvent) -> None:
@@ -49,6 +52,16 @@ class PipelineEventBroker:
     def publish(self, event: PipelineEvent) -> None:
         with self._lock:
             subscribers = list(self._subscribers.get(event.session_id, []))
+            if subscribers:
+                sequence = self._session_sequences.get(event.session_id, 0) + 1
+                self._session_sequences[event.session_id] = sequence
+            else:
+                sequence = event.sequence
+        event = PipelineEvent.model_validate(
+            SensitiveDataRedactor.redact(
+                event.model_copy(update={"sequence": sequence}).model_dump(mode="json")
+            )
+        )
         for loop, queue in subscribers:
             if loop.is_closed():
                 continue

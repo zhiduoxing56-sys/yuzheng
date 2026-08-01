@@ -30,6 +30,7 @@ from app.models.schemas import (
 )
 from app.services.authorization.service import AuthorizationTokenError
 from app.services.review.service import ReviewWorkflowError
+from app.core.redaction import SensitiveDataRedactor
 
 
 def build_router(pipeline: CommandPipeline) -> APIRouter:
@@ -48,6 +49,10 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             index_implementation=pipeline.index.status().implementation,
             vehicle_adapter=pipeline.vehicle.adapter_name,
             token_secret_source=pipeline.authorization_service.secret_source,
+            token_key_id=pipeline.authorization_service.key_metadata.key_id,
+            token_key_version=pipeline.authorization_service.key_metadata.key_version,
+            token_key_status=pipeline.authorization_service.key_metadata.status,
+            revoked_tokens_on_startup=pipeline.authorization_service.revoked_tokens_on_startup,
             workflow_event_store=pipeline.workflow_repository.health(),
             websocket_ready=True,
         )
@@ -103,7 +108,9 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         try:
             return pipeline.review_service.review(turn_id, request)
         except ReviewWorkflowError as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=409, detail=SensitiveDataRedactor.redact_exception(exc)
+            ) from exc
 
     @router.post("/turns/{turn_id}/execute", response_model=ExecuteResult)
     def turn_execute(turn_id: str, request: ExecuteRequest) -> ExecuteResult:
@@ -112,7 +119,9 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                 turn_id, request.authorization_token, session_id=request.session_id
             )
         except (AuthorizationTokenError, ValueError) as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=409, detail=SensitiveDataRedactor.redact_exception(exc)
+            ) from exc
 
     @router.get("/turns/{turn_id}/timeline", response_model=TurnTimeline)
     def turn_timeline(turn_id: str) -> TurnTimeline:
@@ -204,7 +213,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         if record is None:
             raise HTTPException(status_code=404, detail=f"audit not found: {audit_id}")
         root = record.root_turn_id or record.turn_id
-        return {
+        return SensitiveDataRedactor.redact({
             "exported_at": datetime.now().astimezone().isoformat(),
             "audit": record.model_dump(mode="json"),
             "workflow_events": [
@@ -213,7 +222,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             ],
             "audit_chain_valid": pipeline.audit_repository.verify_chain(),
             "workflow_chain": pipeline.workflow_repository.verify_chain(root).model_dump(mode="json"),
-        }
+        })
 
     @router.get("/scenarios")
     def scenarios() -> list[dict]:

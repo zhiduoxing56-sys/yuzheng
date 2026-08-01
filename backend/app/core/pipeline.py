@@ -53,6 +53,7 @@ from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 from app.services.workflow.repository import WorkflowRepository
 from app.websocket.broker import PipelineEventBroker
+from app.core.redaction import SensitiveDataRedactor
 
 
 class CommandPipeline:
@@ -201,6 +202,26 @@ class CommandPipeline:
         suppress_authorization: bool = False,
         event_sink: Callable[[PipelineEvent], None] | None = None,
     ) -> TextCommandResponse:
+        # Preserve Pydantic's fields-set information on VehicleStatePatch: rebuilding
+        # the whole request would turn every omitted state field into an explicit null.
+        request = request.model_copy(
+            update={
+                "text": SensitiveDataRedactor.redact_text(request.text),
+                "speaker_zone": SensitiveDataRedactor.redact_text(request.speaker_zone),
+                "speaker_role": SensitiveDataRedactor.redact_text(request.speaker_role),
+                "session_id": (
+                    SensitiveDataRedactor.redact_text(request.session_id)
+                    if request.session_id
+                    else None
+                ),
+                "evidence_overrides": [
+                    item.model_copy(
+                        update=SensitiveDataRedactor.redact(item.model_dump(mode="json"))
+                    )
+                    for item in request.evidence_overrides
+                ],
+            }
+        )
         turn_id = make_id("TURN")
         root_turn_id = root_turn_id or turn_id
         sequence = 0
@@ -244,7 +265,10 @@ class CommandPipeline:
             emit(
                 "PIPELINE_FAILED",
                 "流水线处理失败",
-                {"error_type": type(exc).__name__, "message": str(exc)},
+                {
+                    "error_type": type(exc).__name__,
+                    "message": SensitiveDataRedactor.redact_exception(exc),
+                },
             )
             raise
 
@@ -784,4 +808,6 @@ class CommandPipeline:
             audits=audits,
             workflow_events=events,
             ordered_items=ordered,
+            historical_execution_state=self.workflow_repository.executions(root),
+            current_simulator_state=self.vehicle.get_state(),
         )

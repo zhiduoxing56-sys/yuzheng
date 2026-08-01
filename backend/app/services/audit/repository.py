@@ -12,6 +12,7 @@ from app.models.schemas import (
     AuditRecordQuality,
     LearningAuditStatus,
 )
+from app.core.redaction import SensitiveDataRedactor
 
 
 GENESIS_HASH = "0" * 64
@@ -37,6 +38,12 @@ class AuditRepository:
         connection = sqlite3.connect(self.database_path, timeout=10)
         connection.row_factory = sqlite3.Row
         return connection
+
+    @staticmethod
+    def _record_from_json(payload: str) -> AuditRecord:
+        return AuditRecord.model_validate(
+            SensitiveDataRedactor.redact(json.loads(payload))
+        )
 
     def _initialize(self) -> None:
         with self._connect() as connection:
@@ -117,6 +124,9 @@ class AuditRepository:
         )
 
     def save(self, record: AuditRecord) -> AuditRecord:
+        record = AuditRecord.model_validate(
+            SensitiveDataRedactor.redact(record.model_dump(mode="json"))
+        )
         connection = self._connect()
         try:
             connection.execute("BEGIN IMMEDIATE")
@@ -163,14 +173,14 @@ class AuditRepository:
             row = connection.execute(
                 "SELECT record_json FROM audit_records WHERE turn_id = ?", (turn_id,)
             ).fetchone()
-        return AuditRecord.model_validate_json(row["record_json"]) if row else None
+        return self._record_from_json(row["record_json"]) if row else None
 
     def get_by_id(self, audit_id: str) -> AuditRecord | None:
         with self._connect() as connection:
             row = connection.execute(
                 "SELECT record_json FROM audit_records WHERE audit_id = ?", (audit_id,)
             ).fetchone()
-        return AuditRecord.model_validate_json(row["record_json"]) if row else None
+        return self._record_from_json(row["record_json"]) if row else None
 
     def list_records(
         self,
@@ -213,7 +223,7 @@ class AuditRepository:
                 [*parameters, page_size, (page - 1) * page_size],
             ).fetchall()
         return AuditPage(
-            items=[AuditRecord.model_validate_json(row["record_json"]) for row in rows],
+            items=[self._record_from_json(row["record_json"]) for row in rows],
             total=total,
             page=page,
             page_size=page_size,
@@ -236,7 +246,7 @@ class AuditRepository:
             rows = connection.execute(
                 "SELECT record_json FROM audit_records ORDER BY rowid"
             ).fetchall()
-        return [AuditRecord.model_validate_json(row["record_json"]) for row in rows]
+        return [self._record_from_json(row["record_json"]) for row in rows]
 
     def upsert_quality(self, metadata: AuditQualityMetadata) -> AuditQualityMetadata:
         with self._connect() as connection:
@@ -342,7 +352,7 @@ class AuditRepository:
                 """,
                 (AuditRecordQuality.VALID.value,),
             ).fetchall()
-        return [AuditRecord.model_validate_json(row["record_json"]) for row in rows]
+        return [self._record_from_json(row["record_json"]) for row in rows]
 
     def learning_status(self) -> LearningAuditStatus:
         records = self.ensure_quality_metadata()

@@ -64,7 +64,7 @@ python -m pip install -r backend\requirements-optional.txt
 
 ```powershell
 D:\software\anaconda\envs\yuzheng311\python.exe -m compileall -q backend\app backend\tests
-D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=40
+D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=50
 ```
 
 阶段边界和真实/降级实现状态见 [docs/实现状态.md](docs/实现状态.md)。需求唯一基线为仓库中的作品报告 PDF。
@@ -72,6 +72,16 @@ D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=40
 ## 阶段四边界
 
 默认车辆数据和执行来自确定性模拟器，不代表真实传感器或 CAN 总线。文本输入不执行声学可信检查或 ASR。React 前端、音频、麦克风、ASR、合成/重放检测、真实台架控制和真实 CAN 报文不属于阶段四，均未开始。`CanVehicleAdapter` 只提供默认关闭的安全边界，不含报文标识符或发送逻辑。
+
+## 阶段四冻结安全语义
+
+- 授权密钥具备稳定 `key_id`、版本、创建时间、SHA-256 指纹、来源和状态元数据；令牌表保存签发时的 `key_id`。
+- 密钥文件固定为 32 字节。文件为空、截断、长度错误或不可读时服务安全失败；密钥丢失或指纹变化时先原子撤销旧 `ISSUED` 令牌，再生成或启用新密钥。旧终态令牌不改变。
+- 可用 `YUZHENG_TOKEN_SECRET` 提供环境变量密钥，或用 `YUZHENG_TOKEN_KEY_FILE` 指定本地密钥文件；数据库路径可用 `YUZHENG_DATABASE_PATH` 指定。密钥内容不会通过健康接口、日志或审计返回。
+- `SensitiveDataRedactor` 同时按敏感字段和授权令牌格式递归脱敏，覆盖指令、复核、工作流、审计、导出、WebSocket、日志、异常和请求验证错误。
+- 执行成功实时尾序列为 `VEHICLE_PRECHECKED → TOKEN_CONSUMED → VEHICLE_EXECUTED → AUDIT_SAVED`；适配器失败使用 `EXECUTION_FAILED`，不冒充 `VEHICLE_EXECUTED`；复检失败在 `VEHICLE_PRECHECKED → AUDIT_SAVED` 后终止。
+- 模拟器状态返回 `state_epoch_id/started_at/reset_count/last_reset_at/reset_reason`。时间线分别返回 `historical_execution_state` 和 `current_simulator_state`，服务重启不会把历史执行后状态伪装成当前状态。
+- 冻结安全修复后全量测试为 `75 passed, 1 warning in 126.54s`；真实服务验收脚本为 `scripts/run_stage4_freeze_acceptance.py`。
 
 ## 阶段三核心语义
 

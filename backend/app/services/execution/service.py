@@ -15,6 +15,7 @@ from app.services.authorization.service import (
     AuthorizationTokenError,
     state_snapshot_digest,
 )
+from app.core.redaction import SensitiveDataRedactor
 
 if TYPE_CHECKING:
     from app.core.pipeline import CommandPipeline
@@ -130,10 +131,16 @@ class ExecutionService:
                     "VEHICLE_PRECHECKED",
                     "车辆执行前复查失败",
                     {
+                        "status": "FAILED",
                         "passed": False,
                         "hit_rules": precheck.safety_gate.hit_rules,
                         "state_changed": state_changed,
                     },
+                )
+                emit_execution(
+                    "AUDIT_SAVED",
+                    "执行前复查失败结果已持久化",
+                    {"audit_id": precheck.audit.audit_id, "status": "FAILED"},
                 )
                 return ExecuteResult(
                     root_turn_id=root,
@@ -158,7 +165,11 @@ class ExecutionService:
             emit_execution(
                 "VEHICLE_PRECHECKED",
                 "车辆执行前复查通过",
-                {"passed": True, "precheck_turn_id": precheck.turn_id},
+                {
+                    "status": "PASSED",
+                    "passed": True,
+                    "precheck_turn_id": precheck.turn_id,
+                },
             )
             if not self.pipeline.authorization_service.consume(metadata):
                 raise AuthorizationTokenError("授权令牌已被其他请求原子消费")
@@ -167,6 +178,11 @@ class ExecutionService:
                 related_turn_id=turn_id,
                 event_type=WorkflowEventType.TOKEN_CONSUMED,
                 payload={"token_id": metadata.token_id, "token_digest": metadata.token_digest},
+            )
+            emit_execution(
+                "TOKEN_CONSUMED",
+                "一次性授权令牌已原子消费",
+                {"token_id": metadata.token_id, "token_digest": metadata.token_digest},
             )
             try:
                 execution = self.pipeline.vehicle.execute(
@@ -183,7 +199,7 @@ class ExecutionService:
                     area=str(payload["area"]),
                     before_state=failed_state,
                     after_state=failed_state,
-                    feedback=str(exc),
+                    feedback=SensitiveDataRedactor.redact_exception(exc),
                     duration_ms=0,
                 )
                 self.pipeline.workflow_repository.save_execution(
@@ -199,20 +215,28 @@ class ExecutionService:
                     payload={
                         "token_id": metadata.token_id,
                         "error_type": type(exc).__name__,
-                        "reason": str(exc),
+                        "reason": SensitiveDataRedactor.redact_exception(exc),
                     },
                 )
                 emit_execution(
-                    "VEHICLE_EXECUTED",
+                    "EXECUTION_FAILED",
                     "车辆适配器执行失败",
                     {"status": "FAILED", "error_type": type(exc).__name__},
+                )
+                emit_execution(
+                    "AUDIT_SAVED",
+                    "车辆执行失败结果已持久化",
+                    {"audit_id": precheck.audit.audit_id, "status": "FAILED"},
                 )
                 return ExecuteResult(
                     root_turn_id=root,
                     turn_id=turn_id,
                     accepted=False,
                     token_status=AuthorizationTokenStatus.CONSUMED,
-                    reason=f"令牌已消费，但车辆适配器执行失败: {exc}",
+                    reason=(
+                        "令牌已消费，但车辆适配器执行失败: "
+                        f"{SensitiveDataRedactor.redact_exception(exc)}"
+                    ),
                     precheck_turn_id=precheck.turn_id,
                     precheck_decision=precheck.decision.final_decision,
                     execution=failed_execution,
@@ -239,6 +263,11 @@ class ExecutionService:
                 "VEHICLE_EXECUTED",
                 "车辆模拟执行成功",
                 {"status": execution.status, "execution_id": execution.execution_id},
+            )
+            emit_execution(
+                "AUDIT_SAVED",
+                "车辆执行成功结果已持久化",
+                {"audit_id": precheck.audit.audit_id, "status": execution.status},
             )
             return ExecuteResult(
                 root_turn_id=root,
