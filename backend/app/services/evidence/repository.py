@@ -37,8 +37,11 @@ LAYER_BY_TYPE = {
     "road_condition": "L2_DRIVING",
     "surround_camera_state": "L2_DRIVING",
     "occupant_role": "L1_CABIN",
+    "speaker_role": "L1_CABIN",
     "speaker_zone": "L1_CABIN",
     "authentication_state": "L1_CABIN",
+    "safety_constraint": "L3_EMERGENCY",
+    "emergency_flag": "L3_EMERGENCY",
     "door_lock_state": "L1_CABIN",
     "door_state": "L1_CABIN",
     "window_state": "L1_CABIN",
@@ -53,7 +56,7 @@ LAYER_BY_TYPE = {
 }
 
 ENVIRONMENT_TYPES = {"ambient_light", "weather", "road_condition", "speed_limit"}
-IDENTITY_TYPES = {"occupant_role", "speaker_zone", "authentication_state"}
+IDENTITY_TYPES = {"occupant_role", "speaker_role", "speaker_zone", "authentication_state"}
 SYSTEM_TYPES = {"vehicle_mode", "safety_constraint", "emergency_flag"}
 
 

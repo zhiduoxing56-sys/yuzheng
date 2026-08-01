@@ -1,14 +1,14 @@
 # 语证
 
-面向智能座舱高风险车控指令的证据对齐与可解释裁决系统。当前冻结范围为阶段二“完整证据闭环”：文本指令依次经过配置化语义解析、768 维需求向量、语义候选检索、强制证据补召、证据质量评估、运行时证据子图、阶段一安全门与三态裁决，并写入 SQLite 哈希链审计。
+面向智能座舱高风险车控指令的证据对齐与可解释裁决系统。当前实现范围为阶段三“高级推理、越狱防护与完整安全裁决闭环”：在阶段二真实 BGE/HNSW 证据闭环之上，增加双重记忆、因果贝叶斯修正、上下文声明对齐、越狱风险聚合、16 项硬性安全门、五维动态评分和审计样本质量隔离。
 
 ## 安装与运行
 
-要求 Python 3.10+。核心依赖不会下载模型，也不要求 hnswlib：
+本仓库阶段三验收固定使用 `D:\software\anaconda\envs\yuzheng311\python.exe`。该环境已安装 sentence-transformers、`BAAI/bge-base-zh-v1.5` 本地模型和 hnswlib 0.8.0：
 
 ```powershell
-python -m pip install -r backend\requirements.txt
-python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
+D:\software\anaconda\envs\yuzheng311\python.exe -m pip install -r backend\requirements.txt
+D:\software\anaconda\envs\yuzheng311\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8765
 ```
 
 若本机具备兼容的本地模型或希望启用 hnswlib，可额外安装：
@@ -48,7 +48,7 @@ python -m pip install -r backend\requirements-optional.txt
 - `gate_blocked` 和 `gate_reasons` 表示硬规则是否覆盖软评分；其他分数不能抵消硬门。
 - 有强制证据时 `evidence_coverage_applicable=true`，ECR/覆盖率按实际可用强制类型计算。
 - 无强制证据时 `evidence_coverage_applicable=false`、ECR/覆盖率为 `null`，该因子从相应评分中剔除并重新归一化。
-- 阶段二的 EAS 是证据对齐质量指标，不替代阶段一裁决评分。五维动态评分属于后续阶段，本阶段未实现。
+- EAS 是证据对齐质量指标，不替代阶段三五维安全评分；阶段三五维评分已实现并独立接受硬门覆盖。
 
 ## 测试
 
@@ -59,6 +59,24 @@ python -m pytest -v --durations=30
 
 阶段边界和真实/降级实现状态见 [docs/实现状态.md](docs/实现状态.md)。需求唯一基线为仓库中的作品报告 PDF。
 
-## 阶段二边界
+## 阶段三边界
 
-默认车辆数据来自确定性模拟器，不代表真实传感器或 CAN 总线。文本输入不执行声学可信检查或 ASR。`corrected_weights={}`、`decision_confidence=null` 且 `advanced_reasoning_applied=false` 明确表示尚未进入双重记忆、因果修正、完整越狱聚合和五维动态评分。前端、WebSocket、复核重跑、授权令牌、音频和真实车机总线也未开始。
+默认车辆数据来自确定性模拟器，不代表真实传感器或 CAN 总线。文本输入不执行声学可信检查或 ASR。前端、WebSocket、复核重跑、授权令牌、车辆动作执行、音频和真实车机总线不属于阶段三，均未开始。
+
+## 阶段三核心语义
+
+- 双重记忆只允许高安全层向低安全层传播，默认 `alpha=0.3`；冲突证据只会抑制，不会被横向传播抬高。
+- 因果统计只读取 `record_quality=VALID` 且 `eligible_for_learning=true` 的审计记录；历史不足时仍返回归一化的拉普拉斯平滑先验并标记 `insufficient`。
+- `soft_safety_score` 是硬门前五维评分；`final_decision` 是硬门覆盖后的结果。任何硬门命中都强制 `BLOCK`，高软评分不能抵消。
+- 无强制证据时 `Ccov=null`、`applicable=false`，其权重被剔除后重新归一化；模糊指令使用 `diagnostic_only`，不执行强制补召。
+- 审计质量侧表不参与原审计摘要计算，更新分类不会改变旧哈希链；篡改审计正文仍会导致验链失败。
+
+阶段三新增接口：`GET /api/turns/{turn_id}`、`GET /api/reasoning/turn/{turn_id}`、`GET /api/causal/status`、`POST /api/causal/rebuild`、`GET /api/audits/learning-status`、`GET /api/audits/verify-chain`。
+
+阶段三验收命令：
+
+```powershell
+D:\software\anaconda\envs\yuzheng311\python.exe -m compileall -q backend\app backend\tests
+D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=40
+D:\software\anaconda\envs\yuzheng311\python.exe scripts\benchmark_stage3.py
+```

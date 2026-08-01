@@ -1,0 +1,11 @@
+count_cap: 4
+count_weight: 0.40
+severity_weight: 0.60
+flag_threshold: 0.25
+roles:
+  administrator: [administrator, admin]
+  owner: [owner]
+  driver: [driver]
+direct_interface_policy:
+  enabled: false
+  requires_authentication: true

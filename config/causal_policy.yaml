@@ -1,0 +1,12 @@
+laplace_alpha: 1.0
+outcome_count: 3
+sufficient_sample_count: 5
+prior_floor: 0.001
+risk_priors:
+  R3: 0.55
+  R2: 0.70
+  R1: 0.85
+domain_order:
+  semantic: 0
+  evidence: 1
+  decision: 2

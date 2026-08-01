@@ -21,7 +21,7 @@ vague_pronouns:
   - 那玩意
 
 actions:
-  打开: [打开, 开启, 启动]
+  打开: [打开, 开启, 启动, 播放]
   关闭: [关闭, 关掉, 关上]
   调高: [调高, 增大, 升高]
   调低: [调低, 减小, 降低]
@@ -33,6 +33,10 @@ actions:
   查询: [查询, 查看, 多少, 什么状态]
   确认: [确认, 是的, 确定]
   取消: [取消, 算了, 不用了]
+
+implicit_targets_by_action:
+  加速: 速度
+  减速: 速度
 
 targets:
   车门: [车门, 车门锁]
@@ -90,7 +94,11 @@ risk_profiles:
     tags: []
 
 context_claim_patterns:
-  simulator_claim: [模拟器模式, 仿真模式]
-  safety_bypass_claim: [忽略安全限制, 关闭安全保护, 绕过权限, 直接调用车辆接口]
-  role_claim: [我是管理员, 我是驾驶员]
+  simulator_claim: [模拟器模式, 仿真模式, 测试环境]
+  role_claim: [我是管理员, 我是车主, 我是驾驶员]
   emergency_claim: [紧急情况, 紧急状态]
+  safety_bypass_claim: [忽略安全限制, 忽略安全规则, 关闭安全保护, 关闭安全功能, 绕过权限, 绕过权限校验]
+  outside_vehicle_claim: [我人在车外, 我在车外]
+  authorization_claim: [已经获得授权, 已获得授权, 我有授权, 允许直接]
+  direct_interface_claim: [直接调用车辆接口, 直接发送控制报文, 车辆控制报文]
+  system_mode_claim: [修改系统模式, 篡改系统模式, 切换系统模式]

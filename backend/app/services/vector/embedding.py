@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import math
 from functools import lru_cache
+from threading import RLock
 from typing import Any, Protocol
 
 import numpy as np
@@ -89,11 +90,18 @@ class LocalSentenceTransformerEmbeddingService:
         self.model_name = model_name
         self.dimension = dimension
         self.degradation_reason = None
+        self._cache_hits = 0
+        self._cache_misses = 0
+        self._cache_lock = RLock()
 
     @lru_cache(maxsize=4096)
-    def _encode_cached(self, text: str) -> tuple[tuple[float, ...], str]:
+    def _encode_cached(
+        self, model_name: str, normalized_text: str
+    ) -> tuple[tuple[float, ...], str]:
         raw = np.asarray(
-            self._model.encode([text], normalize_embeddings=True, show_progress_bar=False)[0],
+            self._model.encode(
+                [normalized_text], normalize_embeddings=True, show_progress_bar=False
+            )[0],
             dtype=np.float64,
         )
         if raw.size != self.dimension:
@@ -106,7 +114,18 @@ class LocalSentenceTransformerEmbeddingService:
         return tuple(values), vector_digest
 
     def encode(self, text: str) -> tuple[list[float], VectorizationMetadata]:
-        cached_values, vector_digest = self._encode_cached(text)
+        normalized_text = " ".join(text.strip().lower().split())
+        with self._cache_lock:
+            before = self._encode_cached.cache_info()
+            cached_values, vector_digest = self._encode_cached(
+                self.model_name, normalized_text
+            )
+            after = self._encode_cached.cache_info()
+            cache_hit = after.hits > before.hits
+            if cache_hit:
+                self._cache_hits += 1
+            else:
+                self._cache_misses += 1
         values = list(cached_values)
         return values, VectorizationMetadata(
             implementation=self.implementation,
@@ -115,6 +134,9 @@ class LocalSentenceTransformerEmbeddingService:
             normalized=True,
             real_model_inference=True,
             vector_digest=vector_digest,
+            cache_hit=cache_hit,
+            cache_hits=self._cache_hits,
+            cache_misses=self._cache_misses,
         )
 
 

@@ -48,6 +48,8 @@ class SemanticFrameParser:
         # 复合声明中前面的“进入模拟器模式”是上下文声明，最后的动词才是车控动作。
         action = self._match_term(normalized, self.config.get("actions", {}), prefer_last=True)
         target = self._match_term(normalized, self.config.get("targets", {}))
+        if target == UNKNOWN:
+            target = str(self.config.get("implicit_targets_by_action", {}).get(action, UNKNOWN))
         area = self._match_term(normalized, self.config.get("areas", {}))
 
         domain = UNKNOWN

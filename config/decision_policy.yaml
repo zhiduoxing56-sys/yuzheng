@@ -4,3 +4,22 @@ stage_one_score_weights:
 thresholds:
   pass: 0.75
   review: 0.50
+
+five_factor_weights:
+  Csem: 0.20
+  Ccov: 0.25
+  Ctrust: 0.25
+  Cjb: 0.25
+  Cnec: 0.05
+
+evidence_trust_mapping:
+  VALID: 1.0
+  SUSPICIOUS: 0.5
+  STALE: 0.2
+  TAMPERED: 0.0
+  MISSING: 0.0
+
+safety_necessity_by_risk:
+  R3: 1.0
+  R2: 0.6
+  R1: 0.2

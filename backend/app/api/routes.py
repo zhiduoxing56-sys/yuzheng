@@ -4,11 +4,15 @@ from fastapi import APIRouter, HTTPException
 
 from app.core.pipeline import CommandPipeline
 from app.models.schemas import (
+    AdvancedReasoningResult,
+    AuditRecord,
+    CausalStatus,
     CurrentEvidenceResponse,
     EvidenceSubgraph,
     HealthResponse,
     IndexRebuildRequest,
     IndexStatus,
+    LearningAuditStatus,
     TextCommandRequest,
     TextCommandResponse,
 )
@@ -22,7 +26,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         return HealthResponse(
             status="ok",
             service="语证后端",
-            stage="阶段二：完整证据闭环",
+            stage="阶段三：高级推理、越狱防护与完整安全裁决闭环",
             database=pipeline.audit_repository.health(),
         )
 
@@ -48,5 +52,42 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.get("/index/status", response_model=IndexStatus)
     def index_status() -> IndexStatus:
         return pipeline.index.status()
+
+    @router.get("/turns/{turn_id}", response_model=AuditRecord)
+    def turn_detail(turn_id: str) -> AuditRecord:
+        record = pipeline.audit_repository.get_by_turn(turn_id)
+        if record is None:
+            raise HTTPException(status_code=404, detail=f"turn not found: {turn_id}")
+        return record
+
+    @router.get("/turns/{turn_id}/reasoning", response_model=AdvancedReasoningResult)
+    def turn_reasoning(turn_id: str) -> AdvancedReasoningResult:
+        reasoning = pipeline.get_reasoning(turn_id)
+        if reasoning is None:
+            raise HTTPException(status_code=404, detail=f"reasoning not found: {turn_id}")
+        return reasoning
+
+    @router.get("/reasoning/turn/{turn_id}", response_model=AdvancedReasoningResult)
+    def reasoning_turn(turn_id: str) -> AdvancedReasoningResult:
+        reasoning = pipeline.get_reasoning(turn_id)
+        if reasoning is None:
+            raise HTTPException(status_code=404, detail=f"reasoning not found: {turn_id}")
+        return reasoning
+
+    @router.get("/causal/status", response_model=CausalStatus)
+    def causal_status() -> CausalStatus:
+        return pipeline.causal_service.status()
+
+    @router.post("/causal/rebuild", response_model=CausalStatus)
+    def causal_rebuild() -> CausalStatus:
+        return pipeline.rebuild_causal()
+
+    @router.get("/audits/learning-status", response_model=LearningAuditStatus)
+    def audits_learning_status() -> LearningAuditStatus:
+        return pipeline.audit_repository.learning_status()
+
+    @router.get("/audits/verify-chain")
+    def audits_verify_chain() -> dict[str, bool]:
+        return {"valid": pipeline.audit_repository.verify_chain()}
 
     return router

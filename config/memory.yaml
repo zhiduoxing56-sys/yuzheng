@@ -1,0 +1,35 @@
+layers:
+  L3_EMERGENCY: 3
+  L2_DRIVING: 2
+  L1_CABIN: 1
+  L0_ENTERTAINMENT: 0
+
+horizontal:
+  time_window_seconds: 30
+  factors:
+    same_time_window: 0.20
+    same_area: 0.10
+    same_source: 0.15
+    semantic_complement: 0.15
+    functional_dependency: 0.15
+    common_action_support: 0.15
+    common_target_constraint: 0.10
+  support_coefficient: 0.08
+  conflict_penalty: 0.25
+  functional_pairs:
+    - [vehicle_speed, gear_position]
+    - [door_state, door_lock_state]
+    - [ambient_light, headlight_state]
+    - [navigation_active, display_state]
+    - [reverse_camera_active, display_state]
+    - [occupant_role, authentication_state]
+
+vertical:
+  alpha: 0.30
+  risk_penalty: 0.30
+  support_bonus: 0.05
+  allowed_support_paths:
+    - [safety_rule, display_state]
+    - [vehicle_mode, display_state]
+    - [vehicle_speed, door_lock_state]
+    - [authentication_state, door_lock_state]

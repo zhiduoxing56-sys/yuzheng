@@ -44,6 +44,17 @@ class EvidenceRelation(str, Enum):
     DERIVED_FROM = "DERIVED_FROM"
     PERMISSION_BOUND = "PERMISSION_BOUND"
     RULE_CONSTRAINED = "RULE_CONSTRAINED"
+    HORIZONTAL_MEMORY = "HORIZONTAL_MEMORY"
+    VERTICAL_PROPAGATION = "VERTICAL_PROPAGATION"
+
+
+class AuditRecordQuality(str, Enum):
+    VALID = "VALID"
+    KNOWN_BUG = "KNOWN_BUG"
+    ENCODING_ERROR = "ENCODING_ERROR"
+    SUPERSEDED = "SUPERSEDED"
+    TEST_ONLY = "TEST_ONLY"
+    LEGACY_MODEL = "LEGACY_MODEL"
 
 
 class VoiceTrustResult(StrictModel):
@@ -102,6 +113,7 @@ class EvidenceDemand(StrictModel):
     required_types: list[str] = Field(default_factory=list)
     optional_types: list[str] = Field(default_factory=list)
     priority: int = Field(default=0, ge=0, le=100)
+    retrieval_scope: str = "control_evidence"
 
 
 class EvidenceNode(StrictModel):
@@ -140,6 +152,9 @@ class VectorizationMetadata(StrictModel):
     real_model_inference: bool
     vector_digest: str
     degradation_reason: str | None = None
+    cache_hit: bool = False
+    cache_hits: int = Field(default=0, ge=0)
+    cache_misses: int = Field(default=0, ge=0)
 
 
 class RetrievalMetadata(StrictModel):
@@ -203,6 +218,145 @@ class EvidenceSubgraph(StrictModel):
     advanced_reasoning_status: str = "NOT_APPLICABLE_STAGE2"
 
 
+class ContextClaim(StrictModel):
+    claim_type: str
+    claimed_value: Any
+    matched_text: list[str] = Field(default_factory=list)
+    source_text: str
+
+
+class GroundingFailure(StrictModel):
+    claim: str
+    expected_evidence: list[str] = Field(default_factory=list)
+    observed_evidence: dict[str, Any] = Field(default_factory=dict)
+    severity: int = Field(ge=1, le=3)
+    explanation: str
+    supporting_node_ids: list[str] = Field(default_factory=list)
+
+
+class JailbreakConflict(StrictModel):
+    conflict_id: str = Field(default_factory=lambda: make_id("CONFLICT"))
+    claim_type: str
+    claimed_value: Any
+    observed_value: Any
+    evidence_node_ids: list[str] = Field(default_factory=list)
+    severity: int = Field(ge=1, le=3)
+    reason: str
+    rule_id: str
+    recommended_action: str
+
+
+class AdvancedValidationResult(StrictModel):
+    context_claims: list[ContextClaim] = Field(default_factory=list)
+    conflicts: list[JailbreakConflict] = Field(default_factory=list)
+    grounding_failures: list[GroundingFailure] = Field(default_factory=list)
+    jailbreak_flag: bool = False
+    jailbreak_risk: float = Field(default=0, ge=0, le=1)
+    conflict_count: int = Field(default=0, ge=0)
+    max_severity: int = Field(default=0, ge=0, le=3)
+    severity_distribution: dict[str, int] = Field(default_factory=dict)
+    duration_ms: float = Field(default=0, ge=0)
+
+
+class MemoryLink(StrictModel):
+    link_id: str = Field(default_factory=lambda: make_id("MEM"))
+    source: str
+    target: str
+    relation: EvidenceRelation
+    weight: float = Field(ge=0, le=1)
+    layer: str
+    reason: str
+    conflict: bool = False
+
+
+class MemoryPropagationResult(StrictModel):
+    horizontal_links: list[MemoryLink] = Field(default_factory=list)
+    horizontal_support: float = Field(default=0, ge=0, le=1)
+    horizontal_conflicts: int = Field(default=0, ge=0)
+    horizontal_adjustments: dict[str, float] = Field(default_factory=dict)
+    vertical_links: list[MemoryLink] = Field(default_factory=list)
+    propagation_paths: list[dict[str, Any]] = Field(default_factory=list)
+    pre_weights: dict[str, float] = Field(default_factory=dict)
+    post_weights: dict[str, float] = Field(default_factory=dict)
+    horizontal_duration_ms: float = Field(default=0, ge=0)
+    vertical_duration_ms: float = Field(default=0, ge=0)
+    duration_ms: float = Field(default=0, ge=0)
+
+
+class CausalEdge(StrictModel):
+    source: str
+    target: str
+    relation: str
+    support: float = Field(default=0, ge=0, le=1)
+    sample_count: int = Field(default=0, ge=0)
+    reason: str
+
+
+class CausalCorrectionResult(StrictModel):
+    causal_graph: dict[str, Any] = Field(default_factory=dict)
+    candidate_edges: list[CausalEdge] = Field(default_factory=list)
+    pruned_edges: list[CausalEdge] = Field(default_factory=list)
+    semantic_prior: dict[str, float] = Field(default_factory=dict)
+    historical_support: dict[str, float] = Field(default_factory=dict)
+    posterior_weights: dict[str, float] = Field(default_factory=dict)
+    corrected_weights: dict[str, float] = Field(default_factory=dict)
+    entropy: float = Field(default=0, ge=0, le=1)
+    decision_confidence: float = Field(default=0, ge=0, le=1)
+    sample_count: int = Field(default=0, ge=0)
+    data_sufficiency: str = "insufficient"
+    learning_record_ids: list[str] = Field(default_factory=list)
+    excluded_record_count: int = Field(default=0, ge=0)
+    advanced_reasoning_applied: bool = True
+    duration_ms: float = Field(default=0, ge=0)
+
+
+class ScoreFactor(StrictModel):
+    name: str
+    value: float | None = Field(default=None, ge=0, le=1)
+    applicable: bool
+    configured_weight: float = Field(ge=0, le=1)
+    actual_weight: float = Field(ge=0, le=1)
+    contribution: float = Field(ge=0, le=1)
+    reason: str
+
+
+class AuditQualityMetadata(StrictModel):
+    audit_id: str
+    record_quality: AuditRecordQuality
+    eligible_for_learning: bool
+    exclusion_reasons: list[str] = Field(default_factory=list)
+    implementation_stage: str
+    pipeline_version: str
+    schema_version: str
+    superseded_by: str | None = None
+    created_at: datetime = Field(default_factory=utc_now)
+
+
+class TurnTiming(StrictModel):
+    turn_started_at: datetime
+    state_snapshot_at: datetime
+    decision_reference_time: datetime
+    completed_at: datetime | None = None
+    end_to_end_ms: float = Field(default=0, ge=0)
+
+
+class AdvancedReasoningResult(StrictModel):
+    memory_propagation: MemoryPropagationResult = Field(default_factory=MemoryPropagationResult)
+    causal_correction: CausalCorrectionResult = Field(default_factory=CausalCorrectionResult)
+    validation: AdvancedValidationResult = Field(default_factory=AdvancedValidationResult)
+    five_factor_score: dict[str, ScoreFactor] = Field(default_factory=dict)
+    decision_confidence: float = Field(default=0, ge=0, le=1)
+    explanations: list[str] = Field(default_factory=list)
+    recognized_command: dict[str, Any] = Field(default_factory=dict)
+    mandatory_evidence_complete: bool = False
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
+    conflicting_evidence_ids: list[str] = Field(default_factory=list)
+    hit_rules: list[str] = Field(default_factory=list)
+    review_question: str | None = None
+    performance_ms: dict[str, float] = Field(default_factory=dict)
+    advanced_reasoning_applied: bool = True
+
+
 class ValidationResult(StrictModel):
     validated_nodes: list[EvidenceNode] = Field(default_factory=list)
     conflicts: list[dict[str, Any]] = Field(default_factory=list)
@@ -217,6 +371,7 @@ class GateCheck(StrictModel):
     hit: bool
     reason: str
     observed: dict[str, Any] = Field(default_factory=dict)
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
 
 
 class SafetyGateResult(StrictModel):
@@ -224,6 +379,16 @@ class SafetyGateResult(StrictModel):
     mandatory_evidence_missing: bool = False
     checks: list[GateCheck]
     reasons: list[str]
+    gate_blocked: bool | None = None
+    hit_rules: list[str] = Field(default_factory=list)
+    observed_values: dict[str, Any] = Field(default_factory=dict)
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def fill_gate_alias(self) -> "SafetyGateResult":
+        if self.gate_blocked is None:
+            self.gate_blocked = self.blocked
+        return self
 
 
 class DecisionScoreFactors(StrictModel):
@@ -231,6 +396,7 @@ class DecisionScoreFactors(StrictModel):
     evidence_coverage: float | None = Field(default=None, ge=0, le=1)
     evidence_coverage_applicable: bool
     applied_weights: dict[str, float] = Field(default_factory=dict)
+    five_factors: dict[str, ScoreFactor] = Field(default_factory=dict)
 
     @model_validator(mode="before")
     @classmethod
@@ -259,6 +425,13 @@ class DecisionResult(StrictModel):
     explanations: list[str] = Field(default_factory=list)
     review_question: str | None = None
     authorization_token: str | None = None
+    jailbreak_risk: float = Field(default=0, ge=0, le=1)
+    decision_confidence: float = Field(default=0, ge=0, le=1)
+    advanced_reasoning: AdvancedReasoningResult | None = None
+    causal_correction: CausalCorrectionResult | None = None
+    memory_propagation: MemoryPropagationResult | None = None
+    grounding_failures: list[GroundingFailure] = Field(default_factory=list)
+    conflicts: list[JailbreakConflict] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=utc_now)
 
     @model_validator(mode="before")
@@ -279,6 +452,14 @@ class DecisionResult(StrictModel):
         return self
 
 
+class AdvancedDecisionResult(StrictModel):
+    """Complete final decision together with its auditable reasoning trace."""
+
+    decision: DecisionResult
+    reasoning: AdvancedReasoningResult
+    gate_result: SafetyGateResult
+
+
 class VehicleState(StrictModel):
     vehicle_speed: float | None = Field(default=0, ge=0)
     gear_position: str | None = "P"
@@ -287,8 +468,8 @@ class VehicleState(StrictModel):
     occupant_role: str | None = "driver"
     speaker_zone: str | None = "driver"
     vehicle_mode: str | None = "REAL_DRIVING"
-    authentication_state: str | None = "AUTHENTICATED"
-    ambient_light: float | None = Field(default=100, ge=0)
+    authentication_state: str | bool | None = "AUTHENTICATED"
+    ambient_light: float | int | str | None = 100
     headlight_state: str | None = "OFF"
     weather: str | None = "CLEAR"
     window_state: str | None = "CLOSED"
@@ -315,8 +496,8 @@ class VehicleStatePatch(StrictModel):
     occupant_role: str | None = None
     speaker_zone: str | None = None
     vehicle_mode: str | None = None
-    authentication_state: str | None = None
-    ambient_light: float | None = Field(default=None, ge=0)
+    authentication_state: str | bool | None = None
+    ambient_light: float | int | str | None = None
     headlight_state: str | None = None
     weather: str | None = None
     window_state: str | None = None
@@ -383,6 +564,25 @@ class AuditRecord(StrictModel):
     review_process: list[dict[str, Any]] = Field(default_factory=list)
     vehicle_execution_request: dict[str, Any] | None = None
     vehicle_execution_feedback: dict[str, Any] | None = None
+    audit_quality: AuditQualityMetadata | None = None
+    horizontal_memory: list[MemoryLink] = Field(default_factory=list)
+    vertical_propagation: list[MemoryLink] = Field(default_factory=list)
+    causal_candidate_edges: list[CausalEdge] = Field(default_factory=list)
+    causal_pruned_edges: list[CausalEdge] = Field(default_factory=list)
+    causal_posterior: dict[str, float] = Field(default_factory=dict)
+    causal_entropy: float | None = Field(default=None, ge=0, le=1)
+    decision_confidence: float | None = Field(default=None, ge=0, le=1)
+    context_claims: list[ContextClaim] = Field(default_factory=list)
+    grounding_failures: list[GroundingFailure] = Field(default_factory=list)
+    jailbreak_conflicts: list[JailbreakConflict] = Field(default_factory=list)
+    jailbreak_risk: float = Field(default=0, ge=0, le=1)
+    complete_gate_result: SafetyGateResult | None = None
+    five_factor_score: dict[str, ScoreFactor] = Field(default_factory=dict)
+    advanced_explanations: list[str] = Field(default_factory=list)
+    memory_propagation: MemoryPropagationResult | None = None
+    causal_correction: CausalCorrectionResult | None = None
+    advanced_reasoning: AdvancedReasoningResult | None = None
+    turn_timing: TurnTiming | None = None
     previous_hash: str = ""
     current_hash: str = ""
     created_at: datetime = Field(default_factory=utc_now)
@@ -404,6 +604,17 @@ class TextCommandResponse(StrictModel):
     safety_gate: SafetyGateResult
     decision: DecisionResult
     audit: AuditRecord
+    actionable: bool = True
+    retrieval_scope: str = "control_evidence"
+    advanced_reasoning: AdvancedReasoningResult | None = None
+    memory_propagation: MemoryPropagationResult | None = None
+    causal_correction: CausalCorrectionResult | None = None
+    grounding_failures: list[GroundingFailure] = Field(default_factory=list)
+    jailbreak_conflicts: list[JailbreakConflict] = Field(default_factory=list)
+    jailbreak_risk: float = Field(default=0, ge=0, le=1)
+    score_factors: dict[str, ScoreFactor] = Field(default_factory=dict)
+    decision_confidence: float = Field(default=0, ge=0, le=1)
+    turn_timing: TurnTiming | None = None
 
 
 class HealthResponse(StrictModel):
@@ -437,3 +648,22 @@ class CurrentEvidenceResponse(StrictModel):
     node_count: int = Field(ge=0)
     short_term_availability: dict[str, float | None] = Field(default_factory=dict)
     long_term_availability: dict[str, float | None] = Field(default_factory=dict)
+
+
+class CausalStatus(StrictModel):
+    learning_record_count: int = Field(default=0, ge=0)
+    excluded_record_count: int = Field(default=0, ge=0)
+    candidate_edge_count: int = Field(default=0, ge=0)
+    pruned_edge_count: int = Field(default=0, ge=0)
+    graph_node_count: int = Field(default=0, ge=0)
+    graph_edge_count: int = Field(default=0, ge=0)
+    last_rebuilt_at: datetime | None = None
+    data_sufficiency: str = "insufficient"
+
+
+class LearningAuditStatus(StrictModel):
+    total_records: int = Field(default=0, ge=0)
+    learning_record_count: int = Field(default=0, ge=0)
+    excluded_record_count: int = Field(default=0, ge=0)
+    quality_distribution: dict[str, int] = Field(default_factory=dict)
+    records: list[AuditQualityMetadata] = Field(default_factory=list)

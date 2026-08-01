@@ -35,5 +35,10 @@ class EvidenceDemandService:
             required_types=required,
             optional_types=optional,
             priority=int(rule.get("priority", 0)),
+            retrieval_scope=(
+                "diagnostic_only"
+                if frame.action == "unknown" or frame.target == "unknown"
+                else "control_evidence"
+            ),
         )
         return updated_frame, demand

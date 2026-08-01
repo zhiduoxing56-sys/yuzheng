@@ -9,7 +9,7 @@ def test_health_reports_real_database_connection(api_client) -> None:
     assert body == {
         "status": "ok",
         "service": "语证后端",
-        "stage": "阶段二：完整证据闭环",
+        "stage": "阶段三：高级推理、越狱防护与完整安全裁决闭环",
         "database": "connected",
     }
 

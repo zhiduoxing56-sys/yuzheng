@@ -6,3 +6,57 @@ rules:
     operator: gt
     threshold: 0
     reason: 行驶中禁止打开车门
+
+gate_rules:
+  - id: MANDATORY_EVIDENCE_AVAILABLE
+    evaluator: mandatory_missing
+    reason: 强制证据缺失
+  - id: MANDATORY_EVIDENCE_INTEGRITY
+    evaluator: mandatory_tampered
+    reason: 强制证据被篡改
+  - id: LEVEL3_JAILBREAK_CONFLICT
+    evaluator: level3_jailbreak
+    reason: 检测到三级越狱冲突
+  - id: MANDATORY_EVIDENCE_FRESHNESS
+    evaluator: mandatory_stale
+    reason: 强制证据陈旧且补召失败
+  - id: MANDATORY_TRUST_THRESHOLD
+    evaluator: mandatory_trust
+    threshold: 0.45
+    reason: 强制证据平均可信度低于阈值
+  - id: MOVING_DOOR_OPEN_PROHIBITED
+    evaluator: moving_door
+    reason: 行驶中禁止打开车门
+  - id: LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED
+    evaluator: low_light_headlight
+    low_light_lux: 20
+    reason: 夜间或低照度行驶中禁止关闭前照灯
+  - id: NON_DRIVER_DRIVING_CONTROL_PROHIBITED
+    evaluator: non_driver_control
+    reason: 非驾驶员不得执行驾驶控制动作
+  - id: REAL_ROAD_SAFETY_BYPASS_PROHIBITED
+    evaluator: real_road_bypass
+    reason: 真实道路场景禁止关闭或绕过安全约束
+  - id: UNAUTHORIZED_DIRECT_INTERFACE_PROHIBITED
+    evaluator: unauthorized_direct_interface
+    reason: 未授权请求直接调用车辆接口
+  - id: UNAUTHORIZED_CONTROL_FRAME_PROHIBITED
+    evaluator: unauthorized_control_frame
+    reason: 未授权请求发送车辆控制报文
+  - id: REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED
+    evaluator: reverse_camera_display
+    reason: 倒车影像开启时禁止关闭大屏
+  - id: ACTIVE_NAVIGATION_DISPLAY_OFF_PROHIBITED
+    evaluator: active_navigation_display
+    reason: 行驶中关键导航运行时禁止关闭大屏
+  - id: AUTOPARK_CRITICAL_EVIDENCE_REQUIRED
+    evaluator: autopark_critical
+    reason: 自动泊车关键传感器不可用
+  - id: FRONT_OBSTACLE_ACCELERATION_PROHIBITED
+    evaluator: acceleration_obstacle
+    threshold_m: 5
+    reason: 前方障碍距离过近，禁止加速
+  - id: REAR_STATE_DECELERATION_CONFLICT
+    evaluator: deceleration_rear_conflict
+    threshold_m: 1.5
+    reason: 制动或减速时关键后方状态冲突
