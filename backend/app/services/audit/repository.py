@@ -6,6 +6,7 @@ import sqlite3
 from pathlib import Path
 
 from app.models.schemas import (
+    AuditPage,
     AuditQualityMetadata,
     AuditRecord,
     AuditRecordQuality,
@@ -163,6 +164,68 @@ class AuditRepository:
                 "SELECT record_json FROM audit_records WHERE turn_id = ?", (turn_id,)
             ).fetchone()
         return AuditRecord.model_validate_json(row["record_json"]) if row else None
+
+    def get_by_id(self, audit_id: str) -> AuditRecord | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT record_json FROM audit_records WHERE audit_id = ?", (audit_id,)
+            ).fetchone()
+        return AuditRecord.model_validate_json(row["record_json"]) if row else None
+
+    def list_records(
+        self,
+        *,
+        page: int = 1,
+        page_size: int = 20,
+        decision: str | None = None,
+        action: str | None = None,
+        target: str | None = None,
+        risk_type: str | None = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
+    ) -> AuditPage:
+        clauses: list[str] = []
+        parameters: list[object] = []
+        filters = {"decision": decision, "action": action, "target": target}
+        for column, value in filters.items():
+            if value is not None:
+                clauses.append(f"{column} = ?")
+                parameters.append(value)
+        if risk_type is not None:
+            clauses.append("risk_types LIKE ?")
+            parameters.append(f"%{risk_type}%")
+        if start_time is not None:
+            clauses.append("created_at >= ?")
+            parameters.append(start_time)
+        if end_time is not None:
+            clauses.append("created_at <= ?")
+            parameters.append(end_time)
+        where = f" WHERE {' AND '.join(clauses)}" if clauses else ""
+        with self._connect() as connection:
+            total = int(
+                connection.execute(
+                    f"SELECT COUNT(*) FROM audit_records{where}", parameters
+                ).fetchone()[0]
+            )
+            rows = connection.execute(
+                f"SELECT record_json FROM audit_records{where} "
+                "ORDER BY created_at DESC, rowid DESC LIMIT ? OFFSET ?",
+                [*parameters, page_size, (page - 1) * page_size],
+            ).fetchall()
+        return AuditPage(
+            items=[AuditRecord.model_validate_json(row["record_json"]) for row in rows],
+            total=total,
+            page=page,
+            page_size=page_size,
+        )
+
+    def records_for_root(self, root_turn_id: str) -> list[AuditRecord]:
+        records = self.all_records()
+        return [
+            record
+            for record in records
+            if (record.root_turn_id or record.turn_id) == root_turn_id
+        ]
 
     def count(self) -> int:
         with self._connect() as connection:

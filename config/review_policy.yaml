@@ -1,0 +1,4 @@
+review_ttl_seconds: 300
+max_review_attempts: 3
+confirm_semantic_confidence_floor: 0.95
+confirm_ambiguity_multiplier: 0.5

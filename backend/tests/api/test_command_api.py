@@ -6,12 +6,18 @@ def test_health_reports_real_database_connection(api_client) -> None:
     response = client.get("/api/health")
     body = response.json()
     assert response.status_code == 200
-    assert body == {
-        "status": "ok",
-        "service": "语证后端",
-        "stage": "阶段三：高级推理、越狱防护与完整安全裁决闭环",
-        "database": "connected",
-    }
+    assert body["status"] == "ok"
+    assert body["service"] == "语证后端"
+    assert body["stage"] == "阶段四：复核恢复、一次性授权、车辆模拟执行与实时交互闭环"
+    assert body["database"] == "connected"
+    assert body["model_ready"] is True
+    assert body["embedding_implementation"] == "local_sentence_transformer"
+    assert body["index_ready"] is True
+    assert body["index_implementation"] == "hnswlib"
+    assert body["vehicle_adapter"] == "simulator"
+    assert body["token_secret_source"] == "injected_test_secret"
+    assert body["workflow_event_store"] == "connected"
+    assert body["websocket_ready"] is True
 
 
 def test_text_api_returns_pipeline_data_and_persists_audit(api_client) -> None:

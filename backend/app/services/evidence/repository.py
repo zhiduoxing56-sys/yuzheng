@@ -50,6 +50,7 @@ LAYER_BY_TYPE = {
     "ambient_light": "L1_CABIN",
     "weather": "L1_CABIN",
     "display_state": "L0_ENTERTAINMENT",
+    "music_state": "L0_ENTERTAINMENT",
     "navigation_active": "L0_ENTERTAINMENT",
     "safety_rule": "L3_EMERGENCY",
     "sensor_health": "L2_DRIVING",
@@ -334,6 +335,28 @@ class EvidenceRepository:
     def turn_nodes(self, turn_id: str) -> list[EvidenceNode]:
         with self._lock:
             return [self._nodes[node_id] for node_id in self._turn_nodes.get(turn_id, [])]
+
+    def clear_explicit_observations(self) -> int:
+        """Clear scenario/test override streams without touching persisted audit nodes."""
+        with self._lock:
+            removed = {
+                node_id
+                for node_id, node in self._nodes.items()
+                if bool(node.metadata.get("explicit_observation"))
+            }
+            for node_id in removed:
+                self._nodes.pop(node_id, None)
+            for evidence_type, node_ids in list(self._streams.items()):
+                retained = [node_id for node_id in node_ids if node_id not in removed]
+                if retained:
+                    self._streams[evidence_type] = retained
+                else:
+                    self._streams.pop(evidence_type, None)
+            for turn_id, node_ids in list(self._turn_nodes.items()):
+                self._turn_nodes[turn_id] = [
+                    node_id for node_id in node_ids if node_id not in removed
+                ]
+            return len(removed)
 
     def from_vehicle_state(
         self,

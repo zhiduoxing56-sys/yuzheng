@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+from threading import RLock
 from time import perf_counter
+from typing import Any, Callable
 
 from app.core.config import PROJECT_ROOT, load_yaml
 from app.models.schemas import (
@@ -10,35 +12,47 @@ from app.models.schemas import (
     AuditRecord,
     AuditRecordQuality,
     CurrentEvidenceResponse,
+    DecisionLabel,
     EvidenceEdge,
     EvidenceNode,
+    EvidenceObservationInput,
     EvidenceRelation,
     EvidenceSubgraph,
     IndexStatus,
+    PipelineEvent,
     TextCommandRequest,
     TextCommandResponse,
     TranscriptionResult,
+    TurnTimeline,
     TurnTiming,
+    VehicleState,
+    VehicleStatePatch,
     VoiceTrustResult,
+    WorkflowEventType,
     make_id,
     utc_now,
 )
 from app.services.audit.repository import AuditRepository
+from app.services.authorization.service import AuthorizationTokenError, AuthorizationTokenService
 from app.services.causal.service import CausalCorrectionService
 from app.services.decision.engine import DecisionService
 from app.services.decision.safety_gate import SafetyGateService
 from app.services.evidence.demand import EvidenceDemandService
 from app.services.evidence.recall import MandatoryRecallService
 from app.services.evidence.repository import EvidenceRepository
+from app.services.execution.service import ExecutionService
 from app.services.graph.builder import EvidenceSubgraphBuilder
 from app.services.index.hnsw import HNSWIndexService
 from app.services.memory.service import DualMemoryService
 from app.services.quality.evaluator import EvidenceQualityService
 from app.services.quality.window import EvidenceQualityWindow
+from app.services.review.service import ReviewService
 from app.services.semantic.parser import SemanticFrameParser
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
+from app.services.workflow.repository import WorkflowRepository
+from app.websocket.broker import PipelineEventBroker
 
 
 class CommandPipeline:
@@ -48,9 +62,20 @@ class CommandPipeline:
     Its result always overrides the five-factor soft score.
     """
 
-    def __init__(self, database_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        database_path: Path | None = None,
+        *,
+        token_secret: bytes | None = None,
+        event_broker: PipelineEventBroker | None = None,
+    ) -> None:
+        self._command_lock = RLock()
         quality_config = load_yaml("evidence_quality.yaml")
-        self.vehicle = SimulatorVehicleAdapter()
+        self.vehicle_config = load_yaml("vehicle_actions.yaml")
+        self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
+        self.event_broker = event_broker or PipelineEventBroker()
+        self.review_config = load_yaml("review_policy.yaml")
+        self.scenario_config = load_yaml("demo_scenarios.yaml")
         self.parser = SemanticFrameParser(load_yaml("semantic_rules.yaml"))
         self.embedder = build_embedding_service(load_yaml("embedding.yaml"))
         self.demand_service = EvidenceDemandService(
@@ -76,6 +101,12 @@ class CommandPipeline:
         self.audit_repository = AuditRepository(
             database_path or PROJECT_ROOT / "data" / "database" / "yuzheng.db"
         )
+        self.workflow_repository = WorkflowRepository(self.audit_repository.database_path)
+        self.authorization_service = AuthorizationTokenService(
+            load_yaml("authorization.yaml"),
+            self.workflow_repository,
+            secret=token_secret,
+        )
         self._refresh_causal_model()
         seed_nodes = self.evidence_repository.ingest_vehicle_state(
             self.vehicle.get_state(),
@@ -85,6 +116,8 @@ class CommandPipeline:
         self.index.build([*self._safety_rule_nodes, *seed_nodes])
         self._subgraphs: dict[str, EvidenceSubgraph] = {}
         self._turns: dict[str, TextCommandResponse] = {}
+        self.review_service = ReviewService(self, self.review_config)
+        self.execution_service = ExecutionService(self)
 
     def _refresh_causal_model(self) -> IndexStatus | object:
         status = self.audit_repository.learning_status()
@@ -151,15 +184,85 @@ class CommandPipeline:
             record_quality=quality,
             eligible_for_learning=quality == AuditRecordQuality.VALID,
             exclusion_reasons=reasons,
-            implementation_stage="stage3",
-            pipeline_version="3.0.0",
-            schema_version="3.0",
+            implementation_stage="stage4",
+            pipeline_version="4.0.0",
+            schema_version="4.0",
         )
 
-    def process_text(self, request: TextCommandRequest) -> TextCommandResponse:
+    def process_text(
+        self,
+        request: TextCommandRequest,
+        *,
+        root_turn_id: str | None = None,
+        parent_turn_id: str | None = None,
+        attempt_no: int = 0,
+        workflow_type: str = "INITIAL",
+        confirmed: bool = False,
+        suppress_authorization: bool = False,
+        event_sink: Callable[[PipelineEvent], None] | None = None,
+    ) -> TextCommandResponse:
+        turn_id = make_id("TURN")
+        root_turn_id = root_turn_id or turn_id
+        sequence = 0
+        sink = event_sink or self.event_broker.publish
+        event_started = perf_counter()
+
+        def emit(stage: str, summary: str, payload: dict[str, Any] | None = None) -> None:
+            nonlocal sequence, event_started
+            if request.session_id is None:
+                return
+            now = perf_counter()
+            sequence += 1
+            sink(
+                PipelineEvent(
+                    session_id=request.session_id,
+                    turn_id=turn_id,
+                    sequence=sequence,
+                    stage=stage,
+                    duration_ms=round((now - event_started) * 1000, 4),
+                    summary=summary,
+                    payload=payload or {},
+                )
+            )
+            event_started = now
+
+        emit("INPUT_RECEIVED", "文本指令已接收", {"input_source": "text_api"})
+        try:
+            with self._command_lock:
+                return self._process_text_locked(
+                    request,
+                    turn_id=turn_id,
+                    root_turn_id=root_turn_id,
+                    parent_turn_id=parent_turn_id,
+                    attempt_no=attempt_no,
+                    workflow_type=workflow_type,
+                    confirmed=confirmed,
+                    suppress_authorization=suppress_authorization,
+                    emit=emit,
+                )
+        except Exception as exc:
+            emit(
+                "PIPELINE_FAILED",
+                "流水线处理失败",
+                {"error_type": type(exc).__name__, "message": str(exc)},
+            )
+            raise
+
+    def _process_text_locked(
+        self,
+        request: TextCommandRequest,
+        *,
+        turn_id: str,
+        root_turn_id: str,
+        parent_turn_id: str | None,
+        attempt_no: int,
+        workflow_type: str,
+        confirmed: bool,
+        suppress_authorization: bool,
+        emit: Callable[[str, str, dict[str, Any] | None], None],
+    ) -> TextCommandResponse:
         overall_started = perf_counter()
         turn_started_at = utc_now()
-        turn_id = make_id("TURN")
         state = (
             self.vehicle.update_state(request.state_overrides)
             if request.state_overrides is not None
@@ -179,6 +282,7 @@ class CommandPipeline:
             input_trust_label="NOT_APPLICABLE_TEXT_INPUT",
             audio_fingerprint="",
         )
+        emit("TRUST_CHECKED", "文本输入无需声学可信检查", {"label": input_trust.input_trust_label})
         transcription = TranscriptionResult(
             turn_id=turn_id,
             text=request.text,
@@ -186,8 +290,25 @@ class CommandPipeline:
             adapter="text_passthrough",
             model_inference_performed=False,
         )
+        emit("ASR_COMPLETED", "文本直通，无 ASR 模型推理", {"adapter": transcription.adapter})
         frame = self.parser.parse(turn_id, request.text)
+        if confirmed and frame.action != "unknown" and frame.target != "unknown":
+            frame = frame.model_copy(
+                update={
+                    "semantic_confidence": max(
+                        float(self.review_config.get("confirm_semantic_confidence_floor", 0.95)),
+                        frame.semantic_confidence,
+                    ),
+                    "ambiguity_score": frame.ambiguity_score
+                    * float(self.review_config.get("confirm_ambiguity_multiplier", 0.5)),
+                }
+            )
         frame, demand = self.demand_service.build(frame)
+        emit(
+            "SEMANTIC_PARSED",
+            "语义帧已生成",
+            {"action": frame.action, "target": frame.target, "risk_level": frame.risk_level},
+        )
 
         snapshot_nodes = self.evidence_repository.ingest_vehicle_state(
             state,
@@ -204,11 +325,21 @@ class CommandPipeline:
         candidate_evidence = [
             self._candidate_copy(node, similarity) for node, similarity in search_results
         ]
+        emit(
+            "EVIDENCE_RETRIEVED",
+            "语义候选检索完成",
+            {"candidate_count": len(candidate_evidence), "implementation": retrieval_metadata.implementation},
+        )
         evidence, recall_records, recalled_types, missing_types = self.recall_service.supplement(
             candidate_evidence,
             demand.required_types,
             demand.query_vector,
             turn_id,
+        )
+        emit(
+            "MANDATORY_SUPPLEMENTED",
+            "强制证据覆盖检查完成",
+            {"recalled_types": recalled_types, "missing_types": missing_types},
         )
         existing_ids = {node.node_id for node in evidence}
         for evidence_type in demand.required_types:
@@ -246,14 +377,64 @@ class CommandPipeline:
             }
         )
 
+        subgraph = self.graph_builder.build(
+            frame,
+            demand,
+            evaluated,
+            recall_records,
+            recalled_types,
+            missing_types,
+            quality_metrics,
+            retrieval_metadata,
+            physical_conflicts,
+            self._safety_rule_nodes,
+        )
+        emit(
+            "GRAPH_BUILT",
+            "运行时证据子图已构建",
+            {"node_count": len(subgraph.nodes), "edge_count": len(subgraph.edges)},
+        )
+
         reasoning_evidence = self._merge_latest(snapshot_nodes, override_nodes, evaluated)
         memory = self.memory_service.propagate(reasoning_evidence, frame, physical_conflicts)
+        emit(
+            "MEMORY_PROPAGATED",
+            "横向与纵向记忆传播完成",
+            {
+                "horizontal_links": len(memory.horizontal_links),
+                "vertical_links": len(memory.vertical_links),
+            },
+        )
         causal = self.causal_service.apply(frame, evaluated, memory)
+        emit(
+            "CAUSAL_CORRECTED",
+            "因果贝叶斯修正完成",
+            {"sample_count": causal.sample_count, "feature_cutoff": causal.feature_cutoff},
+        )
         validation = self.validation_service.validate(frame, reasoning_evidence, physical_conflicts)
+        emit(
+            "EVIDENCE_VALIDATED",
+            "证据与上下文声明校验完成",
+            {"conflict_count": validation.conflict_count, "jailbreak_risk": validation.jailbreak_risk},
+        )
         gate = self.gate_service.evaluate(frame, reasoning_evidence, validation, memory)
+        emit(
+            "GATE_CHECKED",
+            "硬性安全门检查完成",
+            {"gate_blocked": gate.blocked, "hit_rules": gate.hit_rules},
+        )
         scoring_started = perf_counter()
         decision = self.decision_service.decide(
             frame, reasoning_evidence, gate, validation, causal, memory
+        )
+        emit(
+            "DECISION_COMPLETED",
+            "最终裁决完成",
+            {
+                "final_decision": decision.final_decision.value,
+                "soft_safety_score": decision.soft_safety_score,
+                "gate_blocked": decision.gate_blocked,
+            },
         )
         scoring_ms = (perf_counter() - scoring_started) * 1000
         advanced = AdvancedReasoningResult(
@@ -296,18 +477,6 @@ class CommandPipeline:
         )
         decision = decision.model_copy(update={"advanced_reasoning": advanced})
 
-        subgraph = self.graph_builder.build(
-            frame,
-            demand,
-            evaluated,
-            recall_records,
-            recalled_types,
-            missing_types,
-            quality_metrics,
-            retrieval_metadata,
-            physical_conflicts,
-            self._safety_rule_nodes,
-        )
         subgraph = self._add_memory_edges(subgraph, memory).model_copy(
             update={
                 "corrected_weights": causal.corrected_weights,
@@ -330,6 +499,10 @@ class CommandPipeline:
         audit = AuditRecord(
             audit_id=audit_id,
             turn_id=turn_id,
+            root_turn_id=root_turn_id,
+            parent_turn_id=parent_turn_id,
+            attempt_no=attempt_no,
+            workflow_type=workflow_type,
             input_trust_result=input_trust,
             transcription_result=transcription,
             semantic_frame=frame,
@@ -375,8 +548,70 @@ class CommandPipeline:
             turn_timing=timing,
         )
         saved_audit = self.audit_repository.save(audit)
+        emit(
+            "AUDIT_SAVED",
+            "裁决审计已追加保存",
+            {"audit_id": saved_audit.audit_id, "current_hash": saved_audit.current_hash},
+        )
+        actionable = demand.retrieval_scope == "control_evidence"
+        if decision.final_decision == DecisionLabel.REVIEW:
+            self.workflow_repository.append_event(
+                root_turn_id=root_turn_id,
+                related_turn_id=turn_id,
+                parent_turn_id=parent_turn_id,
+                event_type=WorkflowEventType.REVIEW_REQUESTED,
+                payload={
+                    "review_question": decision.review_question,
+                    "action": frame.action,
+                    "target": frame.target,
+                    "attempt_no": attempt_no,
+                },
+            )
+            emit(
+                "REVIEW_REQUIRED",
+                "当前轮次需要用户复核",
+                {"review_question": decision.review_question},
+            )
+
+        response_decision = decision
+        if (
+            not suppress_authorization
+            and decision.final_decision == DecisionLabel.PASS
+            and not decision.gate_blocked
+            and actionable
+            and self.authorization_service.is_executable(frame)
+        ):
+            try:
+                grant = self.authorization_service.issue(
+                    root_turn_id=root_turn_id,
+                    turn_id=turn_id,
+                    frame=frame,
+                    state=state,
+                )
+                response_decision = decision.model_copy(
+                    update={"authorization_token": grant.authorization_token}
+                )
+                emit(
+                    "TOKEN_ISSUED",
+                    "一次性车辆执行授权已签发",
+                    {
+                        "token_id": grant.metadata.token_id,
+                        "expires_at": grant.metadata.expires_at.isoformat(),
+                    },
+                )
+            except AuthorizationTokenError as exc:
+                self.workflow_repository.append_event(
+                    root_turn_id=root_turn_id,
+                    related_turn_id=turn_id,
+                    event_type=WorkflowEventType.TOKEN_REJECTED,
+                    payload={"reason": str(exc)},
+                )
         response = TextCommandResponse(
             turn_id=turn_id,
+            root_turn_id=root_turn_id,
+            parent_turn_id=parent_turn_id,
+            attempt_no=attempt_no,
+            workflow_type=workflow_type,
             input_trust_result=input_trust,
             transcription_result=transcription,
             semantic_frame=frame,
@@ -389,9 +624,9 @@ class CommandPipeline:
             evidence_subgraph=subgraph,
             quality_metrics=quality_metrics,
             safety_gate=gate,
-            decision=decision,
+            decision=response_decision,
             audit=saved_audit,
-            actionable=demand.retrieval_scope == "control_evidence",
+            actionable=actionable,
             retrieval_scope=demand.retrieval_scope,
             advanced_reasoning=advanced,
             memory_propagation=memory,
@@ -403,7 +638,14 @@ class CommandPipeline:
             decision_confidence=causal.decision_confidence,
             turn_timing=timing,
         )
-        self._turns[turn_id] = response
+        # 原始令牌只存在于本次返回对象；内存缓存与 SQLite 均保存去敏版本。
+        self._turns[turn_id] = response.model_copy(
+            update={
+                "decision": response.decision.model_copy(
+                    update={"authorization_token": None}
+                )
+            }
+        )
         return response
 
     def current_evidence(self) -> CurrentEvidenceResponse:
@@ -436,3 +678,110 @@ class CommandPipeline:
 
     def rebuild_causal(self):
         return self._refresh_causal_model()
+
+    def get_vehicle_state(self) -> VehicleState:
+        return self.vehicle.get_state()
+
+    def update_vehicle_state(self, patch: VehicleStatePatch) -> VehicleState:
+        with self._command_lock:
+            state = self.vehicle.update_state(patch)
+            nodes = self.evidence_repository.ingest_vehicle_state(
+                state,
+                {
+                    "speaker_role": state.occupant_role or "unknown",
+                    "speaker_zone": state.speaker_zone or "unknown",
+                },
+                make_id("STATE_UPDATE"),
+            )
+            self.index.upsert(nodes)
+            return state
+
+    def reset_vehicle_state(self) -> VehicleState:
+        with self._command_lock:
+            state = self.vehicle.reset()
+            nodes = self.evidence_repository.ingest_vehicle_state(
+                state,
+                {"speaker_role": "driver", "speaker_zone": "driver"},
+                make_id("STATE_RESET"),
+            )
+            self.index.upsert(nodes)
+            return state
+
+    def scenarios(self) -> list[dict[str, Any]]:
+        values = self.scenario_config.get("scenarios", {})
+        return [
+            {
+                "scenario_id": scenario_id,
+                "name": scenario.get("name", scenario_id),
+                "text": scenario.get("text", ""),
+            }
+            for scenario_id, scenario in values.items()
+        ]
+
+    def load_scenario(self, scenario_id: str) -> VehicleState:
+        scenario = self.scenario_config.get("scenarios", {}).get(scenario_id)
+        if scenario is None:
+            raise KeyError(f"未找到场景: {scenario_id}")
+        with self._command_lock:
+            self.evidence_repository.clear_explicit_observations()
+            self.index.build([*self._safety_rule_nodes, *self.evidence_repository.current_nodes()])
+            self.reset_vehicle_state()
+            return self.update_vehicle_state(
+                VehicleStatePatch.model_validate(scenario.get("state", {}))
+            )
+
+    def run_scenario(self, scenario_id: str, *, session_id: str | None = None) -> TextCommandResponse:
+        scenario = self.scenario_config.get("scenarios", {}).get(scenario_id)
+        if scenario is None:
+            raise KeyError(f"未找到场景: {scenario_id}")
+        state = self.load_scenario(scenario_id)
+        observations = [
+            EvidenceObservationInput.model_validate(value)
+            for value in scenario.get("evidence_overrides", [])
+        ]
+        return self.process_text(
+            TextCommandRequest(
+                text=str(scenario.get("text", "")),
+                speaker_role=state.occupant_role or "unknown",
+                speaker_zone=state.speaker_zone or "unknown",
+                evidence_overrides=observations,
+                session_id=session_id,
+            )
+        )
+
+    def timeline(self, turn_id: str) -> TurnTimeline:
+        root = self.review_service.root_for_turn(turn_id)
+        audits = self.audit_repository.records_for_root(root)
+        if not audits:
+            root_audit = self.audit_repository.get_by_turn(root)
+            audits = [root_audit] if root_audit else []
+        events = self.workflow_repository.events(root)
+        ordered = [
+            {
+                "kind": "AUDIT",
+                "timestamp": audit.created_at.isoformat(),
+                "turn_id": audit.turn_id,
+                "audit_id": audit.audit_id,
+                "workflow_type": audit.workflow_type,
+                "decision": audit.final_decision.final_decision.value,
+            }
+            for audit in audits
+        ]
+        ordered.extend(
+            {
+                "kind": "WORKFLOW_EVENT",
+                "timestamp": event.created_at.isoformat(),
+                "event_id": event.event_id,
+                "event_type": event.event_type.value,
+                "related_turn_id": event.related_turn_id,
+                "sequence_no": event.sequence_no,
+            }
+            for event in events
+        )
+        ordered.sort(key=lambda item: (item["timestamp"], item["kind"]))
+        return TurnTimeline(
+            root_turn_id=root,
+            audits=audits,
+            workflow_events=events,
+            ordered_items=ordered,
+        )

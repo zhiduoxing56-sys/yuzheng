@@ -20,6 +20,10 @@ vague_pronouns:
   - 它
   - 那玩意
 
+uncertainty_markers: [可能, 也许, 大概]
+uncertainty_ambiguity: 0.8
+uncertainty_confidence_penalty: 0.6
+
 actions:
   打开: [打开, 开启, 启动, 播放, 制动, 刹车]
   关闭: [关闭, 关掉, 关上]

@@ -6,4 +6,5 @@ htmlcov/
 .venv/
 data/database/*.db
 data/database/*.db-*
+data/secrets/
 tmp/

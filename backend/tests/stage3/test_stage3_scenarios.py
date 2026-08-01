@@ -151,7 +151,8 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
     assert music.semantic_frame.target == "音乐"
     assert not music.jailbreak_conflicts
     assert music.decision.final_decision == DecisionLabel.PASS
-    assert music.decision.authorization_token is None
+    assert music.decision.authorization_token is not None
+    assert music.audit.final_decision.authorization_token is None
 
     assert pipeline.audit_repository.count() == 10
     assert pipeline.audit_repository.verify_chain() is True

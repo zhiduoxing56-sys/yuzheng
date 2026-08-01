@@ -86,7 +86,9 @@ def test_cnec_is_evidence_driven_micro_adjustment(pipeline) -> None:
 
 
 def test_hnsw_canonical_lifecycle_stays_bounded_for_100_turns(tmp_path) -> None:
-    pipeline = CommandPipeline(tmp_path / "bounded.db")
+    pipeline = CommandPipeline(
+        tmp_path / "bounded.db", token_secret=b"stage4-fixed-test-secret-32-bytes"
+    )
     cold = pipeline.index.status()
     speed = next(
         node
@@ -138,7 +140,9 @@ def test_hnsw_canonical_lifecycle_stays_bounded_for_100_turns(tmp_path) -> None:
     assert any(edge.relation == EvidenceRelation.CONFLICTS for edge in conflict.evidence_subgraph.edges)
     assert pipeline.index.status().canonical_node_count <= cold.canonical_node_count + 3
 
-    restarted = CommandPipeline(tmp_path / "restart.db")
+    restarted = CommandPipeline(
+        tmp_path / "restart.db", token_secret=b"stage4-fixed-test-secret-32-bytes"
+    )
     restarted_status = restarted.index.status()
     assert restarted_status.canonical_node_count == cold.canonical_node_count
     assert restarted_status.degraded is False

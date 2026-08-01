@@ -1,0 +1,50 @@
+adapter: simulator
+can:
+  enabled: false
+  whitelist: []
+actions:
+  打开|车门:
+    operations:
+      - {field: door_state, operation: set, value: OPEN}
+    feedback: 车门已打开
+  解锁|车门:
+    operations:
+      - {field: door_lock_state, operation: set, value: UNLOCKED}
+    feedback: 车门已解锁
+  解锁|门锁:
+    operations:
+      - {field: door_lock_state, operation: set, value: UNLOCKED}
+    feedback: 门锁已解锁
+  关闭|前照灯:
+    operations:
+      - {field: headlight_state, operation: set, value: "OFF"}
+    feedback: 前照灯已关闭
+  打开|车窗:
+    operations:
+      - {field: window_state, operation: set, value: OPEN}
+    feedback: 车窗已打开
+  关闭|大屏:
+    operations:
+      - {field: display_state, operation: set, value: "OFF"}
+    feedback: 大屏已关闭
+  打开|音乐:
+    operations:
+      - {field: music_state, operation: set, value: PLAYING}
+    feedback: 音乐已播放
+  加速|速度:
+    operations:
+      - {field: vehicle_speed, operation: increment, value: 10}
+    feedback: 模拟车辆已加速
+  减速|速度:
+    operations:
+      - {field: vehicle_speed, operation: decrement, value: 10, minimum: 0}
+    feedback: 模拟车辆已减速
+  打开|制动:
+    operations:
+      - {field: brake_state, operation: set, value: ACTIVE}
+      - {field: vehicle_speed, operation: set, value: 0}
+    feedback: 模拟制动已执行
+  打开|自动泊车:
+    operations:
+      - {field: vehicle_mode, operation: set, value: AUTO_PARK}
+    feedback: 自动泊车已开启

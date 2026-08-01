@@ -70,6 +70,12 @@ class SemanticFrameParser:
         if vague and target == UNKNOWN:
             ambiguity += 0.20
             confidence -= 0.10
+        uncertain = any(
+            marker in normalized for marker in self.config.get("uncertainty_markers", [])
+        )
+        if uncertain and action != UNKNOWN and target != UNKNOWN:
+            ambiguity += float(self.config.get("uncertainty_ambiguity", 0.8))
+            confidence -= float(self.config.get("uncertainty_confidence_penalty", 0.6))
 
         profile_key = f"{action}|{target}"
         profiles = self.config.get("risk_profiles", {})

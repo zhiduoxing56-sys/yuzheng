@@ -57,6 +57,39 @@ class AuditRecordQuality(str, Enum):
     LEGACY_MODEL = "LEGACY_MODEL"
 
 
+class ReviewAction(str, Enum):
+    CONFIRM = "CONFIRM"
+    CORRECT = "CORRECT"
+    CANCEL = "CANCEL"
+
+
+class AuthorizationTokenStatus(str, Enum):
+    ISSUED = "ISSUED"
+    CONSUMED = "CONSUMED"
+    EXPIRED = "EXPIRED"
+    REVOKED = "REVOKED"
+    REJECTED = "REJECTED"
+
+
+class WorkflowEventType(str, Enum):
+    REVIEW_REQUESTED = "REVIEW_REQUESTED"
+    REVIEW_CONFIRM_REJECTED = "REVIEW_CONFIRM_REJECTED"
+    REVIEW_CONFIRMED = "REVIEW_CONFIRMED"
+    REVIEW_CORRECTED = "REVIEW_CORRECTED"
+    REVIEW_CANCELLED = "REVIEW_CANCELLED"
+    REDECISION_STARTED = "REDECISION_STARTED"
+    REDECISION_COMPLETED = "REDECISION_COMPLETED"
+    TOKEN_ISSUED = "TOKEN_ISSUED"
+    TOKEN_REJECTED = "TOKEN_REJECTED"
+    TOKEN_EXPIRED = "TOKEN_EXPIRED"
+    TOKEN_CONSUMED = "TOKEN_CONSUMED"
+    EXECUTION_REQUESTED = "EXECUTION_REQUESTED"
+    PRE_EXECUTION_CHECK_PASSED = "PRE_EXECUTION_CHECK_PASSED"
+    PRE_EXECUTION_CHECK_FAILED = "PRE_EXECUTION_CHECK_FAILED"
+    EXECUTION_SUCCEEDED = "EXECUTION_SUCCEEDED"
+    EXECUTION_FAILED = "EXECUTION_FAILED"
+
+
 class VoiceTrustResult(StrictModel):
     turn_id: str
     audio_source: str
@@ -488,6 +521,7 @@ class VehicleState(StrictModel):
     navigation_active: bool | None = False
     reverse_camera_active: bool | None = False
     display_state: str | None = "ON"
+    music_state: str | None = "STOPPED"
     front_obstacle_distance: float | None = Field(default=100, ge=0)
     speed_limit: float | None = Field(default=120, ge=0)
     brake_state: str | None = "RELEASED"
@@ -517,6 +551,7 @@ class VehicleStatePatch(StrictModel):
     navigation_active: bool | None = None
     reverse_camera_active: bool | None = None
     display_state: str | None = None
+    music_state: str | None = None
     front_obstacle_distance: float | None = Field(default=None, ge=0)
     speed_limit: float | None = Field(default=None, ge=0)
     brake_state: str | None = None
@@ -546,6 +581,7 @@ class TextCommandRequest(StrictModel):
     speaker_role: str = "driver"
     state_overrides: VehicleStatePatch | None = None
     evidence_overrides: list[EvidenceObservationInput] = Field(default_factory=list)
+    session_id: str | None = Field(default=None, min_length=1, max_length=100)
 
     @model_validator(mode="after")
     def reject_blank_text(self) -> "TextCommandRequest":
@@ -557,6 +593,10 @@ class TextCommandRequest(StrictModel):
 class AuditRecord(StrictModel):
     audit_id: str = Field(default_factory=lambda: make_id("AUD"))
     turn_id: str
+    root_turn_id: str | None = None
+    parent_turn_id: str | None = None
+    attempt_no: int = Field(default=0, ge=0)
+    workflow_type: str = "INITIAL"
     input_trust_result: VoiceTrustResult
     transcription_result: TranscriptionResult
     semantic_frame: SemanticFrame
@@ -605,6 +645,10 @@ class AuditRecord(StrictModel):
 
 class TextCommandResponse(StrictModel):
     turn_id: str
+    root_turn_id: str | None = None
+    parent_turn_id: str | None = None
+    attempt_no: int = Field(default=0, ge=0)
+    workflow_type: str = "INITIAL"
     input_trust_result: VoiceTrustResult
     transcription_result: TranscriptionResult
     semantic_frame: SemanticFrame
@@ -637,6 +681,14 @@ class HealthResponse(StrictModel):
     service: str
     stage: str
     database: str
+    model_ready: bool = True
+    embedding_implementation: str = ""
+    index_ready: bool = True
+    index_implementation: str = ""
+    vehicle_adapter: str = ""
+    token_secret_source: str = ""
+    workflow_event_store: str = ""
+    websocket_ready: bool = False
 
 
 class IndexRebuildRequest(StrictModel):
@@ -688,3 +740,136 @@ class LearningAuditStatus(StrictModel):
     excluded_record_count: int = Field(default=0, ge=0)
     quality_distribution: dict[str, int] = Field(default_factory=dict)
     records: list[AuditQualityMetadata] = Field(default_factory=list)
+
+
+class WorkflowEvent(StrictModel):
+    event_id: str = Field(default_factory=lambda: make_id("WFE"))
+    root_turn_id: str
+    related_turn_id: str | None = None
+    parent_turn_id: str | None = None
+    sequence_no: int = Field(ge=1)
+    event_type: WorkflowEventType
+    payload: dict[str, Any] = Field(default_factory=dict)
+    previous_event_hash: str
+    current_event_hash: str
+    created_at: datetime = Field(default_factory=utc_now)
+
+
+class WorkflowChainVerification(StrictModel):
+    root_turn_id: str
+    valid: bool
+    event_count: int = Field(ge=0)
+    failure_event_id: str | None = None
+
+
+class ReviewRequest(StrictModel):
+    action: ReviewAction
+    confirmation_text: str | None = Field(default=None, max_length=200)
+    corrected_text: str | None = Field(default=None, max_length=500)
+    cancel_reason: str | None = Field(default=None, max_length=500)
+
+    @model_validator(mode="after")
+    def validate_action_payload(self) -> "ReviewRequest":
+        if self.action == ReviewAction.CORRECT and not (self.corrected_text or "").strip():
+            raise ValueError("CORRECT 必须提供 corrected_text")
+        return self
+
+
+class AuthorizationTokenMetadata(StrictModel):
+    token_id: str
+    root_turn_id: str
+    turn_id: str
+    action: str
+    target: str
+    area: str
+    issued_at: datetime
+    expires_at: datetime
+    state_snapshot_digest: str
+    token_digest: str
+    status: AuthorizationTokenStatus
+
+
+class AuthorizationGrant(StrictModel):
+    authorization_token: str
+    metadata: AuthorizationTokenMetadata
+
+
+class VehicleExecutionResult(StrictModel):
+    execution_id: str = Field(default_factory=lambda: make_id("EXEC"))
+    adapter: str
+    simulated: bool
+    status: str
+    action: str
+    target: str
+    area: str
+    before_state: VehicleState
+    after_state: VehicleState
+    feedback: str
+    duration_ms: float = Field(ge=0)
+    created_at: datetime = Field(default_factory=utc_now)
+
+
+class ExecuteRequest(StrictModel):
+    authorization_token: str = Field(min_length=20)
+    session_id: str | None = Field(default=None, min_length=1, max_length=100)
+
+
+class ExecuteResult(StrictModel):
+    root_turn_id: str
+    turn_id: str
+    accepted: bool
+    token_status: AuthorizationTokenStatus
+    reason: str
+    precheck_turn_id: str | None = None
+    precheck_decision: DecisionLabel | None = None
+    execution: VehicleExecutionResult | None = None
+
+
+class TurnWorkflowStatus(StrictModel):
+    root_turn_id: str
+    current_turn_id: str
+    status: str
+    review_attempts: int = Field(ge=0)
+    max_review_attempts: int = Field(ge=1)
+    latest_decision: DecisionLabel
+    token_status: AuthorizationTokenStatus | None = None
+    event_count: int = Field(ge=0)
+    terminal: bool
+
+
+class ReviewResult(StrictModel):
+    root_turn_id: str
+    related_turn_id: str
+    action: ReviewAction
+    accepted: bool
+    reason: str
+    workflow_status: TurnWorkflowStatus
+    decision: DecisionResult
+    review_question: str | None = None
+    command_result: TextCommandResponse | None = None
+
+
+class PipelineEvent(StrictModel):
+    event_id: str = Field(default_factory=lambda: make_id("PIPE"))
+    session_id: str
+    turn_id: str
+    sequence: int = Field(ge=1)
+    stage: str
+    timestamp: datetime = Field(default_factory=utc_now)
+    duration_ms: float = Field(default=0, ge=0)
+    summary: str
+    payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class AuditPage(StrictModel):
+    items: list[AuditRecord]
+    total: int = Field(ge=0)
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1)
+
+
+class TurnTimeline(StrictModel):
+    root_turn_id: str
+    audits: list[AuditRecord] = Field(default_factory=list)
+    workflow_events: list[WorkflowEvent] = Field(default_factory=list)
+    ordered_items: list[dict[str, Any]] = Field(default_factory=list)

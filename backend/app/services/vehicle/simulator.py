@@ -1,16 +1,27 @@
 from __future__ import annotations
 
 from threading import RLock
+from time import perf_counter
+from typing import Any
 
-from app.models.schemas import VehicleState, VehicleStatePatch, utc_now
+from app.models.schemas import VehicleExecutionResult, VehicleState, VehicleStatePatch, utc_now
 
 
 class SimulatorVehicleAdapter:
-    """线程安全、确定性的车辆状态模拟器；阶段一不发送任何车控报文。"""
+    """线程安全、配置驱动的确定性模拟器；从不发送真实报文。"""
 
-    def __init__(self, initial_state: VehicleState | None = None) -> None:
+    adapter_name = "simulator"
+
+    def __init__(
+        self,
+        initial_state: VehicleState | None = None,
+        action_config: dict[str, Any] | None = None,
+    ) -> None:
         self._lock = RLock()
-        self._state = initial_state or VehicleState()
+        self._initial_state = initial_state or VehicleState()
+        self._state = self._initial_state.model_copy(deep=True)
+        self._actions = dict((action_config or {}).get("actions", {}))
+        self._last_feedback: VehicleExecutionResult | None = None
 
     def get_state(self) -> VehicleState:
         with self._lock:
@@ -24,4 +35,67 @@ class SimulatorVehicleAdapter:
             state_data.update(updates)
             state_data["updated_at"] = utc_now()
             self._state = VehicleState.model_validate(state_data)
+            return self._state.model_copy(deep=True)
+
+    @staticmethod
+    def _apply_operation(state_data: dict[str, Any], operation: dict[str, Any]) -> None:
+        field = str(operation["field"])
+        kind = str(operation.get("operation", "set"))
+        value = operation.get("value")
+        if kind == "set":
+            state_data[field] = value
+            return
+        current = state_data.get(field)
+        if not isinstance(current, (int, float)) or not isinstance(value, (int, float)):
+            raise ValueError(f"数值操作字段不可用: {field}")
+        if kind == "increment":
+            updated = current + value
+        elif kind == "decrement":
+            updated = current - value
+        else:
+            raise ValueError(f"未知车辆状态操作: {kind}")
+        if "minimum" in operation:
+            updated = max(float(operation["minimum"]), updated)
+        if "maximum" in operation:
+            updated = min(float(operation["maximum"]), updated)
+        state_data[field] = updated
+
+    def execute(self, action: str, target: str, area: str) -> VehicleExecutionResult:
+        started = perf_counter()
+        key = f"{action}|{target}"
+        mapping = self._actions.get(key)
+        if mapping is None:
+            raise ValueError(f"模拟器不支持车辆动作: {key}")
+        with self._lock:
+            before = self._state.model_copy(deep=True)
+            state_data = self._state.model_dump()
+            for operation in mapping.get("operations", []):
+                self._apply_operation(state_data, operation)
+            state_data["updated_at"] = utc_now()
+            self._state = VehicleState.model_validate(state_data)
+            result = VehicleExecutionResult(
+                adapter=self.adapter_name,
+                simulated=True,
+                status="SUCCEEDED",
+                action=action,
+                target=target,
+                area=area,
+                before_state=before,
+                after_state=self._state.model_copy(deep=True),
+                feedback=str(mapping.get("feedback", "模拟动作已执行")),
+                duration_ms=round((perf_counter() - started) * 1000, 4),
+            )
+            self._last_feedback = result
+            return result
+
+    def get_feedback(self) -> VehicleExecutionResult | None:
+        with self._lock:
+            return self._last_feedback.model_copy(deep=True) if self._last_feedback else None
+
+    def reset(self) -> VehicleState:
+        with self._lock:
+            self._state = self._initial_state.model_copy(
+                deep=True, update={"updated_at": utc_now()}
+            )
+            self._last_feedback = None
             return self._state.model_copy(deep=True)
