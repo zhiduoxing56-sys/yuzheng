@@ -8,7 +8,7 @@ def test_health_reports_real_database_connection(api_client) -> None:
     assert response.status_code == 200
     assert body["status"] == "ok"
     assert body["service"] == "语证后端"
-    assert body["stage"] == "阶段四：复核恢复、一次性授权、车辆模拟执行与实时交互闭环"
+    assert body["stage"] == "阶段五：可信语音输入、LA/PA 检测与 ASR 链路"
     assert body["database"] == "connected"
     assert body["model_ready"] is True
     assert body["embedding_implementation"] == "local_sentence_transformer"

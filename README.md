@@ -1,10 +1,10 @@
 # 语证
 
-面向智能座舱高风险车控指令的证据对齐与可解释裁决系统。当前实现范围为阶段四点一“运行时安全降级、证据仓库有界化、因果置信度修正与真实环境预检”：阶段四闭环保持不变，并把真实语义模型能力直接接入安全门、授权和执行前复查，限制内存证据生命周期，修正无样本因果置信度语义。
+面向智能座舱高风险车控指令的证据对齐与可解释裁决系统。当前实现范围为阶段五“可信语音输入、LA/PA 检测与 ASR 链路”：阶段一至阶段四点一闭环保持不变，新增 PC 麦克风和模拟车载阵列通道输入、真实频谱分析、离线 LA/PA 模型推理、Whisper 中文转写及区域权限前置过滤。
 
 ## 安装与运行
 
-本仓库真实验收固定使用 `D:\software\anaconda\envs\yuzheng311\python.exe`。该环境必须安装 sentence-transformers、`BAAI/bge-base-zh-v1.5` 本地模型和 hnswlib 0.8.0：
+本仓库真实验收固定使用 `D:\software\anaconda\envs\yuzheng311\python.exe`。该环境必须安装 sentence-transformers、`BAAI/bge-base-zh-v1.5`、Whisper、LA/PA 本地模型和 hnswlib 0.8.0：
 
 ```powershell
 D:\software\anaconda\envs\yuzheng311\python.exe -m pip install -r backend\requirements-real-runtime.txt
@@ -17,7 +17,9 @@ D:\software\anaconda\envs\yuzheng311\python.exe -m uvicorn app.main:app --app-di
 ## 已实现链路
 
 ```text
-文本 → SemanticFrame → EvidenceDemand/768维向量
+PC麦克风/模拟阵列WAV → 频谱 → LA合成音检测 → PA重放检测
+     → 语音可信评分 → Whisper ASR → 区域权限过滤
+文本/ASR文本 → SemanticFrame → EvidenceDemand/768维向量
      → 语义候选检索 → 强制覆盖检查/补召/MISSING
      → ECR/ECS/EF/SAS/EAS → 运行时证据子图
      → 双重记忆/因果修正/声明对齐 → 完整硬门/五维评分
@@ -33,6 +35,8 @@ D:\software\anaconda\envs\yuzheng311\python.exe -m uvicorn app.main:app --app-di
 
 - `GET /api/health`
 - `POST /api/command/text`
+- `POST /api/command/audio`（PCM WAV 请求体）
+- `POST /api/command/microphone`（真实 PC 录音设备）
 - `GET /api/evidence/current`
 - `GET /api/evidence/turn/{turn_id}`
 - `POST /api/index/rebuild`（仅本地开发/演示）
@@ -64,9 +68,17 @@ D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=50
 
 阶段边界和真实/降级实现状态见 [docs/实现状态.md](docs/实现状态.md)。需求唯一基线为仓库中的作品报告 PDF。
 
-## 阶段四边界
+## 阶段五边界
 
-默认车辆数据和执行来自确定性模拟器，不代表真实传感器或 CAN 总线。文本输入不执行声学可信检查或 ASR。React 前端、音频、麦克风、ASR、合成/重放检测、真实台架控制和真实 CAN 报文不属于阶段四，均未开始。`CanVehicleAdapter` 只提供默认关闭的安全边界，不含报文标识符或发送逻辑。
+默认车辆数据和执行仍来自确定性模拟器，不代表真实传感器或 CAN 总线。文本接口保持原有语义，不伪造声学检查。PC 麦克风是真实设备采集；多座位来源仅由明确的模拟通道映射给出，不代表已接入真实车载阵列定位。React 前端、CARLA、真实台架和真实 CAN 均未开始。`CanVehicleAdapter` 仍仅提供默认关闭的安全边界。
+
+## 阶段五可信语音语义
+
+- `VoiceTrustResult` 的 LA、PA 分数来自本地模型真实推理；模型加载失败返回明确服务错误，不生成正常分数。综合分严格采用 `1 - dot([0.4,0.4,0.2], [synthetic_risk,replay_risk,zone_risk])` 并裁剪到 0～1。
+- LA 使用 `MelodyMachine/Deepfake-audio-detection-V2`，PA 使用 `Vansh180/deepfake-audio-wav2vec2`，ASR 使用 `openai/whisper-base`；模型均固定 revision、只读本地缓存并复用实例。
+- `asr_confidence` 为 `null`：当前 Whisper 适配器没有可校准、可解释为整句置信度的输出，因此不以固定值冒充。
+- 声学 BLOCK 在 ASR 前终止且不能签发令牌；声学 REVIEW 可转写并进入既有复核语义，但最终不得被后续软评分提升为 PASS。
+- 审计和 WebSocket 保存 SHA-256 指纹、模型结果和处理事件，不保存原始音频。实际样本、限制和验收结果见 [docs/阶段五验收说明.md](docs/阶段五验收说明.md) 与 [docs/语音可信与ASR实现说明.md](docs/语音可信与ASR实现说明.md)。
 
 ## 阶段四冻结安全语义
 

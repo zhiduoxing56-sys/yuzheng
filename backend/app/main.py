@@ -20,7 +20,7 @@ def create_app(
     install_sensitive_logging_filter()
     application = FastAPI(
         title="语证：面向智能座舱高风险车控指令的证据对齐与可解释裁决系统",
-        version="0.4.0-stage4",
+        version="0.5.0-stage5",
     )
     application.add_middleware(
         CORSMiddleware,

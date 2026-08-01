@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from starlette.concurrency import run_in_threadpool
 
 from app.core.pipeline import CommandPipeline
 from app.models.schemas import (
     AdvancedReasoningResult,
+    AudioCommandResponse,
     AuditRecord,
     AuditPage,
     CausalStatus,
@@ -18,6 +20,7 @@ from app.models.schemas import (
     IndexRebuildRequest,
     IndexStatus,
     LearningAuditStatus,
+    MicrophoneCommandRequest,
     ReviewRequest,
     ReviewResult,
     TextCommandRequest,
@@ -29,7 +32,10 @@ from app.models.schemas import (
     WorkflowChainVerification,
 )
 from app.services.authorization.service import AuthorizationTokenError
+from app.services.asr.whisper import ASRModelError
 from app.services.review.service import ReviewWorkflowError
+from app.services.voice.antispoof import AntiSpoofModelError
+from app.services.voice.audio import AudioInputError
 from app.core.redaction import SensitiveDataRedactor
 
 
@@ -42,7 +48,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         return HealthResponse(
             status="ok",
             service="语证后端",
-            stage="阶段四：复核恢复、一次性授权、车辆模拟执行与实时交互闭环",
+            stage="阶段五：可信语音输入、LA/PA 检测与 ASR 链路",
             database=pipeline.audit_repository.health(),
             model_ready=capability.real_model_inference,
             embedding_implementation=capability.embedding_implementation,
@@ -63,6 +69,54 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.post("/command/text", response_model=TextCommandResponse)
     def command_text(request: TextCommandRequest) -> TextCommandResponse:
         return pipeline.process_text(request)
+
+    @router.post("/command/audio", response_model=AudioCommandResponse)
+    async def command_audio(
+        request: Request,
+        audio_source: str = Query(default="test_wav", min_length=1, max_length=100),
+        speaker_zone: str = Query(default="unknown"),
+        speaker_role: str = Query(default="unknown"),
+        array_channel: str | None = Query(default=None),
+        channel_index: int | None = Query(default=None, ge=0),
+        session_id: str | None = Query(default=None, min_length=1, max_length=100),
+    ) -> AudioCommandResponse:
+        audio_bytes = await request.body()
+        try:
+            return await run_in_threadpool(
+                lambda: pipeline.process_audio_bytes(
+                    audio_bytes,
+                    audio_source=audio_source,
+                    speaker_zone=speaker_zone,
+                    speaker_role=speaker_role,
+                    array_channel=array_channel,
+                    channel_index=channel_index,
+                    session_id=session_id,
+                )
+            )
+        except AudioInputError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except (AntiSpoofModelError, ASRModelError) as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    @router.post("/command/microphone", response_model=AudioCommandResponse)
+    async def command_microphone(
+        request: MicrophoneCommandRequest,
+    ) -> AudioCommandResponse:
+        try:
+            return await run_in_threadpool(
+                lambda: pipeline.process_microphone(
+                    duration_seconds=request.duration_seconds,
+                    device=request.device,
+                    speaker_zone=request.speaker_zone,
+                    speaker_role=request.speaker_role,
+                    state_overrides=request.state_overrides,
+                    session_id=request.session_id,
+                )
+            )
+        except AudioInputError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except (AntiSpoofModelError, ASRModelError) as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     @router.get("/state", response_model=VehicleState)
     def state_get() -> VehicleState:

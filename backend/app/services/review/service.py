@@ -222,6 +222,23 @@ class ReviewService:
                 else "REVIEW_CORRECTION"
             ),
             confirmed=request.action == ReviewAction.CONFIRM,
+            input_trust_override=(
+                latest.input_trust_result
+                if latest.input_trust_result.audio_source != "text_api"
+                else None
+            ),
+            transcription_override=(
+                latest.transcription_result
+                if latest.input_trust_result.audio_source != "text_api"
+                else None
+            ),
+            spectrum_analysis=latest.spectrum_analysis,
+            audio_input_metadata=latest.audio_input_metadata,
+            zone_source=(
+                str(latest.audio_input_metadata.get("zone_source", "review_preserved"))
+                if latest.input_trust_result.audio_source != "text_api"
+                else None
+            ),
         )
         self.pipeline.workflow_repository.append_event(
             root_turn_id=root,

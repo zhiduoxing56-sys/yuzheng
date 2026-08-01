@@ -78,6 +78,13 @@ class AuthorizationTokenStatus(str, Enum):
 
 
 class WorkflowEventType(str, Enum):
+    VOICE_INPUT_RECEIVED = "VOICE_INPUT_RECEIVED"
+    SPECTRUM_ANALYZED = "SPECTRUM_ANALYZED"
+    LA_CHECKED = "LA_CHECKED"
+    PA_CHECKED = "PA_CHECKED"
+    VOICE_TRUST_DECIDED = "VOICE_TRUST_DECIDED"
+    ASR_COMPLETED = "ASR_COMPLETED"
+    ZONE_PERMISSION_CHECKED = "ZONE_PERMISSION_CHECKED"
     RUNTIME_CAPABILITY_CHECKED = "RUNTIME_CAPABILITY_CHECKED"
     REVIEW_REQUESTED = "REVIEW_REQUESTED"
     REVIEW_CONFIRM_REJECTED = "REVIEW_CONFIRM_REJECTED"
@@ -112,16 +119,72 @@ class VoiceTrustResult(StrictModel):
     trust_score: float = Field(ge=0, le=1)
     input_trust_label: str
     audio_fingerprint: str
+    spectrum_anomaly_score: float | None = Field(default=None, ge=0, le=1)
+    score_weights: dict[str, float] = Field(default_factory=dict)
+    score_thresholds: dict[str, float] = Field(default_factory=dict)
+    model_metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=utc_now)
 
 
 class TranscriptionResult(StrictModel):
     turn_id: str
     text: str
-    confidence: float = Field(ge=0, le=1)
+    confidence: float | None = Field(default=None, ge=0, le=1)
     adapter: str
     model_inference_performed: bool
+    transcribed_text: str = ""
+    asr_confidence: float | None = Field(default=None, ge=0, le=1)
+    model_name: str = ""
+    inference_duration: float = Field(default=0, ge=0)
     created_at: datetime = Field(default_factory=utc_now)
+
+    @model_validator(mode="before")
+    @classmethod
+    def fill_report_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            data = dict(data)
+            data.setdefault("transcribed_text", data.get("text", ""))
+            data.setdefault("text", data.get("transcribed_text", ""))
+            data.setdefault("asr_confidence", data.get("confidence"))
+            data.setdefault("confidence", data.get("asr_confidence"))
+            data.setdefault("model_name", data.get("adapter", ""))
+            data.setdefault("adapter", data.get("model_name", ""))
+        return data
+
+    @model_validator(mode="after")
+    def validate_report_aliases(self) -> "TranscriptionResult":
+        if self.text != self.transcribed_text:
+            raise ValueError("text 与 transcribed_text 必须一致")
+        if self.confidence != self.asr_confidence:
+            raise ValueError("confidence 与 asr_confidence 必须一致")
+        return self
+
+
+class SpectrumAnalysisResult(StrictModel):
+    sample_rate: int = Field(gt=0)
+    duration_seconds: float = Field(ge=0)
+    rms_energy: float = Field(ge=0)
+    low_band_energy_ratio: float = Field(ge=0, le=1)
+    speech_band_energy_ratio: float = Field(ge=0, le=1)
+    high_band_energy_ratio: float = Field(ge=0, le=1)
+    high_frequency_anomaly: float = Field(ge=0, le=1)
+    silence_detected: bool
+    clipping_ratio: float = Field(ge=0, le=1)
+    peak_anomaly: float = Field(ge=0, le=1)
+    anomaly_score: float = Field(ge=0, le=1)
+
+
+class ZonePermissionResult(StrictModel):
+    passed: bool
+    permission_score: float = Field(ge=0, le=1)
+    permission_label: DecisionLabel
+    risk_items: list[str] = Field(default_factory=list)
+    speaker_zone: str
+    zone_source: str
+    action: str
+    target: str
+    target_risk: float = Field(ge=0, le=1)
+    calculated_risk: float = Field(ge=0, le=1)
 
 
 class SemanticFrame(StrictModel):
@@ -630,6 +693,17 @@ class TextCommandRequest(StrictModel):
         return self
 
 
+class MicrophoneCommandRequest(StrictModel):
+    duration_seconds: float = Field(default=4.0, ge=0.5, le=15.0)
+    device: int | str | None = None
+    speaker_zone: Literal[
+        "driver", "front_passenger", "rear_left", "rear_right", "outside", "unknown"
+    ] = "unknown"
+    speaker_role: str = "unknown"
+    session_id: str | None = Field(default=None, min_length=1, max_length=100)
+    state_overrides: VehicleStatePatch | None = None
+
+
 class AuditRecord(StrictModel):
     audit_id: str = Field(default_factory=lambda: make_id("AUD"))
     turn_id: str
@@ -639,6 +713,9 @@ class AuditRecord(StrictModel):
     workflow_type: str = "INITIAL"
     input_trust_result: VoiceTrustResult
     transcription_result: TranscriptionResult
+    spectrum_analysis: SpectrumAnalysisResult | None = None
+    zone_permission_result: ZonePermissionResult | None = None
+    audio_input_metadata: dict[str, Any] = Field(default_factory=dict)
     semantic_frame: SemanticFrame
     evidence_demand: EvidenceDemand
     candidate_recall_results: list[EvidenceNode]
@@ -692,6 +769,7 @@ class TextCommandResponse(StrictModel):
     workflow_type: str = "INITIAL"
     input_trust_result: VoiceTrustResult
     transcription_result: TranscriptionResult
+    zone_permission_result: ZonePermissionResult | None = None
     semantic_frame: SemanticFrame
     evidence_demand: EvidenceDemand
     evidence: list[EvidenceNode]
@@ -716,6 +794,19 @@ class TextCommandResponse(StrictModel):
     decision_confidence: float | None = Field(default=None, ge=0, le=1)
     turn_timing: TurnTiming | None = None
     runtime_capability: RuntimeCapabilityStatus | None = None
+
+
+class AudioCommandResponse(StrictModel):
+    turn_id: str
+    voice_trust: VoiceTrustResult
+    spectrum_analysis: SpectrumAnalysisResult
+    asr_result: TranscriptionResult | None = None
+    zone_permission: ZonePermissionResult | None = None
+    semantic_frame: SemanticFrame | None = None
+    evidence_subgraph: EvidenceSubgraph | None = None
+    decision: DecisionResult
+    audit: AuditRecord
+    pipeline: TextCommandResponse | None = None
 
 
 class HealthResponse(StrictModel):

@@ -1,0 +1,123 @@
+audio:
+  target_sample_rate: 16000
+  minimum_duration_seconds: 0.35
+  maximum_duration_seconds: 15.0
+  microphone_channels: 1
+  microphone_dtype: float32
+  array_channel_zones:
+    driver: driver
+    front_passenger: front_passenger
+    rear_left: rear_left
+    rear_right: rear_right
+    outside: outside
+
+spectrum:
+  silence_rms_threshold: 0.002
+  clipping_amplitude_threshold: 0.985
+  clipping_ratio_threshold: 0.01
+  low_band_hz: 80
+  speech_band_low_hz: 80
+  speech_band_high_hz: 4000
+  high_band_low_hz: 6000
+  high_frequency_ratio_threshold: 0.18
+  anomaly_weights:
+    high_frequency: 0.40
+    silence: 0.35
+    clipping: 0.25
+  model_score_anomaly_penalty: 0.20
+  la_auxiliary:
+    frame_milliseconds: 25
+    frame_silence_rms_threshold: 0.002
+    digital_zero_amplitude: 0.000031
+    silence_ratio_threshold: 0.45
+    digital_zero_ratio_threshold: 0.25
+    flatness_threshold: 0.10
+    zero_crossing_threshold: 0.18
+    weights:
+      silent_frames: 0.35
+      digital_zeros: 0.25
+      spectral_flatness: 0.20
+      zero_crossing: 0.20
+
+la:
+  model_name: MelodyMachine/Deepfake-audio-detection-V2
+  revision: de3cde5a29c449bb5268814e421b46bf6ebdcd72
+  source: https://huggingface.co/MelodyMachine/Deepfake-audio-detection-V2
+  version: de3cde5
+  real_labels: [real, bonafide, bona_fide, genuine]
+  maximum_inference_seconds: 6.0
+
+pa:
+  model_name: Vansh180/deepfake-audio-wav2vec2
+  revision: e1197e2063deb056b0a6a348f3913d27de7f3d83
+  source: https://huggingface.co/Vansh180/deepfake-audio-wav2vec2
+  version: e1197e2
+  real_labels: [real, bonafide, bona_fide, genuine]
+  maximum_inference_seconds: 6.0
+
+asr:
+  model_name: openai/whisper-base
+  revision: e37978b90ca9030d5170a5c07aadb050351a65bb
+  source: https://huggingface.co/openai/whisper-base
+  version: e37978b
+  language: zh
+  task: transcribe
+  maximum_new_tokens: 64
+
+trust:
+  weights:
+    synthetic_risk: 0.40
+    replay_risk: 0.40
+    zone_risk: 0.20
+  thresholds:
+    PASS: 0.79
+    REVIEW: 0.45
+    BLOCK: 0.0
+  zone_risk:
+    driver: 0.0
+    front_passenger: 0.45
+    rear_left: 0.60
+    rear_right: 0.60
+    outside: 1.0
+    unknown: 0.75
+
+zone_permission:
+  critical_targets:
+    - 方向盘
+    - 油门
+    - 制动
+    - 前照灯
+    - 所有灯光
+    - 雨刮
+    - 车窗
+    - 门锁
+    - 车门
+    - 速度
+    - 驾驶模式
+    - 自动泊车
+    - 巡航
+  zone_weight:
+    driver: 0.0
+    front_passenger: 0.65
+    rear_left: 0.80
+    rear_right: 0.80
+    outside: 1.0
+    unknown: 0.75
+  action_weight:
+    打开: 0.40
+    关闭: 0.35
+    调高: 0.30
+    调低: 0.30
+    加速: 1.0
+    减速: 0.80
+    锁定: 0.45
+    解锁: 0.80
+    切换: 0.40
+    查询: 0.0
+    确认: 0.10
+    取消: 0.0
+    unknown: 0.20
+  thresholds:
+    PASS: 0.60
+    REVIEW: 0.35
+    BLOCK: 0.0

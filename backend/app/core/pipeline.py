@@ -8,19 +8,27 @@ from typing import Any, Callable
 from app.core.config import PROJECT_ROOT, load_yaml
 from app.models.schemas import (
     AdvancedReasoningResult,
+    AudioCommandResponse,
     AuditQualityMetadata,
     AuditRecord,
     AuditRecordQuality,
     CurrentEvidenceResponse,
     DecisionLabel,
+    DecisionResult,
+    DecisionScoreFactors,
+    EvidenceDemand,
     EvidenceEdge,
     EvidenceNode,
     EvidenceObservationInput,
     EvidenceRelation,
     EvidenceSubgraph,
+    EvidenceQualityMetrics,
+    GateCheck,
     IndexStatus,
     PipelineEvent,
+    RetrievalMetadata,
     RuntimeCapabilityStatus,
+    SafetyGateResult,
     SemanticControlMode,
     TextCommandRequest,
     TextCommandResponse,
@@ -30,6 +38,8 @@ from app.models.schemas import (
     VehicleState,
     VehicleStatePatch,
     VoiceTrustResult,
+    SpectrumAnalysisResult,
+    ZonePermissionResult,
     WorkflowEventType,
     make_id,
     utc_now,
@@ -54,6 +64,12 @@ from app.services.semantic.parser import SemanticFrameParser
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
+from app.services.asr.whisper import ASRModelError, WhisperASRService
+from app.services.voice.antispoof import Wav2Vec2AntiSpoofDetector
+from app.services.voice.audio import AudioInputService, DecodedAudio
+from app.services.voice.spectrum import SpectrumAnalyzer
+from app.services.voice.trust import VoiceTrustScorer
+from app.services.voice.zone import ZonePermissionService
 from app.services.workflow.repository import WorkflowRepository
 from app.websocket.broker import PipelineEventBroker
 from app.core.redaction import SensitiveDataRedactor
@@ -80,6 +96,28 @@ class CommandPipeline:
         self.event_broker = event_broker or PipelineEventBroker()
         self.review_config = load_yaml("review_policy.yaml")
         self.scenario_config = load_yaml("demo_scenarios.yaml")
+        self.voice_config = load_yaml("voice.yaml")
+        self.audio_input_service = AudioInputService(self.voice_config["audio"])
+        self.spectrum_analyzer = SpectrumAnalyzer(self.voice_config["spectrum"])
+        anomaly_penalty = float(
+            self.voice_config["spectrum"].get("model_score_anomaly_penalty", 0.20)
+        )
+        self.la_detector = Wav2Vec2AntiSpoofDetector(
+            self.voice_config["la"],
+            detector_kind="LA",
+            anomaly_penalty=anomaly_penalty,
+            spectrum_auxiliary=self.voice_config["spectrum"].get("la_auxiliary"),
+        )
+        self.pa_detector = Wav2Vec2AntiSpoofDetector(
+            self.voice_config["pa"],
+            detector_kind="PA",
+            anomaly_penalty=anomaly_penalty,
+        )
+        self.voice_trust_scorer = VoiceTrustScorer(self.voice_config["trust"])
+        self.zone_permission_service = ZonePermissionService(
+            self.voice_config["zone_permission"]
+        )
+        self.asr_service = WhisperASRService(self.voice_config["asr"])
         self.parser = SemanticFrameParser(load_yaml("semantic_rules.yaml"))
         self.embedder = build_embedding_service(load_yaml("embedding.yaml"))
         self.demand_service = EvidenceDemandService(
@@ -222,6 +260,109 @@ class CommandPipeline:
         return list(merged.values())
 
     @staticmethod
+    def _apply_voice_constraints(
+        decision: DecisionResult,
+        gate: SafetyGateResult,
+        input_trust: VoiceTrustResult,
+        zone_permission: ZonePermissionResult | None,
+    ) -> tuple[DecisionResult, SafetyGateResult]:
+        if input_trust.audio_source == "text_api":
+            return decision, gate
+        explanations = list(decision.explanations)
+        reason_codes = list(decision.reason_codes)
+        review_question = decision.review_question
+        final = decision.final_decision
+        constraint_applied = False
+
+        if input_trust.input_trust_label == "BLOCK":
+            constraint_applied = True
+            reason = "语音输入可信检查阻断"
+            check = GateCheck(
+                rule_id="VOICE_TRUST_BLOCK",
+                hit=True,
+                reason=reason,
+                observed={"trust_score": input_trust.trust_score},
+            )
+            gate = gate.model_copy(
+                update={
+                    "blocked": True,
+                    "gate_blocked": True,
+                    "checks": [*gate.checks, check],
+                    "reasons": [*gate.reasons, reason],
+                    "hit_rules": [*gate.hit_rules, "VOICE_TRUST_BLOCK"],
+                }
+            )
+            final = DecisionLabel.BLOCK
+            explanations.append(reason)
+            reason_codes.append("VOICE_TRUST_BLOCK")
+        elif input_trust.input_trust_label == "REVIEW" and final == DecisionLabel.PASS:
+            constraint_applied = True
+            final = DecisionLabel.REVIEW
+            explanations.append("声学可信结果需要人工复核")
+            reason_codes.append("VOICE_TRUST_REVIEW")
+            review_question = "语音输入存在合成或重放风险，请确认是否为本人现场指令？"
+
+        if zone_permission is not None:
+            if zone_permission.permission_label == DecisionLabel.BLOCK:
+                constraint_applied = True
+                reason = "说话区域无权直接控制当前高风险对象"
+                check = GateCheck(
+                    rule_id="ZONE_PERMISSION_BLOCK",
+                    hit=True,
+                    reason=reason,
+                    observed={
+                        "speaker_zone": zone_permission.speaker_zone,
+                        "permission_score": zone_permission.permission_score,
+                        "target": zone_permission.target,
+                    },
+                )
+                gate = gate.model_copy(
+                    update={
+                        "blocked": True,
+                        "gate_blocked": True,
+                        "checks": [*gate.checks, check],
+                        "reasons": [*gate.reasons, reason],
+                        "hit_rules": [*gate.hit_rules, "ZONE_PERMISSION_BLOCK"],
+                    }
+                )
+                final = DecisionLabel.BLOCK
+                explanations.append(reason)
+                reason_codes.append("ZONE_PERMISSION_BLOCK")
+                review_question = None
+            elif (
+                zone_permission.permission_label == DecisionLabel.REVIEW
+                and final == DecisionLabel.PASS
+            ):
+                constraint_applied = True
+                final = DecisionLabel.REVIEW
+                explanations.append("说话区域权限需要人工复核")
+                reason_codes.append("ZONE_PERMISSION_REVIEW")
+                review_question = (
+                    f"检测到说话区域为 {zone_permission.speaker_zone}，"
+                    f"请确认是否允许{zone_permission.action}{zone_permission.target}？"
+                )
+
+        if not constraint_applied:
+            return decision, gate
+        gate_blocked = gate.blocked
+        updated = decision.model_copy(
+            update={
+                "decision": final,
+                "final_decision": final,
+                "gate_blocked": gate_blocked,
+                "gate_reasons": list(gate.reasons),
+                "score_evaluation_mode": (
+                    "diagnostic_after_gate" if gate_blocked else decision.score_evaluation_mode
+                ),
+                "explanations": explanations,
+                "reason_codes": reason_codes,
+                "review_question": review_question,
+                "authorization_token": None,
+            }
+        )
+        return updated, gate
+
+    @staticmethod
     def _add_memory_edges(
         subgraph: EvidenceSubgraph, memory
     ) -> EvidenceSubgraph:
@@ -241,7 +382,9 @@ class CommandPipeline:
             )
         return subgraph.model_copy(update={"edges": edges})
 
-    def _new_audit_quality(self, audit_id: str) -> AuditQualityMetadata:
+    def _new_audit_quality(
+        self, audit_id: str, *, stage5: bool = False
+    ) -> AuditQualityMetadata:
         test_only = self.audit_repository.database_path.name != "yuzheng.db"
         index_status = self.index.status()
         real_stack = (
@@ -263,9 +406,413 @@ class CommandPipeline:
             record_quality=quality,
             eligible_for_learning=quality == AuditRecordQuality.VALID,
             exclusion_reasons=reasons,
-            implementation_stage="stage4.1",
-            pipeline_version="4.1.0",
-            schema_version="4.1",
+            implementation_stage="stage5" if stage5 else "stage4.1",
+            pipeline_version="5.0.0" if stage5 else "4.1.0",
+            schema_version="5.0" if stage5 else "4.1",
+        )
+
+    def process_audio_bytes(
+        self,
+        audio_bytes: bytes,
+        *,
+        audio_source: str = "test_wav",
+        speaker_zone: str = "unknown",
+        speaker_role: str = "unknown",
+        array_channel: str | None = None,
+        channel_index: int | None = None,
+        state_overrides: VehicleStatePatch | None = None,
+        session_id: str | None = None,
+        event_sink: Callable[[PipelineEvent], None] | None = None,
+    ) -> AudioCommandResponse:
+        decoded = self.audio_input_service.decode_wav(
+            audio_bytes,
+            audio_source=audio_source,
+            speaker_zone=speaker_zone,
+            array_channel=array_channel,
+            channel_index=channel_index,
+        )
+        return self._process_decoded_audio(
+            decoded,
+            speaker_role=speaker_role,
+            state_overrides=state_overrides,
+            session_id=session_id,
+            event_sink=event_sink,
+        )
+
+    def process_microphone(
+        self,
+        *,
+        duration_seconds: float,
+        device: int | str | None,
+        speaker_zone: str,
+        speaker_role: str,
+        state_overrides: VehicleStatePatch | None = None,
+        session_id: str | None = None,
+        event_sink: Callable[[PipelineEvent], None] | None = None,
+    ) -> AudioCommandResponse:
+        decoded = self.audio_input_service.capture_microphone(
+            duration_seconds,
+            device=device,
+            speaker_zone=speaker_zone,
+        )
+        return self._process_decoded_audio(
+            decoded,
+            speaker_role=speaker_role,
+            state_overrides=state_overrides,
+            session_id=session_id,
+            event_sink=event_sink,
+        )
+
+    def _process_decoded_audio(
+        self,
+        decoded: DecodedAudio,
+        *,
+        speaker_role: str,
+        state_overrides: VehicleStatePatch | None,
+        session_id: str | None,
+        event_sink: Callable[[PipelineEvent], None] | None,
+    ) -> AudioCommandResponse:
+        turn_id = make_id("TURN")
+        root_turn_id = turn_id
+        sequence = 0
+        sink = event_sink or self.event_broker.publish
+        event_started = perf_counter()
+
+        def emit(stage: str, summary: str, payload: dict[str, Any] | None = None) -> None:
+            nonlocal sequence, event_started
+            safe_payload = SensitiveDataRedactor.redact(payload or {})
+            if stage in {item.value for item in WorkflowEventType} and stage in {
+                "VOICE_INPUT_RECEIVED",
+                "SPECTRUM_ANALYZED",
+                "LA_CHECKED",
+                "PA_CHECKED",
+                "VOICE_TRUST_DECIDED",
+                "ASR_COMPLETED",
+            }:
+                self.workflow_repository.append_event(
+                    root_turn_id=root_turn_id,
+                    related_turn_id=turn_id,
+                    event_type=WorkflowEventType(stage),
+                    payload=safe_payload,
+                )
+            if session_id is None:
+                return
+            now = perf_counter()
+            sequence += 1
+            sink(
+                PipelineEvent(
+                    session_id=session_id,
+                    turn_id=turn_id,
+                    sequence=sequence,
+                    stage=stage,
+                    duration_ms=round((now - event_started) * 1000, 4),
+                    summary=summary,
+                    payload=safe_payload,
+                )
+            )
+            event_started = now
+
+        metadata = decoded.audit_metadata()
+        emit(
+            "VOICE_INPUT_RECEIVED",
+            "真实音频输入已接收并完成摘要",
+            metadata,
+        )
+        spectrum = self.spectrum_analyzer.analyze(decoded.waveform, decoded.sample_rate)
+        emit(
+            "SPECTRUM_ANALYZED",
+            "真实波形频谱异常分析完成",
+            spectrum.model_dump(mode="json"),
+        )
+        la = self.la_detector.score(
+            decoded.waveform,
+            decoded.sample_rate,
+            spectrum_anomaly_score=spectrum.anomaly_score,
+        )
+        emit(
+            "LA_CHECKED",
+            "LA 合成音检测完成",
+            {
+                "la_score": la.bonafide_score,
+                "inference_duration": la.inference_duration,
+                "model": la.model_metadata,
+            },
+        )
+        pa = self.pa_detector.score(
+            decoded.waveform,
+            decoded.sample_rate,
+            spectrum_anomaly_score=spectrum.anomaly_score,
+        )
+        emit(
+            "PA_CHECKED",
+            "PA 重放攻击检测完成",
+            {
+                "pa_score": pa.bonafide_score,
+                "inference_duration": pa.inference_duration,
+                "model": pa.model_metadata,
+            },
+        )
+        trust = self.voice_trust_scorer.score(
+            turn_id=turn_id,
+            audio_source=decoded.audio_source,
+            speaker_zone=decoded.speaker_zone,
+            speaker_role=speaker_role,
+            la_score=la.bonafide_score,
+            pa_score=pa.bonafide_score,
+            audio_fingerprint=decoded.fingerprint,
+            spectrum_anomaly_score=spectrum.anomaly_score,
+            model_metadata={"la": la.model_metadata, "pa": pa.model_metadata},
+            force_block_reason=("SILENCE_OR_LOW_ENERGY" if spectrum.silence_detected else None),
+        )
+        emit(
+            "VOICE_TRUST_DECIDED",
+            "报告公式的语音可信评分完成",
+            trust.model_dump(mode="json"),
+        )
+        if trust.input_trust_label == DecisionLabel.BLOCK.value:
+            transcription = TranscriptionResult(
+                turn_id=turn_id,
+                text="",
+                confidence=None,
+                adapter="not_run_due_voice_trust_block",
+                model_inference_performed=False,
+                model_name=self.asr_service.model_name,
+                inference_duration=0.0,
+            )
+            return self._terminal_audio_response(
+                trust=trust,
+                spectrum=spectrum,
+                transcription=transcription,
+                reason_code="VOICE_TRUST_BLOCK",
+                reason="声学可信检查为 BLOCK，ASR 与后续证据流水线未执行",
+                audio_input_metadata=metadata,
+                emit=emit,
+            )
+        try:
+            transcription = self.asr_service.transcribe(
+                turn_id,
+                decoded.waveform,
+                decoded.sample_rate,
+            )
+        except ASRModelError as exc:
+            transcription = TranscriptionResult(
+                turn_id=turn_id,
+                text="",
+                confidence=None,
+                adapter="whisper_transformers_local_failed",
+                model_inference_performed=False,
+                model_name=self.asr_service.model_name,
+                inference_duration=0.0,
+            )
+            emit(
+                "ASR_COMPLETED",
+                "ASR 推理失败",
+                {"model_name": self.asr_service.model_name, "error": str(exc)},
+            )
+            return self._terminal_audio_response(
+                trust=trust,
+                spectrum=spectrum,
+                transcription=transcription,
+                reason_code="ASR_FAILED",
+                reason="ASR 模型推理失败，未生成车控指令",
+                audio_input_metadata=metadata,
+                emit=emit,
+            )
+        emit(
+            "ASR_COMPLETED",
+            "本地中文 ASR 真实转写完成",
+            transcription.model_dump(mode="json"),
+        )
+        if not transcription.transcribed_text.strip():
+            return self._terminal_audio_response(
+                trust=trust,
+                spectrum=spectrum,
+                transcription=transcription,
+                reason_code="ASR_EMPTY",
+                reason="ASR 返回空文本，未生成车控指令",
+                audio_input_metadata=metadata,
+                emit=emit,
+            )
+        pipeline_result = self.process_text(
+            TextCommandRequest(
+                text=transcription.transcribed_text,
+                speaker_zone=decoded.speaker_zone,
+                speaker_role=speaker_role,
+                state_overrides=state_overrides,
+                session_id=session_id,
+            ),
+            root_turn_id=root_turn_id,
+            turn_id_override=turn_id,
+            input_trust_override=trust,
+            transcription_override=transcription,
+            spectrum_analysis=spectrum,
+            audio_input_metadata=metadata,
+            zone_source=decoded.zone_source,
+            event_sink=sink,
+            event_sequence_start=sequence,
+        )
+        return AudioCommandResponse(
+            turn_id=turn_id,
+            voice_trust=trust,
+            spectrum_analysis=spectrum,
+            asr_result=transcription,
+            zone_permission=pipeline_result.zone_permission_result,
+            semantic_frame=pipeline_result.semantic_frame,
+            evidence_subgraph=pipeline_result.evidence_subgraph,
+            decision=pipeline_result.decision,
+            audit=pipeline_result.audit,
+            pipeline=pipeline_result,
+        )
+
+    def _terminal_audio_response(
+        self,
+        *,
+        trust: VoiceTrustResult,
+        spectrum: SpectrumAnalysisResult,
+        transcription: TranscriptionResult,
+        reason_code: str,
+        reason: str,
+        audio_input_metadata: dict[str, Any],
+        emit: Callable[[str, str, dict[str, Any] | None], None],
+    ) -> AudioCommandResponse:
+        turn_id = trust.turn_id
+        now = utc_now()
+        frame = self.parser.parse(turn_id, "")
+        demand = EvidenceDemand(
+            turn_id=turn_id,
+            action=frame.action,
+            target=frame.target,
+            risk_level=frame.risk_level,
+            query_text="",
+            query_vector=[],
+            required_types=[],
+            optional_types=[],
+            priority=0,
+            retrieval_scope="none_voice_terminal",
+        )
+        index_status = self.index.status()
+        retrieval = RetrievalMetadata(
+            implementation=index_status.implementation,
+            index_node_count=index_status.node_count,
+            vector_dimension=index_status.dimension,
+            M=index_status.M,
+            ef_construction=index_status.ef_construction,
+            ef_search=index_status.ef_search,
+            top_k=index_status.top_k,
+            candidate_count=0,
+            canonical_node_count=index_status.canonical_node_count,
+            ephemeral_node_count=index_status.ephemeral_node_count,
+            index_update_count=index_status.index_update_count,
+            index_rebuild_count=index_status.index_rebuild_count,
+            deduplicated_count=index_status.deduplicated_count,
+            duration_ms=0,
+            empty_index=index_status.node_count == 0,
+            degraded=index_status.degraded,
+            degradation_reason=index_status.degradation_reason,
+            excluded_types=index_status.excluded_types,
+            last_built_at=index_status.last_built_at,
+        )
+        quality = EvidenceQualityMetrics(
+            ecr=None,
+            evidence_coverage_applicable=False,
+            ecs=0,
+            ef=0,
+            sas=0,
+            eas=0,
+        )
+        subgraph = EvidenceSubgraph(
+            turn_id=turn_id,
+            quality_metrics=quality,
+            retrieval_metadata=retrieval,
+            advanced_reasoning_status="NOT_RUN_VOICE_TERMINAL",
+        )
+        check = GateCheck(rule_id=reason_code, hit=True, reason=reason)
+        gate = SafetyGateResult(
+            blocked=True,
+            checks=[check],
+            reasons=[reason],
+            hit_rules=[reason_code],
+        )
+        factors = DecisionScoreFactors(
+            semantic_quality=0,
+            evidence_coverage=None,
+            evidence_coverage_applicable=False,
+            applied_weights={},
+            five_factors={},
+        )
+        decision = DecisionResult(
+            turn_id=turn_id,
+            decision=DecisionLabel.BLOCK,
+            final_decision=DecisionLabel.BLOCK,
+            safety_score=trust.trust_score,
+            soft_safety_score=trust.trust_score,
+            gate_blocked=True,
+            gate_reasons=[reason],
+            score_evaluation_mode="diagnostic_after_gate",
+            score_factors=factors,
+            explanations=[reason, "该诊断分数不参与最终裁决"],
+            reason_codes=[reason_code],
+        )
+        audit_id = make_id("AUD")
+        audit_quality = self._new_audit_quality(audit_id, stage5=True).model_copy(
+            update={
+                "eligible_for_learning": False,
+                "exclusion_reasons": ["pre-semantic voice terminal"],
+            }
+        )
+        timing = TurnTiming(
+            turn_started_at=trust.created_at,
+            state_snapshot_at=now,
+            decision_reference_time=now,
+            completed_at=now,
+            end_to_end_ms=0,
+        )
+        audit = AuditRecord(
+            audit_id=audit_id,
+            turn_id=turn_id,
+            root_turn_id=turn_id,
+            input_trust_result=trust,
+            transcription_result=transcription,
+            spectrum_analysis=spectrum,
+            audio_input_metadata=audio_input_metadata,
+            semantic_frame=frame,
+            evidence_demand=demand,
+            candidate_recall_results=[],
+            retrieval_metadata=retrieval,
+            evidence_subgraph=subgraph,
+            evidence_subgraph_summary={
+                "graph_id": subgraph.graph_id,
+                "node_count": 0,
+                "edge_count": 0,
+                "missing_types": [],
+                "terminal_reason": reason_code,
+            },
+            evidence_quality_metrics=quality,
+            safety_gate_result=gate,
+            score_details=factors,
+            final_decision=decision,
+            complete_gate_result=gate,
+            audit_quality=audit_quality,
+            turn_timing=timing,
+            runtime_capability=self.runtime_capability(),
+        )
+        saved = self.audit_repository.save(audit)
+        self._subgraphs[turn_id] = subgraph
+        emit(
+            "AUDIT_SAVED",
+            "声学终止审计已追加保存",
+            {"audit_id": saved.audit_id, "current_hash": saved.current_hash},
+        )
+        return AudioCommandResponse(
+            turn_id=turn_id,
+            voice_trust=trust,
+            spectrum_analysis=spectrum,
+            asr_result=transcription,
+            semantic_frame=frame,
+            evidence_subgraph=subgraph,
+            decision=decision,
+            audit=saved,
+            pipeline=None,
         )
 
     def process_text(
@@ -279,6 +826,13 @@ class CommandPipeline:
         confirmed: bool = False,
         suppress_authorization: bool = False,
         event_sink: Callable[[PipelineEvent], None] | None = None,
+        turn_id_override: str | None = None,
+        input_trust_override: VoiceTrustResult | None = None,
+        transcription_override: TranscriptionResult | None = None,
+        spectrum_analysis: SpectrumAnalysisResult | None = None,
+        audio_input_metadata: dict[str, Any] | None = None,
+        zone_source: str | None = None,
+        event_sequence_start: int = 0,
     ) -> TextCommandResponse:
         # Preserve Pydantic's fields-set information on VehicleStatePatch: rebuilding
         # the whole request would turn every omitted state field into an explicit null.
@@ -300,10 +854,10 @@ class CommandPipeline:
                 ],
             }
         )
-        turn_id = make_id("TURN")
+        turn_id = turn_id_override or make_id("TURN")
         root_turn_id = root_turn_id or turn_id
         self.evidence_repository.begin_turn(turn_id)
-        sequence = 0
+        sequence = event_sequence_start
         sink = event_sink or self.event_broker.publish
         event_started = perf_counter()
 
@@ -326,7 +880,9 @@ class CommandPipeline:
             )
             event_started = now
 
-        emit("INPUT_RECEIVED", "文本指令已接收", {"input_source": "text_api"})
+        voice_preprocessed = input_trust_override is not None
+        if not voice_preprocessed:
+            emit("INPUT_RECEIVED", "文本指令已接收", {"input_source": "text_api"})
         try:
             with self._command_lock:
                 return self._process_text_locked(
@@ -338,6 +894,11 @@ class CommandPipeline:
                     workflow_type=workflow_type,
                     confirmed=confirmed,
                     suppress_authorization=suppress_authorization,
+                    input_trust_override=input_trust_override,
+                    transcription_override=transcription_override,
+                    spectrum_analysis=spectrum_analysis,
+                    audio_input_metadata=audio_input_metadata or {},
+                    zone_source=zone_source,
                     emit=emit,
                 )
         except Exception as exc:
@@ -363,6 +924,11 @@ class CommandPipeline:
         workflow_type: str,
         confirmed: bool,
         suppress_authorization: bool,
+        input_trust_override: VoiceTrustResult | None,
+        transcription_override: TranscriptionResult | None,
+        spectrum_analysis: SpectrumAnalysisResult | None,
+        audio_input_metadata: dict[str, Any],
+        zone_source: str | None,
         emit: Callable[[str, str, dict[str, Any] | None], None],
     ) -> TextCommandResponse:
         overall_started = perf_counter()
@@ -372,7 +938,7 @@ class CommandPipeline:
             if request.state_overrides is not None
             else self.vehicle.get_state()
         )
-        input_trust = VoiceTrustResult(
+        input_trust = input_trust_override or VoiceTrustResult(
             turn_id=turn_id,
             audio_source="text_api",
             speaker_zone=request.speaker_zone,
@@ -386,15 +952,28 @@ class CommandPipeline:
             input_trust_label="NOT_APPLICABLE_TEXT_INPUT",
             audio_fingerprint="",
         )
-        emit("TRUST_CHECKED", "文本输入无需声学可信检查", {"label": input_trust.input_trust_label})
-        transcription = TranscriptionResult(
+        if input_trust_override is not None and input_trust.turn_id != turn_id:
+            input_trust = input_trust.model_copy(update={"turn_id": turn_id})
+        transcription = transcription_override or TranscriptionResult(
             turn_id=turn_id,
             text=request.text,
             confidence=1.0,
             adapter="text_passthrough",
             model_inference_performed=False,
         )
-        emit("ASR_COMPLETED", "文本直通，无 ASR 模型推理", {"adapter": transcription.adapter})
+        if transcription_override is not None and transcription.turn_id != turn_id:
+            transcription = transcription.model_copy(update={"turn_id": turn_id})
+        if input_trust_override is None:
+            emit(
+                "TRUST_CHECKED",
+                "文本输入无需声学可信检查",
+                {"label": input_trust.input_trust_label},
+            )
+            emit(
+                "ASR_COMPLETED",
+                "文本直通，无 ASR 模型推理",
+                {"adapter": transcription.adapter},
+            )
         frame = self.parser.parse(turn_id, request.text)
         if confirmed and frame.action != "unknown" and frame.target != "unknown":
             frame = frame.model_copy(
@@ -408,6 +987,27 @@ class CommandPipeline:
                 }
             )
         frame, demand = self.demand_service.build(frame)
+        zone_permission: ZonePermissionResult | None = None
+        if zone_source is not None:
+            zone_permission = self.zone_permission_service.evaluate(
+                request.speaker_zone,
+                frame.action,
+                frame.target,
+                zone_source=zone_source,
+            )
+            zone_payload = zone_permission.model_dump(mode="json")
+            emit(
+                "ZONE_PERMISSION_CHECKED",
+                "座舱区域权限前置过滤完成",
+                zone_payload,
+            )
+            self.workflow_repository.append_event(
+                root_turn_id=root_turn_id,
+                related_turn_id=turn_id,
+                parent_turn_id=parent_turn_id,
+                event_type=WorkflowEventType.ZONE_PERMISSION_CHECKED,
+                payload=zone_payload,
+            )
         runtime_capability = self.runtime_capability()
         emit(
             "SEMANTIC_PARSED",
@@ -557,6 +1157,12 @@ class CommandPipeline:
             memory,
             runtime_capability,
         )
+        decision, gate = self._apply_voice_constraints(
+            decision,
+            gate,
+            input_trust,
+            zone_permission,
+        )
         emit(
             "DECISION_COMPLETED",
             "最终裁决完成",
@@ -635,6 +1241,9 @@ class CommandPipeline:
             workflow_type=workflow_type,
             input_trust_result=input_trust,
             transcription_result=transcription,
+            spectrum_analysis=spectrum_analysis,
+            zone_permission_result=zone_permission,
+            audio_input_metadata=audio_input_metadata,
             semantic_frame=frame,
             evidence_demand=demand,
             candidate_recall_results=candidate_evidence,
@@ -656,7 +1265,9 @@ class CommandPipeline:
             safety_gate_result=gate,
             score_details=decision.score_factors,
             final_decision=decision,
-            audit_quality=self._new_audit_quality(audit_id),
+            audit_quality=self._new_audit_quality(
+                audit_id, stage5=input_trust.audio_source != "text_api"
+            ),
             horizontal_memory=memory.horizontal_links,
             vertical_propagation=memory.vertical_links,
             causal_candidate_edges=causal.candidate_edges,
@@ -750,6 +1361,7 @@ class CommandPipeline:
             workflow_type=workflow_type,
             input_trust_result=input_trust,
             transcription_result=transcription,
+            zone_permission_result=zone_permission,
             semantic_frame=frame,
             evidence_demand=demand,
             evidence=evaluated,
