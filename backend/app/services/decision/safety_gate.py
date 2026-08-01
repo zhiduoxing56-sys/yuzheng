@@ -8,7 +8,9 @@ from app.models.schemas import (
     EvidenceStatus,
     GateCheck,
     MemoryPropagationResult,
+    RuntimeCapabilityStatus,
     SafetyGateResult,
+    SemanticControlMode,
     SemanticFrame,
 )
 
@@ -56,6 +58,7 @@ class SafetyGateService:
             "autopark_critical": self._autopark_critical,
             "acceleration_obstacle": self._acceleration_obstacle,
             "deceleration_rear_conflict": self._deceleration_rear_conflict,
+            "semantic_model_degraded": self._semantic_model_degraded,
         }
 
     @staticmethod
@@ -235,18 +238,46 @@ class SafetyGateService:
         )
         return hit, {"rear_obstacle_distance": value, "conflict": conflict}, [rear.node_id] if rear else []
 
+    @staticmethod
+    def _semantic_model_degraded(rule, frame, by_type, evidence, validation):
+        del by_type, evidence, validation
+        capability = rule.get("_runtime_capability")
+        if capability is None:
+            return False, {"semantic_control_mode": "FULL"}, []
+        executable = frame.action != "查询" and frame.target != "unknown"
+        hit = executable and (
+            capability.semantic_control_mode == SemanticControlMode.QUERY_ONLY
+            or (
+                capability.semantic_control_mode == SemanticControlMode.RESTRICTED
+                and frame.risk_level == "R3"
+            )
+        )
+        return (
+            hit,
+            {
+                "reason_code": "SEMANTIC_MODEL_DEGRADED_HIGH_RISK",
+                "semantic_control_mode": capability.semantic_control_mode.value,
+                "embedding_implementation": capability.embedding_implementation,
+                "risk_level": frame.risk_level,
+            },
+            [],
+        )
+
     def evaluate(
         self,
         frame: SemanticFrame,
         evidence: list[EvidenceNode],
         validation: AdvancedValidationResult | None = None,
         memory: MemoryPropagationResult | None = None,
+        runtime_capability: RuntimeCapabilityStatus | None = None,
     ) -> SafetyGateResult:
         del memory  # 传播结果只能解释风险，不能抵消硬门。
         validation = validation or AdvancedValidationResult()
         by_type = self._latest_by_type(evidence)
         checks: list[GateCheck] = []
         for rule in self.rules:
+            rule = dict(rule)
+            rule["_runtime_capability"] = runtime_capability
             evaluator_name = str(rule.get("evaluator"))
             evaluator = self._evaluators.get(evaluator_name)
             if evaluator is None:

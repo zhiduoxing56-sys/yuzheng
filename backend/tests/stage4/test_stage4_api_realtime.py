@@ -121,9 +121,10 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
     expected = [
         "INPUT_RECEIVED",
         "TRUST_CHECKED",
-        "ASR_COMPLETED",
-        "SEMANTIC_PARSED",
-        "EVIDENCE_RETRIEVED",
+            "ASR_COMPLETED",
+            "SEMANTIC_PARSED",
+            "RUNTIME_CAPABILITY_CHECKED",
+            "EVIDENCE_RETRIEVED",
         "MANDATORY_SUPPLEMENTED",
         "GRAPH_BUILT",
         "MEMORY_PROPAGATED",

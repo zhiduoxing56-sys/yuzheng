@@ -7,6 +7,7 @@ from app.models.schemas import (
     DecisionLabel,
     ExecuteResult,
     PipelineEvent,
+    SemanticControlMode,
     TextCommandRequest,
     VehicleExecutionResult,
     WorkflowEventType,
@@ -102,15 +103,26 @@ class ExecutionService:
                 event_sink=event_sink,
             )
             state_changed = current_digest != metadata.state_snapshot_digest
+            capability_denied = (
+                precheck.runtime_capability is None
+                or not precheck.runtime_capability.real_model_inference
+                or precheck.runtime_capability.semantic_control_mode
+                != SemanticControlMode.FULL
+            )
             safe = (
                 precheck.decision.final_decision == DecisionLabel.PASS
                 and not precheck.decision.gate_blocked
                 and not state_changed
+                and not capability_denied
             )
             if not safe:
                 reasons = list(precheck.decision.gate_reasons)
                 if state_changed:
                     reasons.append("签发后安全相关车辆状态发生变化")
+                if capability_denied:
+                    reasons.append(
+                        "SEMANTIC_MODEL_DEGRADED_EXECUTION_DENIED: 执行前真实语义模型不可用"
+                    )
                 reason = "；".join(reasons) or "执行前完整复查未通过"
                 self.pipeline.authorization_service.reject(metadata, reason)
                 self.pipeline.workflow_repository.append_event(
@@ -124,6 +136,7 @@ class ExecutionService:
                         "final_decision": precheck.decision.final_decision.value,
                         "hit_rules": precheck.safety_gate.hit_rules,
                         "state_changed": state_changed,
+                        "semantic_execution_denied": capability_denied,
                         "reason": reason,
                     },
                 )
@@ -135,6 +148,7 @@ class ExecutionService:
                         "passed": False,
                         "hit_rules": precheck.safety_gate.hit_rules,
                         "state_changed": state_changed,
+                        "semantic_execution_denied": capability_denied,
                     },
                 )
                 emit_execution(

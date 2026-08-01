@@ -38,13 +38,14 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
 
     @router.get("/health", response_model=HealthResponse)
     def health() -> HealthResponse:
+        capability = pipeline.runtime_capability()
         return HealthResponse(
             status="ok",
             service="语证后端",
             stage="阶段四：复核恢复、一次性授权、车辆模拟执行与实时交互闭环",
             database=pipeline.audit_repository.health(),
-            model_ready=getattr(pipeline.embedder, "model_name", "") == "BAAI/bge-base-zh-v1.5",
-            embedding_implementation=getattr(pipeline.embedder, "implementation", "unknown"),
+            model_ready=capability.real_model_inference,
+            embedding_implementation=capability.embedding_implementation,
             index_ready=pipeline.index.status().node_count > 0,
             index_implementation=pipeline.index.status().implementation,
             vehicle_adapter=pipeline.vehicle.adapter_name,
@@ -55,6 +56,8 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             revoked_tokens_on_startup=pipeline.authorization_service.revoked_tokens_on_startup,
             workflow_event_store=pipeline.workflow_repository.health(),
             websocket_ready=True,
+            runtime_capability=capability,
+            evidence_repository=pipeline.evidence_repository.status(),
         )
 
     @router.post("/command/text", response_model=TextCommandResponse)
@@ -164,7 +167,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
 
     @router.get("/causal/status", response_model=CausalStatus)
     def causal_status() -> CausalStatus:
-        return pipeline.causal_service.status()
+        return pipeline.causal_status()
 
     @router.post("/causal/rebuild", response_model=CausalStatus)
     def causal_rebuild() -> CausalStatus:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from threading import RLock
+from threading import RLock, Thread
 from time import perf_counter
 from typing import Any, Callable
 
@@ -20,6 +20,8 @@ from app.models.schemas import (
     EvidenceSubgraph,
     IndexStatus,
     PipelineEvent,
+    RuntimeCapabilityStatus,
+    SemanticControlMode,
     TextCommandRequest,
     TextCommandResponse,
     TranscriptionResult,
@@ -43,6 +45,7 @@ from app.services.evidence.repository import EvidenceRepository
 from app.services.execution.service import ExecutionService
 from app.services.graph.builder import EvidenceSubgraphBuilder
 from app.services.index.hnsw import HNSWIndexService
+from app.services.runtime.capability import RuntimeCapabilityService
 from app.services.memory.service import DualMemoryService
 from app.services.quality.evaluator import EvidenceQualityService
 from app.services.quality.window import EvidenceQualityWindow
@@ -82,12 +85,15 @@ class CommandPipeline:
         self.demand_service = EvidenceDemandService(
             load_yaml("action_evidence_map.yaml"), self.embedder
         )
-        self.evidence_repository = EvidenceRepository(quality_config)
+        self.evidence_repository = EvidenceRepository(
+            quality_config, load_yaml("evidence_retention.yaml")
+        )
         safety_config = load_yaml("safety_rules.yaml")
         self._safety_rule_nodes = self.evidence_repository.ingest_safety_rules(
             safety_config.get("rules", [])
         )
         self.index = HNSWIndexService(load_yaml("index.yaml"), self.embedder)
+        self.runtime_capability_service = RuntimeCapabilityService(self.embedder, self.index)
         self.recall_service = MandatoryRecallService(self.evidence_repository, self.embedder)
         self.quality_service = EvidenceQualityService(quality_config)
         self.quality_window = EvidenceQualityWindow(
@@ -107,24 +113,96 @@ class CommandPipeline:
             load_yaml("authorization.yaml"),
             self.workflow_repository,
             secret=token_secret,
+            capability_provider=self.runtime_capability,
         )
-        self._refresh_causal_model()
+        self._causal_rebuild_thread: Thread | None = None
+        self._refresh_causal_model(restore_stable=True)
+        self.evidence_repository.begin_turn("SYSTEM_SEED")
         seed_nodes = self.evidence_repository.ingest_vehicle_state(
             self.vehicle.get_state(),
             {"speaker_role": "driver", "speaker_zone": "driver"},
             "SYSTEM_SEED",
         )
         self.index.build([*self._safety_rule_nodes, *seed_nodes])
+        self.evidence_repository.complete_turn("SYSTEM_SEED")
         self._subgraphs: dict[str, EvidenceSubgraph] = {}
         self._turns: dict[str, TextCommandResponse] = {}
         self.review_service = ReviewService(self, self.review_config)
         self.execution_service = ExecutionService(self)
 
-    def _refresh_causal_model(self) -> IndexStatus | object:
+    def _refresh_causal_model(self, *, restore_stable: bool = False):
         status = self.audit_repository.learning_status()
-        return self.causal_service.rebuild(
-            self.audit_repository.learning_records(), status.excluded_record_count
+        records = self.audit_repository.learning_records(
+            self.causal_service.maximum_training_records
         )
+        stored = self.audit_repository.load_causal_model_metadata() if restore_stable else None
+        if stored is not None:
+            training_ids = {
+                str(value) for value in stored.get("training_record_ids", [])
+            }
+            if training_ids:
+                records = [record for record in records if record.audit_id in training_ids]
+            else:
+                source_count = max(0, int(stored.get("source_audit_count", 0)))
+                records = records[:source_count]
+        rebuilt = self.causal_service.rebuild(
+            records,
+            status.excluded_record_count,
+            restore_metadata=stored,
+            source_audit_count=(
+                int(stored.get("source_audit_count", 0))
+                if stored is not None
+                else status.learning_record_count
+            ),
+        )
+        if stored is None:
+            self.audit_repository.save_causal_model_metadata(
+                self.causal_service.model_metadata()
+            )
+        return rebuilt
+
+    def _run_background_causal_rebuild(self) -> None:
+        try:
+            self._refresh_causal_model()
+        except Exception as exc:
+            self.causal_service.record_rebuild_failure(
+                SensitiveDataRedactor.redact_exception(exc)
+            )
+
+    def _schedule_causal_rebuild(self, audit: AuditRecord) -> bool:
+        quality = audit.audit_quality
+        if (
+            not self.causal_service.auto_rebuild_enabled
+            or quality is None
+            or not quality.eligible_for_learning
+        ):
+            return False
+        learning_count = self.audit_repository.learning_status().learning_record_count
+        status = self.causal_service.status(learning_count)
+        if (
+            status.auto_rebuild_running
+            or status.eligible_audits_since_rebuild
+            < self.causal_service.rebuild_every_eligible_audits
+        ):
+            return False
+        self.causal_service.set_auto_rebuild_running(True)
+        self._causal_rebuild_thread = Thread(
+            target=self._run_background_causal_rebuild,
+            name="causal-model-rebuild",
+            daemon=True,
+        )
+        self._causal_rebuild_thread.start()
+        return True
+
+    def wait_for_causal_rebuild(self, timeout: float = 10.0) -> None:
+        thread = self._causal_rebuild_thread
+        if thread is not None:
+            thread.join(timeout)
+
+    def runtime_capability(self) -> RuntimeCapabilityStatus:
+        self.runtime_capability_service.embedder = self.embedder
+        self.runtime_capability_service.index = self.index
+        return self.runtime_capability_service.status()
 
     @staticmethod
     def _candidate_copy(node: EvidenceNode, similarity: float) -> EvidenceNode:
@@ -185,9 +263,9 @@ class CommandPipeline:
             record_quality=quality,
             eligible_for_learning=quality == AuditRecordQuality.VALID,
             exclusion_reasons=reasons,
-            implementation_stage="stage4",
-            pipeline_version="4.0.0",
-            schema_version="4.0",
+            implementation_stage="stage4.1",
+            pipeline_version="4.1.0",
+            schema_version="4.1",
         )
 
     def process_text(
@@ -224,6 +302,7 @@ class CommandPipeline:
         )
         turn_id = make_id("TURN")
         root_turn_id = root_turn_id or turn_id
+        self.evidence_repository.begin_turn(turn_id)
         sequence = 0
         sink = event_sink or self.event_broker.publish
         event_started = perf_counter()
@@ -262,6 +341,7 @@ class CommandPipeline:
                     emit=emit,
                 )
         except Exception as exc:
+            self.evidence_repository.complete_turn(turn_id)
             emit(
                 "PIPELINE_FAILED",
                 "流水线处理失败",
@@ -328,10 +408,24 @@ class CommandPipeline:
                 }
             )
         frame, demand = self.demand_service.build(frame)
+        runtime_capability = self.runtime_capability()
         emit(
             "SEMANTIC_PARSED",
             "语义帧已生成",
             {"action": frame.action, "target": frame.target, "risk_level": frame.risk_level},
+        )
+        capability_payload = runtime_capability.model_dump(mode="json")
+        emit(
+            "RUNTIME_CAPABILITY_CHECKED",
+            "运行时语义与索引能力已检查",
+            capability_payload,
+        )
+        self.workflow_repository.append_event(
+            root_turn_id=root_turn_id,
+            related_turn_id=turn_id,
+            parent_turn_id=parent_turn_id,
+            event_type=WorkflowEventType.RUNTIME_CAPABILITY_CHECKED,
+            payload=capability_payload,
         )
 
         snapshot_nodes = self.evidence_repository.ingest_vehicle_state(
@@ -441,7 +535,13 @@ class CommandPipeline:
             "证据与上下文声明校验完成",
             {"conflict_count": validation.conflict_count, "jailbreak_risk": validation.jailbreak_risk},
         )
-        gate = self.gate_service.evaluate(frame, reasoning_evidence, validation, memory)
+        gate = self.gate_service.evaluate(
+            frame,
+            reasoning_evidence,
+            validation,
+            memory,
+            runtime_capability,
+        )
         emit(
             "GATE_CHECKED",
             "硬性安全门检查完成",
@@ -449,7 +549,13 @@ class CommandPipeline:
         )
         scoring_started = perf_counter()
         decision = self.decision_service.decide(
-            frame, reasoning_evidence, gate, validation, causal, memory
+            frame,
+            reasoning_evidence,
+            gate,
+            validation,
+            causal,
+            memory,
+            runtime_capability,
         )
         emit(
             "DECISION_COMPLETED",
@@ -570,6 +676,7 @@ class CommandPipeline:
             causal_correction=causal,
             advanced_reasoning=advanced,
             turn_timing=timing,
+            runtime_capability=runtime_capability,
         )
         saved_audit = self.audit_repository.save(audit)
         emit(
@@ -577,7 +684,12 @@ class CommandPipeline:
             "裁决审计已追加保存",
             {"audit_id": saved_audit.audit_id, "current_hash": saved_audit.current_hash},
         )
-        actionable = demand.retrieval_scope == "control_evidence"
+        self._schedule_causal_rebuild(saved_audit)
+        self.evidence_repository.complete_turn(turn_id)
+        actionable = (
+            demand.retrieval_scope == "control_evidence"
+            and runtime_capability.semantic_control_mode == SemanticControlMode.FULL
+        )
         if decision.final_decision == DecisionLabel.REVIEW:
             self.workflow_repository.append_event(
                 root_turn_id=root_turn_id,
@@ -661,6 +773,7 @@ class CommandPipeline:
             score_factors=decision.score_factors.five_factors,
             decision_confidence=causal.decision_confidence,
             turn_timing=timing,
+            runtime_capability=runtime_capability,
         )
         # 原始令牌只存在于本次返回对象；内存缓存与 SQLite 均保存去敏版本。
         self._turns[turn_id] = response.model_copy(
@@ -680,6 +793,7 @@ class CommandPipeline:
             node_count=len(nodes),
             short_term_availability=self.quality_window.short_term_availability(),
             long_term_availability=self.quality_window.long_term_availability(),
+            repository_status=self.evidence_repository.status(),
         )
 
     def get_subgraph(self, turn_id: str) -> EvidenceSubgraph | None:
@@ -703,11 +817,17 @@ class CommandPipeline:
     def rebuild_causal(self):
         return self._refresh_causal_model()
 
+    def causal_status(self):
+        learning_count = self.audit_repository.learning_status().learning_record_count
+        return self.causal_service.status(learning_count)
+
     def get_vehicle_state(self) -> VehicleState:
         return self.vehicle.get_state()
 
     def update_vehicle_state(self, patch: VehicleStatePatch) -> VehicleState:
         with self._command_lock:
+            update_turn_id = make_id("STATE_UPDATE")
+            self.evidence_repository.begin_turn(update_turn_id)
             state = self.vehicle.update_state(patch)
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
@@ -715,20 +835,24 @@ class CommandPipeline:
                     "speaker_role": state.occupant_role or "unknown",
                     "speaker_zone": state.speaker_zone or "unknown",
                 },
-                make_id("STATE_UPDATE"),
+                update_turn_id,
             )
             self.index.upsert(nodes)
+            self.evidence_repository.complete_turn(update_turn_id)
             return state
 
     def reset_vehicle_state(self) -> VehicleState:
         with self._command_lock:
+            reset_turn_id = make_id("STATE_RESET")
+            self.evidence_repository.begin_turn(reset_turn_id)
             state = self.vehicle.reset()
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
                 {"speaker_role": "driver", "speaker_zone": "driver"},
-                make_id("STATE_RESET"),
+                reset_turn_id,
             )
             self.index.upsert(nodes)
+            self.evidence_repository.complete_turn(reset_turn_id)
             return state
 
     def scenarios(self) -> list[dict[str, Any]]:

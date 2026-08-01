@@ -34,6 +34,12 @@ class DecisionLabel(str, Enum):
     BLOCK = "BLOCK"
 
 
+class SemanticControlMode(str, Enum):
+    FULL = "FULL"
+    RESTRICTED = "RESTRICTED"
+    QUERY_ONLY = "QUERY_ONLY"
+
+
 class EvidenceRelation(str, Enum):
     TEMPORAL = "TEMPORAL"
     SPATIAL = "SPATIAL"
@@ -72,6 +78,7 @@ class AuthorizationTokenStatus(str, Enum):
 
 
 class WorkflowEventType(str, Enum):
+    RUNTIME_CAPABILITY_CHECKED = "RUNTIME_CAPABILITY_CHECKED"
     REVIEW_REQUESTED = "REVIEW_REQUESTED"
     REVIEW_CONFIRM_REJECTED = "REVIEW_CONFIRM_REJECTED"
     REVIEW_CONFIRMED = "REVIEW_CONFIRMED"
@@ -190,6 +197,19 @@ class VectorizationMetadata(StrictModel):
     cache_hit: bool = False
     cache_hits: int = Field(default=0, ge=0)
     cache_misses: int = Field(default=0, ge=0)
+
+
+class RuntimeCapabilityStatus(StrictModel):
+    embedding_implementation: str
+    embedding_model: str
+    embedding_dimension: int = Field(gt=0)
+    real_model_inference: bool
+    embedding_degraded: bool
+    index_implementation: str
+    index_degraded: bool
+    semantic_control_mode: SemanticControlMode
+    degradation_reasons: list[str] = Field(default_factory=list)
+    checked_at: datetime = Field(default_factory=utc_now)
 
 
 class RetrievalMetadata(StrictModel):
@@ -344,10 +364,22 @@ class CausalCorrectionResult(StrictModel):
     historical_support: dict[str, float] = Field(default_factory=dict)
     posterior_weights: dict[str, float] = Field(default_factory=dict)
     corrected_weights: dict[str, float] = Field(default_factory=dict)
-    entropy: float = Field(default=0, ge=0, le=1)
-    decision_confidence: float = Field(default=0, ge=0, le=1)
+    posterior_concentration: float = Field(default=0, ge=0, le=1)
+    decision_confidence: float | None = Field(default=None, ge=0, le=1)
+    confidence_status: Literal[
+        "AVAILABLE",
+        "INSUFFICIENT_DATA",
+        "SINGLE_NODE_UNDEFINED",
+        "MODEL_NOT_READY",
+    ] = "MODEL_NOT_READY"
     sample_count: int = Field(default=0, ge=0)
+    minimum_sample_count: int = Field(default=20, ge=1)
     data_sufficiency: str = "insufficient"
+    entropy: float = Field(default=0, ge=0)
+    normalized_entropy: float = Field(default=0, ge=0, le=1)
+    model_version: str = "causal-unbuilt"
+    model_built_at: datetime | None = None
+    source_audit_count: int = Field(default=0, ge=0)
     learning_record_ids: list[str] = Field(default_factory=list)
     excluded_record_count: int = Field(default=0, ge=0)
     advanced_reasoning_applied: bool = True
@@ -391,7 +423,7 @@ class AdvancedReasoningResult(StrictModel):
     causal_correction: CausalCorrectionResult = Field(default_factory=CausalCorrectionResult)
     validation: AdvancedValidationResult = Field(default_factory=AdvancedValidationResult)
     five_factor_score: dict[str, ScoreFactor] = Field(default_factory=dict)
-    decision_confidence: float = Field(default=0, ge=0, le=1)
+    decision_confidence: float | None = Field(default=None, ge=0, le=1)
     explanations: list[str] = Field(default_factory=list)
     recognized_command: dict[str, Any] = Field(default_factory=dict)
     mandatory_evidence_complete: bool = False
@@ -473,7 +505,8 @@ class DecisionResult(StrictModel):
     review_question: str | None = None
     authorization_token: str | None = Field(default=None, repr=False)
     jailbreak_risk: float = Field(default=0, ge=0, le=1)
-    decision_confidence: float = Field(default=0, ge=0, le=1)
+    decision_confidence: float | None = Field(default=None, ge=0, le=1)
+    reason_codes: list[str] = Field(default_factory=list)
     advanced_reasoning: AdvancedReasoningResult | None = None
     causal_correction: CausalCorrectionResult | None = None
     memory_propagation: MemoryPropagationResult | None = None
@@ -632,7 +665,7 @@ class AuditRecord(StrictModel):
     causal_pruned_edges: list[CausalEdge] = Field(default_factory=list)
     causal_removed_edges: list[CausalEdge] = Field(default_factory=list)
     causal_posterior: dict[str, float] = Field(default_factory=dict)
-    causal_entropy: float | None = Field(default=None, ge=0, le=1)
+    causal_entropy: float | None = Field(default=None, ge=0)
     decision_confidence: float | None = Field(default=None, ge=0, le=1)
     context_claims: list[ContextClaim] = Field(default_factory=list)
     grounding_failures: list[GroundingFailure] = Field(default_factory=list)
@@ -645,6 +678,7 @@ class AuditRecord(StrictModel):
     causal_correction: CausalCorrectionResult | None = None
     advanced_reasoning: AdvancedReasoningResult | None = None
     turn_timing: TurnTiming | None = None
+    runtime_capability: RuntimeCapabilityStatus | None = None
     previous_hash: str = ""
     current_hash: str = ""
     created_at: datetime = Field(default_factory=utc_now)
@@ -679,8 +713,9 @@ class TextCommandResponse(StrictModel):
     jailbreak_conflicts: list[JailbreakConflict] = Field(default_factory=list)
     jailbreak_risk: float = Field(default=0, ge=0, le=1)
     score_factors: dict[str, ScoreFactor] = Field(default_factory=dict)
-    decision_confidence: float = Field(default=0, ge=0, le=1)
+    decision_confidence: float | None = Field(default=None, ge=0, le=1)
     turn_timing: TurnTiming | None = None
+    runtime_capability: RuntimeCapabilityStatus | None = None
 
 
 class HealthResponse(StrictModel):
@@ -700,6 +735,8 @@ class HealthResponse(StrictModel):
     revoked_tokens_on_startup: int = Field(default=0, ge=0)
     workflow_event_store: str = ""
     websocket_ready: bool = False
+    runtime_capability: RuntimeCapabilityStatus | None = None
+    evidence_repository: "EvidenceRepositoryStatus | None" = None
 
 
 class IndexRebuildRequest(StrictModel):
@@ -731,6 +768,17 @@ class CurrentEvidenceResponse(StrictModel):
     node_count: int = Field(ge=0)
     short_term_availability: dict[str, float | None] = Field(default_factory=dict)
     long_term_availability: dict[str, float | None] = Field(default_factory=dict)
+    repository_status: "EvidenceRepositoryStatus | None" = None
+
+
+class EvidenceRepositoryStatus(StrictModel):
+    resident_node_count: int = Field(default=0, ge=0)
+    dynamic_node_count: int = Field(default=0, ge=0)
+    static_node_count: int = Field(default=0, ge=0)
+    stream_count: int = Field(default=0, ge=0)
+    retained_turn_count: int = Field(default=0, ge=0)
+    evicted_node_count: int = Field(default=0, ge=0)
+    retention_window: int = Field(default=16, ge=1)
 
 
 class CausalStatus(StrictModel):
@@ -743,6 +791,15 @@ class CausalStatus(StrictModel):
     graph_edge_count: int = Field(default=0, ge=0)
     last_rebuilt_at: datetime | None = None
     data_sufficiency: str = "insufficient"
+    minimum_sample_count: int = Field(default=20, ge=1)
+    model_version: str = "causal-unbuilt"
+    model_built_at: datetime | None = None
+    source_audit_count: int = Field(default=0, ge=0)
+    auto_rebuild_enabled: bool = False
+    rebuild_every_eligible_audits: int = Field(default=20, ge=1)
+    eligible_audits_since_rebuild: int = Field(default=0, ge=0)
+    auto_rebuild_running: bool = False
+    last_rebuild_error: str | None = None
 
 
 class LearningAuditStatus(StrictModel):

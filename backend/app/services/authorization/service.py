@@ -8,7 +8,7 @@ import os
 import secrets
 from datetime import timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from app.core.config import PROJECT_ROOT
 from app.models.schemas import (
@@ -17,6 +17,8 @@ from app.models.schemas import (
     AuthorizationTokenMetadata,
     AuthorizationTokenStatus,
     SemanticFrame,
+    RuntimeCapabilityStatus,
+    SemanticControlMode,
     VehicleState,
     WorkflowEventType,
     make_id,
@@ -69,12 +71,14 @@ class AuthorizationTokenService:
         repository: WorkflowRepository,
         *,
         secret: bytes | None = None,
+        capability_provider: Callable[[], RuntimeCapabilityStatus] | None = None,
     ) -> None:
         self.config = config
         self.repository = repository
         self.ttl_seconds = int(config.get("token_ttl_seconds", 30))
         self.executable_actions = set(config.get("executable_actions", []))
         self.revoked_tokens_on_startup = 0
+        self._capability_provider = capability_provider
         self.repository.expire_due_issued_tokens()
         if secret is not None:
             self._secret = self._validate_secret(secret, "injected_test_secret")
@@ -188,6 +192,15 @@ class AuthorizationTokenService:
         frame: SemanticFrame,
         state: VehicleState,
     ) -> AuthorizationGrant:
+        if self._capability_provider is not None:
+            capability = self._capability_provider()
+            if (
+                capability.semantic_control_mode != SemanticControlMode.FULL
+                or not capability.real_model_inference
+            ):
+                raise AuthorizationTokenError(
+                    "SEMANTIC_MODEL_DEGRADED_EXECUTION_DENIED: 真实语义模型降级，禁止签发车辆执行授权"
+                )
         active = self.repository.active_token_for_turn(turn_id)
         if active is not None and active.expires_at > utc_now():
             raise AuthorizationTokenError("当前轮次已有有效授权令牌")

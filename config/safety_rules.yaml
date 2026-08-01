@@ -8,6 +8,9 @@ rules:
     reason: 行驶中禁止打开车门
 
 gate_rules:
+  - id: SEMANTIC_MODEL_DEGRADED_HIGH_RISK
+    evaluator: semantic_model_degraded
+    reason: 真实语义模型降级，高风险车控指令被安全门阻断
   - id: MANDATORY_EVIDENCE_AVAILABLE
     evaluator: mandatory_missing
     reason: 强制证据缺失

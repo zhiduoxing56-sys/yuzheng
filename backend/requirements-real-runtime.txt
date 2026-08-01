@@ -1,0 +1,5 @@
+-r requirements.txt
+
+# 阶段四点一真实验收路径，禁止将以下两项仅视为可选依赖。
+sentence-transformers==5.6.1
+hnswlib==0.8.0

@@ -11,8 +11,10 @@ from app.models.schemas import (
     EvidenceNode,
     EvidenceStatus,
     MemoryPropagationResult,
+    RuntimeCapabilityStatus,
     SafetyGateResult,
     ScoreFactor,
+    SemanticControlMode,
     SemanticFrame,
 )
 
@@ -156,6 +158,7 @@ class DecisionService:
         validation: AdvancedValidationResult | None = None,
         causal: CausalCorrectionResult | None = None,
         memory: MemoryPropagationResult | None = None,
+        runtime_capability: RuntimeCapabilityStatus | None = None,
     ) -> DecisionResult:
         validation = validation or AdvancedValidationResult()
         causal = causal or CausalCorrectionResult()
@@ -259,6 +262,19 @@ class DecisionService:
             decision = DecisionLabel.BLOCK
             explanations.append("五维评分低于阻断阈值")
 
+        reason_codes = list(gate.hit_rules)
+        restricted_executable = (
+            runtime_capability is not None
+            and runtime_capability.semantic_control_mode != SemanticControlMode.FULL
+            and frame.action != "查询"
+            and frame.target != "unknown"
+        )
+        if restricted_executable and not gate.blocked and decision == DecisionLabel.PASS:
+            decision = DecisionLabel.REVIEW
+            review_question = "真实语义模型当前不可用，请恢复模型后重新确认该车控指令。"
+            reason_codes.append("SEMANTIC_MODEL_DEGRADED_REVIEW_REQUIRED")
+            explanations.append("真实语义模型降级：R1/R2可执行车控最高只能进入复核")
+
         decision_confidence = causal.decision_confidence
         return DecisionResult(
             turn_id=frame.turn_id,
@@ -283,6 +299,7 @@ class DecisionService:
             review_question=review_question,
             jailbreak_risk=validation.jailbreak_risk,
             decision_confidence=decision_confidence,
+            reason_codes=sorted(set(reason_codes)),
             causal_correction=causal,
             memory_propagation=memory,
             grounding_failures=validation.grounding_failures,

@@ -9,6 +9,7 @@ from typing import Any
 from app.models.schemas import (
     EvidenceNode,
     EvidenceObservationInput,
+    EvidenceRepositoryStatus,
     EvidenceStatus,
     VehicleState,
     make_id,
@@ -75,12 +76,128 @@ def source_for_type(evidence_type: str) -> str:
 class EvidenceRepository:
     """维护当前、多源与历史证据流；所有状态均来自实际输入快照或显式观测。"""
 
-    def __init__(self, quality_config: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self,
+        quality_config: dict[str, Any] | None = None,
+        retention_config: dict[str, Any] | None = None,
+    ) -> None:
         self._lock = RLock()
         self._nodes: dict[str, EvidenceNode] = {}
         self._streams: dict[str, list[str]] = {}
+        self._stream_nodes: dict[str, list[str]] = {}
+        self._node_stream_keys: dict[str, str] = {}
         self._turn_nodes: dict[str, list[str]] = {}
         self._freshness = (quality_config or {}).get("freshness", {})
+        retention = retention_config or {}
+        self.dynamic_stream_window = int(retention.get("dynamic_stream_window", 16))
+        self.retained_turns = int(retention.get("retained_turns", 64))
+        self.cleanup_after_audit = bool(retention.get("cleanup_after_audit", True))
+        self.retain_static_nodes = bool(retention.get("retain_static_nodes", True))
+        self.retain_rule_nodes = bool(retention.get("retain_rule_nodes", True))
+        self._static_evidence_types = set(retention.get("static_evidence_types", ["safety_rule"]))
+        self._static_sources = set(retention.get("static_sources", ["safety_rule_config"]))
+        self._static_node_ids: set[str] = set()
+        self._active_turns: set[str] = set()
+        self._turn_order: list[str] = []
+        self._evicted_node_count = 0
+
+    @staticmethod
+    def _entity_id(node: EvidenceNode) -> str:
+        return str(
+            node.metadata.get("entity_id")
+            or node.metadata.get("rule_id")
+            or node.metadata.get("area")
+            or "global"
+        )
+
+    @classmethod
+    def stream_key(cls, node: EvidenceNode) -> str:
+        return f"{node.evidence_type}|{node.source}|{cls._entity_id(node)}"
+
+    def _is_static(self, node: EvidenceNode) -> bool:
+        return (
+            node.evidence_type in self._static_evidence_types
+            or node.source in self._static_sources
+        )
+
+    @staticmethod
+    def _is_ephemeral(node: EvidenceNode) -> bool:
+        return (
+            node.quality_label == EvidenceStatus.MISSING
+            or node.source == "mandatory_recall"
+            or bool(node.metadata.get("ephemeral"))
+            or bool(node.metadata.get("derived_conflict"))
+            or bool(node.metadata.get("explanation_node"))
+        )
+
+    def begin_turn(self, turn_id: str) -> None:
+        with self._lock:
+            self._active_turns.add(turn_id)
+            self._turn_nodes.setdefault(turn_id, [])
+
+    def _remove_node(self, node_id: str, *, evicted: bool) -> None:
+        node = self._nodes.pop(node_id, None)
+        if node is None:
+            return
+        self._static_node_ids.discard(node_id)
+        stream_key = self._node_stream_keys.pop(node_id, None)
+        if stream_key is not None:
+            retained = [value for value in self._stream_nodes.get(stream_key, []) if value != node_id]
+            if retained:
+                self._stream_nodes[stream_key] = retained
+            else:
+                self._stream_nodes.pop(stream_key, None)
+        type_nodes = [value for value in self._streams.get(node.evidence_type, []) if value != node_id]
+        if type_nodes:
+            self._streams[node.evidence_type] = type_nodes
+        else:
+            self._streams.pop(node.evidence_type, None)
+        if evicted:
+            self._evicted_node_count += 1
+
+    def _enforce_stream_window(self, stream_key: str) -> None:
+        node_ids = self._stream_nodes.get(stream_key, [])
+        while len(node_ids) > self.dynamic_stream_window:
+            removable_index = next(
+                (
+                    index
+                    for index, node_id in enumerate(node_ids)
+                    if str(self._nodes[node_id].metadata.get("turn_id", ""))
+                    not in self._active_turns
+                ),
+                None,
+            )
+            if removable_index is None:
+                break
+            self._remove_node(node_ids[removable_index], evicted=True)
+            node_ids = self._stream_nodes.get(stream_key, [])
+
+    def complete_turn(self, turn_id: str) -> EvidenceRepositoryStatus:
+        """审计保存后清理临时节点，并执行确定性的流与轮次保留。"""
+        with self._lock:
+            self._active_turns.discard(turn_id)
+            if self.cleanup_after_audit:
+                for node_id in list(self._turn_nodes.get(turn_id, [])):
+                    node = self._nodes.get(node_id)
+                    if node is not None and self._is_ephemeral(node):
+                        self._remove_node(node_id, evicted=True)
+                self._turn_nodes[turn_id] = [
+                    node_id
+                    for node_id in self._turn_nodes.get(turn_id, [])
+                    if node_id in self._nodes
+                ]
+            for stream_key in list(self._stream_nodes):
+                if not any(
+                    node_id in self._static_node_ids
+                    for node_id in self._stream_nodes.get(stream_key, [])
+                ):
+                    self._enforce_stream_window(stream_key)
+            if turn_id not in self._turn_order:
+                self._turn_order.append(turn_id)
+            while len(self._turn_order) > self.retained_turns:
+                expired_turn = self._turn_order.pop(0)
+                self._turn_nodes.pop(expired_turn, None)
+            return self.status()
 
     def _validity_seconds(self, evidence_type: str) -> float:
         default = self._freshness.get("default", {})
@@ -157,6 +274,13 @@ class EvidenceRepository:
             self._nodes[node.node_id] = node
             if recallable:
                 self._streams.setdefault(node.evidence_type, []).append(node.node_id)
+                stream_key = self.stream_key(node)
+                self._stream_nodes.setdefault(stream_key, []).append(node.node_id)
+                self._node_stream_keys[node.node_id] = stream_key
+                if self._is_static(node):
+                    self._static_node_ids.add(node.node_id)
+                else:
+                    self._enforce_stream_window(stream_key)
             if turn_id:
                 self._turn_nodes.setdefault(turn_id, []).append(node.node_id)
         return node
@@ -324,17 +448,38 @@ class EvidenceRepository:
                     self._nodes[node.node_id] = node
 
     def current_nodes(self) -> list[EvidenceNode]:
-        latest: dict[tuple[str, str], EvidenceNode] = {}
-        for node in self.all_nodes():
-            key = (node.evidence_type, node.source)
-            current = latest.get(key)
-            if current is None or (node.timestamp, node.node_id) > (current.timestamp, current.node_id):
-                latest[key] = node
-        return sorted(latest.values(), key=lambda node: (node.evidence_type, node.source))
+        with self._lock:
+            latest = [
+                self._nodes[node_ids[-1]]
+                for node_ids in self._stream_nodes.values()
+                if node_ids and node_ids[-1] in self._nodes
+            ]
+        return sorted(
+            latest,
+            key=lambda node: (node.evidence_type, node.source, self._entity_id(node)),
+        )
 
     def turn_nodes(self, turn_id: str) -> list[EvidenceNode]:
         with self._lock:
-            return [self._nodes[node_id] for node_id in self._turn_nodes.get(turn_id, [])]
+            return [
+                self._nodes[node_id]
+                for node_id in self._turn_nodes.get(turn_id, [])
+                if node_id in self._nodes
+            ]
+
+    def status(self) -> EvidenceRepositoryStatus:
+        with self._lock:
+            static_count = len(self._static_node_ids & self._nodes.keys())
+            resident_count = len(self._nodes)
+            return EvidenceRepositoryStatus(
+                resident_node_count=resident_count,
+                dynamic_node_count=resident_count - static_count,
+                static_node_count=static_count,
+                stream_count=sum(bool(node_ids) for node_ids in self._stream_nodes.values()),
+                retained_turn_count=len(self._turn_nodes),
+                evicted_node_count=self._evicted_node_count,
+                retention_window=self.dynamic_stream_window,
+            )
 
     def clear_explicit_observations(self) -> int:
         """Clear scenario/test override streams without touching persisted audit nodes."""
@@ -345,13 +490,7 @@ class EvidenceRepository:
                 if bool(node.metadata.get("explicit_observation"))
             }
             for node_id in removed:
-                self._nodes.pop(node_id, None)
-            for evidence_type, node_ids in list(self._streams.items()):
-                retained = [node_id for node_id in node_ids if node_id not in removed]
-                if retained:
-                    self._streams[evidence_type] = retained
-                else:
-                    self._streams.pop(evidence_type, None)
+                self._remove_node(node_id, evicted=True)
             for turn_id, node_ids in list(self._turn_nodes.items()):
                 self._turn_nodes[turn_id] = [
                     node_id for node_id in node_ids if node_id not in removed

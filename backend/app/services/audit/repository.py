@@ -84,6 +84,15 @@ class AuditRepository:
                 "CREATE INDEX IF NOT EXISTS idx_audit_quality_learning "
                 "ON audit_quality_metadata(eligible_for_learning, record_quality)"
             )
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS causal_model_metadata (
+                    singleton_id INTEGER PRIMARY KEY CHECK (singleton_id = 1),
+                    metadata_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
 
     @staticmethod
     def _quality_values(metadata: AuditQualityMetadata) -> tuple[object, ...]:
@@ -339,20 +348,47 @@ class AuditRepository:
                 self.upsert_quality(self.classify_record(record))
         return self.list_quality()
 
-    def learning_records(self) -> list[AuditRecord]:
+    def learning_records(self, maximum_records: int | None = None) -> list[AuditRecord]:
         self.ensure_quality_metadata()
         with self._connect() as connection:
-            rows = connection.execute(
-                """
+            query = """
                 SELECT a.record_json
                 FROM audit_records a
                 JOIN audit_quality_metadata q ON q.audit_id = a.audit_id
                 WHERE q.record_quality = ? AND q.eligible_for_learning = 1
                 ORDER BY a.rowid
-                """,
-                (AuditRecordQuality.VALID.value,),
-            ).fetchall()
+                """
+            parameters: list[object] = [AuditRecordQuality.VALID.value]
+            reverse_rows = maximum_records is not None
+            if reverse_rows:
+                query = query.replace("ORDER BY a.rowid", "ORDER BY a.rowid DESC LIMIT ?")
+                parameters.append(maximum_records)
+            rows = connection.execute(query, parameters).fetchall()
+            if reverse_rows:
+                rows = list(reversed(rows))
         return [self._record_from_json(row["record_json"]) for row in rows]
+
+    def load_causal_model_metadata(self) -> dict[str, object] | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT metadata_json FROM causal_model_metadata WHERE singleton_id = 1"
+            ).fetchone()
+        return json.loads(str(row["metadata_json"])) if row else None
+
+    def save_causal_model_metadata(self, metadata: dict[str, object]) -> None:
+        payload = json.dumps(metadata, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        updated_at = str(metadata.get("model_built_at") or "")
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO causal_model_metadata(singleton_id, metadata_json, updated_at)
+                VALUES (1, ?, ?)
+                ON CONFLICT(singleton_id) DO UPDATE SET
+                    metadata_json=excluded.metadata_json,
+                    updated_at=excluded.updated_at
+                """,
+                (payload, updated_at),
+            )
 
     def learning_status(self) -> LearningAuditStatus:
         records = self.ensure_quality_metadata()

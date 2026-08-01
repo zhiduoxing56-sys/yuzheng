@@ -160,8 +160,8 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
 
 def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None:
     baseline = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
-    assert len(baseline.safety_gate.checks) == 16
-    assert len({item.rule_id for item in baseline.safety_gate.checks}) == 16
+    assert len(baseline.safety_gate.checks) == 17
+    assert len({item.rule_id for item in baseline.safety_gate.checks}) == 17
 
     navigation = _run(
         pipeline,
@@ -238,10 +238,10 @@ def test_causal_insufficient_and_sufficient_history_are_safe_and_traceable(pipel
     assert causal.data_sufficiency == "insufficient"
     assert causal.advanced_reasoning_applied is True
     assert math.isclose(sum(causal.posterior_weights.values()), 1.0, abs_tol=1e-8)
-    assert 0 <= causal.entropy <= 1
-    assert 0 <= causal.decision_confidence <= 1
+    assert 0 <= causal.normalized_entropy <= 1
+    assert causal.decision_confidence is None
 
-    for _ in range(5):
+    for _ in range(20):
         result = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
         metadata = result.audit.audit_quality.model_copy(
             update={
@@ -263,5 +263,6 @@ def test_causal_insufficient_and_sufficient_history_are_safe_and_traceable(pipel
     learned = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
     assert learned.causal_correction.learning_record_ids
     assert math.isclose(sum(learned.causal_correction.posterior_weights.values()), 1.0, abs_tol=1e-8)
+    assert learned.decision_confidence is not None
     assert 0 <= learned.decision_confidence <= 1
     assert learned.safety_gate.gate_blocked is False

@@ -187,8 +187,8 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
     passed = _command(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
     token = passed.decision.authorization_token
     assert passed.decision.final_decision == DecisionLabel.PASS
-    assert passed.audit.audit_quality.implementation_stage == "stage4"
-    assert passed.audit.audit_quality.pipeline_version == "4.0.0"
+    assert passed.audit.audit_quality.implementation_stage == "stage4.1"
+    assert passed.audit.audit_quality.pipeline_version == "4.1.0"
     assert token is not None
     assert passed.audit.final_decision.authorization_token is None
     assert pipeline._turns[passed.turn_id].decision.authorization_token is None

@@ -1,6 +1,9 @@
 laplace_alpha: 1.0
 outcome_count: 3
-sufficient_sample_count: 5
+minimum_samples_for_confidence: 20
+auto_rebuild_enabled: true
+rebuild_every_eligible_audits: 20
+maximum_training_records: 5000
 prior_floor: 0.001
 risk_priors:
   R3: 0.55

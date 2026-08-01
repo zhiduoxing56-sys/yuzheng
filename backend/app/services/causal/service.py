@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+from threading import RLock
 from time import perf_counter
 from typing import Any
 
@@ -21,22 +22,34 @@ from app.models.schemas import (
 
 
 class CausalCorrectionService:
-    """使用可学习审计记录构建无环共现图并执行平滑后验修正。"""
+    """使用裁决前冻结的历史模型执行因果排序，不参与覆盖 Safety Gate。"""
 
     def __init__(self, config: dict[str, Any]) -> None:
         self.alpha = float(config.get("laplace_alpha", 1.0))
         self.outcome_count = int(config.get("outcome_count", 3))
-        self.sufficient_count = int(config.get("sufficient_sample_count", 5))
+        self.minimum_sample_count = int(
+            config.get("minimum_samples_for_confidence", 20)
+        )
         self.prior_floor = float(config.get("prior_floor", 0.001))
+        self.auto_rebuild_enabled = bool(config.get("auto_rebuild_enabled", True))
+        self.rebuild_every_eligible_audits = int(
+            config.get("rebuild_every_eligible_audits", 20)
+        )
+        self.maximum_training_records = int(config.get("maximum_training_records", 5000))
         self.risk_priors = {
             key: float(value) for key, value in config.get("risk_priors", {}).items()
         }
+        self._lock = RLock()
         self._records: list[AuditRecord] = []
         self._candidate_edges: list[CausalEdge] = []
         self._pruned_edges: list[CausalEdge] = []
         self._removed_edges: list[CausalEdge] = []
         self._last_rebuilt_at = None
         self._excluded_count = 0
+        self._model_version = "causal-v0"
+        self._source_audit_count = 0
+        self._auto_rebuild_running = False
+        self._last_rebuild_error: str | None = None
 
     @staticmethod
     def _semantic_node(record: AuditRecord) -> str:
@@ -56,60 +69,132 @@ class CausalCorrectionService:
             }
         )
 
-    def rebuild(
-        self, records: list[AuditRecord], excluded_record_count: int
-    ) -> CausalStatus:
-        self._records = list(records)
-        self._excluded_count = excluded_record_count
+    @staticmethod
+    def _next_version(current: str) -> str:
+        try:
+            return f"causal-v{int(current.rsplit('v', 1)[1]) + 1}"
+        except (IndexError, ValueError):
+            return "causal-v1"
+
+    @staticmethod
+    def _build_edges(records: list[AuditRecord]) -> list[CausalEdge]:
         edge_counts: dict[tuple[str, str, str], int] = defaultdict(int)
-        for record in self._records:
-            semantic = self._semantic_node(record)
+        for record in records:
+            semantic = CausalCorrectionService._semantic_node(record)
             decision = f"decision:{record.final_decision.final_decision.value}"
-            evidence_nodes = self._evidence_nodes(record)
+            evidence_nodes = CausalCorrectionService._evidence_nodes(record)
             if not evidence_nodes:
                 edge_counts[(semantic, decision, "SEMANTIC_OUTCOME")] += 1
             for evidence in evidence_nodes:
                 edge_counts[(semantic, evidence, "SEMANTIC_GROUNDS_EVIDENCE")] += 1
                 edge_counts[(evidence, decision, "EVIDENCE_SUPPORTS_OUTCOME")] += 1
-
-        denominator = max(1, len(self._records))
-        candidates = [
+        denominator = max(1, len(records))
+        return [
             CausalEdge(
                 source=source,
                 target=target,
                 relation=relation,
                 support=min(1.0, count / denominator),
                 sample_count=count,
-                reason="可信审计中的时间有序共现",
+                reason="可信历史审计中的时间有序共现",
             )
             for (source, target, relation), count in sorted(edge_counts.items())
         ]
+
+    def rebuild(
+        self,
+        records: list[AuditRecord],
+        excluded_record_count: int,
+        *,
+        restore_metadata: dict[str, Any] | None = None,
+        source_audit_count: int | None = None,
+    ) -> CausalStatus:
+        bounded = list(records[-self.maximum_training_records :])
+        candidates = self._build_edges(bounded)
         pruned, removed = self.prune_candidate_edges(candidates)
-        self._candidate_edges = candidates
-        self._pruned_edges = pruned
-        self._removed_edges = removed
-        self._last_rebuilt_at = utc_now()
+        built_at = utc_now()
+        with self._lock:
+            self._records = bounded
+            self._excluded_count = excluded_record_count
+            self._candidate_edges = candidates
+            self._pruned_edges = pruned
+            self._removed_edges = removed
+            if restore_metadata:
+                self._model_version = str(
+                    restore_metadata.get("model_version", self._model_version)
+                )
+                self._last_rebuilt_at = restore_metadata.get("model_built_at") or built_at
+            else:
+                self._model_version = self._next_version(self._model_version)
+                self._last_rebuilt_at = built_at
+            self._source_audit_count = (
+                int(source_audit_count)
+                if source_audit_count is not None
+                else len(bounded)
+            )
+            self._last_rebuild_error = None
+            self._auto_rebuild_running = False
         return self.status()
 
-    def status(self) -> CausalStatus:
-        nodes = {
-            endpoint
-            for edge in self._pruned_edges
-            for endpoint in (edge.source, edge.target)
-        }
-        return CausalStatus(
-            learning_record_count=len(self._records),
-            excluded_record_count=self._excluded_count,
-            candidate_edge_count=len(self._candidate_edges),
-            pruned_edge_count=len(self._pruned_edges),
-            removed_edge_count=len(self._removed_edges),
-            graph_node_count=len(nodes),
-            graph_edge_count=len(self._pruned_edges),
-            last_rebuilt_at=self._last_rebuilt_at,
-            data_sufficiency=(
-                "sufficient" if len(self._records) >= self.sufficient_count else "insufficient"
-            ),
-        )
+    def model_metadata(self) -> dict[str, Any]:
+        with self._lock:
+            return {
+                "model_version": self._model_version,
+                "model_built_at": (
+                    self._last_rebuilt_at.isoformat()
+                    if hasattr(self._last_rebuilt_at, "isoformat")
+                    else self._last_rebuilt_at
+                ),
+                "source_audit_count": self._source_audit_count,
+                "minimum_sample_count": self.minimum_sample_count,
+                "training_record_ids": [record.audit_id for record in self._records],
+            }
+
+    def set_auto_rebuild_running(self, running: bool) -> None:
+        with self._lock:
+            self._auto_rebuild_running = running
+
+    def record_rebuild_failure(self, message: str) -> None:
+        with self._lock:
+            self._auto_rebuild_running = False
+            self._last_rebuild_error = message
+
+    def status(self, eligible_audit_count: int | None = None) -> CausalStatus:
+        with self._lock:
+            nodes = {
+                endpoint
+                for edge in self._pruned_edges
+                for endpoint in (edge.source, edge.target)
+            }
+            eligible = (
+                self._source_audit_count
+                if eligible_audit_count is None
+                else eligible_audit_count
+            )
+            return CausalStatus(
+                learning_record_count=len(self._records),
+                excluded_record_count=self._excluded_count,
+                candidate_edge_count=len(self._candidate_edges),
+                pruned_edge_count=len(self._pruned_edges),
+                removed_edge_count=len(self._removed_edges),
+                graph_node_count=len(nodes),
+                graph_edge_count=len(self._pruned_edges),
+                last_rebuilt_at=self._last_rebuilt_at,
+                data_sufficiency=(
+                    "sufficient"
+                    if len(self._records) >= self.minimum_sample_count
+                    else "insufficient"
+                ),
+                minimum_sample_count=self.minimum_sample_count,
+                model_version=self._model_version,
+                model_built_at=self._last_rebuilt_at,
+                source_audit_count=self._source_audit_count,
+                auto_rebuild_enabled=self.auto_rebuild_enabled,
+                rebuild_every_eligible_audits=self.rebuild_every_eligible_audits,
+                eligible_audits_since_rebuild=max(0, eligible - self._source_audit_count),
+                auto_rebuild_running=self._auto_rebuild_running,
+                last_rebuild_error=self._last_rebuild_error,
+            )
 
     @staticmethod
     def prune_candidate_edges(
@@ -148,7 +233,6 @@ class CausalCorrectionService:
 
     @staticmethod
     def _rounded_distribution(values: dict[str, float]) -> dict[str, float]:
-        """Round deterministically while preserving an exact serialized sum of one."""
         keys = list(values)
         if not keys:
             return {}
@@ -168,9 +252,18 @@ class CausalCorrectionService:
         memory: MemoryPropagationResult,
     ) -> CausalCorrectionResult:
         started = perf_counter()
+        with self._lock:
+            records = list(self._records)
+            candidates = list(self._candidate_edges)
+            pruned = list(self._pruned_edges)
+            removed = list(self._removed_edges)
+            excluded_count = self._excluded_count
+            model_version = self._model_version
+            model_built_at = self._last_rebuilt_at
+            source_audit_count = self._source_audit_count
+
         current_nodes = [node for node in evidence if node.mandatory]
         if not current_nodes:
-            # 无强制证据时仍显式返回单一语义先验，避免空概率。
             keys = ["semantic_only"]
         else:
             latest: dict[str, EvidenceNode] = {}
@@ -203,11 +296,11 @@ class CausalCorrectionService:
             prior = max(self.prior_floor, risk_prior * (0.5 + 0.5 * memory_weight))
             raw_priors[key] = prior
             if node is None:
-                matching: list[AuditRecord] = self._records
+                matching = records
             else:
                 matching = [
                     record
-                    for record in self._records
+                    for record in records
                     if record.evidence_subgraph is not None
                     and any(
                         historical_node.evidence_type == node.evidence_type
@@ -229,47 +322,62 @@ class CausalCorrectionService:
         semantic_prior = {key: value / prior_total for key, value in raw_priors.items()}
         posterior_total = sum(raw_posterior.values()) or 1.0
         posterior = {key: value / posterior_total for key, value in raw_posterior.items()}
-        if len(posterior) <= 1:
-            entropy = 0.0
+        entropy = -sum(
+            probability * math.log(probability)
+            for probability in posterior.values()
+            if probability > 0
+        )
+        normalized_entropy = (
+            entropy / math.log(len(posterior)) if len(posterior) > 1 else 0.0
+        )
+        concentration = max(0.0, min(1.0, 1.0 - normalized_entropy))
+        sample_count = len(records)
+        if len(posterior) < 2:
+            confidence_status = "SINGLE_NODE_UNDEFINED"
+            decision_confidence = None
+        elif model_built_at is None:
+            confidence_status = "MODEL_NOT_READY"
+            decision_confidence = None
+        elif sample_count < self.minimum_sample_count:
+            confidence_status = "INSUFFICIENT_DATA"
+            decision_confidence = None
         else:
-            entropy = -sum(
-                probability * math.log(probability)
-                for probability in posterior.values()
-                if probability > 0
-            ) / math.log(len(posterior))
-        confidence = max(0.0, min(1.0, 1.0 - entropy))
+            confidence_status = "AVAILABLE"
+            decision_confidence = round(concentration, 8)
+
         graph_nodes = sorted(
-            {
-                endpoint
-                for edge in self._pruned_edges
-                for endpoint in (edge.source, edge.target)
-            }
+            {endpoint for edge in pruned for endpoint in (edge.source, edge.target)}
         )
         duration_ms = (perf_counter() - started) * 1000
-        serialized_prior = self._rounded_distribution(semantic_prior)
-        serialized_posterior = self._rounded_distribution(posterior)
         return CausalCorrectionResult(
             causal_graph={
                 "nodes": graph_nodes,
-                "edges": [edge.model_dump(mode="json") for edge in self._pruned_edges],
-                "removed_edges": [edge.model_dump(mode="json") for edge in self._removed_edges],
+                "edges": [edge.model_dump(mode="json") for edge in pruned],
+                "removed_edges": [edge.model_dump(mode="json") for edge in removed],
                 "acyclic": True,
             },
-            candidate_edges=self._candidate_edges,
-            pruned_edges=self._pruned_edges,
-            removed_edges=self._removed_edges,
-            semantic_prior=serialized_prior,
+            candidate_edges=candidates,
+            pruned_edges=pruned,
+            removed_edges=removed,
+            semantic_prior=self._rounded_distribution(semantic_prior),
             historical_support={key: round(value, 8) for key, value in historical.items()},
-            posterior_weights=serialized_posterior,
-            corrected_weights=serialized_posterior,
-            entropy=round(max(0.0, min(1.0, entropy)), 8),
-            decision_confidence=round(confidence, 8),
-            sample_count=len(self._records),
+            posterior_weights=self._rounded_distribution(posterior),
+            corrected_weights=self._rounded_distribution(posterior),
+            posterior_concentration=round(concentration, 8),
+            decision_confidence=decision_confidence,
+            confidence_status=confidence_status,
+            sample_count=sample_count,
+            minimum_sample_count=self.minimum_sample_count,
             data_sufficiency=(
-                "sufficient" if len(self._records) >= self.sufficient_count else "insufficient"
+                "sufficient" if sample_count >= self.minimum_sample_count else "insufficient"
             ),
-            learning_record_ids=[record.audit_id for record in self._records],
-            excluded_record_count=self._excluded_count,
+            entropy=round(max(0.0, entropy), 8),
+            normalized_entropy=round(max(0.0, min(1.0, normalized_entropy)), 8),
+            model_version=model_version,
+            model_built_at=model_built_at,
+            source_audit_count=source_audit_count,
+            learning_record_ids=[record.audit_id for record in records],
+            excluded_record_count=excluded_count,
             advanced_reasoning_applied=True,
             feature_cutoff="pre_decision",
             used_features=used_features,

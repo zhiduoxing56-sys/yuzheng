@@ -1,23 +1,18 @@
 # 语证
 
-面向智能座舱高风险车控指令的证据对齐与可解释裁决系统。当前实现范围为阶段四“复核恢复、一次性授权、车辆模拟执行与实时交互闭环”：在冻结的真实 BGE/HNSW、安全门、五维评分和高级推理链路之上，增加追加式工作流审计、复核重裁决、HMAC 一次性授权、执行前完整复查、安全模拟执行、状态/场景/审计接口和 WebSocket 实时事件。
+面向智能座舱高风险车控指令的证据对齐与可解释裁决系统。当前实现范围为阶段四点一“运行时安全降级、证据仓库有界化、因果置信度修正与真实环境预检”：阶段四闭环保持不变，并把真实语义模型能力直接接入安全门、授权和执行前复查，限制内存证据生命周期，修正无样本因果置信度语义。
 
 ## 安装与运行
 
-本仓库阶段三验收固定使用 `D:\software\anaconda\envs\yuzheng311\python.exe`。该环境已安装 sentence-transformers、`BAAI/bge-base-zh-v1.5` 本地模型和 hnswlib 0.8.0：
+本仓库真实验收固定使用 `D:\software\anaconda\envs\yuzheng311\python.exe`。该环境必须安装 sentence-transformers、`BAAI/bge-base-zh-v1.5` 本地模型和 hnswlib 0.8.0：
 
 ```powershell
-D:\software\anaconda\envs\yuzheng311\python.exe -m pip install -r backend\requirements.txt
+D:\software\anaconda\envs\yuzheng311\python.exe -m pip install -r backend\requirements-real-runtime.txt
+D:\software\anaconda\envs\yuzheng311\python.exe scripts\preflight_real_runtime.py
 D:\software\anaconda\envs\yuzheng311\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8765
 ```
 
-若本机具备兼容的本地模型或希望启用 hnswlib，可额外安装：
-
-```powershell
-python -m pip install -r backend\requirements-optional.txt
-```
-
-系统只读取本地 Hugging Face 缓存，不自动联网下载模型。模型缺失或二进制依赖不兼容时自动使用确定性 768 维哈希向量；hnswlib 不可用时自动使用精确余弦检索。两种降级都会在响应和审计中明确记录，不会伪装成真实模型或 HNSW 推理。
+系统只读取本地 Hugging Face 缓存，不自动联网下载模型。BGE 缺失或加载失败时使用确定性 768 维哈希向量，但会进入 `RESTRICTED`：R3 可执行车控直接 BLOCK，R1/R2 最高 REVIEW，查询返回但 `actionable=false`，且不签发或执行令牌。hnswlib 单独不可用时继续使用真实 BGE + 精确余弦，只降低检索效率，不降低安全裁决能力。所有降级都会进入健康、响应、审计、工作流和 WebSocket，禁止静默降级。
 
 ## 已实现链路
 
@@ -82,6 +77,15 @@ D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=50
 - 执行成功实时尾序列为 `VEHICLE_PRECHECKED → TOKEN_CONSUMED → VEHICLE_EXECUTED → AUDIT_SAVED`；适配器失败使用 `EXECUTION_FAILED`，不冒充 `VEHICLE_EXECUTED`；复检失败在 `VEHICLE_PRECHECKED → AUDIT_SAVED` 后终止。
 - 模拟器状态返回 `state_epoch_id/started_at/reset_count/last_reset_at/reset_reason`。时间线分别返回 `historical_execution_state` 和 `current_simulator_state`，服务重启不会把历史执行后状态伪装成当前状态。
 - 冻结安全修复后全量测试为 `75 passed, 1 warning in 126.54s`；真实服务验收脚本为 `scripts/run_stage4_freeze_acceptance.py`。
+
+## 阶段四点一运行时边界
+
+- `RuntimeCapabilityStatus` 统一返回嵌入实现/模型/维度/真实推理状态、索引实现、FULL/RESTRICTED/QUERY_ONLY、降级原因与检查时间。
+- 语义模型降级由 Safety Gate、决策上限、授权服务和执行前复查共同强制；Cnec、软评分、记忆和因果排序均不能恢复 PASS。
+- `EvidenceRepository` 按 `evidence_type + source + entity_id` 保持稳定流，每条动态流最多 16 个快照，轮次映射最多 64 轮；静态规则长期保留，MISSING/冲突派生/解释节点在审计后清理。完整历史仍在 SQLite 审计中。
+- 因果输出区分 `posterior_concentration` 与可空 `decision_confidence`。零样本、单节点或少于 20 条合格历史时决策置信度为 null；模型按审计后合格记录计数重建，当前轮不会进入当前轮后验。
+- 真实环境预检：`D:\software\anaconda\envs\yuzheng311\python.exe scripts\preflight_real_runtime.py`。安全源码包：`D:\software\anaconda\envs\yuzheng311\python.exe scripts\export_source_package.py`，仅打包 Git 跟踪源文件并排除密钥、数据库与缓存。
+- 阶段四点一最终回归为 `87 passed, 1 warning in 226.24s`；1000 轮有界基准脚本为 `scripts/benchmark_stage4_1_retention.py`，实际 HNSW 规范节点 `33→33`、动态流最大 16、轮次映射 64、两条链有效。
 
 ## 阶段三核心语义
 
