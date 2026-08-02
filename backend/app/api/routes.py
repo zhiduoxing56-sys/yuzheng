@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import sqlite3
 
 from fastapi import APIRouter, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from starlette.concurrency import run_in_threadpool
@@ -30,17 +31,39 @@ from app.models.schemas import (
     VehicleState,
     VehicleStatePatch,
     WorkflowChainVerification,
+    DecisionLabel,
 )
+from app.models.frontend_contract import (
+    AuditDetailResponse,
+    AuditListResponse,
+    AuditVerificationResponse,
+    ErrorCode,
+    ErrorResponse,
+    EvidenceNodeDetail,
+    ReviewSubmission,
+    ReviewSubmissionResponse,
+    TurnPresentationResponse,
+)
+from app.api.errors import ContractError
 from app.services.authorization.service import AuthorizationTokenError
 from app.services.asr.whisper import ASRModelError
 from app.services.review.service import ReviewWorkflowError
 from app.services.voice.antispoof import AntiSpoofModelError
 from app.services.voice.audio import AudioInputError
 from app.core.redaction import SensitiveDataRedactor
+from app.services.presentation.assembler import PresentationAssembler
+from app.services.review.adapter import adapt_review_submission
 
 
 def build_router(pipeline: CommandPipeline) -> APIRouter:
     router = APIRouter(prefix="/api")
+    presentation = PresentationAssembler(pipeline)
+    contract_errors = {
+        404: {"model": ErrorResponse},
+        409: {"model": ErrorResponse},
+        422: {"model": ErrorResponse},
+        500: {"model": ErrorResponse},
+    }
 
     @router.get("/health", response_model=HealthResponse)
     def health() -> HealthResponse:
@@ -69,7 +92,14 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
 
     @router.post("/command/text", response_model=TextCommandResponse)
     def command_text(request: TextCommandRequest) -> TextCommandResponse:
-        return pipeline.process_text(request)
+        result = pipeline.process_text(request)
+        return result.model_copy(
+            update={
+                "websocket_channel": (
+                    f"/ws/pipeline/{request.session_id}" if request.session_id else None
+                )
+            }
+        )
 
     @router.post("/command/audio", response_model=AudioCommandResponse)
     async def command_audio(
@@ -83,7 +113,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     ) -> AudioCommandResponse:
         audio_bytes = await request.body()
         try:
-            return await run_in_threadpool(
+            result = await run_in_threadpool(
                 lambda: pipeline.process_audio_bytes(
                     audio_bytes,
                     audio_source=audio_source,
@@ -93,6 +123,13 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                     channel_index=channel_index,
                     session_id=session_id,
                 )
+            )
+            return result.model_copy(
+                update={
+                    "websocket_channel": (
+                        f"/ws/pipeline/{session_id}" if session_id else None
+                    )
+                }
             )
         except AudioInputError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -104,7 +141,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         request: MicrophoneCommandRequest,
     ) -> AudioCommandResponse:
         try:
-            return await run_in_threadpool(
+            result = await run_in_threadpool(
                 lambda: pipeline.process_microphone(
                     duration_seconds=request.duration_seconds,
                     device=request.device,
@@ -113,6 +150,15 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                     state_overrides=request.state_overrides,
                     session_id=request.session_id,
                 )
+            )
+            return result.model_copy(
+                update={
+                    "websocket_channel": (
+                        f"/ws/pipeline/{request.session_id}"
+                        if request.session_id
+                        else None
+                    )
+                }
             )
         except AudioInputError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -161,14 +207,116 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             raise HTTPException(status_code=404, detail=f"turn not found: {turn_id}")
         return record
 
-    @router.post("/turns/{turn_id}/review", response_model=ReviewResult)
-    def turn_review(turn_id: str, request: ReviewRequest) -> ReviewResult:
+    @router.get(
+        "/turns/{turn_id}/presentation",
+        response_model=TurnPresentationResponse,
+        responses=contract_errors,
+    )
+    def turn_presentation(turn_id: str) -> TurnPresentationResponse:
         try:
-            return pipeline.review_service.review(turn_id, request)
-        except ReviewWorkflowError as exc:
-            raise HTTPException(
-                status_code=409, detail=SensitiveDataRedactor.redact_exception(exc)
+            record = pipeline.audit_repository.get_by_turn(turn_id)
+            if record is None:
+                raise ContractError(
+                    404,
+                    ErrorCode.TURN_NOT_FOUND,
+                    "未找到指定轮次",
+                    turn_id=turn_id,
+                )
+            return presentation.assemble(record)
+        except ContractError:
+            raise
+        except sqlite3.Error as exc:
+            raise ContractError(
+                500,
+                ErrorCode.DATABASE_ERROR,
+                "无法读取轮次展示数据",
+                turn_id=turn_id,
             ) from exc
+        except Exception as exc:
+            raise ContractError(
+                500,
+                ErrorCode.INTERNAL_ERROR,
+                "无法组装轮次展示数据",
+                turn_id=turn_id,
+            ) from exc
+
+    @router.get(
+        "/turns/{turn_id}/evidence/{node_id}",
+        response_model=EvidenceNodeDetail,
+        responses=contract_errors,
+    )
+    def turn_evidence_node(turn_id: str, node_id: str) -> EvidenceNodeDetail:
+        record = pipeline.audit_repository.get_by_turn(turn_id)
+        if record is None:
+            raise ContractError(
+                404, ErrorCode.TURN_NOT_FOUND, "未找到指定轮次", turn_id=turn_id
+            )
+        detail = presentation.node_detail(record, node_id)
+        if detail is not None:
+            return detail
+        if presentation.node_exists(node_id):
+            raise ContractError(
+                409,
+                ErrorCode.NODE_NOT_IN_TURN,
+                "证据节点不属于指定轮次",
+                turn_id=turn_id,
+                details={"node_id": node_id},
+            )
+        raise ContractError(
+            404,
+            ErrorCode.NODE_NOT_FOUND,
+            "未找到证据节点",
+            turn_id=turn_id,
+            details={"node_id": node_id},
+        )
+
+    @router.post(
+        "/turns/{turn_id}/review",
+        response_model=ReviewSubmissionResponse,
+        responses=contract_errors,
+    )
+    def turn_review(turn_id: str, request: ReviewSubmission) -> ReviewSubmissionResponse:
+        try:
+            result = pipeline.review_service.review(
+                turn_id, adapt_review_submission(request)
+            )
+        except ReviewWorkflowError as exc:
+            message = SensitiveDataRedactor.redact_exception(exc)
+            if "未找到轮次" in message:
+                code, status_code = ErrorCode.TURN_NOT_FOUND, 404
+            elif "工作流已终止" in message:
+                code, status_code = ErrorCode.TURN_ALREADY_FINALIZED, 409
+            else:
+                code, status_code = ErrorCode.REVIEW_NOT_ALLOWED, 409
+            raise ContractError(
+                status_code, code, message, turn_id=turn_id
+            ) from exc
+        related = pipeline.audit_repository.get_by_turn(result.related_turn_id)
+        original = pipeline.audit_repository.get_by_turn(turn_id)
+        audit = related or original
+        if audit is None:
+            raise ContractError(
+                404, ErrorCode.TURN_NOT_FOUND, "未找到指定轮次", turn_id=turn_id
+            )
+        return ReviewSubmissionResponse(
+            original_turn_id=turn_id,
+            review_turn_id=result.related_turn_id,
+            user_action=result.action,
+            new_decision=result.decision.final_decision,
+            token_issued=result.decision.authorization_token is not None,
+            execution_status=result.workflow_status.status,
+            audit_id=audit.audit_id,
+            accepted=result.accepted,
+            message=result.reason,
+            root_turn_id=result.root_turn_id,
+            related_turn_id=result.related_turn_id,
+            action=result.action,
+            reason=result.reason,
+            workflow_status=result.workflow_status,
+            decision=result.decision,
+            review_question=result.review_question,
+            command_result=result.command_result,
+        )
 
     @router.post("/turns/{turn_id}/execute", response_model=ExecuteResult)
     def turn_execute(turn_id: str, request: ExecuteRequest) -> ExecuteResult:
@@ -236,34 +384,82 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     def audits_verify_chain() -> dict[str, bool]:
         return {"valid": pipeline.audit_repository.verify_chain()}
 
-    @router.get("/audits", response_model=AuditPage)
+    @router.get(
+        "/audits", response_model=AuditListResponse, responses=contract_errors
+    )
     def audits_list(
+        request: Request,
         page: int = Query(default=1, ge=1),
         page_size: int = Query(default=20, ge=1, le=100),
-        decision: str | None = None,
-        action: str | None = None,
-        target: str | None = None,
-        risk_type: str | None = None,
+        decision: DecisionLabel | None = None,
         start_time: datetime | None = None,
         end_time: datetime | None = None,
-    ) -> AuditPage:
-        return pipeline.audit_repository.list_records(
+    ) -> AuditListResponse:
+        if start_time and end_time and start_time.timestamp() > end_time.timestamp():
+            raise ContractError(
+                422, ErrorCode.INVALID_FILTER, "start_time 不能晚于 end_time"
+            )
+        result = pipeline.audit_repository.list_records(
             page=page,
             page_size=page_size,
-            decision=decision,
-            action=action,
-            target=target,
-            risk_type=risk_type,
+            decision=decision.value if decision else None,
+            action=request.query_params.get("action"),
+            target=request.query_params.get("target"),
+            risk_type=request.query_params.get("risk_type"),
             start_time=start_time.isoformat() if start_time else None,
             end_time=end_time.isoformat() if end_time else None,
         )
+        return AuditListResponse(
+            items=[presentation.audit_list_item(item) for item in result.items],
+            total=result.total,
+            page=result.page,
+            page_size=result.page_size,
+        )
 
-    @router.get("/audits/{audit_id}", response_model=AuditRecord)
-    def audit_detail(audit_id: str) -> AuditRecord:
+    @router.get(
+        "/audits/{audit_id}",
+        response_model=AuditDetailResponse,
+        responses=contract_errors,
+    )
+    def audit_detail(audit_id: str) -> AuditDetailResponse:
         record = pipeline.audit_repository.get_by_id(audit_id)
         if record is None:
-            raise HTTPException(status_code=404, detail=f"audit not found: {audit_id}")
-        return record
+            raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
+        return presentation.audit_detail(record)
+
+    @router.get(
+        "/audits/{audit_id}/verify",
+        response_model=AuditVerificationResponse,
+        responses=contract_errors,
+    )
+    def audit_verify(audit_id: str) -> AuditVerificationResponse:
+        record = pipeline.audit_repository.get_by_id(audit_id)
+        if record is None:
+            raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
+        verification = pipeline.audit_repository.verify_record(audit_id)
+        if verification is None:
+            raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
+        root = record.root_turn_id or record.turn_id
+        workflow_valid = pipeline.workflow_repository.verify_chain(root).valid
+        failures = [
+            label
+            for key, label in (
+                ("record_hash_valid", "记录摘要校验失败"),
+                ("previous_link_valid", "前向链接校验失败"),
+                ("audit_chain_valid", "审计链校验失败"),
+            )
+            if not verification[key]
+        ]
+        if not workflow_valid:
+            failures.append("工作流链校验失败")
+        return AuditVerificationResponse(
+            audit_id=audit_id,
+            record_hash_valid=verification["record_hash_valid"],
+            previous_link_valid=verification["previous_link_valid"],
+            audit_chain_valid=verification["audit_chain_valid"],
+            workflow_chain_valid=workflow_valid,
+            failure_reason="；".join(failures) or None,
+        )
 
     @router.get("/audits/{audit_id}/export")
     def audit_export(audit_id: str) -> dict:

@@ -1582,11 +1582,48 @@ class CommandPipeline:
             for event in events
         )
         ordered.sort(key=lambda item: (item["timestamp"], item["kind"]))
+        timeline_items: list[dict[str, Any]] = []
+        for sequence, item in enumerate(ordered, 1):
+            if item["kind"] == "AUDIT":
+                timeline_items.append(
+                    {
+                        "sequence": sequence,
+                        "stage": "AUDIT_SAVED",
+                        "timestamp": item["timestamp"],
+                        "status": item["decision"],
+                        "summary": f"轮次审计已保存，裁决={item['decision']}",
+                        "turn_id": item["turn_id"],
+                        "audit_id": item["audit_id"],
+                    }
+                )
+                continue
+            event = next(
+                workflow_event
+                for workflow_event in events
+                if workflow_event.event_id == item["event_id"]
+            )
+            event_type = event.event_type.value
+            failed = any(
+                marker in event_type
+                for marker in ("FAILED", "REJECTED", "REVOKED", "EXPIRED", "CANCELLED")
+            )
+            timeline_items.append(
+                {
+                    "sequence": sequence,
+                    "stage": event_type,
+                    "timestamp": item["timestamp"],
+                    "status": "FAILED" if failed else "COMPLETED",
+                    "summary": str(event.payload.get("reason", event_type)),
+                    "turn_id": event.related_turn_id,
+                    "event_id": event.event_id,
+                }
+            )
         return TurnTimeline(
             root_turn_id=root,
             audits=audits,
             workflow_events=events,
             ordered_items=ordered,
+            items=timeline_items,
             historical_execution_state=self.workflow_repository.executions(root),
             current_simulator_state=self.vehicle.get_state(),
         )

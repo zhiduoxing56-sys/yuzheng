@@ -822,6 +822,9 @@ class TextCommandResponse(StrictModel):
     decision_confidence: float | None = Field(default=None, ge=0, le=1)
     turn_timing: TurnTiming | None = None
     runtime_capability: RuntimeCapabilityStatus | None = None
+    accepted: bool = True
+    input_type: Literal["text"] = "text"
+    websocket_channel: str | None = None
 
 
 class AudioCommandResponse(StrictModel):
@@ -835,6 +838,9 @@ class AudioCommandResponse(StrictModel):
     decision: DecisionResult
     audit: AuditRecord
     pipeline: TextCommandResponse | None = None
+    accepted: bool = True
+    input_type: Literal["audio"] = "audio"
+    websocket_channel: str | None = None
 
 
 class HealthResponse(StrictModel):
@@ -1052,11 +1058,30 @@ class PipelineEvent(StrictModel):
     session_id: str
     turn_id: str
     sequence: int = Field(ge=1)
+    event_type: str = "PIPELINE_STAGE"
     stage: str
+    status: str = "COMPLETED"
     timestamp: datetime = Field(default_factory=utc_now)
     duration_ms: float = Field(default=0, ge=0)
     summary: str
     payload: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def fill_public_envelope(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            data = dict(data)
+            stage = str(data.get("stage", "PIPELINE_STAGE"))
+            data.setdefault("event_type", stage)
+            payload = data.get("payload")
+            payload_status = payload.get("status") if isinstance(payload, dict) else None
+            if payload_status is not None:
+                data.setdefault("status", str(payload_status))
+            elif any(term in stage for term in ("FAILED", "REJECTED", "BLOCKED")):
+                data.setdefault("status", "FAILED")
+            else:
+                data.setdefault("status", "COMPLETED")
+        return data
 
 
 class AuditPage(StrictModel):
@@ -1071,5 +1096,6 @@ class TurnTimeline(StrictModel):
     audits: list[AuditRecord] = Field(default_factory=list)
     workflow_events: list[WorkflowEvent] = Field(default_factory=list)
     ordered_items: list[dict[str, Any]] = Field(default_factory=list)
+    items: list[dict[str, Any]] = Field(default_factory=list)
     historical_execution_state: list[VehicleExecutionResult] = Field(default_factory=list)
     current_simulator_state: VehicleState

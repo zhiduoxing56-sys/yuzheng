@@ -433,6 +433,41 @@ class AuditRepository:
             previous_hash = record.current_hash
         return True
 
+    def verify_record(self, audit_id: str) -> dict[str, bool] | None:
+        """Verify one stored record without reserializing compatibility defaults."""
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT audit_id, record_json, previous_hash, current_hash "
+                "FROM audit_records ORDER BY rowid"
+            ).fetchall()
+        previous_hash = GENESIS_HASH
+        selected: dict[str, bool] | None = None
+        chain_valid = True
+        for row in rows:
+            raw_record = json.loads(row["record_json"])
+            embedded_previous = str(raw_record.get("previous_hash", ""))
+            embedded_current = str(raw_record.get("current_hash", ""))
+            expected = hashlib.sha256(
+                (embedded_previous + canonical_json(raw_record)).encode("utf-8")
+            ).hexdigest()
+            record_hash_valid = (
+                embedded_current == expected == str(row["current_hash"])
+            )
+            previous_link_valid = (
+                embedded_previous == previous_hash == str(row["previous_hash"])
+            )
+            chain_valid = chain_valid and record_hash_valid and previous_link_valid
+            if str(row["audit_id"]) == audit_id:
+                selected = {
+                    "record_hash_valid": record_hash_valid,
+                    "previous_link_valid": previous_link_valid,
+                }
+            previous_hash = str(row["current_hash"])
+        if selected is None:
+            return None
+        selected["audit_chain_valid"] = chain_valid
+        return selected
+
     def health(self) -> str:
         with self._connect() as connection:
             connection.execute("SELECT 1").fetchone()
