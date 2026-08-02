@@ -11,6 +11,10 @@ if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 from app.main import create_app  # noqa: E402
+from app.models.schemas import (  # noqa: E402
+    DECISION_SOURCE_DESCRIPTIONS,
+    DecisionSource,
+)
 
 
 OUTPUT = PROJECT_ROOT / "tmp" / "backend-contract"
@@ -33,9 +37,15 @@ def contract_payload() -> dict:
         "contract_status": "DRAFT",
         "frozen": False,
         "pending_steps": [
-            "step1_formula_action_alignment",
             "step2_hnsw_safety_layer_and_visualization",
+            "step5_explanation_and_review_generation",
         ],
+        "completed_steps": ["step1_formula_action_alignment"],
+        "step_status": {
+            "step1_formula_action_alignment": "COMPLETE",
+            "step2_hnsw_safety_layer_and_visualization": "PENDING",
+            "step5_explanation_and_review_generation": "PENDING",
+        },
         "source": {
             "document": "docs/语证：面向智能座舱高风险车控指令的证据对齐与可解释裁决系统.pdf",
             "included": ["摘要", "第一章", "第二章（不含2.2.4、2.3.4）", "第五章", "第六章"],
@@ -55,9 +65,16 @@ def contract_payload() -> dict:
         "enums": {
             "ReviewAction": ["CONFIRM", "CORRECT", "CANCEL"],
             "DecisionLabel": ["PASS", "REVIEW", "BLOCK"],
+            "DecisionSource": [source.value for source in DecisionSource],
             "EvidenceDemandStatus": ["RETRIEVED", "MANDATORY_RECALLED", "MISSING", "STALE", "CONFLICT", "TAMPERED"],
             "RetrievalOrigin": ["HNSW", "MANDATORY_RECALL", "BOTH", "NONE"],
             "Availability": ["AVAILABLE", "UNAVAILABLE", "NOT_APPLICABLE"],
+        },
+        "enum_descriptions": {
+            "DecisionSource": {
+                source.value: DECISION_SOURCE_DESCRIPTIONS[source]
+                for source in DecisionSource
+            }
         },
         "nullable_fields": {
             "input": ["audio_fingerprint", "speaker_source", "spectrum_result", "la_score", "synthetic_risk", "pa_raw_score", "pa_score", "replay_risk", "trust_score", "asr_confidence", "asr_confidence_method", "zone_permission_result", "preliminary_decision"],
@@ -70,8 +87,8 @@ def contract_payload() -> dict:
             "input": "AuditRecord.input_trust_result/transcription_result/spectrum_analysis/zone_permission_result/audio_input_metadata",
             "semantic_and_demand": "AuditRecord.semantic_frame/evidence_demand and persisted subgraph/recall records",
             "retrieval": "candidate_recall_results/retrieval_metadata/vectorization_metadata/mandatory_recall_records",
-            "quality": "evidence_quality_metrics; unavailable formula details remain null with availability",
-            "decision": "safety_gate_result/advanced_reasoning/score_details/final_decision",
+            "quality": "persisted evidence_quality_metrics with report-strict pair counts, active EAS weights and independent route",
+            "decision": "persisted score_decision/final_decision/decision_sources/decision_merge_reason",
             "review": "immutable audits plus WorkflowRepository review events",
             "authorization_execution": "token metadata and vehicle execution events; never the raw token",
             "audit": "AuditRecord hashes plus live read-only chain verification",
@@ -79,6 +96,7 @@ def contract_payload() -> dict:
         "websocket": {
             "path": "/ws/pipeline/{session_id}",
             "envelope": ["event_id", "turn_id", "sequence", "event_type", "stage", "status", "timestamp", "payload"],
+            "decision_payload": ["score_decision", "final_decision", "decision_sources", "decision_merge_reason"],
             "semantics": ["single existing broker", "session isolation", "monotonic active-session sequence", "redacted payload", "recover via presentation"],
         },
         "voice_trust_modes": {
@@ -87,7 +105,7 @@ def contract_payload() -> dict:
         },
         "simulator_source": "execution.adapter identifies the current adapter; simulator results are not described as real CAN execution",
         "frontend_must_not_compute": ["EAS", "SafetyScore", "preliminary_decision", "final_decision", "authorization", "review recovery result"],
-        "currently_unavailable": ["evidence_pair_count formula output", "EAS weight profile/source/weights", "evidence alignment route", "jailbreak risk base", "persisted candidate interpretations", "HNSW internal path/entry/visited nodes", "single-turn Recall ground truth"],
+        "currently_unavailable": ["persisted candidate interpretations", "HNSW internal path/entry/visited nodes", "single-turn Recall ground truth"],
         "ui_reference_only_do_not_implement": ["permission matrix management", "manual block", "audit pin", "Markdown export", "driver approval workflow", "voiceprint registry", "daily statistics", "training queue/labels/statistics", "online training", "model/policy version management"],
     }
 
@@ -106,6 +124,9 @@ def markdown(payload: dict) -> str:
         "pending_steps = [",
         *[f'  "{step}",' for step in payload["pending_steps"]],
         "]",
+        "step1_formula_action_alignment = COMPLETE",
+        "step2_hnsw_safety_layer_and_visualization = PENDING",
+        "step5_explanation_and_review_generation = PENDING",
         "```",
         "",
         "## HTTP 接口",
@@ -118,6 +139,10 @@ def markdown(payload: dict) -> str:
     lines.extend(["", "## 枚举", ""])
     for name, values in payload["enums"].items():
         lines.append(f"- `{name}`: {', '.join(values)}")
+        descriptions = payload.get("enum_descriptions", {}).get(name, {})
+        for value in values:
+            if value in descriptions:
+                lines.append(f"  - `{value}`：{descriptions[value]}")
     lines.extend(["", "## 可空字段", ""])
     for name, values in payload["nullable_fields"].items():
         lines.append(f"- `{name}`: {', '.join(values)}")

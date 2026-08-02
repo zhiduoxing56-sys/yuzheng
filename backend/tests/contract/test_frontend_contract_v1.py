@@ -109,6 +109,14 @@ def test_03_presentation_decision_matches_audit(contract_context, prepared):
     stored = pipeline.audit_repository.get_by_turn(turn_id)
     body = client.get(f"/api/turns/{turn_id}/presentation").json()
     assert body["decision_result"]["final_decision"] == stored.final_decision.final_decision.value
+    assert body["decision_result"]["score_decision"] == stored.final_decision.score_decision.value
+    assert body["decision_result"]["decision_sources"] == [
+        source.value for source in stored.final_decision.decision_sources
+    ]
+    assert (
+        body["decision_result"]["decision_merge_reason"]
+        == stored.final_decision.decision_merge_reason
+    )
 
 
 @pytest.mark.parametrize("forbidden", ["raw_audio", "query_vector", "logits"])
@@ -171,8 +179,9 @@ def test_10_review_confirm_reexecutes_full_flow(contract_context, prepared):
     ).json()
     assert body["accepted"] is True
     assert body["review_turn_id"] != original
-    assert body["new_decision"] == "PASS"
-    assert body["token_issued"] is True
+    assert body["decision"]["score_decision"] == "PASS"
+    assert body["new_decision"] == "REVIEW"
+    assert body["token_issued"] is False
 
 
 def test_11_review_correct_requires_text(contract_context, prepared):

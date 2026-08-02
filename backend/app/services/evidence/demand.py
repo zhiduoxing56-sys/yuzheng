@@ -11,8 +11,18 @@ class EvidenceDemandService:
         self._mapping = config.get("actions", {})
         self._embedder = embedder or DeterministicHashEmbeddingService()
 
+    def rule_for(self, frame: SemanticFrame) -> dict[str, Any]:
+        return dict(self._mapping.get(f"{frame.action}|{frame.target}", {}))
+
+    def missing_is_hard_gate(self, frame: SemanticFrame) -> bool:
+        # PDF formula 2.9 makes every required evidence item a hard-gate input.
+        # The legacy flag remains readable for optional/diagnostic compatibility,
+        # but it cannot relax an EvidenceDemand.required_types entry.
+        del frame
+        return True
+
     def build(self, frame: SemanticFrame) -> tuple[SemanticFrame, EvidenceDemand]:
-        rule = self._mapping.get(f"{frame.action}|{frame.target}", {})
+        rule = self.rule_for(frame)
         required = list(rule.get("required", []))
         optional = list(rule.get("optional", []))
         updated_frame = frame.model_copy(

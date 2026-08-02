@@ -5,6 +5,9 @@ thresholds:
   pass: 0.75
   review: 0.50
 
+semantic_ambiguity_beta: 1.0
+semantic_ambiguity_beta_source: ENGINEERING_PROFILE
+
 five_factor_weights:
   Csem: 0.210
   Ccov: 0.255
@@ -15,7 +18,7 @@ five_factor_weights:
 evidence_trust_mapping:
   VALID: 1.0
   SUSPICIOUS: 0.5
-  STALE: 0.2
+  STALE: 0.3
   TAMPERED: 0.0
   MISSING: 0.0
 

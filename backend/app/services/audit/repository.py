@@ -6,11 +6,17 @@ import sqlite3
 from pathlib import Path
 
 from app.models.schemas import (
+    AuditChainRecord,
     AuditPage,
     AuditQualityMetadata,
     AuditRecord,
     AuditRecordQuality,
     LearningAuditStatus,
+    ReviewOutcomeRecord,
+    WorkflowEvent,
+    WorkflowEventType,
+    make_id,
+    utc_now,
 )
 from app.core.redaction import SensitiveDataRedactor
 
@@ -18,8 +24,11 @@ from app.core.redaction import SensitiveDataRedactor
 GENESIS_HASH = "0" * 64
 
 
-def canonical_json(record: AuditRecord | dict[str, object]) -> str:
-    if isinstance(record, AuditRecord):
+from app.services.workflow.hashing import canonical_workflow_event
+
+
+def canonical_json(record: AuditChainRecord | dict[str, object]) -> str:
+    if isinstance(record, (AuditRecord, ReviewOutcomeRecord)):
         data = record.model_dump(mode="json", exclude={"previous_hash", "current_hash"})
     else:
         data = dict(record)
@@ -41,9 +50,17 @@ class AuditRepository:
 
     @staticmethod
     def _record_from_json(payload: str) -> AuditRecord:
-        return AuditRecord.model_validate(
-            SensitiveDataRedactor.redact(json.loads(payload))
-        )
+        record = AuditRepository._chain_record_from_json(payload)
+        if not isinstance(record, AuditRecord):
+            raise ValueError("请求的记录不是命令审计记录")
+        return record
+
+    @staticmethod
+    def _chain_record_from_json(payload: str) -> AuditChainRecord:
+        data = SensitiveDataRedactor.redact(json.loads(payload))
+        if data.get("record_type") == "REVIEW_OUTCOME":
+            return ReviewOutcomeRecord.model_validate(data)
+        return AuditRecord.model_validate(data)
 
     def _initialize(self) -> None:
         with self._connect() as connection:
@@ -64,6 +81,31 @@ class AuditRepository:
                 """
             )
             connection.execute("CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_records(created_at)")
+            columns = {
+                str(row["name"])
+                for row in connection.execute("PRAGMA table_info(audit_records)").fetchall()
+            }
+            if "record_type" not in columns:
+                connection.execute(
+                    "ALTER TABLE audit_records ADD COLUMN record_type TEXT NOT NULL DEFAULT 'COMMAND'"
+                )
+            if "original_audit_id" not in columns:
+                connection.execute(
+                    "ALTER TABLE audit_records ADD COLUMN original_audit_id TEXT"
+                )
+            if "review_action" not in columns:
+                connection.execute(
+                    "ALTER TABLE audit_records ADD COLUMN review_action TEXT"
+                )
+            if "idempotency_key" not in columns:
+                connection.execute(
+                    "ALTER TABLE audit_records ADD COLUMN idempotency_key TEXT"
+                )
+            connection.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_review_outcome_unique "
+                "ON audit_records(original_audit_id, review_action) "
+                "WHERE record_type = 'REVIEW_OUTCOME'"
+            )
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS audit_quality_metadata (
@@ -151,26 +193,168 @@ class AuditRepository:
                 """
                 INSERT INTO audit_records (
                     audit_id, turn_id, created_at, decision, action, target,
-                    risk_types, record_json, previous_hash, current_hash
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    risk_types, record_json, previous_hash, current_hash,
+                    record_type, original_audit_id, review_action, idempotency_key
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     saved.audit_id,
                     saved.turn_id,
                     saved.created_at.isoformat(),
-                    saved.final_decision.decision.value,
+                    saved.final_decision.final_decision.value,
                     saved.semantic_frame.action,
                     saved.semantic_frame.target,
                     json.dumps(saved.semantic_frame.risk_tags, ensure_ascii=False),
                     payload,
                     previous_hash,
                     digest,
+                    saved.record_type,
+                    None,
+                    None,
+                    None,
                 ),
             )
             if saved.audit_quality is not None:
                 self._upsert_quality_on_connection(connection, saved.audit_quality)
             connection.commit()
             return saved
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+
+    def append_review_outcome_with_events(
+        self,
+        outcome: ReviewOutcomeRecord,
+        event_specs: list[tuple[WorkflowEventType, dict[str, object]]],
+    ) -> tuple[ReviewOutcomeRecord, list[WorkflowEvent], bool]:
+        """Atomically append one idempotent terminal audit and its workflow events."""
+
+        outcome = ReviewOutcomeRecord.model_validate(
+            SensitiveDataRedactor.redact(outcome.model_dump(mode="json"))
+        )
+        connection = self._connect()
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            existing = connection.execute(
+                "SELECT record_json FROM audit_records "
+                "WHERE original_audit_id = ? AND review_action = ? "
+                "AND record_type = 'REVIEW_OUTCOME'",
+                (outcome.original_audit_id, outcome.review_action.value),
+            ).fetchone()
+            if existing is not None:
+                saved_existing = ReviewOutcomeRecord.model_validate(
+                    SensitiveDataRedactor.redact(json.loads(existing["record_json"]))
+                )
+                connection.commit()
+                return saved_existing, [], False
+
+            previous_row = connection.execute(
+                "SELECT current_hash FROM audit_records ORDER BY rowid DESC LIMIT 1"
+            ).fetchone()
+            previous_hash = (
+                str(previous_row["current_hash"]) if previous_row else GENESIS_HASH
+            )
+            with_previous = outcome.model_copy(
+                update={"previous_hash": previous_hash, "current_hash": ""}
+            )
+            digest = hashlib.sha256(
+                (previous_hash + canonical_json(with_previous)).encode("utf-8")
+            ).hexdigest()
+            saved = with_previous.model_copy(update={"current_hash": digest})
+            connection.execute(
+                """
+                INSERT INTO audit_records (
+                    audit_id, turn_id, created_at, decision, action, target,
+                    risk_types, record_json, previous_hash, current_hash,
+                    record_type, original_audit_id, review_action, idempotency_key
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    saved.audit_id,
+                    f"REVIEW_OUTCOME:{saved.audit_id}",
+                    saved.created_at.isoformat(),
+                    saved.effective_final_decision.value,
+                    saved.review_action.value,
+                    "REVIEW_OUTCOME",
+                    "[]",
+                    saved.model_dump_json(),
+                    saved.previous_hash,
+                    saved.current_hash,
+                    saved.record_type,
+                    saved.original_audit_id,
+                    saved.review_action.value,
+                    saved.idempotency_key,
+                ),
+            )
+
+            previous_event_row = connection.execute(
+                "SELECT sequence_no, current_event_hash FROM turn_workflow_events "
+                "WHERE root_turn_id = ? ORDER BY sequence_no DESC LIMIT 1",
+                (saved.root_turn_id,),
+            ).fetchone()
+            sequence_no = (
+                int(previous_event_row["sequence_no"]) + 1
+                if previous_event_row
+                else 1
+            )
+            previous_event_hash = (
+                str(previous_event_row["current_event_hash"])
+                if previous_event_row
+                else GENESIS_HASH
+            )
+            events: list[WorkflowEvent] = []
+            for event_type, payload in event_specs:
+                event_data = {
+                    "event_id": make_id("WFE"),
+                    "root_turn_id": saved.root_turn_id,
+                    "related_turn_id": saved.original_turn_id,
+                    "parent_turn_id": None,
+                    "sequence_no": sequence_no,
+                    "event_type": event_type.value,
+                    "payload": SensitiveDataRedactor.redact(payload),
+                    "created_at": utc_now().isoformat().replace("+00:00", "Z"),
+                }
+                event_hash = hashlib.sha256(
+                    (
+                        previous_event_hash
+                        + canonical_workflow_event(event_data)
+                    ).encode("utf-8")
+                ).hexdigest()
+                event = WorkflowEvent.model_validate(
+                    {
+                        **event_data,
+                        "previous_event_hash": previous_event_hash,
+                        "current_event_hash": event_hash,
+                    }
+                )
+                connection.execute(
+                    """
+                    INSERT INTO turn_workflow_events (
+                        event_id, root_turn_id, related_turn_id, parent_turn_id,
+                        sequence_no, event_type, payload_json,
+                        previous_event_hash, current_event_hash, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        event.event_id,
+                        event.root_turn_id,
+                        event.related_turn_id,
+                        event.parent_turn_id,
+                        event.sequence_no,
+                        event.event_type.value,
+                        json.dumps(event.payload, ensure_ascii=False, sort_keys=True),
+                        event.previous_event_hash,
+                        event.current_event_hash,
+                        event.created_at.isoformat(),
+                    ),
+                )
+                events.append(event)
+                sequence_no += 1
+                previous_event_hash = event_hash
+            connection.commit()
+            return saved, events, True
         except Exception:
             connection.rollback()
             raise
@@ -191,6 +375,38 @@ class AuditRepository:
             ).fetchone()
         return self._record_from_json(row["record_json"]) if row else None
 
+    def get_chain_record_by_id(self, audit_id: str) -> AuditChainRecord | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT record_json FROM audit_records WHERE audit_id = ?", (audit_id,)
+            ).fetchone()
+        return self._chain_record_from_json(row["record_json"]) if row else None
+
+    def outcome_for_original(self, original_audit_id: str) -> ReviewOutcomeRecord | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT record_json FROM audit_records "
+                "WHERE original_audit_id = ? AND record_type = 'REVIEW_OUTCOME' "
+                "ORDER BY rowid DESC LIMIT 1",
+                (original_audit_id,),
+            ).fetchone()
+        return (
+            ReviewOutcomeRecord.model_validate(json.loads(row["record_json"]))
+            if row
+            else None
+        )
+
+    def outcomes(self) -> list[ReviewOutcomeRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM audit_records "
+                "WHERE record_type = 'REVIEW_OUTCOME' ORDER BY rowid"
+            ).fetchall()
+        return [
+            ReviewOutcomeRecord.model_validate(json.loads(row["record_json"]))
+            for row in rows
+        ]
+
     def list_records(
         self,
         *,
@@ -205,6 +421,7 @@ class AuditRepository:
     ) -> AuditPage:
         clauses: list[str] = []
         parameters: list[object] = []
+        clauses.append("record_type = 'COMMAND'")
         filters = {"decision": decision, "action": action, "target": target}
         for column, value in filters.items():
             if value is not None:
@@ -253,9 +470,17 @@ class AuditRepository:
     def all_records(self) -> list[AuditRecord]:
         with self._connect() as connection:
             rows = connection.execute(
-                "SELECT record_json FROM audit_records ORDER BY rowid"
+                "SELECT record_json FROM audit_records "
+                "WHERE record_type = 'COMMAND' ORDER BY rowid"
             ).fetchall()
         return [self._record_from_json(row["record_json"]) for row in rows]
+
+    def all_chain_records(self) -> list[AuditChainRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM audit_records ORDER BY rowid"
+            ).fetchall()
+        return [self._chain_record_from_json(row["record_json"]) for row in rows]
 
     def upsert_quality(self, metadata: AuditQualityMetadata) -> AuditQualityMetadata:
         with self._connect() as connection:
@@ -418,7 +643,7 @@ class AuditRepository:
             ).fetchall()
         for row in rows:
             raw_record = json.loads(row["record_json"])
-            record = AuditRecord.model_validate(raw_record)
+            record = self._chain_record_from_json(str(row["record_json"]))
             # 摘要必须基于当时实际落盘的原始字段，模型升级补充的兼容默认值不能改变旧摘要。
             expected = hashlib.sha256(
                 (previous_hash + canonical_json(raw_record)).encode("utf-8")

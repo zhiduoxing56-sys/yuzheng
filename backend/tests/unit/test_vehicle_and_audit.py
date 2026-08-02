@@ -44,6 +44,9 @@ def test_audit_hash_chain_survives_compatible_model_evolution(pipeline) -> None:
         raw["score_details"].pop("evidence_coverage_applicable")
         raw["score_details"].pop("applied_weights")
         raw["final_decision"].pop("final_decision")
+        raw["final_decision"].pop("score_decision")
+        raw["final_decision"].pop("decision_sources")
+        raw["final_decision"].pop("decision_merge_reason")
         raw["final_decision"].pop("soft_safety_score")
         raw["final_decision"]["safety_score"] = 0.6138
         raw["final_decision"]["score_factors"]["evidence_coverage"] = 1.0
@@ -68,6 +71,7 @@ def test_audit_hash_chain_survives_compatible_model_evolution(pipeline) -> None:
     restored = pipeline.audit_repository.get_by_turn(result.turn_id)
     assert restored is not None
     assert restored.final_decision.soft_safety_score == restored.final_decision.safety_score
+    assert restored.final_decision.score_decision == restored.final_decision.decision
     assert restored.final_decision.final_decision == restored.final_decision.decision
     assert restored.final_decision.score_factors.evidence_coverage_applicable is True
     assert pipeline.audit_repository.verify_chain() is True

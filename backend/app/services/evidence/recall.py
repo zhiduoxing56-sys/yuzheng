@@ -25,6 +25,7 @@ class MandatoryRecallService:
         required_types: list[str],
         query_vector: list[float],
         turn_id: str,
+        missing_hard_gate: bool = True,
     ) -> tuple[list[EvidenceNode], list[MandatoryRecallRecord], list[str], list[str]]:
         final_nodes = [node.model_copy(update={"mandatory": False}) for node in candidates]
         records: list[MandatoryRecallRecord] = []
@@ -36,15 +37,13 @@ class MandatoryRecallService:
                 index for index, node in enumerate(final_nodes) if node.evidence_type == evidence_type
             ]
             candidate_ids = [final_nodes[index].node_id for index in candidate_indexes]
-            latest = self.repository.latest_usable(evidence_type)
+            latest = self.repository.latest_resolved(evidence_type)
             matching_index = next(
                 (
                     index
                     for index in candidate_indexes
                     if latest is not None
                     and final_nodes[index].node_id == latest.node_id
-                    and final_nodes[index].quality_label
-                    in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
                 ),
                 None,
             )
@@ -55,16 +54,23 @@ class MandatoryRecallService:
                         "metadata": {
                             **final_nodes[matching_index].metadata,
                             "retrieval_origin": "semantic_retrieval",
+                            "required_resolution": True,
                         },
                     }
                 )
                 records.append(
                     MandatoryRecallRecord(
                         evidence_type=evidence_type,
-                        status="ALREADY_COVERED",
+                        status=(
+                            "ALREADY_COVERED"
+                            if latest.quality_label
+                            in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
+                            else latest.quality_label.value
+                        ),
                         candidate_node_ids=candidate_ids,
                         recalled_node_id=latest.node_id,
                         source=latest.source,
+                        retrieval_origin="HNSW",
                         reason="语义候选已包含最新可用强制证据",
                     )
                 )
@@ -79,6 +85,7 @@ class MandatoryRecallService:
                             **latest.metadata,
                             "retrieval_origin": "mandatory_recall",
                             "recalled_from_stream": evidence_type,
+                            "required_resolution": True,
                         },
                     }
                 )
@@ -87,10 +94,16 @@ class MandatoryRecallService:
                 records.append(
                     MandatoryRecallRecord(
                         evidence_type=evidence_type,
-                        status="RECALLED",
+                        status=(
+                            "RECALLED"
+                            if latest.quality_label
+                            in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
+                            else latest.quality_label.value
+                        ),
                         candidate_node_ids=candidate_ids,
                         recalled_node_id=recalled.node_id,
                         source=recalled.source,
+                        retrieval_origin="MANDATORY_RECALL",
                         reason="普通语义候选未覆盖，已从最新证据流补召",
                     )
                 )
@@ -100,6 +113,7 @@ class MandatoryRecallService:
                 evidence_type,
                 turn_id,
                 "最新证据不可用、过期、篡改或证据流为空",
+                missing_hard_gate=missing_hard_gate,
             )
             final_nodes.append(missing)
             missing_types.append(evidence_type)
@@ -110,6 +124,7 @@ class MandatoryRecallService:
                     candidate_node_ids=candidate_ids,
                     recalled_node_id=missing.node_id,
                     source=missing.source,
+                    retrieval_origin="NONE",
                     reason="强制补召失败，已生成 MISSING 节点",
                 )
             )

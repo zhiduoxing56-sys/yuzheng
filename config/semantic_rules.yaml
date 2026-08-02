@@ -65,6 +65,31 @@ uncertainty_markers: [可能, 也许, 大概]
 uncertainty_ambiguity: 0.8
 uncertainty_confidence_penalty: 0.6
 
+explicit_command_patterns:
+  - patterns: [向左变道]
+    action: 变道
+    target: 左侧车道
+    area: 左侧
+  - patterns: [向右变道]
+    action: 变道
+    target: 右侧车道
+    area: 右侧
+  - patterns: [保持当前车道]
+    action: 保持
+    target: 当前车道
+  - patterns: [开启巡航, 开启自适应巡航]
+    action: 开启巡航
+    target: 巡航
+  - patterns: [关闭巡航, 关闭自适应巡航]
+    action: 关闭巡航
+    target: 巡航
+  - patterns: [立即紧急制动]
+    action: 紧急制动
+    target: 制动
+  - patterns: [执行避险转向]
+    action: 避险转向
+    target: 转向
+
 actions:
   打开: [打开, 开启, 启动, 制动, 刹车]
   播放: [播放]
@@ -85,6 +110,10 @@ implicit_targets_by_action:
   减速: 速度
 
 targets:
+  左侧车道: [左侧车道]
+  右侧车道: [右侧车道]
+  当前车道: [当前车道]
+  转向: [避险转向, 转向]
   车门: [车门, 车门锁]
   门锁: [门锁]
   车窗: [车窗]
@@ -111,9 +140,30 @@ domains:
   车身控制: [车门, 门锁, 车窗, 前照灯, 阅读灯, 所有灯光, 雨刮]
   座舱控制: [大屏, 空调]
   娱乐控制: [音乐]
-  驾驶控制: [速度, 驾驶模式, 自动泊车, 巡航, 制动]
+  驾驶控制: [速度, 驾驶模式, 自动泊车, 巡航, 制动, 左侧车道, 右侧车道, 当前车道, 转向]
 
 risk_profiles:
+  变道|左侧车道:
+    level: R3
+    tags: [变道, 驾驶控制]
+  变道|右侧车道:
+    level: R3
+    tags: [变道, 驾驶控制]
+  保持|当前车道:
+    level: R3
+    tags: [车道保持, 驾驶控制]
+  开启巡航|巡航:
+    level: R3
+    tags: [自适应巡航, 驾驶控制]
+  关闭巡航|巡航:
+    level: R3
+    tags: [自适应巡航, 驾驶控制]
+  紧急制动|制动:
+    level: R3
+    tags: [紧急制动, 驾驶控制]
+  避险转向|转向:
+    level: R3
+    tags: [避险转向, 驾驶控制]
   打开|车门:
     level: R3
     tags: [车身安全, 运动中误操作]

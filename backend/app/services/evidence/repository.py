@@ -206,13 +206,13 @@ class EvidenceRepository:
 
     @staticmethod
     def _payload(
-        evidence_type: str, source: str, value: Any, timestamp: datetime
+        evidence_type: str, source: str, value: Any, timestamp: datetime | None
     ) -> dict[str, Any]:
         return {
             "evidence_type": evidence_type,
             "source": source,
             "value": value,
-            "timestamp": timestamp.isoformat(),
+            "timestamp": timestamp.isoformat() if timestamp is not None else None,
         }
 
     @staticmethod
@@ -226,8 +226,8 @@ class EvidenceRepository:
         evidence_type: str,
         source: str,
         value: Any,
-        timestamp: datetime,
-        expires_at: datetime,
+        timestamp: datetime | None,
+        expires_at: datetime | None,
         mandatory: bool = False,
         status: EvidenceStatus | None = None,
         unit: str | None = None,
@@ -374,17 +374,29 @@ class EvidenceRepository:
             nodes.append(self._store(node))
         return nodes
 
-    def create_missing(self, evidence_type: str, turn_id: str, reason: str) -> EvidenceNode:
-        now = utc_now()
+    def create_missing(
+        self,
+        evidence_type: str,
+        turn_id: str,
+        reason: str,
+        *,
+        missing_hard_gate: bool = True,
+    ) -> EvidenceNode:
         node = self._make_node(
             evidence_type=evidence_type,
-            source="mandatory_recall",
+            source="missing_placeholder",
             value=None,
-            timestamp=now,
-            expires_at=now,
+            timestamp=None,
+            expires_at=None,
             mandatory=True,
             status=EvidenceStatus.MISSING,
-            metadata={"turn_id": turn_id, "missing_reason": reason, "retrieval_origin": "mandatory_recall"},
+            metadata={
+                "turn_id": turn_id,
+                "missing_reason": reason,
+                "retrieval_origin": "NONE",
+                "missing_hard_gate": missing_hard_gate,
+                "placeholder_kind": "unavailable",
+            },
         )
         # MISSING 是本轮补召失败的可审计占位节点，不是外部证据流观测，
         # 因此不能被后续轮次当作历史传感器证据再次召回。
@@ -394,7 +406,14 @@ class EvidenceRepository:
         with self._lock:
             node_ids = self._streams.get(evidence_type, [])
             nodes = [self._nodes[node_id] for node_id in node_ids]
-        return sorted(nodes, key=lambda node: (node.timestamp, node.node_id), reverse=True)
+        return sorted(
+            nodes,
+            key=lambda node: (
+                node.timestamp.isoformat() if node.timestamp else "",
+                node.node_id,
+            ),
+            reverse=True,
+        )
 
     def latest_per_source(self, evidence_type: str) -> list[EvidenceNode]:
         latest: dict[str, EvidenceNode] = {}
@@ -436,6 +455,12 @@ class EvidenceRepository:
             and node.expires_at > utc_now()
         ]
         return sorted(usable, key=lambda node: node.node_id)[0] if usable else None
+
+    def latest_resolved(self, evidence_type: str) -> EvidenceNode | None:
+        """Return the newest exact-type observation, including abnormal states."""
+
+        observations = self.latest_observations(evidence_type)
+        return observations[0] if observations else None
 
     def all_nodes(self) -> list[EvidenceNode]:
         with self._lock:

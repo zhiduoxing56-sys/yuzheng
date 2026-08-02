@@ -4,6 +4,28 @@ alignment_weights:
   ef: 0.20
   sas: 0.20
 
+# The report specifies qualitative dynamic emphasis but no numeric weights.
+# These profiles are therefore explicit engineering configuration.
+alignment_profiles:
+  default:
+    ecr: 0.35
+    ecs: 0.25
+    ef: 0.20
+    sas: 0.20
+  high_speed:
+    ecr: 0.30
+    ecs: 0.20
+    ef: 0.30
+    sas: 0.20
+  complex_road:
+    ecr: 0.30
+    ecs: 0.35
+    ef: 0.15
+    sas: 0.20
+profile_selection:
+  high_speed_threshold_kmh: 80
+  complex_road_values: [COMPLEX, COMPLEX_ROAD, INTERSECTION, COMPLEX_INTERSECTION, CROSSROADS, 复杂道路, 复杂路口, 交叉路口]
+
 freshness:
   default:
     decay_coefficient: 0.02
@@ -33,4 +55,3 @@ conflicts:
 
 window:
   short_length: 8
-

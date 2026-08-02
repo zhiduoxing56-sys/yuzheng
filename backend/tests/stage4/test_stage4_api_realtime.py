@@ -126,6 +126,7 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
             "RUNTIME_CAPABILITY_CHECKED",
             "EVIDENCE_RETRIEVED",
         "MANDATORY_SUPPLEMENTED",
+        "EVIDENCE_QUALITY_EVALUATED",
         "GRAPH_BUILT",
         "MEMORY_PROPAGATED",
         "CAUSAL_CORRECTED",
@@ -136,13 +137,30 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
         "TOKEN_ISSUED",
     ]
     assert stages == expected
+    quality_event = next(
+        event for event in events if event["stage"] == "EVIDENCE_QUALITY_EVALUATED"
+    )
+    assert quality_event["payload"]["evidence_alignment_route"] in {
+        "EVIDENCE_PASS",
+        "EVIDENCE_REVIEW",
+        "EVIDENCE_BLOCK",
+    }
+    assert sum(quality_event["payload"]["eas_weights"].values()) == 1.0
+    decision_event = next(
+        event for event in events if event["stage"] == "DECISION_COMPLETED"
+    )
+    assert {
+        "score_decision",
+        "final_decision",
+        "decision_sources",
+        "decision_merge_reason",
+    } <= decision_event["payload"].keys()
+    assert decision_event["payload"]["score_decision"] == response_holder[0].json()["decision"]["score_decision"]
     serialized = str(events)
     raw_token = response_holder[0].json()["decision"]["authorization_token"]
     assert raw_token not in serialized
 
-    executable = client.post(
-        "/api/scenarios/normal_music/run"
-    ).json()
+    executable = response_holder[0].json()
     with client.websocket_connect("/ws/pipeline/execution-session") as websocket:
         execution_holder = []
         worker = Thread(

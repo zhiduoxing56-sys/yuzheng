@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from app.models.frontend_contract import (
     AuditDetailResponse,
+    EffectiveOutcomeAuditView,
     AuditListItem,
     AuthorizationPresentation,
     Availability,
@@ -18,6 +19,7 @@ from app.models.frontend_contract import (
     GateCheckPresentation,
     GateResultPresentation,
     InputPresentation,
+    OriginalDecisionAuditView,
     QualityMetricsPresentation,
     RetrievalCandidate,
     RetrievalOrigin,
@@ -32,6 +34,8 @@ from app.models.schemas import (
     AuditRecord,
     AuthorizationTokenStatus,
     DecisionLabel,
+    DecisionResult,
+    DecisionSource,
     EvidenceNode,
     EvidenceRelation,
     EvidenceStatus,
@@ -143,8 +147,8 @@ class PresentationAssembler:
                 else None
             ),
             asr_confidence_method=(
-                str(record.audio_input_metadata.get("asr_confidence_method"))
-                if record.audio_input_metadata.get("asr_confidence_method") is not None
+                record.transcription_result.asr_confidence_method
+                if trust.audio_source != "text_api"
                 else None
             ),
             zone_permission_result=(zone.permission_label.value if zone else None),
@@ -161,7 +165,7 @@ class PresentationAssembler:
         recalled_ids = {
             recall.recalled_node_id
             for recall in record.mandatory_recall_records
-            if recall.recalled_node_id
+            if recall.recalled_node_id and recall.retrieval_origin != "NONE"
         }
         conflict_ids = {
             node_id
@@ -231,7 +235,7 @@ class PresentationAssembler:
         recalled_ids = {
             item.recalled_node_id
             for item in record.mandatory_recall_records
-            if item.recalled_node_id
+            if item.recalled_node_id and item.retrieval_origin != "NONE"
         }
         graph_nodes = {node.node_id: node for node in (record.evidence_subgraph.nodes if record.evidence_subgraph else [])}
         ordered_ids = list(candidate_ids | recalled_ids)
@@ -278,26 +282,24 @@ class PresentationAssembler:
             ef=metrics.ef if metrics else raw.get("ef"),
             sas=metrics.sas if metrics else raw.get("sas"),
             eas=metrics.eas if metrics else raw.get("eas"),
-            conflict_pair_count=(
-                sum(
-                    edge.relation == EvidenceRelation.CONFLICTS
-                    for edge in record.evidence_subgraph.edges
-                )
-                if record.evidence_subgraph
-                else 0
-            ),
+            evidence_pair_count=(metrics.evidence_pair_count if metrics else raw.get("evidence_pair_count")),
+            conflict_pair_count=(metrics.conflict_pair_count if metrics else raw.get("conflict_pair_count")),
+            eas_weight_profile=(metrics.eas_weight_profile if metrics else raw.get("eas_weight_profile")),
+            eas_weight_source=(metrics.eas_weight_source if metrics else raw.get("eas_weight_source")),
+            eas_weights=(metrics.eas_weights if metrics else raw.get("eas_weights")),
+            evidence_alignment_route=(metrics.evidence_alignment_route if metrics else raw.get("evidence_alignment_route")),
             availability={
                 "ecr": Availability.AVAILABLE if (metrics.ecr if metrics else raw.get("ecr")) is not None else Availability.NOT_APPLICABLE,
                 "ecs": Availability.AVAILABLE,
                 "ef": Availability.AVAILABLE,
                 "sas": Availability.AVAILABLE,
                 "eas": Availability.AVAILABLE,
-                "evidence_pair_count": Availability.UNAVAILABLE,
-                "conflict_pair_count": Availability.AVAILABLE,
-                "eas_weight_profile": Availability.UNAVAILABLE,
-                "eas_weight_source": Availability.UNAVAILABLE,
-                "eas_weights": Availability.UNAVAILABLE,
-                "evidence_alignment_route": Availability.UNAVAILABLE,
+                "evidence_pair_count": Availability.AVAILABLE if (metrics.evidence_pair_count if metrics else raw.get("evidence_pair_count")) is not None else Availability.UNAVAILABLE,
+                "conflict_pair_count": Availability.AVAILABLE if (metrics.conflict_pair_count if metrics else raw.get("conflict_pair_count")) is not None else Availability.UNAVAILABLE,
+                "eas_weight_profile": Availability.AVAILABLE if (metrics.eas_weight_profile if metrics else raw.get("eas_weight_profile")) is not None else Availability.UNAVAILABLE,
+                "eas_weight_source": Availability.AVAILABLE if (metrics.eas_weight_source if metrics else raw.get("eas_weight_source")) is not None else Availability.UNAVAILABLE,
+                "eas_weights": Availability.AVAILABLE if (metrics.eas_weights if metrics else raw.get("eas_weights")) is not None else Availability.UNAVAILABLE,
+                "evidence_alignment_route": Availability.AVAILABLE if (metrics.evidence_alignment_route if metrics else raw.get("evidence_alignment_route")) is not None else Availability.UNAVAILABLE,
             },
         )
 
@@ -315,6 +317,7 @@ class PresentationAssembler:
                     reason=check.reason,
                     evidence_refs=check.supporting_evidence_ids,
                     severity="HIGH" if check.hit else "INFO",
+                    observed=check.observed,
                 )
                 for check in gate.checks
             ],
@@ -331,6 +334,14 @@ class PresentationAssembler:
             jailbreak_suppression=value("Cjb"),
             scene_necessity=value("Cnec"),
             safety_score=record.final_decision.safety_score,
+            semantic_confidence=record.score_details.semantic_confidence,
+            ambiguity_penalty=record.score_details.ambiguity_penalty,
+            semantic_ambiguity_beta=record.score_details.semantic_ambiguity_beta,
+            beta_source=record.score_details.beta_source,
+            validated_evidence_count=record.score_details.validated_evidence_count,
+            validated_trust_values=record.score_details.validated_trust_values,
+            trust_formula=record.score_details.trust_formula,
+            trust_value_source=record.score_details.trust_value_source,
         )
 
     @staticmethod
@@ -341,17 +352,19 @@ class PresentationAssembler:
             conflicts=record.jailbreak_conflicts,
             jailbreak_flag=bool(advanced.jailbreak_flag if advanced else record.jailbreak_risk > 0),
             jailbreak_risk=record.jailbreak_risk,
-            jailbreak_risk_base=None,
+            jailbreak_risk_base=(advanced.jailbreak_risk_base if advanced else None),
             jailbreak_risk_severity=(advanced.max_severity if advanced else None),
         )
 
     @staticmethod
-    def decision(record: AuditRecord) -> DecisionResultPresentation:
-        decision = record.final_decision
+    def decision(decision: DecisionResult) -> DecisionResultPresentation:
         final = decision.final_decision
         return DecisionResultPresentation(
             initial_decision=decision.decision,
+            score_decision=decision.score_decision,
             final_decision=final,
+            decision_sources=[source.value for source in decision.decision_sources],
+            decision_merge_reason=decision.decision_merge_reason,
             safety_score=decision.safety_score,
             reasons=[*decision.reason_codes, *decision.gate_reasons],
             explanation="；".join(decision.explanations),
@@ -478,6 +491,8 @@ class PresentationAssembler:
         )
 
     def assemble(self, record: AuditRecord) -> TurnPresentationResponse:
+        resolution = self.pipeline.effective_audit_resolver.resolve(record)
+        effective_decision = resolution.effective_decision
         root = record.root_turn_id or record.turn_id
         events = self.pipeline.workflow_repository.events(root)
         workflow_verification = self.pipeline.workflow_repository.verify_chain(root)
@@ -514,7 +529,7 @@ class PresentationAssembler:
             gate_result=self.gate(record),
             score_result=self.score(record),
             validation_result=self.validation(record),
-            decision_result=self.decision(record),
+            decision_result=self.decision(effective_decision),
             review=self.review(record, events),
             authorization=self.authorization(record),
             execution=self.execution(record),
@@ -569,18 +584,21 @@ class PresentationAssembler:
         return False
 
     def audit_list_item(self, record: AuditRecord) -> AuditListItem:
+        resolution = self.pipeline.effective_audit_resolver.resolve(record)
         return AuditListItem(
             audit_id=record.audit_id,
             turn_id=record.turn_id,
             created_at=record.created_at,
             instruction_summary=record.semantic_frame.normalized_text[:160],
             initial_decision=record.final_decision.decision,
-            final_decision=record.final_decision,
+            original_decision=record.final_decision.final_decision,
+            final_decision=resolution.effective_decision,
             execution_status=self.execution(record).execution_status,
             semantic_frame=record.semantic_frame,
         )
 
     def audit_detail(self, record: AuditRecord) -> AuditDetailResponse:
+        resolution = self.pipeline.effective_audit_resolver.resolve(record)
         presentation = self.assemble(record)
         root = record.root_turn_id or record.turn_id
         events = self.pipeline.workflow_repository.events(root)
@@ -601,6 +619,24 @@ class PresentationAssembler:
             gate_result=presentation.gate_result,
             score_factors=presentation.score_result,
             initial_decision=record.final_decision.decision,
+            original_decision=OriginalDecisionAuditView(
+                audit_id=record.audit_id,
+                score_decision=record.final_decision.score_decision,
+                final_decision=record.final_decision.final_decision,
+                record_hash=record.current_hash,
+            ),
+            effective_outcome=(
+                EffectiveOutcomeAuditView(
+                    final_decision=resolution.outcome.effective_final_decision,
+                    source=DecisionSource.USER_REVIEW,
+                    review_action=resolution.outcome.review_action,
+                    terminal_audit_id=resolution.outcome.audit_id,
+                    terminal_record_hash=resolution.outcome.current_hash,
+                    created_at=resolution.outcome.created_at,
+                )
+                if resolution.outcome
+                else None
+            ),
             review_process=presentation.review,
             final_decision=presentation.decision_result,
             authorization_status=presentation.authorization,

@@ -162,7 +162,12 @@ class EvidenceSubgraphBuilder:
         for node in evidence_nodes:
             grouped.setdefault((node.evidence_type, node.source), []).append(node)
         for history in grouped.values():
-            history.sort(key=lambda node: (node.timestamp, node.node_id))
+            history.sort(
+                key=lambda node: (
+                    node.timestamp.isoformat() if node.timestamp else "",
+                    node.node_id,
+                )
+            )
             for previous, current in zip(history, history[1:]):
                 edges.append(
                     self._edge(

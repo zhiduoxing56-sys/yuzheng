@@ -25,6 +25,7 @@ from app.services.voice.antispoof import (
     ASVspoofPADetector,
     AntiSpoofModelError,
 )
+from app.services.presentation.assembler import PresentationAssembler
 
 
 ASSETS = Path(__file__).resolve().parents[1] / "assets" / "stage5"
@@ -244,7 +245,11 @@ def test_real_whisper_transcribes_chinese_command(
     assert result.model_inference_performed is True
     assert result.model_name == "openai/whisper-base"
     assert "門" in result.transcribed_text or "门" in result.transcribed_text
-    assert result.asr_confidence is None
+    assert result.asr_confidence is not None
+    assert 0 <= result.asr_confidence <= 1
+    assert result.asr_confidence_method == "mean_generated_token_probability"
+    assert result.mean_token_logprob is not None
+    assert result.confidence_token_count > 0
     assert result.inference_duration > 0
 
 
@@ -456,6 +461,16 @@ def test_voice_websocket_event_sequence_comes_from_real_processing_points(
     assert {event.turn_id for event in events} == {result.turn_id}
     pa_event = next(event for event in events if event.stage == "PA_CHECKED")
     assert pa_event.payload["pa_raw_score"] == result.voice_trust.pa_raw_score
+    asr_event = next(event for event in events if event.stage == "ASR_COMPLETED")
+    assert result.asr_result is not None
+    assert asr_event.payload["asr_confidence"] == result.asr_result.asr_confidence
+    assert asr_event.payload["asr_confidence_method"] == result.asr_result.asr_confidence_method
+    stored = stage5_pipeline.audit_repository.get_by_turn(result.turn_id)
+    assert stored is not None
+    assert stored.transcription_result.asr_confidence == result.asr_result.asr_confidence
+    presentation = PresentationAssembler(stage5_pipeline).assemble(stored)
+    assert presentation.input.asr_confidence == result.asr_result.asr_confidence
+    assert presentation.input.asr_confidence_method == result.asr_result.asr_confidence_method
     assert all("audio_bytes" not in json.dumps(event.payload) for event in events)
     assert all("raw_logits" not in json.dumps(event.payload) for event in events)
 

@@ -38,7 +38,8 @@ def test_text_api_returns_pipeline_data_and_persists_audit(api_client) -> None:
     assert "vehicle_speed" in body["evidence_demand"]["required_types"]
     assert body["safety_gate"]["blocked"] is True
     assert body["safety_gate"]["mandatory_evidence_missing"] is False
-    assert body["decision"]["decision"] == DecisionLabel.BLOCK.value
+    assert body["decision"]["decision"] == body["decision"]["score_decision"]
+    assert body["decision"]["score_decision"] == DecisionLabel.PASS.value
     assert body["decision"]["final_decision"] == DecisionLabel.BLOCK.value
     assert body["decision"]["soft_safety_score"] == 0.975
     assert body["decision"]["score_evaluation_mode"] == "diagnostic_after_gate"
@@ -48,7 +49,8 @@ def test_text_api_returns_pipeline_data_and_persists_audit(api_client) -> None:
     assert pipeline.audit_repository.count() == 1
     saved = pipeline.audit_repository.get_by_turn(body["turn_id"])
     assert saved is not None
-    assert saved.final_decision.decision == DecisionLabel.BLOCK
+    assert saved.final_decision.decision == saved.final_decision.score_decision
+    assert saved.final_decision.final_decision == DecisionLabel.BLOCK
 
 
 def test_blank_text_is_rejected_before_pipeline(api_client) -> None:

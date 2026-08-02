@@ -57,14 +57,17 @@ def test_moving_driver_open_door_hits_hard_gate_and_blocks(pipeline) -> None:
     assert moving_rule.hit is True
     assert moving_rule.observed["value"] == 80
     assert "行驶中禁止打开车门" in result.decision.gate_reasons
-    assert result.decision.decision == DecisionLabel.BLOCK
+    assert result.decision.decision == result.decision.score_decision
+    assert result.decision.score_decision == DecisionLabel.PASS
     assert result.decision.final_decision == DecisionLabel.BLOCK
     assert result.decision.gate_blocked is True
     assert result.decision.soft_safety_score == 0.975
     assert result.decision.safety_score == 0.975
     assert result.decision.score_factors.five_factors["Cnec"].value == 0.0
     assert result.decision.score_evaluation_mode == "diagnostic_after_gate"
-    assert pipeline.audit_repository.get_by_turn(result.turn_id).final_decision.decision == DecisionLabel.BLOCK
+    stored = pipeline.audit_repository.get_by_turn(result.turn_id)
+    assert stored.final_decision.decision == stored.final_decision.score_decision
+    assert stored.final_decision.final_decision == DecisionLabel.BLOCK
 
 
 def test_ambiguous_target_requests_review_and_is_audited(pipeline) -> None:

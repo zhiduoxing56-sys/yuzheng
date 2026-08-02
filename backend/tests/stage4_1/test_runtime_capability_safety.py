@@ -81,7 +81,9 @@ def test_degraded_r1_r2_control_is_capped_at_review_and_query_is_non_actionable(
 
     query = pipeline.process_text(_parked("查询当前速度"))
     assert query.semantic_frame.action == "查询"
-    assert query.decision.final_decision == DecisionLabel.PASS
+    assert query.decision.score_decision == DecisionLabel.PASS
+    assert query.quality_metrics.evidence_alignment_route == "EVIDENCE_REVIEW"
+    assert query.decision.final_decision == DecisionLabel.REVIEW
     assert query.actionable is False
     assert query.decision.authorization_token is None
 

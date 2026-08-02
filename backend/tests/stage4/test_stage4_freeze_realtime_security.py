@@ -71,7 +71,7 @@ def test_adapter_execution_failure(tmp_path: Path) -> None:
     pipeline = CommandPipeline(tmp_path / "adapter-failure.db", token_secret=TEST_SECRET)
     command = pipeline.process_text(
         TextCommandRequest(
-            text="播放音乐",
+            text="打开车门",
             state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
         )
     )
@@ -97,7 +97,7 @@ def test_adapter_execution_failure(tmp_path: Path) -> None:
 
 def test_websocket_success_sequence(api_client) -> None:
     client, _ = api_client
-    command = client.post("/api/scenarios/normal_music/run").json()
+    command = client.post("/api/scenarios/parked_open_door/run").json()
     token = command["decision"]["authorization_token"]
     response, events = _capture_execution(client, command["turn_id"], token, "ws-success")
     assert response.status_code == 200
@@ -114,7 +114,7 @@ def test_websocket_success_sequence(api_client) -> None:
 
 def test_websocket_failure_sequence(api_client) -> None:
     client, pipeline = api_client
-    command = client.post("/api/scenarios/normal_music/run").json()
+    command = client.post("/api/scenarios/parked_open_door/run").json()
     token = command["decision"]["authorization_token"]
     pipeline.vehicle = DeterministicFailingAdapter(
         initial_state=pipeline.vehicle.get_state(), action_config=pipeline.vehicle_config
@@ -242,7 +242,7 @@ def test_simulator_epoch_reset(api_client, tmp_path: Path) -> None:
     assert reset["last_reset_at"]
     assert reset["reset_reason"] == "manual_reset"
 
-    command = client.post("/api/scenarios/normal_music/run").json()
+    command = client.post("/api/scenarios/parked_open_door/run").json()
     token = command["decision"]["authorization_token"]
     executed = client.post(
         f"/api/turns/{command['turn_id']}/execute",

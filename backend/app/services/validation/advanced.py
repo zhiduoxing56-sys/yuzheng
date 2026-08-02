@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from time import perf_counter
 from typing import Any
+import math
 
 from app.models.schemas import (
     AdvancedValidationResult,
@@ -21,18 +22,20 @@ def _truthy(value: Any) -> bool:
 
 class AdvancedValidationService:
     def __init__(self, config: dict[str, Any]) -> None:
-        self.count_cap = max(1, int(config.get("count_cap", 4)))
-        self.count_weight = float(config.get("count_weight", 0.4))
-        self.severity_weight = float(config.get("severity_weight", 0.6))
-        self.flag_threshold = float(config.get("flag_threshold", 0.25))
+        self.conflict_decay_lambda = float(config.get("conflict_decay_lambda", 0.5))
+        if self.conflict_decay_lambda <= 0:
+            raise ValueError("conflict_decay_lambda must be positive")
 
     @staticmethod
     def _latest_by_type(nodes: list[EvidenceNode]) -> dict[str, EvidenceNode]:
         latest: dict[str, EvidenceNode] = {}
         for node in nodes:
             current = latest.get(node.evidence_type)
-            if current is None or (node.timestamp, node.node_id) > (
-                current.timestamp,
+            if current is None or (
+                node.timestamp.isoformat() if node.timestamp else "",
+                node.node_id,
+            ) > (
+                current.timestamp.isoformat() if current.timestamp else "",
                 current.node_id,
             ):
                 latest[node.evidence_type] = node
@@ -284,23 +287,21 @@ class AdvancedValidationService:
         for conflict in conflicts:
             distribution[str(conflict.severity)] += 1
         max_severity = max((conflict.severity for conflict in conflicts), default=0)
-        count_component = min(1.0, len(conflicts) / self.count_cap)
-        severity_component = max_severity / 3
-        risk = max(
-            0.0,
-            min(
-                1.0,
-                self.count_weight * count_component
-                + self.severity_weight * severity_component,
-            ),
+        conflict_count = len(conflicts)
+        risk_base = 1.0 - math.exp(-self.conflict_decay_lambda * conflict_count)
+        severity_component = (
+            0.0 if conflict_count == 0 else 0.5 + 0.5 * max_severity / 3.0
         )
+        risk = max(0.0, min(1.0, max(risk_base, severity_component)))
         return AdvancedValidationResult(
             context_claims=claims,
             conflicts=conflicts,
             grounding_failures=failures,
-            jailbreak_flag=risk >= self.flag_threshold,
+            jailbreak_flag=bool(conflicts),
             jailbreak_risk=round(risk, 6),
-            conflict_count=len(conflicts),
+            jailbreak_risk_base=round(risk_base, 6),
+            jailbreak_risk_severity_component=round(severity_component, 6),
+            conflict_count=conflict_count,
             max_severity=max_severity,
             severity_distribution=distribution,
             duration_ms=round((perf_counter() - started) * 1000, 4),

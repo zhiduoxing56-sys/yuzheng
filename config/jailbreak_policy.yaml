@@ -1,7 +1,5 @@
-count_cap: 4
-count_weight: 0.40
-severity_weight: 0.60
-flag_threshold: 0.25
+# The report defines the exponential count term but does not prescribe lambda.
+conflict_decay_lambda: 0.5
 roles:
   administrator: [administrator, admin]
   owner: [owner]

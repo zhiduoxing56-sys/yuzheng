@@ -6,15 +6,19 @@ from typing import TYPE_CHECKING, Any
 from app.models.schemas import (
     AuthorizationTokenStatus,
     DecisionLabel,
+    DecisionSource,
     ReviewAction,
     ReviewRequest,
     ReviewResult,
+    ReviewOutcomeRecord,
     TextCommandRequest,
     TurnWorkflowStatus,
+    PipelineEvent,
     WorkflowEventType,
     utc_now,
 )
 from app.core.redaction import SensitiveDataRedactor
+from app.services.decision.merge import merge_decision
 
 if TYPE_CHECKING:
     from app.core.pipeline import CommandPipeline
@@ -70,25 +74,32 @@ class ReviewService:
             (event for event in reversed(events) if event.event_type in TERMINAL_EVENTS), None
         )
         token = self.pipeline.workflow_repository.latest_token_for_root(root_turn_id)
+        latest_decision = latest.final_decision.final_decision
         if terminal_event is not None:
             status = {
                 WorkflowEventType.REVIEW_CANCELLED: "CANCELLED",
                 WorkflowEventType.EXECUTION_SUCCEEDED: "EXECUTED",
                 WorkflowEventType.EXECUTION_FAILED: "TERMINATED",
             }[terminal_event.event_type]
+            latest_decision = (
+                DecisionLabel.BLOCK
+                if terminal_event.event_type == WorkflowEventType.REVIEW_CANCELLED
+                else latest.final_decision.final_decision
+            )
         elif latest.final_decision.final_decision == DecisionLabel.REVIEW:
             status = "REVIEW_REQUIRED"
         elif token is not None and token.status == AuthorizationTokenStatus.ISSUED:
             status = "AUTHORIZED"
         else:
             status = latest.final_decision.final_decision.value
+            latest_decision = latest.final_decision.final_decision
         return TurnWorkflowStatus(
             root_turn_id=root_turn_id,
             current_turn_id=latest.turn_id,
             status=status,
             review_attempts=attempts,
             max_review_attempts=self.max_attempts,
-            latest_decision=latest.final_decision.final_decision,
+            latest_decision=latest_decision,
             token_status=token.status if token else None,
             event_count=len(events),
             terminal=terminal_event is not None,
@@ -115,29 +126,88 @@ class ReviewService:
         request = ReviewRequest.model_validate(
             SensitiveDataRedactor.redact(request.model_dump(mode="json"))
         )
+        if request.action == ReviewAction.CANCEL:
+            requested_record = self.pipeline.audit_repository.get_by_turn(turn_id)
+            if requested_record is None:
+                raise ReviewWorkflowError(f"未找到轮次: {turn_id}")
+            existing = self.pipeline.audit_repository.outcome_for_original(
+                requested_record.audit_id
+            )
+            if existing is not None:
+                raise ReviewWorkflowError(
+                    "工作流已终止: CANCELLED; "
+                    f"terminal_audit_id={existing.audit_id}"
+                )
+
         status, latest = self._validate_entry(turn_id)
         root = status.root_turn_id
         next_attempt = status.review_attempts + 1
         if request.action == ReviewAction.CANCEL:
-            self.pipeline.workflow_repository.append_event(
+            alignment_route = self.pipeline.effective_audit_resolver._alignment_route(
+                latest
+            )
+            merged = merge_decision(
+                latest.safety_gate_result,
+                alignment_route,
+                latest.final_decision.score_decision,
+                block_constraints=[DecisionSource.USER_REVIEW],
+                constraint_reasons={
+                    DecisionSource.USER_REVIEW: "用户取消本轮指令"
+                },
+            )
+            outcome = ReviewOutcomeRecord(
+                original_audit_id=latest.audit_id,
+                original_turn_id=latest.turn_id,
                 root_turn_id=root,
-                related_turn_id=latest.turn_id,
-                parent_turn_id=latest.parent_turn_id,
-                event_type=WorkflowEventType.REVIEW_CANCELLED,
-                payload={"reason": request.cancel_reason or "用户取消"},
+                original_final_decision=latest.final_decision.final_decision,
+                effective_final_decision=merged.final_decision,
+                effective_decision_sources=list(merged.decision_sources),
+                decision_merge_reason=merged.decision_merge_reason,
+                idempotency_key=f"{latest.audit_id}:{ReviewAction.CANCEL.value}",
             )
-            cancelled = latest.final_decision.model_copy(
-                update={
-                    "decision": DecisionLabel.BLOCK,
-                    "final_decision": DecisionLabel.BLOCK,
-                    "authorization_token": None,
-                    "explanations": [
-                        *latest.final_decision.explanations,
-                        "用户取消复核，工作流终止",
+            event_payload = {
+                "original_audit_id": latest.audit_id,
+                "original_turn_id": latest.turn_id,
+                "original_final_decision": latest.final_decision.final_decision.value,
+                "effective_final_decision": merged.final_decision.value,
+                "decision_source": DecisionSource.USER_REVIEW.value,
+                "terminal_audit_id": outcome.audit_id,
+                "token_issued": False,
+                "execution_allowed": False,
+                "reason": request.cancel_reason or "用户取消本轮指令",
+            }
+            saved_outcome, _, created = (
+                self.pipeline.audit_repository.append_review_outcome_with_events(
+                    outcome,
+                    [
+                        (WorkflowEventType.REVIEW_CANCELLED, event_payload),
+                        (WorkflowEventType.FINAL_DECISION_UPDATED, event_payload),
+                        (WorkflowEventType.AUDIT_OUTCOME_APPENDED, event_payload),
                     ],
-                }
+                )
             )
+            if not created:
+                raise ReviewWorkflowError(
+                    "工作流已终止: CANCELLED; "
+                    f"terminal_audit_id={saved_outcome.audit_id}"
+                )
+            resolved = self.pipeline.effective_audit_resolver.resolve(latest)
             updated = self.status(root)
+            session_id = latest.audio_input_metadata.get("session_id")
+            if session_id:
+                self.pipeline.event_broker.publish(
+                    PipelineEvent(
+                        session_id=str(session_id),
+                        turn_id=latest.turn_id,
+                        sequence=updated.event_count,
+                        event_type=WorkflowEventType.REVIEW_CANCELLED.value,
+                        stage=WorkflowEventType.REVIEW_CANCELLED.value,
+                        status="COMPLETED",
+                        duration_ms=0,
+                        summary="用户取消复核，终态审计已追加",
+                        payload=event_payload,
+                    )
+                )
             return ReviewResult(
                 root_turn_id=root,
                 related_turn_id=latest.turn_id,
@@ -145,8 +215,9 @@ class ReviewService:
                 accepted=True,
                 reason="复核已取消，未签发令牌且未执行车辆动作",
                 workflow_status=updated,
-                decision=cancelled,
+                decision=resolved.effective_decision,
                 review_question=None,
+                terminal_audit_id=saved_outcome.audit_id,
             )
 
         frame = latest.semantic_frame

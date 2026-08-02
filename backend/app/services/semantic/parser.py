@@ -55,9 +55,22 @@ class SemanticFrameParser:
         # 复合声明中前面的“进入模拟器模式”是上下文声明，最后的动词才是车控动作。
         action = self._match_term(normalized, self.config.get("actions", {}), prefer_last=True)
         target = self._match_term(normalized, self.config.get("targets", {}))
+        explicit_matches = [
+            (len(str(pattern)), index, rule)
+            for index, rule in enumerate(self.config.get("explicit_command_patterns", []))
+            for pattern in rule.get("patterns", [])
+            if str(pattern) in normalized
+        ]
+        explicit_rule = max(explicit_matches, default=None, key=lambda item: (item[0], -item[1]))
+        if explicit_rule is not None:
+            rule = explicit_rule[2]
+            action = str(rule["action"])
+            target = str(rule["target"])
         if target == UNKNOWN:
             target = str(self.config.get("implicit_targets_by_action", {}).get(action, UNKNOWN))
         area = self._match_term(normalized, self.config.get("areas", {}))
+        if explicit_rule is not None and explicit_rule[2].get("area") is not None:
+            area = str(explicit_rule[2]["area"])
 
         domain = UNKNOWN
         for name, targets in self.config.get("domains", {}).items():

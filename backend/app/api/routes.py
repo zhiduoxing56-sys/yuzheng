@@ -305,7 +305,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             new_decision=result.decision.final_decision,
             token_issued=result.decision.authorization_token is not None,
             execution_status=result.workflow_status.status,
-            audit_id=audit.audit_id,
+            audit_id=result.terminal_audit_id or audit.audit_id,
             accepted=result.accepted,
             message=result.reason,
             root_turn_id=result.root_turn_id,
@@ -399,21 +399,56 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             raise ContractError(
                 422, ErrorCode.INVALID_FILTER, "start_time 不能晚于 end_time"
             )
-        result = pipeline.audit_repository.list_records(
+        records = pipeline.audit_repository.all_records()
+        if start_time is not None:
+            records = [item for item in records if item.created_at >= start_time]
+        if end_time is not None:
+            records = [item for item in records if item.created_at <= end_time]
+        resolved = [pipeline.effective_audit_resolver.resolve(item) for item in records]
+        compatibility_filters = {
+            "action": request.query_params.get("action"),
+            "target": request.query_params.get("target"),
+            "risk_type": request.query_params.get("risk_type"),
+        }
+        if compatibility_filters["action"] is not None:
+            resolved = [
+                item
+                for item in resolved
+                if item.original.semantic_frame.action
+                == compatibility_filters["action"]
+            ]
+        if compatibility_filters["target"] is not None:
+            resolved = [
+                item
+                for item in resolved
+                if item.original.semantic_frame.target
+                == compatibility_filters["target"]
+            ]
+        if compatibility_filters["risk_type"] is not None:
+            resolved = [
+                item
+                for item in resolved
+                if compatibility_filters["risk_type"]
+                in item.original.semantic_frame.risk_tags
+            ]
+        if decision is not None:
+            resolved = [
+                item
+                for item in resolved
+                if item.effective_decision.final_decision == decision
+            ]
+        resolved.sort(
+            key=lambda item: (item.original.created_at, item.original.audit_id),
+            reverse=True,
+        )
+        total = len(resolved)
+        offset = (page - 1) * page_size
+        page_items = resolved[offset : offset + page_size]
+        return AuditListResponse(
+            items=[presentation.audit_list_item(item.original) for item in page_items],
+            total=total,
             page=page,
             page_size=page_size,
-            decision=decision.value if decision else None,
-            action=request.query_params.get("action"),
-            target=request.query_params.get("target"),
-            risk_type=request.query_params.get("risk_type"),
-            start_time=start_time.isoformat() if start_time else None,
-            end_time=end_time.isoformat() if end_time else None,
-        )
-        return AuditListResponse(
-            items=[presentation.audit_list_item(item) for item in result.items],
-            total=result.total,
-            page=result.page,
-            page_size=result.page_size,
         )
 
     @router.get(
@@ -422,10 +457,10 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         responses=contract_errors,
     )
     def audit_detail(audit_id: str) -> AuditDetailResponse:
-        record = pipeline.audit_repository.get_by_id(audit_id)
-        if record is None:
+        resolution = pipeline.effective_audit_resolver.resolve_by_audit_id(audit_id)
+        if resolution is None:
             raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
-        return presentation.audit_detail(record)
+        return presentation.audit_detail(resolution.original)
 
     @router.get(
         "/audits/{audit_id}/verify",
@@ -433,31 +468,41 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         responses=contract_errors,
     )
     def audit_verify(audit_id: str) -> AuditVerificationResponse:
-        record = pipeline.audit_repository.get_by_id(audit_id)
-        if record is None:
-            raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
-        verification = pipeline.audit_repository.verify_record(audit_id)
+        verification = pipeline.effective_audit_resolver.verify(
+            audit_id, pipeline.workflow_repository
+        )
         if verification is None:
             raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
-        root = record.root_turn_id or record.turn_id
-        workflow_valid = pipeline.workflow_repository.verify_chain(root).valid
         failures = [
             label
             for key, label in (
                 ("record_hash_valid", "记录摘要校验失败"),
                 ("previous_link_valid", "前向链接校验失败"),
                 ("audit_chain_valid", "审计链校验失败"),
+                ("relationship_valid", "终态关联校验失败"),
+                ("merge_decision_valid", "统一裁决合并校验失败"),
+                ("effective_outcome_valid", "有效终态解析校验失败"),
             )
             if not verification[key]
         ]
-        if not workflow_valid:
+        if verification["terminal_record_hash_valid"] is False:
+            failures.append("终态记录摘要校验失败")
+        if verification["terminal_previous_link_valid"] is False:
+            failures.append("终态前向链接校验失败")
+        if not verification["workflow_chain_valid"]:
             failures.append("工作流链校验失败")
         return AuditVerificationResponse(
             audit_id=audit_id,
             record_hash_valid=verification["record_hash_valid"],
             previous_link_valid=verification["previous_link_valid"],
             audit_chain_valid=verification["audit_chain_valid"],
-            workflow_chain_valid=workflow_valid,
+            workflow_chain_valid=verification["workflow_chain_valid"],
+            terminal_audit_id=verification["terminal_audit_id"],
+            terminal_record_hash_valid=verification["terminal_record_hash_valid"],
+            terminal_previous_link_valid=verification["terminal_previous_link_valid"],
+            relationship_valid=verification["relationship_valid"],
+            merge_decision_valid=verification["merge_decision_valid"],
+            effective_outcome_valid=verification["effective_outcome_valid"],
             failure_reason="；".join(failures) or None,
         )
 

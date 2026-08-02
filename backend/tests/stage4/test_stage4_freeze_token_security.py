@@ -75,7 +75,7 @@ def test_token_expired(tmp_path: Path) -> None:
     database = tmp_path / "expired.db"
     pipeline = CommandPipeline(database, token_secret=TEST_SECRET)
     pipeline.authorization_service.ttl_seconds = -1
-    command = _pass_command(pipeline, "播放音乐")
+    command = _pass_command(pipeline)
     restarted = CommandPipeline(database, token_secret=TEST_SECRET)
     assert restarted.workflow_repository.latest_token_for_root(command.turn_id).status == AuthorizationTokenStatus.EXPIRED
     with pytest.raises(AuthorizationTokenError, match="EXPIRED"):
@@ -86,7 +86,7 @@ def test_token_expired(tmp_path: Path) -> None:
 
 def test_token_tampered(tmp_path: Path) -> None:
     pipeline = CommandPipeline(tmp_path / "tampered.db", token_secret=TEST_SECRET)
-    command = _pass_command(pipeline, "播放音乐")
+    command = _pass_command(pipeline)
     token = command.decision.authorization_token
     tampered = token[:-1] + ("A" if token[-1] != "A" else "B")
     with pytest.raises(AuthorizationTokenError, match="摘要") as captured:
@@ -97,7 +97,7 @@ def test_token_tampered(tmp_path: Path) -> None:
 
 def test_token_reused(tmp_path: Path) -> None:
     pipeline = CommandPipeline(tmp_path / "reused.db", token_secret=TEST_SECRET)
-    command = _pass_command(pipeline, "播放音乐")
+    command = _pass_command(pipeline)
     token = command.decision.authorization_token
     assert pipeline.execution_service.execute(command.turn_id, token).accepted is True
     with pytest.raises(AuthorizationTokenError, match="CONSUMED"):
@@ -124,7 +124,7 @@ def test_token_cross_restart(tmp_path: Path) -> None:
 def test_token_cross_restart_rejects_changed_physical_state_not_signature(tmp_path: Path) -> None:
     database = tmp_path / "restart-changed.db"
     first = CommandPipeline(database, token_secret=TEST_SECRET)
-    command = _pass_command(first, "播放音乐", door_state="OPEN")
+    command = _pass_command(first, door_state="OPEN")
     token = command.decision.authorization_token
     restarted = CommandPipeline(database, token_secret=TEST_SECRET)
     result = restarted.execution_service.execute(command.turn_id, token)
@@ -224,7 +224,7 @@ def test_token_multi_process_consumption(tmp_path: Path) -> None:
     assert Path(sys.executable).resolve() == Path(r"D:\software\anaconda\envs\yuzheng311\python.exe").resolve()
     database = tmp_path / "multiprocess.db"
     pipeline = CommandPipeline(database, token_secret=TEST_SECRET)
-    command = _pass_command(pipeline, "播放音乐")
+    command = _pass_command(pipeline)
     token = command.decision.authorization_token
     start_path = tmp_path / "start.signal"
     worker = Path(__file__).with_name("_token_process_worker.py")

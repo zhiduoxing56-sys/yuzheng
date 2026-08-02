@@ -34,6 +34,33 @@ class DecisionLabel(str, Enum):
     BLOCK = "BLOCK"
 
 
+class DecisionSource(str, Enum):
+    SAFETY_GATE = "SAFETY_GATE"
+    EVIDENCE_ALIGNMENT = "EVIDENCE_ALIGNMENT"
+    SAFETY_SCORE = "SAFETY_SCORE"
+    RUNTIME_CAPABILITY = "RUNTIME_CAPABILITY"
+    VOICE_TRUST = "VOICE_TRUST"
+    ZONE_PERMISSION = "ZONE_PERMISSION"
+    USER_REVIEW = "USER_REVIEW"
+    LEGACY_COMPATIBILITY = "LEGACY_COMPATIBILITY"
+
+
+DECISION_SOURCE_DESCRIPTIONS: dict[DecisionSource, str] = {
+    DecisionSource.SAFETY_GATE: "硬规则门控",
+    DecisionSource.EVIDENCE_ALIGNMENT: "EAS证据路由",
+    DecisionSource.SAFETY_SCORE: "五因子原始裁决",
+    DecisionSource.RUNTIME_CAPABILITY: "运行能力安全约束",
+    DecisionSource.VOICE_TRUST: "语音可信约束",
+    DecisionSource.ZONE_PERMISSION: "乘员区域权限约束",
+    DecisionSource.USER_REVIEW: "用户复核约束",
+    DecisionSource.LEGACY_COMPATIBILITY: "旧记录兼容读取来源",
+}
+DecisionSource.__doc__ = "公开裁决来源：" + "；".join(
+    f"{source.value}={description}"
+    for source, description in DECISION_SOURCE_DESCRIPTIONS.items()
+)
+
+
 class SemanticControlMode(str, Enum):
     FULL = "FULL"
     RESTRICTED = "RESTRICTED"
@@ -61,6 +88,11 @@ class AuditRecordQuality(str, Enum):
     SUPERSEDED = "SUPERSEDED"
     TEST_ONLY = "TEST_ONLY"
     LEGACY_MODEL = "LEGACY_MODEL"
+
+
+class AuditRecordType(str, Enum):
+    COMMAND = "COMMAND"
+    REVIEW_OUTCOME = "REVIEW_OUTCOME"
 
 
 class ReviewAction(str, Enum):
@@ -91,6 +123,8 @@ class WorkflowEventType(str, Enum):
     REVIEW_CONFIRMED = "REVIEW_CONFIRMED"
     REVIEW_CORRECTED = "REVIEW_CORRECTED"
     REVIEW_CANCELLED = "REVIEW_CANCELLED"
+    FINAL_DECISION_UPDATED = "FINAL_DECISION_UPDATED"
+    AUDIT_OUTCOME_APPENDED = "AUDIT_OUTCOME_APPENDED"
     REDECISION_STARTED = "REDECISION_STARTED"
     REDECISION_COMPLETED = "REDECISION_COMPLETED"
     TOKEN_ISSUED = "TOKEN_ISSUED"
@@ -162,6 +196,9 @@ class TranscriptionResult(StrictModel):
     model_inference_performed: bool
     transcribed_text: str = ""
     asr_confidence: float | None = Field(default=None, ge=0, le=1)
+    asr_confidence_method: str | None = None
+    mean_token_logprob: float | None = None
+    confidence_token_count: int = Field(default=0, ge=0)
     model_name: str = ""
     inference_duration: float = Field(default=0, ge=0)
     created_at: datetime = Field(default_factory=utc_now)
@@ -256,8 +293,8 @@ class EvidenceNode(StrictModel):
     source: str
     value: Any
     unit: str | None = None
-    timestamp: datetime
-    expires_at: datetime
+    timestamp: datetime | None
+    expires_at: datetime | None
     freshness: float = Field(ge=0, le=1)
     consistency: float = Field(ge=0, le=1)
     availability: float = Field(ge=0, le=1)
@@ -331,6 +368,7 @@ class MandatoryRecallRecord(StrictModel):
     candidate_node_ids: list[str] = Field(default_factory=list)
     recalled_node_id: str | None = None
     source: str | None = None
+    retrieval_origin: str = "NONE"
     reason: str
 
 
@@ -342,6 +380,14 @@ class EvidenceQualityMetrics(StrictModel):
     sas: float = Field(ge=0, le=1)
     eas: float = Field(ge=0, le=1)
     conflict_count: int = Field(default=0, ge=0)
+    evidence_pair_count: int | None = Field(default=None, ge=0)
+    conflict_pair_count: int | None = Field(default=None, ge=0)
+    eas_weight_profile: str | None = None
+    eas_weight_source: str | None = None
+    eas_weights: dict[str, float] | None = None
+    evidence_alignment_route: Literal[
+        "EVIDENCE_PASS", "EVIDENCE_REVIEW", "EVIDENCE_BLOCK"
+    ] | None = None
     short_term_availability: dict[str, float | None] = Field(default_factory=dict)
     long_term_availability: dict[str, float | None] = Field(default_factory=dict)
 
@@ -403,6 +449,8 @@ class AdvancedValidationResult(StrictModel):
     grounding_failures: list[GroundingFailure] = Field(default_factory=list)
     jailbreak_flag: bool = False
     jailbreak_risk: float = Field(default=0, ge=0, le=1)
+    jailbreak_risk_base: float | None = Field(default=None, ge=0, le=1)
+    jailbreak_risk_severity_component: float | None = Field(default=None, ge=0, le=1)
     conflict_count: int = Field(default=0, ge=0)
     max_severity: int = Field(default=0, ge=0, le=3)
     severity_distribution: dict[str, int] = Field(default_factory=dict)
@@ -566,6 +614,14 @@ class DecisionScoreFactors(StrictModel):
     evidence_coverage_applicable: bool
     applied_weights: dict[str, float] = Field(default_factory=dict)
     five_factors: dict[str, ScoreFactor] = Field(default_factory=dict)
+    semantic_confidence: float | None = Field(default=None, ge=0, le=1)
+    ambiguity_penalty: float | None = Field(default=None, ge=0, le=1)
+    semantic_ambiguity_beta: float | None = Field(default=None, ge=0)
+    beta_source: str | None = None
+    validated_evidence_count: int = Field(default=0, ge=0)
+    validated_trust_values: list[dict[str, Any]] = Field(default_factory=list)
+    trust_formula: str | None = None
+    trust_value_source: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -585,7 +641,10 @@ class DecisionScoreFactors(StrictModel):
 class DecisionResult(StrictModel):
     turn_id: str
     decision: DecisionLabel
+    score_decision: DecisionLabel
     final_decision: DecisionLabel
+    decision_sources: list[DecisionSource]
+    decision_merge_reason: str
     safety_score: float = Field(ge=0, le=1)
     soft_safety_score: float = Field(ge=0, le=1)
     gate_blocked: bool
@@ -610,14 +669,23 @@ class DecisionResult(StrictModel):
     def fill_compatibility_fields(cls, data: Any) -> Any:
         if isinstance(data, dict):
             data = dict(data)
+            data.setdefault("score_decision", data.get("decision"))
             data.setdefault("final_decision", data.get("decision"))
+            data.setdefault(
+                "decision_sources",
+                [DecisionSource.SAFETY_SCORE, DecisionSource.LEGACY_COMPATIBILITY],
+            )
+            data.setdefault(
+                "decision_merge_reason",
+                "LEGACY_COMPATIBILITY: final_decision inherited from decision",
+            )
             data.setdefault("soft_safety_score", data.get("safety_score"))
         return data
 
     @model_validator(mode="after")
     def validate_compatibility_fields(self) -> "DecisionResult":
-        if self.decision != self.final_decision:
-            raise ValueError("decision 与 final_decision 必须一致")
+        if self.decision != self.score_decision:
+            raise ValueError("decision 与 score_decision 必须一致")
         if abs(self.safety_score - self.soft_safety_score) > 1e-9:
             raise ValueError("safety_score 是 soft_safety_score 的兼容字段，两者必须一致")
         return self
@@ -733,6 +801,7 @@ class MicrophoneCommandRequest(StrictModel):
 
 
 class AuditRecord(StrictModel):
+    record_type: Literal["COMMAND"] = "COMMAND"
     audit_id: str = Field(default_factory=lambda: make_id("AUD"))
     turn_id: str
     root_turn_id: str | None = None
@@ -787,6 +856,37 @@ class AuditRecord(StrictModel):
     previous_hash: str = ""
     current_hash: str = ""
     created_at: datetime = Field(default_factory=utc_now)
+
+
+class ReviewOutcomeRecord(StrictModel):
+    audit_id: str = Field(default_factory=lambda: make_id("AUD"))
+    record_type: Literal["REVIEW_OUTCOME"] = "REVIEW_OUTCOME"
+    original_audit_id: str
+    original_turn_id: str
+    root_turn_id: str
+    review_action: Literal[ReviewAction.CANCEL] = ReviewAction.CANCEL
+    original_final_decision: Literal[DecisionLabel.REVIEW] = DecisionLabel.REVIEW
+    effective_final_decision: Literal[DecisionLabel.BLOCK] = DecisionLabel.BLOCK
+    effective_decision_sources: list[DecisionSource]
+    decision_merge_reason: str = Field(min_length=1)
+    token_issued: Literal[False] = False
+    execution_allowed: Literal[False] = False
+    idempotency_key: str
+    created_at: datetime = Field(default_factory=utc_now)
+    previous_hash: str = ""
+    current_hash: str = ""
+
+    @model_validator(mode="after")
+    def validate_review_outcome(self) -> "ReviewOutcomeRecord":
+        expected_key = f"{self.original_audit_id}:{self.review_action.value}"
+        if self.idempotency_key != expected_key:
+            raise ValueError("REVIEW_OUTCOME idempotency_key 与关联审计不一致")
+        if DecisionSource.USER_REVIEW not in self.effective_decision_sources:
+            raise ValueError("REVIEW_OUTCOME 必须包含 USER_REVIEW 裁决来源")
+        return self
+
+
+AuditChainRecord = AuditRecord | ReviewOutcomeRecord
 
 
 class TextCommandResponse(StrictModel):
@@ -1051,6 +1151,7 @@ class ReviewResult(StrictModel):
     decision: DecisionResult
     review_question: str | None = None
     command_result: TextCommandResponse | None = None
+    terminal_audit_id: str | None = None
 
 
 class PipelineEvent(StrictModel):

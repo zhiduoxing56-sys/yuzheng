@@ -13,15 +13,11 @@ from app.models.schemas import (
     SemanticControlMode,
     SemanticFrame,
 )
-
-
-TRUST_VALUE = {
-    EvidenceStatus.VALID: 1.0,
-    EvidenceStatus.SUSPICIOUS: 0.5,
-    EvidenceStatus.STALE: 0.2,
-    EvidenceStatus.TAMPERED: 0.0,
-    EvidenceStatus.MISSING: 0.0,
-}
+from app.services.evidence.trust import (
+    evidence_trust_value,
+    select_canonical_evidence,
+    trust_trace,
+)
 
 
 def _authenticated(value: Any) -> bool:
@@ -66,18 +62,22 @@ class SafetyGateService:
         latest: dict[str, EvidenceNode] = {}
         for node in evidence:
             current = latest.get(node.evidence_type)
-            if current is None or (node.timestamp, node.node_id) > (
-                current.timestamp,
+            if current is None or (
+                node.timestamp.isoformat() if node.timestamp else "",
+                node.node_id,
+            ) > (
+                current.timestamp.isoformat() if current.timestamp else "",
                 current.node_id,
             ):
                 latest[node.evidence_type] = node
         return latest
 
     @staticmethod
-    def _mandatory_status(
-        evidence: list[EvidenceNode], status: EvidenceStatus
+    def _required_status(
+        frame: SemanticFrame, evidence: list[EvidenceNode], status: EvidenceStatus
     ) -> tuple[bool, dict[str, Any], list[str]]:
-        nodes = [node for node in evidence if node.mandatory and node.quality_label == status]
+        resolved = select_canonical_evidence(frame.required_evidence_types, evidence)
+        nodes = [node for node in resolved if node.quality_label == status]
         return (
             bool(nodes),
             {f"{status.value.lower()}_types": [node.evidence_type for node in nodes]},
@@ -85,15 +85,16 @@ class SafetyGateService:
         )
 
     def _mandatory_missing(self, rule, frame, by_type, evidence, validation):
-        hit, observed, ids = self._mandatory_status(evidence, EvidenceStatus.MISSING)
-        observed["missing_types"] = observed.pop("missing_types", observed.get("missing_types", []))
-        return hit, observed, ids
+        del rule, by_type, validation
+        return self._required_status(frame, evidence, EvidenceStatus.MISSING)
 
     def _mandatory_tampered(self, rule, frame, by_type, evidence, validation):
-        return self._mandatory_status(evidence, EvidenceStatus.TAMPERED)
+        del rule, by_type, validation
+        return self._required_status(frame, evidence, EvidenceStatus.TAMPERED)
 
     def _mandatory_stale(self, rule, frame, by_type, evidence, validation):
-        return self._mandatory_status(evidence, EvidenceStatus.STALE)
+        del rule, by_type, validation
+        return self._required_status(frame, evidence, EvidenceStatus.STALE)
 
     @staticmethod
     def _level3_jailbreak(rule, frame, by_type, evidence, validation):
@@ -106,16 +107,34 @@ class SafetyGateService:
 
     @staticmethod
     def _mandatory_trust(rule, frame, by_type, evidence, validation):
-        mandatory = [node for node in evidence if node.mandatory]
+        del by_type, validation
+        mandatory = select_canonical_evidence(frame.required_evidence_types, evidence)
+        trace = trust_trace(mandatory)
         average = (
-            sum(TRUST_VALUE[node.quality_label] for node in mandatory) / len(mandatory)
+            sum(evidence_trust_value(node.quality_label) for node in mandatory)
+            / len(mandatory)
             if mandatory
             else 1.0
         )
         threshold = float(rule.get("threshold", 0.45))
         return (
             bool(mandatory) and average < threshold,
-            {"average_trust": round(average, 6), "threshold": threshold},
+            {
+                "required_evidence_count": len(frame.required_evidence_types),
+                "required_trust_values": trace,
+                "required_trust_average": round(average, 6),
+                "required_missing_types": [
+                    node.evidence_type
+                    for node in mandatory
+                    if node.quality_label == EvidenceStatus.MISSING
+                ],
+                "required_tampered_types": [
+                    node.evidence_type
+                    for node in mandatory
+                    if node.quality_label == EvidenceStatus.TAMPERED
+                ],
+                "threshold": threshold,
+            },
             [node.node_id for node in mandatory],
         )
 
@@ -203,7 +222,10 @@ class SafetyGateService:
 
     @staticmethod
     def _autopark_critical(rule, frame, by_type, evidence, validation):
-        critical = [by_type.get(key) for key in ("ultrasonic_distance", "surround_camera_state")]
+        critical = [
+            by_type.get(key)
+            for key in ("surround_view_camera", "ultrasonic_radar")
+        ]
         bad = [
             node
             for node in critical
@@ -283,16 +305,32 @@ class SafetyGateService:
             if evaluator is None:
                 raise ValueError(f"未知安全门评估器: {evaluator_name}")
             hit, observed, node_ids = evaluator(rule, frame, by_type, evidence, validation)
+            reason = str(rule.get("reason")) if hit else "规则未命中"
+            affected_types = (
+                observed.get("missing_types")
+                or observed.get("tampered_types")
+                or []
+            )
+            if hit and affected_types:
+                reason = f"{reason}: {','.join(str(item) for item in affected_types)}"
             checks.append(
                 GateCheck(
                     rule_id=str(rule.get("id")),
                     hit=hit,
-                    reason=str(rule.get("reason")) if hit else "规则未命中",
+                    reason=reason,
                     observed=observed,
                     supporting_evidence_ids=sorted(set(node_ids)),
                 )
             )
-        reasons = [check.reason for check in checks if check.hit]
+        reasons: list[str] = []
+        for check in checks:
+            if not check.hit:
+                continue
+            base_reason = check.reason.split(":", 1)[0]
+            if base_reason not in reasons:
+                reasons.append(base_reason)
+            if check.reason not in reasons:
+                reasons.append(check.reason)
         hit_rules = [check.rule_id for check in checks if check.hit]
         supporting = sorted(
             {node_id for check in checks if check.hit for node_id in check.supporting_evidence_ids}

@@ -8,6 +8,7 @@ from app.models.schemas import (
     DecisionLabel,
     DecisionResult,
     DecisionScoreFactors,
+    DecisionSource,
     EvidenceNode,
     EvidenceStatus,
     MemoryPropagationResult,
@@ -17,19 +18,35 @@ from app.models.schemas import (
     SemanticControlMode,
     SemanticFrame,
 )
+from app.services.decision.merge import EvidenceAlignmentRoute, merge_decision
+from app.services.evidence.trust import (
+    PDF_EVIDENCE_TRUST_VALUES,
+    evidence_trust_value,
+    select_canonical_evidence,
+    trust_trace,
+)
 
 
 class DecisionService:
-    """五维动态安全评分；硬性安全门在评分之后独立覆盖最终裁决。"""
+    """五维动态安全评分，并通过统一入口合并硬门与 EAS 路由。"""
 
     def __init__(self, config: dict[str, Any]) -> None:
         self.weights = {
             key: float(value) for key, value in config["five_factor_weights"].items()
         }
         self.thresholds = config["thresholds"]
-        self.trust_mapping = {
+        configured_trust_mapping = {
             key: float(value) for key, value in config["evidence_trust_mapping"].items()
         }
+        expected_trust_mapping = {
+            status.value: value for status, value in PDF_EVIDENCE_TRUST_VALUES.items()
+        }
+        if configured_trust_mapping != expected_trust_mapping:
+            raise ValueError("evidence_trust_mapping 必须严格匹配 PDF 公式 2.11")
+        self.semantic_ambiguity_beta = float(config["semantic_ambiguity_beta"])
+        self.semantic_ambiguity_beta_source = str(
+            config["semantic_ambiguity_beta_source"]
+        )
         self.necessity = config["necessity_evidence"]
         if abs(sum(self.weights.values()) - 1.0) > 1e-9:
             raise ValueError("五维评分权重之和必须为 1")
@@ -44,34 +61,23 @@ class DecisionService:
 
     def _trust(
         self,
+        frame: SemanticFrame,
         evidence: list[EvidenceNode],
-        causal: CausalCorrectionResult,
-    ) -> tuple[float | None, bool, str]:
-        latest: dict[str, EvidenceNode] = {}
-        for node in evidence:
-            if node.mandatory:
-                latest[node.evidence_type] = node
-        nodes = [latest[key] for key in sorted(latest)]
+    ) -> tuple[float | None, bool, str, list[dict[str, object]]]:
+        validated_types = [
+            *frame.required_evidence_types,
+            *frame.optional_evidence_types,
+        ]
+        nodes = select_canonical_evidence(validated_types, evidence)
         if not nodes:
-            return None, False, "无强制证据，可信因子不适用"
-        causal_weights = {
-            node.node_id: causal.corrected_weights.get(node.node_id, 0.0) for node in nodes
-        }
-        causal_total = sum(causal_weights.values())
-        if causal_total > 0:
-            value = sum(
-                self.trust_mapping[node.quality_label.value]
-                * causal_weights[node.node_id]
-                / causal_total
-                for node in nodes
-            )
-            reason = "校验状态可信度按因果后验权重加权"
-        else:
-            value = sum(
-                self.trust_mapping[node.quality_label.value] for node in nodes
-            ) / len(nodes)
-            reason = "历史不足，使用校验状态可信度均值"
-        return self._clamp(value), True, reason
+            return None, False, "无适用 validated evidence，可信因子不适用", []
+        value = sum(evidence_trust_value(node.quality_label) for node in nodes) / len(nodes)
+        return (
+            self._clamp(value),
+            True,
+            "PDF 公式 2.14：validated evidence 的 Q(status) 算术平均值",
+            trust_trace(nodes),
+        )
 
     @staticmethod
     def _truthy(value: Any) -> bool:
@@ -85,8 +91,11 @@ class DecisionService:
         latest: dict[str, EvidenceNode] = {}
         for node in evidence:
             current = latest.get(node.evidence_type)
-            if current is None or (node.timestamp, node.node_id) > (
-                current.timestamp,
+            if current is None or (
+                node.timestamp.isoformat() if node.timestamp else "",
+                node.node_id,
+            ) > (
+                current.timestamp.isoformat() if current.timestamp else "",
                 current.node_id,
             ):
                 latest[node.evidence_type] = node
@@ -155,6 +164,7 @@ class DecisionService:
         frame: SemanticFrame,
         evidence: list[EvidenceNode],
         gate: SafetyGateResult,
+        evidence_alignment_route: EvidenceAlignmentRoute,
         validation: AdvancedValidationResult | None = None,
         causal: CausalCorrectionResult | None = None,
         memory: MemoryPropagationResult | None = None,
@@ -163,7 +173,10 @@ class DecisionService:
         validation = validation or AdvancedValidationResult()
         causal = causal or CausalCorrectionResult()
         incomplete = frame.action == "unknown" or frame.target == "unknown"
-        csem = self._clamp(frame.semantic_confidence * (1.0 - frame.ambiguity_score))
+        csem = self._clamp(
+            frame.semantic_confidence
+            * (1.0 - self.semantic_ambiguity_beta * frame.ambiguity_score)
+        )
         required_count = len(frame.required_evidence_types)
         covered = {
             node.evidence_type
@@ -172,7 +185,9 @@ class DecisionService:
             and node.quality_label in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
         }
         ccov = len(covered) / required_count if required_count else None
-        ctrust, trust_applicable, trust_reason = self._trust(evidence, causal)
+        ctrust, trust_applicable, trust_reason, validated_trust_values = self._trust(
+            frame, evidence
+        )
         cjb = self._clamp(1.0 - validation.jailbreak_risk)
         cnec, necessity_reason = self._necessity_score(frame, evidence)
 
@@ -224,13 +239,8 @@ class DecisionService:
             f"因果样本={causal.sample_count}，数据充分性={causal.data_sufficiency}",
         ]
         review_question: str | None = None
-        if gate.blocked:
-            decision = DecisionLabel.BLOCK
-            explanations.extend(gate.reasons)
-            explanations.append("硬性安全门优先于五维软评分，其他证据不能抵消风险")
-            explanations.append("软评分仅作为硬规则阻断后的诊断评分，不参与最终裁决")
-        elif incomplete:
-            decision = DecisionLabel.REVIEW
+        if incomplete:
+            score_decision = DecisionLabel.REVIEW
             missing_slot = (
                 "动作和对象"
                 if frame.action == frame.target == "unknown"
@@ -247,19 +257,19 @@ class DecisionService:
         elif validation.conflicts or any(
             node.quality_label == EvidenceStatus.SUSPICIOUS for node in evidence
         ):
-            decision = DecisionLabel.REVIEW if score >= float(self.thresholds["review"]) else DecisionLabel.BLOCK
+            score_decision = DecisionLabel.REVIEW if score >= float(self.thresholds["review"]) else DecisionLabel.BLOCK
             explanations.append("存在声明或多源证据冲突，不能直接放行")
-            if decision == DecisionLabel.REVIEW:
+            if score_decision == DecisionLabel.REVIEW:
                 review_question = "检测到声明或车辆状态不一致，请确认真实状态后再执行。"
         elif score >= float(self.thresholds["pass"]):
-            decision = DecisionLabel.PASS
-            explanations.append("五维评分达到放行阈值且未命中硬门")
+            score_decision = DecisionLabel.PASS
+            explanations.append("五维评分达到放行阈值")
         elif score >= float(self.thresholds["review"]):
-            decision = DecisionLabel.REVIEW
+            score_decision = DecisionLabel.REVIEW
             explanations.append("五维评分处于复核区间")
             review_question = "请确认是否继续执行该指令。"
         else:
-            decision = DecisionLabel.BLOCK
+            score_decision = DecisionLabel.BLOCK
             explanations.append("五维评分低于阻断阈值")
 
         reason_codes = list(gate.hit_rules)
@@ -269,17 +279,37 @@ class DecisionService:
             and frame.action != "查询"
             and frame.target != "unknown"
         )
-        if restricted_executable and not gate.blocked and decision == DecisionLabel.PASS:
-            decision = DecisionLabel.REVIEW
+        review_constraints: list[DecisionSource] = []
+        if restricted_executable and not gate.blocked and score_decision == DecisionLabel.PASS:
+            review_constraints.append(DecisionSource.RUNTIME_CAPABILITY)
             review_question = "真实语义模型当前不可用，请恢复模型后重新确认该车控指令。"
             reason_codes.append("SEMANTIC_MODEL_DEGRADED_REVIEW_REQUIRED")
             explanations.append("真实语义模型降级：R1/R2可执行车控最高只能进入复核")
 
+        merged = merge_decision(
+            gate,
+            evidence_alignment_route,
+            score_decision,
+            review_constraints=review_constraints,
+        )
+        if gate.blocked:
+            explanations.extend(gate.reasons)
+            explanations.append("硬性安全门优先于证据路由和五维评分，其他证据不能抵消风险")
+            explanations.append("五维评分仅作为硬规则阻断后的诊断评分，不参与最终裁决")
+        explanations.append(merged.decision_merge_reason)
+        if merged.final_decision == DecisionLabel.REVIEW and review_question is None:
+            review_question = "证据对齐结果需要人工复核，请确认是否继续执行该指令。"
+        elif merged.final_decision == DecisionLabel.BLOCK:
+            review_question = None
+
         decision_confidence = causal.decision_confidence
         return DecisionResult(
             turn_id=frame.turn_id,
-            decision=decision,
-            final_decision=decision,
+            decision=score_decision,
+            score_decision=score_decision,
+            final_decision=merged.final_decision,
+            decision_sources=list(merged.decision_sources),
+            decision_merge_reason=merged.decision_merge_reason,
             safety_score=score,
             soft_safety_score=score,
             gate_blocked=gate.blocked,
@@ -294,6 +324,14 @@ class DecisionService:
                     "evidence_coverage": factors["Ccov"].actual_weight,
                 },
                 five_factors=factors,
+                semantic_confidence=frame.semantic_confidence,
+                ambiguity_penalty=frame.ambiguity_score,
+                semantic_ambiguity_beta=self.semantic_ambiguity_beta,
+                beta_source=self.semantic_ambiguity_beta_source,
+                validated_evidence_count=len(validated_trust_values),
+                validated_trust_values=validated_trust_values,
+                trust_formula="Ctrust=mean(Q(status)) over canonical Evalidated",
+                trust_value_source="REPORT_EXPLICIT:PDF_FORMULA_2_14",
             ),
             explanations=explanations,
             review_question=review_question,

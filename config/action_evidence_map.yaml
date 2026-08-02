@@ -1,4 +1,46 @@
 actions:
+  变道|左侧车道:
+    required: [side_rear_mmwave_radar, side_camera]
+    optional: []
+    priority: 100
+    mapping_source: REPORT_EXPLICIT:PDF_TABLE_2_1
+    missing_hard_gate: true
+  变道|右侧车道:
+    required: [side_rear_mmwave_radar, side_camera]
+    optional: []
+    priority: 100
+    mapping_source: REPORT_EXPLICIT:PDF_TABLE_2_1
+    missing_hard_gate: true
+  保持|当前车道:
+    required: [front_camera, lane_marking_map]
+    optional: []
+    priority: 100
+    mapping_source: REPORT_EXPLICIT:PDF_TABLE_2_1
+    missing_hard_gate: true
+  开启巡航|巡航:
+    required: [front_radar, front_camera, vehicle_speed]
+    optional: []
+    priority: 100
+    mapping_source: REPORT_EXPLICIT:PDF_TABLE_2_1
+    missing_hard_gate: true
+  关闭巡航|巡航:
+    required: [front_radar, front_camera, vehicle_speed]
+    optional: []
+    priority: 100
+    mapping_source: REPORT_EXPLICIT:PDF_TABLE_2_1
+    missing_hard_gate: true
+  紧急制动|制动:
+    required: [front_mmwave_radar, front_lidar]
+    optional: []
+    priority: 100
+    mapping_source: REPORT_EXPLICIT:PDF_TABLE_2_1
+    missing_hard_gate: true
+  避险转向|转向:
+    required: []
+    optional: []
+    priority: 100
+    mapping_source: REPORT_ACTION_WITHOUT_EXPLICIT_EVIDENCE_MAPPING
+    missing_hard_gate: false
   打开|车门:
     required: [vehicle_speed, gear_position, door_lock_state, occupant_role, speaker_zone, vehicle_mode]
     optional: [door_state]
@@ -36,9 +78,11 @@ actions:
     optional: []
     priority: 100
   打开|自动泊车:
-    required: [vehicle_speed, gear_position, ultrasonic_distance, surround_camera_state, occupant_role]
-    optional: []
+    required: [surround_view_camera, ultrasonic_radar]
+    optional: [vehicle_speed, gear_position, ultrasonic_distance, surround_camera_state, occupant_role]
     priority: 90
+    mapping_source: REPORT_EXPLICIT:PDF_TABLE_2_1
+    missing_hard_gate: true
   查询|速度:
     required: [vehicle_speed]
     optional: [speed_limit]

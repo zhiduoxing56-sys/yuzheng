@@ -20,13 +20,7 @@ from app.models.schemas import (
 )
 from app.core.redaction import SensitiveDataRedactor
 from app.services.audit.repository import GENESIS_HASH
-
-
-def canonical_workflow_event(data: dict[str, Any]) -> str:
-    value = dict(data)
-    value.pop("previous_event_hash", None)
-    value.pop("current_event_hash", None)
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+from app.services.workflow.hashing import canonical_workflow_event
 
 
 class WorkflowRepository:

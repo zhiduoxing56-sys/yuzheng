@@ -101,8 +101,9 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
     )
     assert confirmed.accepted is True
     assert confirmed.related_turn_id != confirmable.turn_id
-    assert confirmed.decision.final_decision == DecisionLabel.PASS
-    assert confirmed.decision.authorization_token is not None
+    assert confirmed.decision.score_decision == DecisionLabel.PASS
+    assert confirmed.decision.final_decision == DecisionLabel.REVIEW
+    assert confirmed.decision.authorization_token is None
 
     vague = _command(pipeline, "把那个打开", vehicle_speed=0, gear_position="P")
     assert vague.decision.final_decision == DecisionLabel.REVIEW
@@ -235,7 +236,7 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
     assert "行驶中禁止打开车门" in rejected.reason
     assert pipeline.vehicle.get_state().door_state == "CLOSED"
 
-    tampered = _command(pipeline, "播放音乐", vehicle_speed=0, gear_position="P")
+    tampered = _command(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
     tampered_token = tampered.decision.authorization_token
     assert tampered_token
     bad_token = tampered_token[:-1] + ("A" if tampered_token[-1] != "A" else "B")
@@ -247,7 +248,7 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
         )
 
     pipeline.authorization_service.ttl_seconds = -1
-    expiring = _command(pipeline, "播放音乐")
+    expiring = _command(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
     with pytest.raises(AuthorizationTokenError, match="过期"):
         pipeline.execution_service.execute(
             expiring.turn_id, expiring.decision.authorization_token
@@ -281,7 +282,7 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
 
 def test_concurrent_token_consumption_allows_only_one_success(tmp_path: Path) -> None:
     pipeline = _pipeline(tmp_path)
-    command = _command(pipeline, "播放音乐", vehicle_speed=0, gear_position="P")
+    command = _command(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
     token = command.decision.authorization_token
     assert token
 

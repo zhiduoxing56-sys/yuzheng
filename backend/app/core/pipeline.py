@@ -17,6 +17,7 @@ from app.models.schemas import (
     DecisionLabel,
     DecisionResult,
     DecisionScoreFactors,
+    DecisionSource,
     EvidenceDemand,
     EvidenceEdge,
     EvidenceNode,
@@ -46,9 +47,15 @@ from app.models.schemas import (
     utc_now,
 )
 from app.services.audit.repository import AuditRepository
+from app.services.audit.effective import EffectiveAuditResolver
 from app.services.authorization.service import AuthorizationTokenError, AuthorizationTokenService
 from app.services.causal.service import CausalCorrectionService
 from app.services.decision.engine import DecisionService
+from app.services.decision.merge import (
+    EvidenceAlignmentRoute,
+    apply_merge_outcome,
+    merge_decision,
+)
 from app.services.decision.safety_gate import SafetyGateService
 from app.services.evidence.demand import EvidenceDemandService
 from app.services.evidence.recall import MandatoryRecallService
@@ -79,8 +86,9 @@ from app.core.redaction import SensitiveDataRedactor
 class CommandPipeline:
     """Stage-three deterministic command pipeline.
 
-    The hard gate is evaluated independently and after all evidence validation.
-    Its result always overrides the five-factor soft score.
+    The hard gate and evidence-alignment route are evaluated independently.
+    A single conservative merge preserves the raw score verdict and produces
+    the final decision used by review and authorization.
     """
 
     def __init__(
@@ -146,6 +154,7 @@ class CommandPipeline:
         self.audit_repository = AuditRepository(
             database_path or PROJECT_ROOT / "data" / "database" / "yuzheng.db"
         )
+        self.effective_audit_resolver = EffectiveAuditResolver(self.audit_repository)
         self.workflow_repository = WorkflowRepository(self.audit_repository.database_path)
         self.authorization_service = AuthorizationTokenService(
             load_yaml("authorization.yaml"),
@@ -263,6 +272,7 @@ class CommandPipeline:
         self,
         decision: DecisionResult,
         gate: SafetyGateResult,
+        evidence_alignment_route: EvidenceAlignmentRoute,
         input_trust: VoiceTrustResult,
         zone_permission: ZonePermissionResult | None,
     ) -> tuple[DecisionResult, SafetyGateResult]:
@@ -271,15 +281,30 @@ class CommandPipeline:
         explanations = list(decision.explanations)
         reason_codes = list(decision.reason_codes)
         review_question = decision.review_question
-        final = decision.final_decision
         constraint_applied = False
+        review_constraints: list[DecisionSource] = []
+        block_constraints: list[DecisionSource] = []
+        constraint_reasons: dict[DecisionSource, str] = {}
+        prior_sources = [
+            source
+            for source in decision.decision_sources
+            if source
+            not in {
+                DecisionSource.SAFETY_GATE,
+                DecisionSource.EVIDENCE_ALIGNMENT,
+                DecisionSource.SAFETY_SCORE,
+                DecisionSource.LEGACY_COMPATIBILITY,
+            }
+        ]
 
         if (
             self.voice_trust_mode == "enforce"
             and input_trust.input_trust_label == "BLOCK"
         ):
             constraint_applied = True
+            block_constraints.append(DecisionSource.VOICE_TRUST)
             reason = "语音输入可信检查阻断"
+            constraint_reasons[DecisionSource.VOICE_TRUST] = reason
             check = GateCheck(
                 rule_id="VOICE_TRUST_BLOCK",
                 hit=True,
@@ -295,24 +320,26 @@ class CommandPipeline:
                     "hit_rules": [*gate.hit_rules, "VOICE_TRUST_BLOCK"],
                 }
             )
-            final = DecisionLabel.BLOCK
             explanations.append(reason)
             reason_codes.append("VOICE_TRUST_BLOCK")
         elif (
             self.voice_trust_mode == "enforce"
             and input_trust.input_trust_label == "REVIEW"
-            and final == DecisionLabel.PASS
         ):
             constraint_applied = True
-            final = DecisionLabel.REVIEW
-            explanations.append("声学可信结果需要人工复核")
+            review_constraints.append(DecisionSource.VOICE_TRUST)
+            reason = "声学可信结果需要人工复核"
+            constraint_reasons[DecisionSource.VOICE_TRUST] = reason
+            explanations.append(reason)
             reason_codes.append("VOICE_TRUST_REVIEW")
             review_question = "语音输入存在合成或重放风险，请确认是否为本人现场指令？"
 
         if zone_permission is not None:
             if zone_permission.permission_label == DecisionLabel.BLOCK:
                 constraint_applied = True
+                block_constraints.append(DecisionSource.ZONE_PERMISSION)
                 reason = "说话区域无权直接控制当前高风险对象"
+                constraint_reasons[DecisionSource.ZONE_PERMISSION] = reason
                 check = GateCheck(
                     rule_id="ZONE_PERMISSION_BLOCK",
                     hit=True,
@@ -332,17 +359,17 @@ class CommandPipeline:
                         "hit_rules": [*gate.hit_rules, "ZONE_PERMISSION_BLOCK"],
                     }
                 )
-                final = DecisionLabel.BLOCK
                 explanations.append(reason)
                 reason_codes.append("ZONE_PERMISSION_BLOCK")
                 review_question = None
             elif (
                 zone_permission.permission_label == DecisionLabel.REVIEW
-                and final == DecisionLabel.PASS
             ):
                 constraint_applied = True
-                final = DecisionLabel.REVIEW
-                explanations.append("说话区域权限需要人工复核")
+                review_constraints.append(DecisionSource.ZONE_PERMISSION)
+                reason = "说话区域权限需要人工复核"
+                constraint_reasons[DecisionSource.ZONE_PERMISSION] = reason
+                explanations.append(reason)
                 reason_codes.append("ZONE_PERMISSION_REVIEW")
                 review_question = (
                     f"检测到说话区域为 {zone_permission.speaker_zone}，"
@@ -352,10 +379,23 @@ class CommandPipeline:
         if not constraint_applied:
             return decision, gate
         gate_blocked = gate.blocked
-        updated = decision.model_copy(
-            update={
-                "decision": final,
-                "final_decision": final,
+        merged = merge_decision(
+            gate,
+            evidence_alignment_route,
+            decision.score_decision,
+            review_constraints=review_constraints,
+            block_constraints=block_constraints,
+            constraint_reasons=constraint_reasons,
+            prior_final_decision=decision.final_decision,
+            prior_decision_sources=prior_sources,
+        )
+        final = merged.final_decision
+        if final == DecisionLabel.BLOCK:
+            review_question = None
+        updated = apply_merge_outcome(
+            decision,
+            merged,
+            field_updates={
                 "gate_blocked": gate_blocked,
                 "gate_reasons": list(gate.reasons),
                 "score_evaluation_mode": (
@@ -365,7 +405,7 @@ class CommandPipeline:
                 "reason_codes": reason_codes,
                 "review_question": review_question,
                 "authorization_token": None,
-            }
+            },
         )
         return updated, gate
 
@@ -520,6 +560,9 @@ class CommandPipeline:
             event_started = now
 
         metadata = decoded.audit_metadata()
+        metadata["asr_semantic_fusion_status"] = (
+            "NO_EXPLICIT_ASR_SEMANTIC_FUSION_FORMULA"
+        )
         emit(
             "VOICE_INPUT_RECEIVED",
             "真实音频输入已接收并完成摘要",
@@ -783,10 +826,14 @@ class CommandPipeline:
             applied_weights={},
             five_factors={},
         )
+        merged = merge_decision(gate, "EVIDENCE_BLOCK", DecisionLabel.BLOCK)
         decision = DecisionResult(
             turn_id=turn_id,
             decision=DecisionLabel.BLOCK,
-            final_decision=DecisionLabel.BLOCK,
+            score_decision=DecisionLabel.BLOCK,
+            final_decision=merged.final_decision,
+            decision_sources=list(merged.decision_sources),
+            decision_merge_reason=merged.decision_merge_reason,
             safety_score=trust.trust_score,
             soft_safety_score=trust.trust_score,
             gate_blocked=True,
@@ -940,7 +987,10 @@ class CommandPipeline:
                     input_trust_override=input_trust_override,
                     transcription_override=transcription_override,
                     spectrum_analysis=spectrum_analysis,
-                    audio_input_metadata=audio_input_metadata or {},
+                    audio_input_metadata={
+                        **(audio_input_metadata or {}),
+                        **({"session_id": request.session_id} if request.session_id else {}),
+                    },
                     zone_source=zone_source,
                     emit=emit,
                 )
@@ -1000,7 +1050,7 @@ class CommandPipeline:
         transcription = transcription_override or TranscriptionResult(
             turn_id=turn_id,
             text=request.text,
-            confidence=1.0,
+            confidence=None,
             adapter="text_passthrough",
             model_inference_performed=False,
         )
@@ -1096,6 +1146,7 @@ class CommandPipeline:
             demand.required_types,
             demand.query_vector,
             turn_id,
+            missing_hard_gate=self.demand_service.missing_is_hard_gate(frame),
         )
         emit(
             "MANDATORY_SUPPLEMENTED",
@@ -1118,6 +1169,7 @@ class CommandPipeline:
                                 "metadata": {
                                     **node.metadata,
                                     "runtime_graph_history": True,
+                                    "retrieval_origin": "mandatory_recall_history",
                                 },
                             }
                         )
@@ -1126,7 +1178,10 @@ class CommandPipeline:
 
         quality_started = perf_counter()
         evaluated, quality_metrics, physical_conflicts = self.quality_service.evaluate(
-            evidence, demand.required_types, now=decision_reference_time
+            evidence,
+            demand.required_types,
+            now=decision_reference_time,
+            scene_nodes=[*snapshot_nodes, *override_nodes],
         )
         quality_ms = (perf_counter() - quality_started) * 1000
         self.evidence_repository.update_nodes(evaluated)
@@ -1136,6 +1191,23 @@ class CommandPipeline:
                 "short_term_availability": self.quality_window.short_term_availability(),
                 "long_term_availability": self.quality_window.long_term_availability(),
             }
+        )
+        emit(
+            "EVIDENCE_QUALITY_EVALUATED",
+            "证据质量与独立对齐路由计算完成",
+            {
+                "ecr": quality_metrics.ecr,
+                "ecs": quality_metrics.ecs,
+                "ef": quality_metrics.ef,
+                "sas": quality_metrics.sas,
+                "eas": quality_metrics.eas,
+                "evidence_pair_count": quality_metrics.evidence_pair_count,
+                "conflict_pair_count": quality_metrics.conflict_pair_count,
+                "eas_weight_profile": quality_metrics.eas_weight_profile,
+                "eas_weight_source": quality_metrics.eas_weight_source,
+                "eas_weights": quality_metrics.eas_weights,
+                "evidence_alignment_route": quality_metrics.evidence_alignment_route,
+            },
         )
 
         subgraph = self.graph_builder.build(
@@ -1157,7 +1229,8 @@ class CommandPipeline:
         )
 
         reasoning_evidence = self._merge_latest(snapshot_nodes, override_nodes, evaluated)
-        memory = self.memory_service.propagate(reasoning_evidence, frame, physical_conflicts)
+        memory_evidence = [node for node in reasoning_evidence if node.timestamp is not None]
+        memory = self.memory_service.propagate(memory_evidence, frame, physical_conflicts)
         emit(
             "MEMORY_PROPAGATED",
             "横向与纵向记忆传播完成",
@@ -1176,7 +1249,14 @@ class CommandPipeline:
         emit(
             "EVIDENCE_VALIDATED",
             "证据与上下文声明校验完成",
-            {"conflict_count": validation.conflict_count, "jailbreak_risk": validation.jailbreak_risk},
+            {
+                "conflict_count": validation.conflict_count,
+                "max_severity": validation.max_severity,
+                "jailbreak_risk_base": validation.jailbreak_risk_base,
+                "jailbreak_risk_severity_component": validation.jailbreak_risk_severity_component,
+                "jailbreak_risk": validation.jailbreak_risk,
+                "jailbreak_flag": validation.jailbreak_flag,
+            },
         )
         gate = self.gate_service.evaluate(
             frame,
@@ -1188,13 +1268,14 @@ class CommandPipeline:
         emit(
             "GATE_CHECKED",
             "硬性安全门检查完成",
-            {"gate_blocked": gate.blocked, "hit_rules": gate.hit_rules},
+            gate.model_dump(mode="json"),
         )
         scoring_started = perf_counter()
         decision = self.decision_service.decide(
             frame,
             reasoning_evidence,
             gate,
+            quality_metrics.evidence_alignment_route,
             validation,
             causal,
             memory,
@@ -1203,6 +1284,7 @@ class CommandPipeline:
         decision, gate = self._apply_voice_constraints(
             decision,
             gate,
+            quality_metrics.evidence_alignment_route,
             input_trust,
             zone_permission,
         )
@@ -1211,6 +1293,9 @@ class CommandPipeline:
             "最终裁决完成",
             {
                 "final_decision": decision.final_decision.value,
+                "score_decision": decision.score_decision.value,
+                "decision_sources": [source.value for source in decision.decision_sources],
+                "decision_merge_reason": decision.decision_merge_reason,
                 "soft_safety_score": decision.soft_safety_score,
                 "gate_blocked": decision.gate_blocked,
             },
@@ -1566,7 +1651,10 @@ class CommandPipeline:
                 "turn_id": audit.turn_id,
                 "audit_id": audit.audit_id,
                 "workflow_type": audit.workflow_type,
-                "decision": audit.final_decision.final_decision.value,
+                "decision": self.effective_audit_resolver.resolve(
+                    audit
+                ).effective_decision.final_decision.value,
+                "original_decision": audit.final_decision.final_decision.value,
             }
             for audit in audits
         ]

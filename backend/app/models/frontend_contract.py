@@ -9,6 +9,7 @@ from pydantic import Field, model_validator
 from app.models.schemas import (
     AdvancedValidationResult,
     DecisionLabel,
+    DecisionSource,
     EvidenceEdge,
     EvidenceNode,
     EvidenceQualityMetrics,
@@ -126,7 +127,7 @@ class RetrievalCandidate(StrictModel):
     sas: float = Field(ge=0, le=1)
     quality_label: str
     source: str
-    timestamp: datetime
+    timestamp: datetime | None
     mandatory: bool
     retrieval_origin: RetrievalOrigin
 
@@ -176,6 +177,7 @@ class GateCheckPresentation(StrictModel):
     reason: str
     evidence_refs: list[str] = Field(default_factory=list)
     severity: Literal["INFO", "WARNING", "HIGH"]
+    observed: dict[str, Any] = Field(default_factory=dict)
 
 
 class GateResultPresentation(StrictModel):
@@ -191,6 +193,14 @@ class ScoreResultPresentation(StrictModel):
     jailbreak_suppression: float | None = Field(default=None, ge=0, le=1)
     scene_necessity: float | None = Field(default=None, ge=0, le=1)
     safety_score: float = Field(ge=0, le=1)
+    semantic_confidence: float | None = Field(default=None, ge=0, le=1)
+    ambiguity_penalty: float | None = Field(default=None, ge=0, le=1)
+    semantic_ambiguity_beta: float | None = Field(default=None, ge=0)
+    beta_source: str | None = None
+    validated_evidence_count: int = Field(default=0, ge=0)
+    validated_trust_values: list[dict[str, Any]] = Field(default_factory=list)
+    trust_formula: str | None = None
+    trust_value_source: str | None = None
 
 
 class ValidationResultPresentation(StrictModel):
@@ -204,7 +214,10 @@ class ValidationResultPresentation(StrictModel):
 
 class DecisionResultPresentation(StrictModel):
     initial_decision: DecisionLabel
+    score_decision: DecisionLabel
     final_decision: DecisionLabel
+    decision_sources: list[DecisionSource] = Field(default_factory=list)
+    decision_merge_reason: str
     safety_score: float = Field(ge=0, le=1)
     reasons: list[str] = Field(default_factory=list)
     explanation: str
@@ -286,8 +299,8 @@ class EvidenceNodeDetail(StrictModel):
     source: str
     value: Any
     unit: str | None = None
-    timestamp: datetime
-    expires_at: datetime
+    timestamp: datetime | None
+    expires_at: datetime | None
     freshness: float = Field(ge=0, le=1)
     consistency: float = Field(ge=0, le=1)
     availability: float = Field(ge=0, le=1)
@@ -340,6 +353,7 @@ class AuditListItem(StrictModel):
     created_at: datetime
     instruction_summary: str
     initial_decision: DecisionLabel
+    original_decision: DecisionLabel
     final_decision: DecisionResult
     execution_status: str
     semantic_frame: SemanticFrame
@@ -350,6 +364,24 @@ class AuditListResponse(StrictModel):
     total: int = Field(ge=0)
     page: int = Field(ge=1)
     page_size: int = Field(ge=1)
+
+
+class OriginalDecisionAuditView(StrictModel):
+    audit_id: str
+    score_decision: DecisionLabel
+    final_decision: DecisionLabel
+    record_hash: str
+
+
+class EffectiveOutcomeAuditView(StrictModel):
+    final_decision: DecisionLabel
+    source: DecisionSource
+    review_action: ReviewAction
+    terminal_audit_id: str
+    terminal_record_hash: str
+    created_at: datetime
+    token_issued: Literal[False] = False
+    execution_allowed: Literal[False] = False
 
 
 class AuditDetailResponse(StrictModel):
@@ -369,6 +401,8 @@ class AuditDetailResponse(StrictModel):
     gate_result: GateResultPresentation
     score_factors: ScoreResultPresentation
     initial_decision: DecisionLabel
+    original_decision: OriginalDecisionAuditView
+    effective_outcome: EffectiveOutcomeAuditView | None = None
     review_process: ReviewPresentation
     final_decision: DecisionResultPresentation
     authorization_status: AuthorizationPresentation
@@ -386,6 +420,12 @@ class AuditVerificationResponse(StrictModel):
     previous_link_valid: bool
     audit_chain_valid: bool
     workflow_chain_valid: bool
+    terminal_audit_id: str | None = None
+    terminal_record_hash_valid: bool | None = None
+    terminal_previous_link_valid: bool | None = None
+    relationship_valid: bool = True
+    merge_decision_valid: bool = True
+    effective_outcome_valid: bool = True
     failure_reason: str | None = None
 
 
