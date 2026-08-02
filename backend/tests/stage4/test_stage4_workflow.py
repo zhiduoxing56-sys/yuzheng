@@ -92,7 +92,7 @@ def test_workflow_event_chain_is_append_only_and_detects_tampering(tmp_path: Pat
 def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_path: Path) -> None:
     pipeline = _pipeline(tmp_path)
     confirmable = _command(pipeline, "可能播放音乐", vehicle_speed=0, gear_position="P")
-    assert confirmable.semantic_frame.action == "打开"
+    assert confirmable.semantic_frame.action == "播放"
     assert confirmable.semantic_frame.target == "音乐"
     assert confirmable.decision.final_decision == DecisionLabel.REVIEW
     confirmed = pipeline.review_service.review(

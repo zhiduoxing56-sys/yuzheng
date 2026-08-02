@@ -1,3 +1,5 @@
+import pytest
+
 from app.core.config import load_yaml
 from app.services.semantic.parser import SemanticFrameParser
 
@@ -36,3 +38,54 @@ def test_context_claims_are_extracted_not_executed() -> None:
     assert frame.context_claims["safety_bypass_claim"]["claimed"] is True
     assert frame.action == "打开"
     assert frame.target == "车门"
+
+
+@pytest.mark.parametrize(
+    ("raw_text", "normalized_text", "action", "target"),
+    [
+        ("打開車門", "打开车门", "打开", "车门"),
+        ("查詢當前速度", "查询当前速度", "查询", "速度"),
+        ("播放音樂", "播放音乐", "播放", "音乐"),
+    ],
+)
+def test_traditional_commands_are_normalized_before_semantic_parsing(
+    raw_text: str,
+    normalized_text: str,
+    action: str,
+    target: str,
+) -> None:
+    frame = parser().parse("TURN_TRADITIONAL", raw_text)
+    assert frame.raw_text == raw_text
+    assert frame.normalized_text == normalized_text
+    assert frame.action == action
+    assert frame.target == target
+
+
+@pytest.mark.parametrize(
+    ("traditional", "simplified"),
+    [
+        ("關閉", "关闭"),
+        ("車門", "车门"),
+        ("車速", "车速"),
+        ("音樂", "音乐"),
+        ("燈光", "灯光"),
+        ("空調", "空调"),
+        ("座椅", "座椅"),
+        ("導航", "导航"),
+        ("後排", "后排"),
+        ("駕駛員", "驾驶员"),
+    ],
+)
+def test_supported_vocabulary_uses_character_level_traditional_normalization(
+    traditional: str,
+    simplified: str,
+) -> None:
+    assert parser().normalize(traditional) == simplified
+
+
+def test_unknown_text_never_defaults_to_open_action() -> None:
+    frame = parser().parse("TURN_UNKNOWN", "天气不错")
+    assert frame.action == "unknown"
+    assert frame.target == "unknown"
+    assert frame.action != "打开"
+    assert frame.ambiguity_score > 0

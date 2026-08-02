@@ -31,6 +31,10 @@ actions:
     operations:
       - {field: music_state, operation: set, value: PLAYING}
     feedback: 音乐已播放
+  播放|音乐:
+    operations:
+      - {field: music_state, operation: set, value: PLAYING}
+    feedback: 音乐已播放
   加速|速度:
     operations:
       - {field: vehicle_speed, operation: increment, value: 10}

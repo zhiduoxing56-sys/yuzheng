@@ -147,7 +147,7 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
     assert vague.decision.final_decision == DecisionLabel.REVIEW
 
     music = _run(pipeline, "播放音乐")
-    assert music.semantic_frame.action == "打开"
+    assert music.semantic_frame.action == "播放"
     assert music.semantic_frame.target == "音乐"
     assert not music.jailbreak_conflicts
     assert music.decision.final_decision == DecisionLabel.PASS

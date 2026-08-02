@@ -12,9 +12,16 @@ UNKNOWN = "unknown"
 class SemanticFrameParser:
     def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
+        self._traditional_translation = str.maketrans(
+            {
+                str(source): str(target)
+                for source, target in config.get("traditional_to_simplified", {}).items()
+            }
+        )
 
     def normalize(self, text: str) -> str:
         normalized = re.sub(r"[\s，。！？、,.!?]", "", text.strip().lower())
+        normalized = normalized.translate(self._traditional_translation)
         replacements = self.config.get("normalization_replacements", {})
         for source in sorted(replacements, key=len, reverse=True):
             normalized = normalized.replace(source, str(replacements[source]))
