@@ -62,6 +62,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             revoked_tokens_on_startup=pipeline.authorization_service.revoked_tokens_on_startup,
             workflow_event_store=pipeline.workflow_repository.health(),
             websocket_ready=True,
+            voice_trust_mode=pipeline.voice_trust_mode,
             runtime_capability=capability,
             evidence_repository=pipeline.evidence_repository.status(),
         )

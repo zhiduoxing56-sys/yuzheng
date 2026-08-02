@@ -854,6 +854,7 @@ class HealthResponse(StrictModel):
     revoked_tokens_on_startup: int = Field(default=0, ge=0)
     workflow_event_store: str = ""
     websocket_ready: bool = False
+    voice_trust_mode: Literal["enforce", "observe"] = "enforce"
     runtime_capability: RuntimeCapabilityStatus | None = None
     evidence_repository: "EvidenceRepositoryStatus | None" = None
 

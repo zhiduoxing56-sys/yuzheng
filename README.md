@@ -78,7 +78,8 @@ D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=50
 - LA 使用 `Sara1708/deepfake-audio-wav2vec2` 的单一 ASVspoof LA 检查点；PA 只使用 ASVspoof 2021 官方 PA LFCC-LCNN 权重；ASR 只使用 `openai/whisper-base`。PA 原始 bonafide 方向标量保存在 `pa_raw_score`，`pa_score` 是其 sigmoid 归一化工程可信分数，不表述为校准概率。不存在通用深度伪造 PA 回退、候选切换、模型投票或加权融合。ASVspoof LFCC-LCNN 的 BSD 3-Clause 许可见 `THIRD_PARTY_NOTICES.md`。
 - 最小现场验收如实保留限制：当前扬声器重录样本出现 PA 漏检，但 LA 风险和后续安全链仍阻止令牌签发；本地真人“打开车门”录音能生成真实 ASR、SemanticFrame、EvidenceDemand 和证据子图。项目不宣称跨设备、跨语言或通用检测准确率。
 - `asr_confidence` 为 `null`：当前 Whisper 适配器没有可校准、可解释为整句置信度的输出，因此不以固定值冒充。
-- 声学 BLOCK 在 ASR 前终止且不能签发令牌；声学 REVIEW 可转写并进入既有复核语义，但最终不得被后续软评分提升为 PASS。
+- 语音可信策略默认使用 `enforce`：声学 BLOCK 在 ASR 前终止且不能签发令牌；声学 REVIEW 可转写并进入既有复核语义，但最终不得被后续软评分提升为 PASS。
+- 阶段五点一提供临时集成用 `observe` 模式：设置 `YUZHENG_VOICE_TRUST_MODE=observe` 后，LA、PA、频谱、可信评分、审计和实时事件仍真实执行，但纯 LA/PA 风险不再改变后续裁决或授权；静音/无有效语音、ASR 失败、区域权限、安全门、证据缺失和原车辆规则仍照常生效。健康接口、`VoiceTrustResult.model_metadata` 和 `VOICE_TRUST_DECIDED` 会明确返回模式及 `authorization_effect_applied`。界面语义应为“声学防伪结果处于观测模式，当前不参与授权裁决。”该模式仅用于中文座舱域偏移下的联调，不代表模型有效或准确率达标。
 - 审计和 WebSocket 保存 SHA-256 指纹、模型结果和处理事件，不保存原始音频。实际样本、限制和验收结果见 [docs/阶段五验收说明.md](docs/阶段五验收说明.md) 与 [docs/语音可信与ASR实现说明.md](docs/语音可信与ASR实现说明.md)。
 - 最小现场冒烟入口：`D:\software\anaconda\envs\yuzheng311\python.exe scripts\stage5_voice_smoke.py --human <真人WAV> --synthetic <合成WAV> --replay <扬声器重录WAV>`。
 

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from threading import RLock, Thread
 from time import perf_counter
 from typing import Any, Callable
 
-from app.core.config import PROJECT_ROOT, load_yaml
+from app.core.config import ConfigurationError, PROJECT_ROOT, load_yaml
 from app.models.schemas import (
     AdvancedReasoningResult,
     AudioCommandResponse,
@@ -97,6 +98,17 @@ class CommandPipeline:
         self.review_config = load_yaml("review_policy.yaml")
         self.scenario_config = load_yaml("demo_scenarios.yaml")
         self.voice_config = load_yaml("voice.yaml")
+        configured_voice_mode = str(
+            self.voice_config.get("voice_trust_mode", "enforce")
+        ).strip().lower()
+        self.voice_trust_mode = os.getenv(
+            "YUZHENG_VOICE_TRUST_MODE", configured_voice_mode
+        ).strip().lower()
+        if self.voice_trust_mode not in {"enforce", "observe"}:
+            raise ConfigurationError(
+                "YUZHENG_VOICE_TRUST_MODE 必须为 enforce 或 observe，"
+                f"实际为 {self.voice_trust_mode!r}"
+            )
         self.audio_input_service = AudioInputService(self.voice_config["audio"])
         self.spectrum_analyzer = SpectrumAnalyzer(self.voice_config["spectrum"])
         self.la_detector = ASVspoofLADetector(self.voice_config["la"])
@@ -247,8 +259,8 @@ class CommandPipeline:
                 merged[node.node_id] = node
         return list(merged.values())
 
-    @staticmethod
     def _apply_voice_constraints(
+        self,
         decision: DecisionResult,
         gate: SafetyGateResult,
         input_trust: VoiceTrustResult,
@@ -262,7 +274,10 @@ class CommandPipeline:
         final = decision.final_decision
         constraint_applied = False
 
-        if input_trust.input_trust_label == "BLOCK":
+        if (
+            self.voice_trust_mode == "enforce"
+            and input_trust.input_trust_label == "BLOCK"
+        ):
             constraint_applied = True
             reason = "语音输入可信检查阻断"
             check = GateCheck(
@@ -283,7 +298,11 @@ class CommandPipeline:
             final = DecisionLabel.BLOCK
             explanations.append(reason)
             reason_codes.append("VOICE_TRUST_BLOCK")
-        elif input_trust.input_trust_label == "REVIEW" and final == DecisionLabel.PASS:
+        elif (
+            self.voice_trust_mode == "enforce"
+            and input_trust.input_trust_label == "REVIEW"
+            and final == DecisionLabel.PASS
+        ):
             constraint_applied = True
             final = DecisionLabel.REVIEW
             explanations.append("声学可信结果需要人工复核")
@@ -561,7 +580,12 @@ class CommandPipeline:
             pa_score=pa.bonafide_score,
             audio_fingerprint=decoded.fingerprint,
             spectrum_anomaly_score=spectrum.anomaly_score,
-            model_metadata={"la": la.model_metadata, "pa": pa.model_metadata},
+            model_metadata={
+                "la": la.model_metadata,
+                "pa": pa.model_metadata,
+                "voice_trust_mode": self.voice_trust_mode,
+                "authorization_effect_applied": self.voice_trust_mode == "enforce",
+            },
             force_block_reason=("SILENCE_OR_LOW_ENERGY" if spectrum.silence_detected else None),
         )
         emit(
@@ -576,12 +600,19 @@ class CommandPipeline:
                 "zone_risk": trust.zone_risk,
                 "trust_score": trust.trust_score,
                 "input_trust_label": trust.input_trust_label,
+                "voice_trust_mode": self.voice_trust_mode,
+                "authorization_effect_applied": self.voice_trust_mode == "enforce",
                 "la_model_status": la.model_status,
                 "pa_model_status": pa.model_status,
                 "spectrum_anomaly_score": trust.spectrum_anomaly_score,
             },
         )
-        if trust.input_trust_label == DecisionLabel.BLOCK.value:
+        input_validity_blocked = bool(
+            trust.model_metadata.get("input_validity_block_reason")
+        )
+        if trust.input_trust_label == DecisionLabel.BLOCK.value and (
+            input_validity_blocked or self.voice_trust_mode == "enforce"
+        ):
             transcription = TranscriptionResult(
                 turn_id=turn_id,
                 text="",

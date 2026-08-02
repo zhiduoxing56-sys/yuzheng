@@ -1,3 +1,5 @@
+voice_trust_mode: enforce
+
 audio:
   target_sample_rate: 16000
   minimum_duration_seconds: 0.35
