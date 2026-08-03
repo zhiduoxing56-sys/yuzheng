@@ -139,6 +139,7 @@ class CommandPipeline:
             safety_config.get("rules", [])
         )
         self.index = HNSWIndexService(load_yaml("index.yaml"), self.embedder)
+        self._safety_rule_nodes = self.index.classify_nodes(self._safety_rule_nodes)
         self.runtime_capability_service = RuntimeCapabilityService(self.embedder, self.index)
         self.recall_service = MandatoryRecallService(self.evidence_repository, self.embedder)
         self.quality_service = EvidenceQualityService(quality_config)
@@ -1139,7 +1140,11 @@ class CommandPipeline:
         emit(
             "EVIDENCE_RETRIEVED",
             "语义候选检索完成",
-            {"candidate_count": len(candidate_evidence), "implementation": retrieval_metadata.implementation},
+            {
+                "candidate_count": len(candidate_evidence),
+                "implementation": retrieval_metadata.implementation,
+                **self.index.websocket_summary(retrieval_metadata),
+            },
         )
         evidence, recall_records, recalled_types, missing_types = self.recall_service.supplement(
             candidate_evidence,
@@ -1147,6 +1152,10 @@ class CommandPipeline:
             demand.query_vector,
             turn_id,
             missing_hard_gate=self.demand_service.missing_is_hard_gate(frame),
+        )
+        evidence = self.index.classify_nodes(evidence)
+        retrieval_metadata = self.index.finalize_retrieval_metadata(
+            retrieval_metadata, recall_records
         )
         emit(
             "MANDATORY_SUPPLEMENTED",

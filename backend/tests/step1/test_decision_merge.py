@@ -172,11 +172,9 @@ def test_contract_pending_steps_keep_unimplemented_follow_up_work() -> None:
 
     assert metadata["contract_status"] == "DRAFT"
     assert metadata["frozen"] is False
-    assert metadata["pending_steps"] == [
-        "step2_hnsw_safety_layer_and_visualization",
-        "step5_explanation_and_review_generation",
-    ]
+    assert metadata["pending_steps"] == ["step5_explanation_and_review_generation"]
     assert metadata["step_status"]["step1_formula_action_alignment"] == "COMPLETE"
+    assert metadata["step_status"]["step2_hnsw_safety_layer_and_visualization"] == "COMPLETE"
 
 
 def test_contract_decision_sources_come_from_complete_production_enum() -> None:

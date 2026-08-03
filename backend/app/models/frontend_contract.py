@@ -14,6 +14,11 @@ from app.models.schemas import (
     EvidenceNode,
     EvidenceQualityMetrics,
     EvidenceSubgraph,
+    LayerIndexStatus,
+    LayerNavigationAvailability,
+    RetrievalVisualizationPath,
+    SecurityClass,
+    SecurityLayerNavigation,
     ReviewAction,
     SafetyGateResult,
     SemanticFrame,
@@ -130,6 +135,10 @@ class RetrievalCandidate(StrictModel):
     timestamp: datetime | None
     mandatory: bool
     retrieval_origin: RetrievalOrigin
+    security_class: SecurityClass | None = None
+    security_rank: int | None = Field(default=None, ge=0, le=3)
+    hnsw_max_layer: int | None = Field(default=None, ge=0)
+    layer_memberships: list[int] = Field(default_factory=list)
 
 
 class RetrievalSummary(StrictModel):
@@ -143,6 +152,26 @@ class RetrievalSummary(StrictModel):
     candidates: list[RetrievalCandidate] = Field(default_factory=list)
     mandatory_recall: list[dict[str, Any]] = Field(default_factory=list)
     missing_types: list[str] = Field(default_factory=list)
+    index_build_id: str | None = None
+    index_config_digest: str | None = None
+    node_set_digest: str | None = None
+    layering_mode: str | None = None
+    security_layer_count: int = Field(default=0, ge=0)
+    security_layers: list[LayerIndexStatus] = Field(default_factory=list)
+    per_layer_node_count: dict[int, int] = Field(default_factory=dict)
+    mapping_coverage: float | None = Field(default=None, ge=0, le=1)
+    unclassified_types: list[str] = Field(default_factory=list)
+    security_layer_navigation: SecurityLayerNavigation | None = None
+    retrieval_visualization_path: list[RetrievalVisualizationPath] = Field(
+        default_factory=list
+    )
+    final_top_k_node_ids: list[str] = Field(default_factory=list)
+    mandatory_supplemented_node_ids: list[str] = Field(default_factory=list)
+    internal_hnsw_trace_available: bool = False
+    internal_hnsw_trace_reason: str | None = None
+    availability: LayerNavigationAvailability = (
+        LayerNavigationAvailability.LEGACY_NOT_RECORDED
+    )
 
 
 class QualityMetricsPresentation(StrictModel):
@@ -311,6 +340,14 @@ class EvidenceNodeDetail(StrictModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     incoming_edges: list[EvidenceEdge] = Field(default_factory=list)
     outgoing_edges: list[EvidenceEdge] = Field(default_factory=list)
+    security_class: SecurityClass | None = None
+    security_rank: int | None = Field(default=None, ge=0, le=3)
+    base_level: int | None = Field(default=None, ge=0)
+    safety_adjustment: int | None = Field(default=None, ge=0)
+    hnsw_max_layer: int | None = Field(default=None, ge=0)
+    layer_memberships: list[int] = Field(default_factory=list)
+    classification_source: str | None = None
+    formula_source: str | None = None
 
 
 class ReviewSubmission(StrictModel):

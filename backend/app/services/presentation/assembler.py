@@ -39,6 +39,7 @@ from app.models.schemas import (
     EvidenceNode,
     EvidenceRelation,
     EvidenceStatus,
+    LayerNavigationAvailability,
     ReviewAction,
     WorkflowEvent,
     WorkflowEventType,
@@ -231,6 +232,7 @@ class PresentationAssembler:
         )
 
     def retrieval(self, record: AuditRecord) -> RetrievalSummary:
+        metadata = record.retrieval_metadata
         candidate_ids = {node.node_id for node in record.candidate_recall_results}
         recalled_ids = {
             item.recalled_node_id
@@ -238,7 +240,12 @@ class PresentationAssembler:
             if item.recalled_node_id and item.retrieval_origin != "NONE"
         }
         graph_nodes = {node.node_id: node for node in (record.evidence_subgraph.nodes if record.evidence_subgraph else [])}
-        ordered_ids = list(candidate_ids | recalled_ids)
+        preferred_order = (
+            list(metadata.final_top_k_node_ids)
+            if metadata and metadata.final_top_k_node_ids
+            else [node.node_id for node in record.candidate_recall_results]
+        )
+        ordered_ids = list(dict.fromkeys([*preferred_order, *sorted(recalled_ids)]))
         candidates: list[RetrievalCandidate] = []
         for node_id in ordered_ids:
             node = graph_nodes.get(node_id)
@@ -255,9 +262,12 @@ class PresentationAssembler:
                     timestamp=node.timestamp,
                     mandatory=node.mandatory,
                     retrieval_origin=self._origin(node.node_id, candidate_ids, recalled_ids),
+                    security_class=node.security_class,
+                    security_rank=node.security_rank,
+                    hnsw_max_layer=node.hnsw_max_layer,
+                    layer_memberships=node.hnsw_layer_memberships,
                 )
             )
-        metadata = record.retrieval_metadata
         vector = record.vectorization_metadata
         return RetrievalSummary(
             top_k=metadata.top_k if metadata else None,
@@ -270,6 +280,36 @@ class PresentationAssembler:
             candidates=candidates,
             mandatory_recall=[item.model_dump(mode="json") for item in record.mandatory_recall_records],
             missing_types=record.missing_evidence_types,
+            index_build_id=metadata.index_build_id if metadata else None,
+            index_config_digest=metadata.index_config_digest if metadata else None,
+            node_set_digest=metadata.node_set_digest if metadata else None,
+            layering_mode=metadata.layering_mode if metadata else None,
+            security_layer_count=metadata.security_layer_count if metadata else 0,
+            security_layers=metadata.security_layers if metadata else [],
+            per_layer_node_count=metadata.per_layer_node_count if metadata else {},
+            mapping_coverage=metadata.mapping_coverage if metadata else None,
+            unclassified_types=metadata.unclassified_types if metadata else [],
+            security_layer_navigation=(
+                metadata.security_layer_navigation if metadata else None
+            ),
+            retrieval_visualization_path=(
+                metadata.retrieval_visualization_path if metadata else []
+            ),
+            final_top_k_node_ids=metadata.final_top_k_node_ids if metadata else [],
+            mandatory_supplemented_node_ids=(
+                metadata.mandatory_supplemented_node_ids if metadata else []
+            ),
+            internal_hnsw_trace_available=(
+                metadata.internal_hnsw_trace_available if metadata else False
+            ),
+            internal_hnsw_trace_reason=(
+                metadata.internal_hnsw_trace_reason if metadata else None
+            ),
+            availability=(
+                metadata.navigation_availability
+                if metadata
+                else LayerNavigationAvailability.LEGACY_NOT_RECORDED
+            ),
         )
 
     @staticmethod
@@ -571,6 +611,14 @@ class PresentationAssembler:
             metadata=public.metadata,
             incoming_edges=[edge for edge in graph.edges if edge.target == node_id],
             outgoing_edges=[edge for edge in graph.edges if edge.source == node_id],
+            security_class=public.security_class,
+            security_rank=public.security_rank,
+            base_level=public.base_level,
+            safety_adjustment=public.safety_adjustment,
+            hnsw_max_layer=public.hnsw_max_layer,
+            layer_memberships=public.hnsw_layer_memberships,
+            classification_source=public.security_classification_source,
+            formula_source=public.formula_source,
         )
 
     def node_exists(self, node_id: str) -> bool:

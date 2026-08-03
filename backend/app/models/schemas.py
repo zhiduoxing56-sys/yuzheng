@@ -67,6 +67,20 @@ class SemanticControlMode(str, Enum):
     QUERY_ONLY = "QUERY_ONLY"
 
 
+class SecurityClass(str, Enum):
+    ENTERTAINMENT = "ENTERTAINMENT"
+    COCKPIT = "COCKPIT"
+    DRIVING = "DRIVING"
+    EMERGENCY = "EMERGENCY"
+    UNCLASSIFIED = "UNCLASSIFIED"
+
+
+class LayerNavigationAvailability(str, Enum):
+    AVAILABLE = "AVAILABLE"
+    DEGRADED_UNAVAILABLE = "DEGRADED_UNAVAILABLE"
+    LEGACY_NOT_RECORDED = "LEGACY_NOT_RECORDED"
+
+
 class EvidenceRelation(str, Enum):
     TEMPORAL = "TEMPORAL"
     SPATIAL = "SPATIAL"
@@ -303,6 +317,14 @@ class EvidenceNode(StrictModel):
     quality_label: EvidenceStatus
     integrity_hash: str
     metadata: dict[str, Any] = Field(default_factory=dict)
+    security_class: SecurityClass | None = None
+    security_rank: int | None = Field(default=None, ge=0, le=3)
+    base_level: int | None = Field(default=None, ge=0)
+    safety_adjustment: int | None = Field(default=None, ge=0)
+    hnsw_max_layer: int | None = Field(default=None, ge=0)
+    hnsw_layer_memberships: list[int] = Field(default_factory=list)
+    security_classification_source: str | None = None
+    formula_source: str | None = None
 
 
 class EvidenceEdge(StrictModel):
@@ -340,6 +362,89 @@ class RuntimeCapabilityStatus(StrictModel):
     checked_at: datetime = Field(default_factory=utc_now)
 
 
+class SecurityClassInfo(StrictModel):
+    name: SecurityClass
+    rank: int | None = Field(default=None, ge=0, le=3)
+    report_label: str
+    mapping_source: str
+
+
+class LayerIndexStatus(StrictModel):
+    layer: int = Field(ge=0)
+    security_classes: list[SecurityClass] = Field(default_factory=list)
+    index_instance_id: str
+    node_count: int = Field(ge=0)
+    implementation: str
+    degraded: bool
+    empty: bool
+    build_id: str
+
+
+class LayerCandidate(StrictModel):
+    node_id: str
+    evidence_type: str
+    display_name: str
+    distance: float = Field(ge=0)
+    sas: float = Field(ge=0, le=1)
+    rank_in_layer: int = Field(ge=1)
+    security_class: SecurityClass
+    hnsw_max_layer: int = Field(ge=0)
+    retrieval_origin: Literal["HNSW"] = "HNSW"
+
+
+class LayerSearchStep(StrictModel):
+    sequence: int = Field(ge=1)
+    layer: int = Field(ge=0)
+    layer_name: str
+    index_instance_id: str
+    node_count: int = Field(ge=0)
+    requested_k: int = Field(ge=0)
+    returned_count: int = Field(ge=0)
+    candidates: list[LayerCandidate] = Field(default_factory=list)
+    selected_anchor_node_id: str | None = None
+    previous_anchor_node_id: str | None = None
+    elapsed_ms: float = Field(ge=0)
+    search_mode: Literal["REAL_HNSWLIB_LAYER_QUERY"] = "REAL_HNSWLIB_LAYER_QUERY"
+
+
+class SecurityLayerNavigation(StrictModel):
+    availability: LayerNavigationAvailability
+    trace_kind: Literal["SECURITY_LAYER_INDEX_TRACE"] = "SECURITY_LAYER_INDEX_TRACE"
+    trace_source: Literal["REAL_HNSWLIB_LAYER_QUERIES"] = (
+        "REAL_HNSWLIB_LAYER_QUERIES"
+    )
+    is_internal_hnsw_trace: Literal[False] = False
+    internal_trace_available: Literal[False] = False
+    internal_trace_reason: Literal["UNSUPPORTED_BY_PUBLIC_HNSWLIB_API"] = (
+        "UNSUPPORTED_BY_PUBLIC_HNSWLIB_API"
+    )
+    internal_hnsw_entry_point: None = None
+    internal_hnsw_node_levels: None = None
+    internal_hnsw_visited_nodes: None = None
+    internal_hnsw_navigation_path: None = None
+    build_id: str
+    highest_nonempty_layer: int | None = Field(default=None, ge=0)
+    entry_anchor_node_id: str | None = None
+    steps: list[LayerSearchStep] = Field(default_factory=list)
+    anchor_path: list[str] = Field(default_factory=list)
+    final_top_k_node_ids: list[str] = Field(default_factory=list)
+    mandatory_supplemented_node_ids: list[str] = Field(default_factory=list)
+    total_elapsed_ms: float = Field(ge=0)
+
+
+class RetrievalVisualizationPath(StrictModel):
+    sequence: int = Field(ge=1)
+    from_node_id: str
+    to_node_id: str
+    from_layer: int = Field(ge=0)
+    to_layer: int = Field(ge=0)
+    edge_type: Literal[
+        "SECURITY_LAYER_DESCENT", "BASE_TOP_K_SELECTION", "MANDATORY_SUPPLEMENT"
+    ]
+    reason: str
+    source: str
+
+
 class RetrievalMetadata(StrictModel):
     implementation: str
     index_node_count: int = Field(ge=0)
@@ -360,6 +465,45 @@ class RetrievalMetadata(StrictModel):
     degradation_reason: str | None = None
     excluded_types: list[str] = Field(default_factory=list)
     last_built_at: datetime | None = None
+    index_build_id: str | None = None
+    index_config_digest: str | None = None
+    node_set_digest: str | None = None
+    stable_identity_version: str | None = None
+    stable_identity_source: str | None = None
+    content_identity_version: str | None = None
+    content_identity_source: str | None = None
+    index_fingerprint_version: str | None = None
+    node_set_digest_version: str | None = None
+    build_id_payload_version: str | None = None
+    classification_mapping_digest: str | None = None
+    formula_version: str | None = None
+    formula_source: str | None = None
+    L: int | None = Field(default=None, ge=0)
+    L_source: str | None = None
+    security_mapping_version: str | None = None
+    security_rank_mapping_source: str | None = None
+    index_seed_digest: str | None = None
+    index_seed_source: str | None = None
+    random_level_distribution: str | None = None
+    random_level_source: str | None = None
+    implementation_source: str | None = None
+    layering_mode: str | None = None
+    security_layer_count: int = Field(default=0, ge=0)
+    security_layers: list[LayerIndexStatus] = Field(default_factory=list)
+    per_layer_node_count: dict[int, int] = Field(default_factory=dict)
+    mapping_coverage: float | None = Field(default=None, ge=0, le=1)
+    unclassified_types: list[str] = Field(default_factory=list)
+    security_layer_navigation: SecurityLayerNavigation | None = None
+    retrieval_visualization_path: list[RetrievalVisualizationPath] = Field(
+        default_factory=list
+    )
+    final_top_k_node_ids: list[str] = Field(default_factory=list)
+    mandatory_supplemented_node_ids: list[str] = Field(default_factory=list)
+    internal_hnsw_trace_available: bool = False
+    internal_hnsw_trace_reason: str | None = None
+    navigation_availability: LayerNavigationAvailability = (
+        LayerNavigationAvailability.LEGACY_NOT_RECORDED
+    )
 
 
 class MandatoryRecallRecord(StrictModel):
@@ -986,6 +1130,34 @@ class IndexStatus(StrictModel):
     degradation_reason: str | None = None
     excluded_types: list[str] = Field(default_factory=list)
     last_built_at: datetime | None = None
+    index_build_id: str | None = None
+    index_config_digest: str | None = None
+    node_set_digest: str | None = None
+    stable_identity_version: str | None = None
+    stable_identity_source: str | None = None
+    content_identity_version: str | None = None
+    content_identity_source: str | None = None
+    index_fingerprint_version: str | None = None
+    node_set_digest_version: str | None = None
+    build_id_payload_version: str | None = None
+    classification_mapping_digest: str | None = None
+    formula_version: str | None = None
+    formula_source: str | None = None
+    L: int | None = Field(default=None, ge=0)
+    L_source: str | None = None
+    security_mapping_version: str | None = None
+    security_rank_mapping_source: str | None = None
+    index_seed_digest: str | None = None
+    index_seed_source: str | None = None
+    random_level_distribution: str | None = None
+    random_level_source: str | None = None
+    implementation_source: str | None = None
+    layering_mode: str | None = None
+    security_layer_count: int = Field(default=0, ge=0)
+    security_layers: list[LayerIndexStatus] = Field(default_factory=list)
+    per_layer_node_count: dict[int, int] = Field(default_factory=dict)
+    mapping_coverage: float | None = Field(default=None, ge=0, le=1)
+    unclassified_types: list[str] = Field(default_factory=list)
 
 
 class CurrentEvidenceResponse(StrictModel):

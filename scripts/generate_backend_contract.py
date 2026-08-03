@@ -14,6 +14,8 @@ from app.main import create_app  # noqa: E402
 from app.models.schemas import (  # noqa: E402
     DECISION_SOURCE_DESCRIPTIONS,
     DecisionSource,
+    LayerNavigationAvailability,
+    SecurityClass,
 )
 
 
@@ -37,13 +39,15 @@ def contract_payload() -> dict:
         "contract_status": "DRAFT",
         "frozen": False,
         "pending_steps": [
-            "step2_hnsw_safety_layer_and_visualization",
             "step5_explanation_and_review_generation",
         ],
-        "completed_steps": ["step1_formula_action_alignment"],
+        "completed_steps": [
+            "step1_formula_action_alignment",
+            "step2_hnsw_safety_layer_and_visualization",
+        ],
         "step_status": {
             "step1_formula_action_alignment": "COMPLETE",
-            "step2_hnsw_safety_layer_and_visualization": "PENDING",
+            "step2_hnsw_safety_layer_and_visualization": "COMPLETE",
             "step5_explanation_and_review_generation": "PENDING",
         },
         "source": {
@@ -69,6 +73,10 @@ def contract_payload() -> dict:
             "EvidenceDemandStatus": ["RETRIEVED", "MANDATORY_RECALLED", "MISSING", "STALE", "CONFLICT", "TAMPERED"],
             "RetrievalOrigin": ["HNSW", "MANDATORY_RECALL", "BOTH", "NONE"],
             "Availability": ["AVAILABLE", "UNAVAILABLE", "NOT_APPLICABLE"],
+            "SecurityClass": [source.value for source in SecurityClass],
+            "LayerNavigationAvailability": [
+                source.value for source in LayerNavigationAvailability
+            ],
         },
         "enum_descriptions": {
             "DecisionSource": {
@@ -86,7 +94,7 @@ def contract_payload() -> dict:
         "field_sources": {
             "input": "AuditRecord.input_trust_result/transcription_result/spectrum_analysis/zone_permission_result/audio_input_metadata",
             "semantic_and_demand": "AuditRecord.semantic_frame/evidence_demand and persisted subgraph/recall records",
-            "retrieval": "candidate_recall_results/retrieval_metadata/vectorization_metadata/mandatory_recall_records",
+            "retrieval": "persisted real hnswlib security-layer queries, immutable index snapshot metadata, candidate_recall_results and post-Top-K mandatory recall",
             "quality": "persisted evidence_quality_metrics with report-strict pair counts, active EAS weights and independent route",
             "decision": "persisted score_decision/final_decision/decision_sources/decision_merge_reason",
             "review": "immutable audits plus WorkflowRepository review events",
@@ -97,6 +105,7 @@ def contract_payload() -> dict:
             "path": "/ws/pipeline/{session_id}",
             "envelope": ["event_id", "turn_id", "sequence", "event_type", "stage", "status", "timestamp", "payload"],
             "decision_payload": ["score_decision", "final_decision", "decision_sources", "decision_merge_reason"],
+            "retrieval_payload": ["index_build_id", "layering_mode", "highest_nonempty_layer", "per_layer_node_count", "trace_kind", "internal_trace_available", "anchor_path", "final_top_k_count", "mandatory_recall_pending"],
             "semantics": ["single existing broker", "session isolation", "monotonic active-session sequence", "redacted payload", "recover via presentation"],
         },
         "voice_trust_modes": {
@@ -105,7 +114,7 @@ def contract_payload() -> dict:
         },
         "simulator_source": "execution.adapter identifies the current adapter; simulator results are not described as real CAN execution",
         "frontend_must_not_compute": ["EAS", "SafetyScore", "preliminary_decision", "final_decision", "authorization", "review recovery result"],
-        "currently_unavailable": ["persisted candidate interpretations", "HNSW internal path/entry/visited nodes", "single-turn Recall ground truth"],
+        "currently_unavailable": ["persisted candidate interpretations", "hnswlib internal path/entry/visited nodes (unsupported by public API)", "single-turn Recall ground truth"],
         "ui_reference_only_do_not_implement": ["permission matrix management", "manual block", "audit pin", "Markdown export", "driver approval workflow", "voiceprint registry", "daily statistics", "training queue/labels/statistics", "online training", "model/policy version management"],
     }
 
@@ -125,7 +134,7 @@ def markdown(payload: dict) -> str:
         *[f'  "{step}",' for step in payload["pending_steps"]],
         "]",
         "step1_formula_action_alignment = COMPLETE",
-        "step2_hnsw_safety_layer_and_visualization = PENDING",
+        "step2_hnsw_safety_layer_and_visualization = COMPLETE",
         "step5_explanation_and_review_generation = PENDING",
         "```",
         "",

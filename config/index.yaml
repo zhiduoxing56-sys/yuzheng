@@ -3,3 +3,91 @@ ef_construction: 200
 ef_search: 30
 top_k: 20
 
+security_layering:
+  enabled: true
+  layering_mode: CUMULATIVE_REAL_HNSWLIB_INDICES
+  implementation_source: ENGINEERING_REALIZATION
+  max_layer: 3
+  max_layer_source: ENGINEERING_CONFIG
+  formula_version: PDF_2_8_V1
+  formula_source: REPORT_EXPLICIT
+  index_seed: yuzheng-hnsw-step2-seed-v1
+  index_seed_source: ENGINEERING_CONFIG
+  hnswlib_random_seed: 100
+  hnswlib_random_seed_source: ENGINEERING_CONFIG
+  random_level_distribution: PDF_GEOMETRIC_EXPONENTIAL
+  random_level_sampler: DETERMINISTIC_SHA256_INVERSE_CDF
+  random_level_source: ENGINEERING_REALIZATION
+  security_mapping_version: SECURITY_CLASS_V1
+  security_rank_mapping_source: EXISTING_PROJECT_MAPPING
+  unknown_type_strategy: UNCLASSIFIED_BASE_ONLY
+  internal_trace_reason: UNSUPPORTED_BY_PUBLIC_HNSWLIB_API
+  websocket_candidates_per_layer: 5
+  audit_candidates_per_layer: 30
+
+  security_classes:
+    ENTERTAINMENT:
+      rank: 0
+      report_label: Entertainment
+      legacy_names: [L0_ENTERTAINMENT]
+    COCKPIT:
+      rank: 1
+      report_label: Cockpit
+      legacy_names: [L1_CABIN, CABIN]
+    DRIVING:
+      rank: 2
+      report_label: Driving
+      legacy_names: [L2_DRIVING]
+    EMERGENCY:
+      rank: 3
+      report_label: Emergency
+      legacy_names: [L3_EMERGENCY]
+
+  evidence_type_mapping:
+    display_state: {security_class: ENTERTAINMENT, source: EXISTING_PROJECT_MAPPING}
+    music_state: {security_class: ENTERTAINMENT, source: EXISTING_PROJECT_MAPPING}
+    navigation_active: {security_class: ENTERTAINMENT, source: EXISTING_PROJECT_MAPPING}
+
+    occupant_role: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    speaker_role: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    speaker_zone: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    authentication_state: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    door_lock_state: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    door_state: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    window_state: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    headlight_state: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    ambient_light: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    weather: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    state_epoch_id: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    started_at: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    reset_count: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    last_reset_at: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+    reset_reason: {security_class: COCKPIT, source: EXISTING_PROJECT_MAPPING}
+
+    vehicle_speed: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    gear_position: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    vehicle_mode: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    speed_limit: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    road_condition: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    surround_camera_state: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    sensor_health: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    evidence_stream: {security_class: DRIVING, source: EXISTING_PROJECT_MAPPING}
+    side_rear_mmwave_radar: {security_class: DRIVING, source: REPORT_DERIVED_UNAMBIGUOUS}
+    side_camera: {security_class: DRIVING, source: REPORT_DERIVED_UNAMBIGUOUS}
+    front_camera: {security_class: DRIVING, source: REPORT_DERIVED_UNAMBIGUOUS}
+    lane_marking_map: {security_class: DRIVING, source: REPORT_DERIVED_UNAMBIGUOUS}
+    front_radar: {security_class: DRIVING, source: REPORT_DERIVED_UNAMBIGUOUS}
+    surround_view_camera: {security_class: DRIVING, source: REPORT_DERIVED_UNAMBIGUOUS}
+    ultrasonic_radar: {security_class: DRIVING, source: REPORT_DERIVED_UNAMBIGUOUS}
+    reverse_camera_active: {security_class: DRIVING, source: ENGINEERING_MAPPING}
+
+    brake_state: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    front_obstacle_distance: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    rear_obstacle_distance: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    ultrasonic_distance: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    collision_state: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    safety_constraint: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    emergency_flag: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    safety_rule: {security_class: EMERGENCY, source: EXISTING_PROJECT_MAPPING}
+    front_mmwave_radar: {security_class: EMERGENCY, source: REPORT_DERIVED_UNAMBIGUOUS}
+    front_lidar: {security_class: EMERGENCY, source: REPORT_DERIVED_UNAMBIGUOUS}
