@@ -1,0 +1,12 @@
+{
+  "contract_status": "FROZEN",
+  "contract_version": "1.0.0",
+  "frontend_contract_json_sha256": "99ca31945d9035b1519fd74c9cf40f8106f661af2ca7f25310ebba8b58ba4af4",
+  "frontend_contract_markdown_sha256": "8ef195472ebcd20ecb851aea43416a3cb8af5237d666542b968fbe929fa234ae",
+  "frozen": true,
+  "generator_version": "1.0.0",
+  "production_schema_digest": "b63a7fcb4169e9c56f25b71c1241fec80d05a9ab363ecc53aa7957b304f355de",
+  "public_openapi_sha256": "23844446a9d81cc87704894b00c845b57013de8e99fdeafded9fc8d6ebd0f6b7",
+  "readme_sha256": "dfab6055d03ef9c0da7606a711833e139866a092355ee9e085f3e37f61e8b738",
+  "source_commit": "d894002bd7add4bc89e5513ffdee8807fc501a01"
+}

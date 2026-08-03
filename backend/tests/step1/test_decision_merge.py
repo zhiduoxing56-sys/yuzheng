@@ -167,11 +167,13 @@ def test_hard_gate_preserves_score_decision_and_blocks_final() -> None:
     assert result.final_decision == DecisionLabel.BLOCK
 
 
-def test_contract_marks_all_backend_steps_complete_without_freezing() -> None:
+def test_contract_marks_all_backend_steps_complete_and_frozen() -> None:
     metadata = contract_payload()
 
-    assert metadata["contract_status"] == "DRAFT"
-    assert metadata["frozen"] is False
+    assert metadata["contract_status"] == "FROZEN"
+    assert metadata["frozen"] is True
+    assert metadata["contract_version"] == "1.0.0"
+    assert metadata["contract_version_source"] == "ENGINEERING_VERSIONING"
     assert metadata["pending_steps"] == []
     assert metadata["step_status"]["step1_formula_action_alignment"] == "COMPLETE"
     assert metadata["step_status"]["step2_hnsw_safety_layer_and_visualization"] == "COMPLETE"

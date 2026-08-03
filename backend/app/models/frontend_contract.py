@@ -66,6 +66,65 @@ class Availability(str, Enum):
     NOT_APPLICABLE = "NOT_APPLICABLE"
 
 
+class ContractStatus(str, Enum):
+    DRAFT = "DRAFT"
+    FROZEN = "FROZEN"
+
+
+class ContractStepStatus(str, Enum):
+    PENDING = "PENDING"
+    COMPLETE = "COMPLETE"
+
+
+FRONTEND_CONTRACT_SCHEMA_ID = "frontend_contract_v1"
+FRONTEND_CONTRACT_VERSION = "1.0.0"
+FRONTEND_CONTRACT_VERSION_SOURCE = "ENGINEERING_VERSIONING"
+FRONTEND_CONTRACT_STEPS = (
+    "step1_formula_action_alignment",
+    "step2_hnsw_safety_layer_and_visualization",
+    "step5_explanation_and_review_generation",
+)
+
+
+class FrontendContractMetadata(StrictModel):
+    schema_id: Literal["frontend_contract_v1"] = FRONTEND_CONTRACT_SCHEMA_ID
+    contract_version: Literal["1.0.0"] = FRONTEND_CONTRACT_VERSION
+    contract_version_source: Literal["ENGINEERING_VERSIONING"] = (
+        FRONTEND_CONTRACT_VERSION_SOURCE
+    )
+    contract_status: ContractStatus
+    frozen: bool
+    step_status: dict[str, ContractStepStatus]
+    pending_steps: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_freeze_state(self) -> "FrontendContractMetadata":
+        expected_steps = set(FRONTEND_CONTRACT_STEPS)
+        if set(self.step_status) != expected_steps:
+            raise ValueError("contract step_status 必须完整覆盖正式步骤")
+        if self.frozen != (self.contract_status is ContractStatus.FROZEN):
+            raise ValueError("frozen 与 contract_status 必须一致")
+        if self.frozen and (
+            self.pending_steps
+            or any(
+                status is not ContractStepStatus.COMPLETE
+                for status in self.step_status.values()
+            )
+        ):
+            raise ValueError("冻结契约不得包含待完成步骤")
+        return self
+
+
+FROZEN_FRONTEND_CONTRACT_METADATA = FrontendContractMetadata(
+    contract_status=ContractStatus.FROZEN,
+    frozen=True,
+    step_status={
+        step: ContractStepStatus.COMPLETE for step in FRONTEND_CONTRACT_STEPS
+    },
+    pending_steps=[],
+)
+
+
 class ErrorCode(str, Enum):
     TURN_NOT_FOUND = "TURN_NOT_FOUND"
     AUDIT_NOT_FOUND = "AUDIT_NOT_FOUND"
