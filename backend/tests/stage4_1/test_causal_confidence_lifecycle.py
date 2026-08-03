@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 from app.core.pipeline import CommandPipeline
 from app.models.schemas import AuditRecordQuality, TextCommandRequest, VehicleStatePatch
 
@@ -41,12 +43,12 @@ def test_zero_history_and_single_node_never_report_full_decision_confidence(pipe
     multiple = pipeline.process_text(_request())
     assert multiple.causal_correction.sample_count == 0
     assert multiple.causal_correction.decision_confidence is None
-    assert multiple.causal_correction.confidence_status == "INSUFFICIENT_DATA"
+    assert multiple.causal_correction.confidence_status == "INSUFFICIENT_HISTORY"
     assert 0 <= multiple.causal_correction.posterior_concentration <= 1
 
     single = pipeline.process_text(_request("查询当前速度"))
     assert single.causal_correction.decision_confidence is None
-    assert single.causal_correction.confidence_status == "SINGLE_NODE_UNDEFINED"
+    assert single.causal_correction.confidence_status == "INSUFFICIENT_HISTORY"
 
 
 def test_twenty_historical_records_enable_confidence_and_restore_model_version(
@@ -68,8 +70,11 @@ def test_twenty_historical_records_enable_confidence_and_restore_model_version(
     assert learned.causal_correction.confidence_status == "AVAILABLE"
     assert learned.causal_correction.decision_confidence is not None
     assert 0 <= learned.causal_correction.decision_confidence <= 1
-    assert learned.causal_correction.posterior_concentration == (
-        learned.causal_correction.decision_confidence
+    assert math.isclose(
+        learned.causal_correction.decision_confidence,
+        learned.causal_correction.posterior_concentration
+        * (1.0 - learned.causal_correction.normalized_entropy),
+        abs_tol=1e-10,
     )
     version = status.model_version
 

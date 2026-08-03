@@ -95,6 +95,13 @@ class EvidenceRelation(str, Enum):
     VERTICAL_PROPAGATION = "VERTICAL_PROPAGATION"
 
 
+class MemoryRelationType(str, Enum):
+    SPATIAL_COOCCURRENCE = "SPATIAL_COOCCURRENCE"
+    TEMPORAL_SYNCHRONIZATION = "TEMPORAL_SYNCHRONIZATION"
+    SEMANTIC_COMPLEMENT = "SEMANTIC_COMPLEMENT"
+    SENSOR_TOPOLOGY = "SENSOR_TOPOLOGY"
+
+
 class AuditRecordQuality(str, Enum):
     VALID = "VALID"
     KNOWN_BUG = "KNOWN_BUG"
@@ -325,6 +332,10 @@ class EvidenceNode(StrictModel):
     hnsw_layer_memberships: list[int] = Field(default_factory=list)
     security_classification_source: str | None = None
     formula_source: str | None = None
+    canonicalization_source: str | None = None
+    merged_node_sources: list[str] = Field(default_factory=list)
+    field_resolution: dict[str, str] = Field(default_factory=dict)
+    canonicalization_warnings: list[str] = Field(default_factory=list)
 
 
 class EvidenceEdge(StrictModel):
@@ -615,7 +626,78 @@ class MemoryLink(StrictModel):
     final_adjustment: float = 0.0
 
 
+class MemoryRelationEdge(StrictModel):
+    edge_id: str
+    source_node_id: str
+    target_node_id: str
+    relation_types: list[MemoryRelationType] = Field(default_factory=list)
+    direction: Literal["UNDIRECTED", "DIRECTED"] = "UNDIRECTED"
+    criteria: dict[str, Any] = Field(default_factory=dict)
+    criteria_sources: dict[str, str] = Field(default_factory=dict)
+    score_components: dict[str, float] = Field(default_factory=dict)
+    created_by: Literal["ALGORITHM_2"] = "ALGORITHM_2"
+    configuration_version: str
+
+
+class MemoryNodeLayer(StrictModel):
+    node_id: str
+    stable_physical_identity: str
+    security_class: SecurityClass
+    security_rank: int | None = Field(default=None, ge=0, le=3)
+    memory_layer: int | None = Field(default=None, ge=0, le=3)
+    mapping_source: str
+    retrieval_origin: Literal["HNSW", "MANDATORY_RECALL", "BOTH", "NONE"]
+    propagation_eligible: bool = True
+
+    @model_validator(mode="after")
+    def validate_layer_mapping(self) -> "MemoryNodeLayer":
+        if self.security_class != SecurityClass.UNCLASSIFIED:
+            if self.security_rank is None or self.memory_layer != self.security_rank:
+                raise ValueError("memory_layer 必须等于唯一 security_rank")
+        elif self.security_rank is not None or self.memory_layer is not None:
+            raise ValueError("UNCLASSIFIED 不能伪装成已分类 memory layer")
+        return self
+
+
+class MemoryDegreeStatistics(StrictModel):
+    node_count: int = Field(default=0, ge=0)
+    candidate_edge_count: int = Field(default=0, ge=0)
+    retained_edge_count: int = Field(default=0, ge=0)
+    average_degree: float = Field(default=0, ge=0)
+    max_degree: int = Field(default=0, ge=0)
+    pruned_edge_count: int = Field(default=0, ge=0)
+    degree_limit: int = Field(default=16, ge=1)
+
+
+class MemoryPropagationStep(StrictModel):
+    sequence: int = Field(ge=1)
+    parent_node_id: str
+    child_node_id: str
+    parent_layer: int = Field(ge=1, le=3)
+    child_layer: int = Field(ge=0, le=2)
+    alpha: float = Field(gt=0, lt=1)
+    parent_confidence_at_step: float = Field(ge=0)
+    contribution: float = Field(ge=0)
+    child_confidence_before: float = Field(ge=0)
+    child_confidence_after: float = Field(ge=0)
+    relation_edge_ids: list[str] = Field(default_factory=list)
+
+
 class MemoryPropagationResult(StrictModel):
+    layered_memory_graph: dict[str, Any] = Field(default_factory=dict)
+    relation_edges: list[MemoryRelationEdge] = Field(default_factory=list)
+    degree_statistics: MemoryDegreeStatistics = Field(default_factory=MemoryDegreeStatistics)
+    node_layers: list[MemoryNodeLayer] = Field(default_factory=list)
+    initial_confidences: dict[str, float | None] = Field(default_factory=dict)
+    final_confidences: dict[str, float | None] = Field(default_factory=dict)
+    propagation_steps: list[MemoryPropagationStep] = Field(default_factory=list)
+    incoming_contributions: dict[str, list[int]] = Field(default_factory=dict)
+    alpha: float | None = Field(default=None, gt=0, lt=1)
+    alpha_source: str | None = None
+    configuration_version: str | None = None
+    warnings: list[str] = Field(default_factory=list)
+    candidate_node_ids: list[str] = Field(default_factory=list)
+    retrieval_origins: dict[str, str] = Field(default_factory=dict)
     horizontal_links: list[MemoryLink] = Field(default_factory=list)
     horizontal_support: float = Field(default=0, ge=0, le=1)
     horizontal_conflicts: int = Field(default=0, ge=0)
@@ -636,9 +718,85 @@ class CausalEdge(StrictModel):
     support: float = Field(default=0, ge=0, le=1)
     sample_count: int = Field(default=0, ge=0)
     reason: str
+    parent_variable: str | None = None
+    child_variable: str | None = None
+    support_count: int = Field(default=0, ge=0)
+    p_child_given_parent: float | None = Field(default=None, ge=0, le=1)
+    p_child_given_not_parent: float | None = Field(default=None, ge=0, le=1)
+    dependency_delta: float | None = Field(default=None, ge=0, le=1)
+    temporal_order_valid: bool | None = None
+    domain_rule_source: str | None = None
+    threshold: float | None = Field(default=None, ge=0, le=1)
+    accepted: bool | None = None
+    prune_reason: str | None = None
+
+
+class CausalPriorComponents(StrictModel):
+    node_id: str
+    causal_variable: str
+    sas_component: float | None = Field(default=None, ge=0, le=1)
+    layer_confidence_component: float | None = Field(default=None, ge=0)
+    freshness_component: float | None = Field(default=None, ge=0, le=1)
+    availability_component: float | None = Field(default=None, ge=0, le=1)
+    mandatory_component: float = Field(default=0, ge=0, le=1)
+    lambda_values: dict[str, float] = Field(default_factory=dict)
+    raw_prior_score: float | None = None
+    availability_source: str | None = None
+    availability_status: str = "AVAILABLE"
+
+
+class ParentStateStatistics(StrictModel):
+    node_id: str
+    causal_variable: str
+    parent_variables: list[str] = Field(default_factory=list)
+    parent_state_signature: str
+    class_count_with_node_and_parents: int = Field(default=0, ge=0)
+    node_parent_count: int = Field(default=0, ge=0)
+    class_cardinality: int = Field(default=0, ge=0)
+    smoothing_epsilon: float = Field(gt=0)
+    rho: float | None = Field(default=None, ge=0, le=1)
+
+
+class CausalNodeWeight(StrictModel):
+    node_id: str
+    causal_variable: str
+    prior_probability: float | None = Field(default=None, ge=0, le=1)
+    causal_support: float | None = Field(default=None, ge=0, le=1)
+    unnormalized_weight: float | None = Field(default=None, ge=0)
+    corrected_weight: float | None = Field(default=None, ge=0, le=1)
+
+
+class CausalModelSnapshot(StrictModel):
+    model_build_id: str
+    built_at: datetime | None = None
+    formula_version: str
+    causal_variable_version: str
+    history_sample_count: int = Field(default=0, ge=0)
+    history_start_time: datetime | None = None
+    history_end_time: datetime | None = None
+    history_digest: str
+    command_class_vocabulary_digest: str
+    candidate_edge_count: int = Field(default=0, ge=0)
+    causal_edge_count: int = Field(default=0, ge=0)
+    dag_digest: str
+    parameter_digest: str
+    minimum_history_samples: int = Field(default=20, ge=1)
+    confidence_status: str
+    topological_order: list[str] = Field(default_factory=list)
+    variable_identity_level: str = "NORMALIZED_EVIDENCE_TYPE"
+    variable_identity_source: str = "ENGINEERING_REALIZATION"
 
 
 class CausalCorrectionResult(StrictModel):
+    model_snapshot: CausalModelSnapshot | None = None
+    parent_state_statistics: list[ParentStateStatistics] = Field(default_factory=list)
+    prior_components: list[CausalPriorComponents] = Field(default_factory=list)
+    prior_probabilities: dict[str, float] = Field(default_factory=dict)
+    rho_values: dict[str, float] = Field(default_factory=dict)
+    node_weights: list[CausalNodeWeight] = Field(default_factory=list)
+    insufficiency_reason: str | None = None
+    formula_version: str | None = None
+    variable_identity_version: str | None = None
     causal_graph: dict[str, Any] = Field(default_factory=dict)
     candidate_edges: list[CausalEdge] = Field(default_factory=list)
     pruned_edges: list[CausalEdge] = Field(default_factory=list)
@@ -652,6 +810,9 @@ class CausalCorrectionResult(StrictModel):
     confidence_status: Literal[
         "AVAILABLE",
         "INSUFFICIENT_DATA",
+        "INSUFFICIENT_HISTORY",
+        "INSUFFICIENT_AVAILABILITY",
+        "INSUFFICIENT",
         "SINGLE_NODE_UNDEFINED",
         "MODEL_NOT_READY",
     ] = "MODEL_NOT_READY"
@@ -669,6 +830,88 @@ class CausalCorrectionResult(StrictModel):
     feature_cutoff: Literal["pre_decision"] = "pre_decision"
     used_features: list[str] = Field(default_factory=list)
     duration_ms: float = Field(default=0, ge=0)
+
+
+class EvidenceCitation(StrictModel):
+    node_id: str
+    reason: str
+
+
+class DecisionExplanation(StrictModel):
+    summary: str
+    decision_label: DecisionLabel
+    decision_basis: list[str] = Field(default_factory=list)
+    hard_gate_reasons: list[str] = Field(default_factory=list)
+    evidence_alignment_summary: str
+    score_summary: str
+    causal_summary: str
+    missing_or_conflicting_evidence: list[str] = Field(default_factory=list)
+    safe_next_step: str
+    evidence_citations: list[EvidenceCitation] = Field(default_factory=list)
+    reason_code_citations: list[str] = Field(default_factory=list)
+    generation_mode: Literal["DETERMINISTIC_FALLBACK", "LLM_INTERPRETER"]
+    provider: str | None = None
+    model: str | None = None
+    prompt_template_version: str
+    input_digest: str
+    validation_status: str
+    fallback_reason: str | None = None
+
+
+class ReviewCandidateInterpretation(StrictModel):
+    candidate_id: str
+    turn_id: str
+    canonical_text: str
+    action: str
+    target: str
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    control_domain: str
+    risk_level: str
+    why_possible: str
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
+    conflicting_evidence_ids: list[str] = Field(default_factory=list)
+    source: str
+    validation_status: Literal["VALID", "INVALID"]
+
+
+class RecoveryRecommendation(StrictModel):
+    recovery_code: Literal[
+        "SUPPLY_ACTION_TARGET",
+        "CLARIFY_AREA_OR_DIRECTION",
+        "REPHRASE_COMMAND",
+        "WAIT_FOR_SENSOR_RECOVERY",
+        "SWITCH_TO_SAFE_QUERY",
+        "CANCEL_OPERATION",
+    ]
+    message: str
+    required_user_input: str | None = None
+    affected_evidence_types: list[str] = Field(default_factory=list)
+    source: str
+    generation_mode: Literal["DETERMINISTIC_FALLBACK", "LLM_INTERPRETER"]
+
+
+class InterpreterGenerationMetadata(StrictModel):
+    generation_mode: Literal["DETERMINISTIC_FALLBACK", "LLM_INTERPRETER"]
+    provider_status: str
+    provider: str | None = None
+    model: str | None = None
+    prompt_template_version: str
+    input_digest: str
+    input_truncated: bool = False
+    output_truncated: bool = False
+    fallback_reason: str | None = None
+    validation_status: str
+    duration_ms: float = Field(default=0, ge=0)
+
+
+class InterpreterResult(StrictModel):
+    decision_explanation: DecisionExplanation
+    candidate_interpretations: list[ReviewCandidateInterpretation] = Field(default_factory=list)
+    candidate_availability: Literal["AVAILABLE", "NO_VALID_CANDIDATES"]
+    review_question: str | None = None
+    recommended_recovery: RecoveryRecommendation | None = None
+    generation_metadata: InterpreterGenerationMetadata
+    validation_result: dict[str, Any] = Field(default_factory=dict)
 
 
 class ScoreFactor(StrictModel):
@@ -994,6 +1237,14 @@ class AuditRecord(StrictModel):
     advanced_explanations: list[str] = Field(default_factory=list)
     memory_propagation: MemoryPropagationResult | None = None
     causal_correction: CausalCorrectionResult | None = None
+    decision_explanation: DecisionExplanation | None = None
+    candidate_interpretations: list[ReviewCandidateInterpretation] = Field(default_factory=list)
+    candidate_availability: str = "LEGACY_NOT_RECORDED"
+    interpreter_review_question: str | None = None
+    recommended_recovery: RecoveryRecommendation | None = None
+    generation_metadata: InterpreterGenerationMetadata | None = None
+    interpreter_validation_result: dict[str, Any] = Field(default_factory=dict)
+    interpreter_result: InterpreterResult | None = None
     advanced_reasoning: AdvancedReasoningResult | None = None
     turn_timing: TurnTiming | None = None
     runtime_capability: RuntimeCapabilityStatus | None = None
@@ -1059,6 +1310,7 @@ class TextCommandResponse(StrictModel):
     advanced_reasoning: AdvancedReasoningResult | None = None
     memory_propagation: MemoryPropagationResult | None = None
     causal_correction: CausalCorrectionResult | None = None
+    interpreter_result: InterpreterResult | None = None
     grounding_failures: list[GroundingFailure] = Field(default_factory=list)
     jailbreak_conflicts: list[JailbreakConflict] = Field(default_factory=list)
     jailbreak_risk: float = Field(default=0, ge=0, le=1)
@@ -1233,11 +1485,14 @@ class ReviewRequest(StrictModel):
     confirmation_text: str | None = Field(default=None, max_length=2048)
     corrected_text: str | None = Field(default=None, max_length=2048)
     cancel_reason: str | None = Field(default=None, max_length=500)
+    selected_candidate_id: str | None = Field(default=None, max_length=128)
 
     @model_validator(mode="after")
     def validate_action_payload(self) -> "ReviewRequest":
         if self.action == ReviewAction.CORRECT and not (self.corrected_text or "").strip():
             raise ValueError("CORRECT 必须提供 corrected_text")
+        if self.action != ReviewAction.CONFIRM and self.selected_candidate_id is not None:
+            raise ValueError("selected_candidate_id 仅允许用于 CONFIRM")
         return self
 
 
@@ -1324,6 +1579,8 @@ class ReviewResult(StrictModel):
     review_question: str | None = None
     command_result: TextCommandResponse | None = None
     terminal_audit_id: str | None = None
+    rejection_code: str | None = None
+    rejection_status_code: int | None = Field(default=None, ge=400, le=499)
 
 
 class PipelineEvent(StrictModel):

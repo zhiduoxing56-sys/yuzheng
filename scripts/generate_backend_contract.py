@@ -38,17 +38,16 @@ def contract_payload() -> dict:
         "version": "frontend-contract-v1",
         "contract_status": "DRAFT",
         "frozen": False,
-        "pending_steps": [
-            "step5_explanation_and_review_generation",
-        ],
+        "pending_steps": [],
         "completed_steps": [
             "step1_formula_action_alignment",
             "step2_hnsw_safety_layer_and_visualization",
+            "step5_explanation_and_review_generation",
         ],
         "step_status": {
             "step1_formula_action_alignment": "COMPLETE",
             "step2_hnsw_safety_layer_and_visualization": "COMPLETE",
-            "step5_explanation_and_review_generation": "PENDING",
+            "step5_explanation_and_review_generation": "COMPLETE",
         },
         "source": {
             "document": "docs/语证：面向智能座舱高风险车控指令的证据对齐与可解释裁决系统.pdf",
@@ -97,7 +96,10 @@ def contract_payload() -> dict:
             "retrieval": "persisted real hnswlib security-layer queries, immutable index snapshot metadata, candidate_recall_results and post-Top-K mandatory recall",
             "quality": "persisted evidence_quality_metrics with report-strict pair counts, active EAS weights and independent route",
             "decision": "persisted score_decision/final_decision/decision_sources/decision_merge_reason",
-            "review": "immutable audits plus WorkflowRepository review events",
+            "memory": "persisted AuditRecord.memory_propagation built from the final Layer-0 Top-K plus MandatoryRecall result set; GET never rebuilds it",
+            "causal": "persisted AuditRecord.causal_correction built from eligible immutable audit history and frozen decision-time availability",
+            "interpreter": "persisted locally validated InterpreterResult; provider output is explanatory only and cannot change deterministic control fields",
+            "review": "persisted candidate interpretations plus immutable audits and WorkflowRepository review events",
             "authorization_execution": "token metadata and vehicle execution events; never the raw token",
             "audit": "AuditRecord hashes plus live read-only chain verification",
         },
@@ -106,6 +108,11 @@ def contract_payload() -> dict:
             "envelope": ["event_id", "turn_id", "sequence", "event_type", "stage", "status", "timestamp", "payload"],
             "decision_payload": ["score_decision", "final_decision", "decision_sources", "decision_merge_reason"],
             "retrieval_payload": ["index_build_id", "layering_mode", "highest_nonempty_layer", "per_layer_node_count", "trace_kind", "internal_trace_available", "anchor_path", "final_top_k_count", "mandatory_recall_pending"],
+            "step5_stages": {
+                "MEMORY_PROPAGATED": ["layer_counts", "relation_edge_counts", "average_degree", "propagation_count"],
+                "CAUSAL_CORRECTED": ["model_build_id", "history_count", "causal_edge_count", "confidence_status", "decision_confidence", "top_corrected_nodes"],
+                "EXPLANATION_GENERATED": ["generation_mode", "candidate_count", "validation_status"],
+            },
             "semantics": ["single existing broker", "session isolation", "monotonic active-session sequence", "redacted payload", "recover via presentation"],
         },
         "voice_trust_modes": {
@@ -114,7 +121,7 @@ def contract_payload() -> dict:
         },
         "simulator_source": "execution.adapter identifies the current adapter; simulator results are not described as real CAN execution",
         "frontend_must_not_compute": ["EAS", "SafetyScore", "preliminary_decision", "final_decision", "authorization", "review recovery result"],
-        "currently_unavailable": ["persisted candidate interpretations", "hnswlib internal path/entry/visited nodes (unsupported by public API)", "single-turn Recall ground truth"],
+        "currently_unavailable": ["hnswlib internal path/entry/visited nodes (unsupported by public API)", "single-turn Recall ground truth", "LLM interpreter provider runtime unless explicitly configured through environment"],
         "ui_reference_only_do_not_implement": ["permission matrix management", "manual block", "audit pin", "Markdown export", "driver approval workflow", "voiceprint registry", "daily statistics", "training queue/labels/statistics", "online training", "model/policy version management"],
     }
 
@@ -135,7 +142,7 @@ def markdown(payload: dict) -> str:
         "]",
         "step1_formula_action_alignment = COMPLETE",
         "step2_hnsw_safety_layer_and_visualization = COMPLETE",
-        "step5_explanation_and_review_generation = PENDING",
+        "step5_explanation_and_review_generation = COMPLETE",
         "```",
         "",
         "## HTTP 接口",

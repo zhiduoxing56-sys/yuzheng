@@ -291,6 +291,17 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             raise ContractError(
                 status_code, code, message, turn_id=turn_id
             ) from exc
+        if not result.accepted:
+            try:
+                code = ErrorCode(result.rejection_code or ErrorCode.REVIEW_NOT_ALLOWED.value)
+            except ValueError:
+                code = ErrorCode.REVIEW_NOT_ALLOWED
+            raise ContractError(
+                result.rejection_status_code or 409,
+                code,
+                result.reason,
+                turn_id=turn_id,
+            )
         related = pipeline.audit_repository.get_by_turn(result.related_turn_id)
         original = pipeline.audit_repository.get_by_turn(turn_id)
         audit = related or original

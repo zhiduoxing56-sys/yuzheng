@@ -9,4 +9,5 @@ def adapt_review_submission(submission: ReviewSubmission) -> ReviewRequest:
     return ReviewRequest(
         action=submission.action,
         corrected_text=submission.corrected_text,
+        selected_candidate_id=submission.selected_candidate_id,
     )

@@ -4,11 +4,12 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
 from app.models.schemas import (
     AdvancedValidationResult,
     DecisionLabel,
+    DecisionExplanation,
     DecisionSource,
     EvidenceEdge,
     EvidenceNode,
@@ -16,6 +17,17 @@ from app.models.schemas import (
     EvidenceSubgraph,
     LayerIndexStatus,
     LayerNavigationAvailability,
+    MemoryDegreeStatistics,
+    MemoryNodeLayer,
+    MemoryPropagationStep,
+    MemoryRelationEdge,
+    ParentStateStatistics,
+    CausalEdge,
+    CausalNodeWeight,
+    CausalPriorComponents,
+    RecoveryRecommendation,
+    ReviewCandidateInterpretation,
+    InterpreterGenerationMetadata,
     RetrievalVisualizationPath,
     SecurityClass,
     SecurityLayerNavigation,
@@ -60,6 +72,10 @@ class ErrorCode(str, Enum):
     NODE_NOT_FOUND = "NODE_NOT_FOUND"
     NODE_NOT_IN_TURN = "NODE_NOT_IN_TURN"
     REVIEW_NOT_ALLOWED = "REVIEW_NOT_ALLOWED"
+    NO_PERSISTED_REVIEW_CANDIDATES = "NO_PERSISTED_REVIEW_CANDIDATES"
+    SELECTED_CANDIDATE_REQUIRED = "SELECTED_CANDIDATE_REQUIRED"
+    REVIEW_CANDIDATE_NOT_FOUND = "REVIEW_CANDIDATE_NOT_FOUND"
+    REVIEW_CANDIDATE_NOT_VALID = "REVIEW_CANDIDATE_NOT_VALID"
     CORRECTED_TEXT_REQUIRED = "CORRECTED_TEXT_REQUIRED"
     TURN_ALREADY_FINALIZED = "TURN_ALREADY_FINALIZED"
     MODEL_UNAVAILABLE = "MODEL_UNAVAILABLE"
@@ -197,6 +213,36 @@ class EvidencePresentation(StrictModel):
     corrected_weights: dict[str, float] = Field(default_factory=dict)
     decision_confidence: float | None = Field(default=None, ge=0, le=1)
     quality_metrics: QualityMetricsPresentation
+    memory: "MemoryPresentation" = Field(default_factory=lambda: MemoryPresentation())
+    causal: "CausalPresentation" = Field(default_factory=lambda: CausalPresentation())
+
+
+class MemoryPresentation(StrictModel):
+    availability: str = "LEGACY_NOT_RECORDED"
+    layered_graph: dict[str, Any] = Field(default_factory=dict)
+    relation_edges: list[MemoryRelationEdge] = Field(default_factory=list)
+    degree_statistics: MemoryDegreeStatistics = Field(default_factory=MemoryDegreeStatistics)
+    propagation_steps: list[MemoryPropagationStep] = Field(default_factory=list)
+    node_confidences: dict[str, dict[str, float | None]] = Field(default_factory=dict)
+    node_layers: list[MemoryNodeLayer] = Field(default_factory=list)
+    alpha: float | None = Field(default=None, gt=0, lt=1)
+    alpha_source: str | None = None
+    configuration_version: str | None = None
+    warnings: list[str] = Field(default_factory=list)
+
+
+class CausalPresentation(StrictModel):
+    availability: str = "LEGACY_NOT_RECORDED"
+    model_build_id: str | None = None
+    history_sample_count: int = Field(default=0, ge=0)
+    dag_edges: list[CausalEdge] = Field(default_factory=list)
+    parent_state_signatures: list[ParentStateStatistics] = Field(default_factory=list)
+    prior_components: list[CausalPriorComponents] = Field(default_factory=list)
+    node_weights: list[CausalNodeWeight] = Field(default_factory=list)
+    entropy: float | None = Field(default=None, ge=0)
+    decision_confidence: float | None = Field(default=None, ge=0, le=1)
+    confidence_status: str = "LEGACY_NOT_RECORDED"
+    insufficiency_reason: str | None = None
 
 
 class GateCheckPresentation(StrictModel):
@@ -252,6 +298,7 @@ class DecisionResultPresentation(StrictModel):
     explanation: str
     review_required: bool
     execution_allowed: bool
+    decision_explanation: DecisionExplanation | None = None
 
 
 class ReviewPresentation(StrictModel):
@@ -259,9 +306,11 @@ class ReviewPresentation(StrictModel):
     original_instruction: str
     ambiguity_field: str | None = None
     ambiguity_value: Any = None
-    candidate_interpretations: list[str] = Field(default_factory=list)
-    recommended_recovery: str | None = None
+    candidate_interpretations: list[ReviewCandidateInterpretation] = Field(default_factory=list)
+    candidate_availability: str = "LEGACY_NOT_RECORDED"
+    recommended_recovery: RecoveryRecommendation | None = None
     review_question: str | None = None
+    generation_metadata: InterpreterGenerationMetadata | None = None
     supporting_evidence: list[str] = Field(default_factory=list)
     conflicting_evidence: list[str] = Field(default_factory=list)
     user_action: ReviewAction | None = None
@@ -348,19 +397,54 @@ class EvidenceNodeDetail(StrictModel):
     layer_memberships: list[int] = Field(default_factory=list)
     classification_source: str | None = None
     formula_source: str | None = None
+    initial_memory_confidence: float | None = Field(default=None, ge=0)
+    memory_initial_confidence: float | None = Field(default=None, ge=0)
+    final_memory_confidence: float | None = Field(default=None, ge=0)
+    canonicalization_source: str | None = None
+    merged_node_sources: list[str] = Field(default_factory=list)
+    field_resolution: dict[str, str] = Field(default_factory=dict)
+    canonicalization_warnings: list[str] = Field(default_factory=list)
+    incoming_propagation: list[MemoryPropagationStep] = Field(default_factory=list)
+    causal_parents: list[str] = Field(default_factory=list)
+    prior_probability: float | None = Field(default=None, ge=0, le=1)
+    causal_support: float | None = Field(default=None, ge=0, le=1)
+    corrected_weight: float | None = Field(default=None, ge=0, le=1)
 
 
 class ReviewSubmission(StrictModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        protected_namespaces=(),
+        json_schema_extra={
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {"action": {"const": "CONFIRM"}},
+                        "required": ["action"],
+                    },
+                    "then": {"required": ["selected_candidate_id"]},
+                }
+            ]
+        },
+    )
     action: ReviewAction
     corrected_text: str | None = Field(default=None, max_length=2048)
+    selected_candidate_id: str | None = Field(default=None, max_length=128)
 
     @model_validator(mode="after")
     def validate_action_payload(self) -> "ReviewSubmission":
         if self.action == ReviewAction.CORRECT:
             if not (self.corrected_text or "").strip():
                 raise ValueError("CORRECTED_TEXT_REQUIRED")
-        elif "corrected_text" in self.model_fields_set:
-            raise ValueError(f"{self.action.value} 不接受 corrected_text")
+            if "selected_candidate_id" in self.model_fields_set:
+                raise ValueError("CORRECT 不接受 selected_candidate_id")
+        elif self.action == ReviewAction.CONFIRM:
+            if "corrected_text" in self.model_fields_set:
+                raise ValueError("CONFIRM 不接受 corrected_text")
+            if not (self.selected_candidate_id or "").strip():
+                raise ValueError("SELECTED_CANDIDATE_REQUIRED")
+        elif self.model_fields_set & {"corrected_text", "selected_candidate_id"}:
+            raise ValueError("CANCEL 不接受 corrected_text 或 selected_candidate_id")
         return self
 
 
@@ -434,6 +518,8 @@ class AuditDetailResponse(StrictModel):
     mandatory_recall: list[dict[str, Any]] = Field(default_factory=list)
     evidence_graph_summary: dict[str, Any]
     quality_metrics: QualityMetricsPresentation
+    memory: MemoryPresentation = Field(default_factory=MemoryPresentation)
+    causal: CausalPresentation = Field(default_factory=CausalPresentation)
     validation_result: ValidationResultPresentation
     gate_result: GateResultPresentation
     score_factors: ScoreResultPresentation
@@ -442,6 +528,8 @@ class AuditDetailResponse(StrictModel):
     effective_outcome: EffectiveOutcomeAuditView | None = None
     review_process: ReviewPresentation
     final_decision: DecisionResultPresentation
+    decision_explanation: DecisionExplanation | None = None
+    generation_metadata: InterpreterGenerationMetadata | None = None
     authorization_status: AuthorizationPresentation
     execution_status: ExecutionPresentation
     workflow_events: list[WorkflowEvent] = Field(default_factory=list)

@@ -122,6 +122,49 @@ class ReviewService:
             raise ReviewWorkflowError("复核请求已过期")
         return status, latest
 
+    def _reject_confirm(
+        self,
+        *,
+        root_turn_id: str,
+        latest,
+        next_attempt: int,
+        reason: str,
+        rejection_code: str,
+        rejection_status_code: int,
+    ) -> ReviewResult:
+        idempotency_key = (
+            f"{latest.audit_id}:CONFIRM_REJECTED:{rejection_code}"
+        )
+        already_recorded = any(
+            event.event_type == WorkflowEventType.REVIEW_CONFIRM_REJECTED
+            and event.payload.get("idempotency_key") == idempotency_key
+            for event in self.pipeline.workflow_repository.events(root_turn_id)
+        )
+        if not already_recorded:
+            self.pipeline.workflow_repository.append_event(
+                root_turn_id=root_turn_id,
+                related_turn_id=latest.turn_id,
+                event_type=WorkflowEventType.REVIEW_CONFIRM_REJECTED,
+                payload={
+                    "reason": reason,
+                    "attempt_no": next_attempt,
+                    "rejection_code": rejection_code,
+                    "idempotency_key": idempotency_key,
+                },
+            )
+        return ReviewResult(
+            root_turn_id=root_turn_id,
+            related_turn_id=latest.turn_id,
+            action=ReviewAction.CONFIRM,
+            accepted=False,
+            reason=reason,
+            workflow_status=self.status(root_turn_id),
+            decision=latest.final_decision,
+            review_question=latest.interpreter_review_question,
+            rejection_code=rejection_code,
+            rejection_status_code=rejection_status_code,
+        )
+
     def review(self, turn_id: str, request: ReviewRequest) -> ReviewResult:
         request = ReviewRequest.model_validate(
             SensitiveDataRedactor.redact(request.model_dump(mode="json"))
@@ -221,39 +264,92 @@ class ReviewService:
             )
 
         frame = latest.semantic_frame
+        selected_candidate = None
+        if request.action == ReviewAction.CONFIRM:
+            persisted_candidates = list(latest.candidate_interpretations)
+            if not persisted_candidates:
+                return self._reject_confirm(
+                    root_turn_id=root,
+                    latest=latest,
+                    next_attempt=next_attempt,
+                    reason=(
+                        "原轮次没有持久化的合法复核候选；"
+                        "请使用CORRECT提供修正文案或使用CANCEL终止"
+                    ),
+                    rejection_code="NO_PERSISTED_REVIEW_CANDIDATES",
+                    rejection_status_code=409,
+                )
+            if not (request.selected_candidate_id or "").strip():
+                return self._reject_confirm(
+                    root_turn_id=root,
+                    latest=latest,
+                    next_attempt=next_attempt,
+                    reason="CONFIRM必须提供selected_candidate_id",
+                    rejection_code="SELECTED_CANDIDATE_REQUIRED",
+                    rejection_status_code=422,
+                )
+            persisted_candidate = next(
+                (
+                    candidate
+                    for candidate in persisted_candidates
+                    if candidate.candidate_id == request.selected_candidate_id
+                ),
+                None,
+            )
+            if persisted_candidate is None or persisted_candidate.turn_id != latest.turn_id:
+                return self._reject_confirm(
+                    root_turn_id=root,
+                    latest=latest,
+                    next_attempt=next_attempt,
+                    reason="selected_candidate_id不存在或不属于当前轮次",
+                    rejection_code="REVIEW_CANDIDATE_NOT_FOUND",
+                    rejection_status_code=404,
+                )
+            if (
+                persisted_candidate.validation_status != "VALID"
+                or not persisted_candidate.canonical_text.strip()
+            ):
+                return self._reject_confirm(
+                    root_turn_id=root,
+                    latest=latest,
+                    next_attempt=next_attempt,
+                    reason="selected_candidate_id对应候选未通过本地校验",
+                    rejection_code="REVIEW_CANDIDATE_NOT_VALID",
+                    rejection_status_code=409,
+                )
+            selected_candidate = persisted_candidate
         has_unresolved_conflict = bool(
             latest.jailbreak_conflicts
             or latest.conflict_records
             or any(node.quality_label.value == "SUSPICIOUS" for node in (latest.evidence_subgraph.nodes if latest.evidence_subgraph else []))
         )
         if request.action == ReviewAction.CONFIRM and (
-            frame.action == "unknown" or frame.target == "unknown" or has_unresolved_conflict
+            (
+                selected_candidate is None
+                and (frame.action == "unknown" or frame.target == "unknown")
+            )
+            or has_unresolved_conflict
         ):
             reason = (
                 "语义动作或目标仍不完整，CONFIRM 不能补全含义，请使用 CORRECT"
-                if frame.action == "unknown" or frame.target == "unknown"
+                if selected_candidate is None
+                and (frame.action == "unknown" or frame.target == "unknown")
                 else "证据或权限冲突仍存在，CONFIRM 不能删除冲突"
             )
-            self.pipeline.workflow_repository.append_event(
+            return self._reject_confirm(
                 root_turn_id=root,
-                related_turn_id=latest.turn_id,
-                event_type=WorkflowEventType.REVIEW_CONFIRM_REJECTED,
-                payload={"reason": reason, "attempt_no": next_attempt},
-            )
-            return ReviewResult(
-                root_turn_id=root,
-                related_turn_id=latest.turn_id,
-                action=request.action,
-                accepted=False,
+                latest=latest,
+                next_attempt=next_attempt,
                 reason=reason,
-                workflow_status=self.status(root),
-                decision=latest.final_decision,
-                review_question=latest.final_decision.review_question,
+                rejection_code="REVIEW_NOT_ALLOWED",
+                rejection_status_code=409,
             )
 
         new_text = (
             request.corrected_text.strip()
             if request.action == ReviewAction.CORRECT and request.corrected_text
+            else selected_candidate.canonical_text
+            if selected_candidate is not None
             else frame.raw_text
         )
         action_event = (
@@ -270,6 +366,12 @@ class ReviewService:
                 "confirmation_text": request.confirmation_text,
                 "old_text": frame.raw_text,
                 "corrected_text": new_text if request.action == ReviewAction.CORRECT else None,
+                "selected_candidate_id": (
+                    selected_candidate.candidate_id if selected_candidate is not None else None
+                ),
+                "selected_candidate_text": (
+                    selected_candidate.canonical_text if selected_candidate is not None else None
+                ),
             },
         )
         self.pipeline.workflow_repository.append_event(

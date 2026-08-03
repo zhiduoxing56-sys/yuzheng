@@ -351,9 +351,14 @@ def test_acoustic_review_confirmation_preserves_voice_risk_and_cannot_issue_toke
         speaker_zone="driver",
         speaker_role="driver",
     )
+    candidate = result.audit.candidate_interpretations[0]
     reviewed = stage5_pipeline.review_service.review(
         result.turn_id,
-        ReviewRequest(action=ReviewAction.CONFIRM, confirmation_text="确认打开车门"),
+        ReviewRequest(
+            action=ReviewAction.CONFIRM,
+            confirmation_text="确认打开车门",
+            selected_candidate_id=candidate.candidate_id,
+        ),
     )
     assert reviewed.accepted is True
     assert reviewed.decision is not None

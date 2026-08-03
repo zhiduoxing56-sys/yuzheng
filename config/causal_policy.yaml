@@ -1,3 +1,29 @@
+formula_version: REPORT_FORMULAS_2_9_TO_2_15_V1
+variable_identity_version: NORMALIZED_EVIDENCE_TYPE_V1
+variable_identity_level: NORMALIZED_EVIDENCE_TYPE
+variable_identity_source: ENGINEERING_REALIZATION
+theta_causal: 0.0
+theta_causal_source: EXISTING_ENGINEERING_BEHAVIOR
+lambda_values:
+  sas: 0.30
+  layer_confidence: 0.25
+  freshness: 0.15
+  historical_availability: 0.10
+  mandatory: 0.20
+lambda_values_source: ENGINEERING_CONFIG
+laplace_epsilon: 1.0
+laplace_epsilon_source: EXISTING_FORMAL_CONFIG
+numeric_epsilon: 1.0e-12
+numeric_epsilon_source: ENGINEERING_NUMERICAL_STABILITY
+minimum_history_samples: 20
+minimum_history_samples_source: EXISTING_FORMAL_CONFIG
+command_class_source: ELIGIBLE_AUDIT_SEMANTIC_FRAME
+confidence_mode: REPORT_ENTROPY_CALIBRATION
+confidence_threshold: null
+confidence_threshold_source: REPORT_NOT_SPECIFIED
+learning_record_policy: AUDIT_QUALITY_VALID_COMMAND_ONLY
+
+# Legacy names remain internal compatibility aliases for old callers/tests.
 laplace_alpha: 1.0
 outcome_count: 3
 minimum_samples_for_confidence: 20

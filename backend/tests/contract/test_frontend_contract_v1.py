@@ -174,8 +174,15 @@ def test_09_tampered_node_is_readable(contract_context, prepared):
 def test_10_review_confirm_reexecutes_full_flow(contract_context, prepared):
     client, _, _ = contract_context
     original = prepared["reviewable"]["turn_id"]
+    candidate = prepared["reviewable"]["interpreter_result"][
+        "candidate_interpretations"
+    ][0]
     body = client.post(
-        f"/api/turns/{original}/review", json={"action": "CONFIRM"}
+        f"/api/turns/{original}/review",
+        json={
+            "action": "CONFIRM",
+            "selected_candidate_id": candidate["candidate_id"],
+        },
     ).json()
     assert body["accepted"] is True
     assert body["review_turn_id"] != original
@@ -209,7 +216,8 @@ def test_12_review_cancel_never_issues_token(contract_context, prepared):
 def test_13_pass_and_block_cannot_be_reviewed(contract_context, prepared, key):
     client, _, _ = contract_context
     response = client.post(
-        f"/api/turns/{prepared[key]['turn_id']}/review", json={"action": "CONFIRM"}
+        f"/api/turns/{prepared[key]['turn_id']}/review",
+        json={"action": "CONFIRM", "selected_candidate_id": "CAND_NOT_APPLICABLE"},
     )
     assert response.status_code == 409
     assert response.json()["error_code"] == "REVIEW_NOT_ALLOWED"
@@ -395,7 +403,11 @@ def test_openapi_exposes_only_new_review_contract(contract_context):
     operation = openapi["paths"]["/api/turns/{turn_id}/review"]["post"]
     schema_ref = operation["requestBody"]["content"]["application/json"]["schema"]["$ref"]
     schema = openapi["components"]["schemas"][schema_ref.rsplit("/", 1)[-1]]
-    assert set(schema["properties"]) == {"action", "corrected_text"}
+    assert set(schema["properties"]) == {
+        "action",
+        "corrected_text",
+        "selected_candidate_id",
+    }
     assert "confirmation_text" not in json.dumps(operation)
     assert "cancel_reason" not in json.dumps(operation)
 

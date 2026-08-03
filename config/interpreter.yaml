@@ -1,0 +1,38 @@
+enabled: true
+provider: none
+model: null
+timeout_seconds: 8
+maximum_candidates: 3
+maximum_input_characters: 6000
+maximum_output_characters: 4000
+fallback_enabled: true
+prompt_template_version: INTERPRETER_PROMPT_V1
+allowed_output_fields:
+  - summary
+  - decision_label
+  - decision_basis
+  - evidence_alignment_summary
+  - score_summary
+  - causal_summary
+  - safe_next_step
+  - evidence_citations
+  - reason_code_citations
+  - review_question
+  - candidate_texts
+  - recommended_recovery
+forbidden_control_fields:
+  - final_decision
+  - score_decision
+  - safety_score
+  - eas
+  - safety_gate
+  - evidence_status
+  - authorization_token
+  - execution_result
+  - decision_sources
+provider_environment:
+  provider: INTERPRETER_PROVIDER
+  base_url: INTERPRETER_BASE_URL
+  model: INTERPRETER_MODEL
+  api_key: INTERPRETER_API_KEY
+  timeout_seconds: INTERPRETER_TIMEOUT_SECONDS

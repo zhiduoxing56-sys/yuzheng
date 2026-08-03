@@ -19,6 +19,10 @@ from app.models.schemas import (
     make_id,
     utc_now,
 )
+from app.services.evidence.canonicalization import (
+    canonicalize_evidence_nodes,
+    evaluated_node_source,
+)
 
 
 class EvidenceSubgraphBuilder:
@@ -81,7 +85,21 @@ class EvidenceSubgraphBuilder:
         conflicts: list[dict[str, Any]],
         safety_rule_nodes: list[EvidenceNode],
     ) -> EvidenceSubgraph:
-        nodes_by_id = {node.node_id: node for node in evidence_nodes}
+        matching_rule_nodes = []
+        for rule_node in safety_rule_nodes:
+            rule = rule_node.value if isinstance(rule_node.value, dict) else {}
+            if rule.get("action") == frame.action and rule.get("target") == frame.target:
+                matching_rule_nodes.append(rule_node)
+        evaluated_groups: dict[str, list[EvidenceNode]] = {}
+        for node in evidence_nodes:
+            evaluated_groups.setdefault(evaluated_node_source(node), []).append(node)
+        canonical_nodes = canonicalize_evidence_nodes(
+            [
+                *sorted(evaluated_groups.items()),
+                ("SAFETY_RULE_REPOSITORY", matching_rule_nodes),
+            ]
+        )
+        nodes_by_id = {node.node_id: node for node in canonical_nodes}
         demand_node = self._runtime_node(
             "evidence_demand",
             "semantic_pipeline",
@@ -130,19 +148,17 @@ class EvidenceSubgraphBuilder:
                     )
                 )
 
-        for rule_node in safety_rule_nodes:
+        for rule_node in matching_rule_nodes:
             rule = rule_node.value if isinstance(rule_node.value, dict) else {}
-            if rule.get("action") == frame.action and rule.get("target") == frame.target:
-                nodes_by_id[rule_node.node_id] = rule_node
-                edges.append(
-                    self._edge(
-                        rule_node.node_id,
-                        target_node.node_id,
-                        EvidenceRelation.RULE_CONSTRAINED,
-                        1.0,
-                        str(rule.get("reason", "安全规则约束")),
-                    )
+            edges.append(
+                self._edge(
+                    rule_node.node_id,
+                    target_node.node_id,
+                    EvidenceRelation.RULE_CONSTRAINED,
+                    1.0,
+                    str(rule.get("reason", "安全规则约束")),
                 )
+            )
 
         for conflict in conflicts:
             node_ids = [node_id for node_id in conflict.get("node_ids", []) if node_id in nodes_by_id]

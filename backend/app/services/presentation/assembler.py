@@ -9,6 +9,7 @@ from app.models.frontend_contract import (
     AuditListItem,
     AuthorizationPresentation,
     Availability,
+    CausalPresentation,
     DecisionResultPresentation,
     EvidenceDemandItem,
     EvidenceDemandPresentation,
@@ -19,6 +20,7 @@ from app.models.frontend_contract import (
     GateCheckPresentation,
     GateResultPresentation,
     InputPresentation,
+    MemoryPresentation,
     OriginalDecisionAuditView,
     QualityMetricsPresentation,
     RetrievalCandidate,
@@ -397,8 +399,30 @@ class PresentationAssembler:
         )
 
     @staticmethod
-    def decision(decision: DecisionResult) -> DecisionResultPresentation:
+    def decision(
+        decision: DecisionResult,
+        explanation=None,
+    ) -> DecisionResultPresentation:
         final = decision.final_decision
+        effective_explanation = explanation
+        if explanation is not None and explanation.decision_label != final:
+            user_cancelled = DecisionSource.USER_REVIEW in decision.decision_sources
+            effective_explanation = explanation.model_copy(
+                update={
+                    "summary": f"有效终态：{decision.decision_merge_reason}",
+                    "decision_label": final,
+                    "decision_basis": [
+                        *explanation.decision_basis,
+                        decision.decision_merge_reason,
+                    ],
+                    "safe_next_step": (
+                        "本轮指令已由用户取消，不允许继续执行。"
+                        if user_cancelled
+                        else explanation.safe_next_step
+                    ),
+                    "validation_status": "EFFECTIVE_OUTCOME_AGGREGATED",
+                }
+            )
         return DecisionResultPresentation(
             initial_decision=decision.decision,
             score_decision=decision.score_decision,
@@ -410,6 +434,7 @@ class PresentationAssembler:
             explanation="；".join(decision.explanations),
             review_required=final == DecisionLabel.REVIEW,
             execution_allowed=final == DecisionLabel.PASS and not decision.gate_blocked,
+            decision_explanation=effective_explanation,
         )
 
     def review(self, record: AuditRecord, events: list[WorkflowEvent]) -> ReviewPresentation:
@@ -462,13 +487,17 @@ class PresentationAssembler:
             original_instruction=original.semantic_frame.raw_text,
             ambiguity_field=ambiguity_field,
             ambiguity_value=ambiguity_value,
-            candidate_interpretations=[],
+            candidate_interpretations=record.candidate_interpretations,
+            candidate_availability=record.candidate_availability,
             recommended_recovery=(
-                "CORRECT" if ambiguity_field else "CONFIRM_OR_CORRECT"
-            ) if status == "REQUIRED" else None,
-            review_question=(
-                record.final_decision.review_question if status == "REQUIRED" else None
+                record.recommended_recovery if status == "REQUIRED" else None
             ),
+            review_question=(
+                record.interpreter_review_question
+                if status == "REQUIRED"
+                else None
+            ),
+            generation_metadata=record.generation_metadata,
             supporting_evidence=(
                 record.advanced_reasoning.supporting_evidence_ids
                 if record.advanced_reasoning
@@ -546,6 +575,8 @@ class PresentationAssembler:
         quality = self.quality(record)
         demand = self.demand(record)
         retrieval = self.retrieval(record)
+        memory = record.memory_propagation
+        causal = record.causal_correction
         return TurnPresentationResponse(
             turn_id=record.turn_id,
             created_at=record.created_at,
@@ -565,11 +596,57 @@ class PresentationAssembler:
                 corrected_weights=(graph.corrected_weights if graph else {}),
                 decision_confidence=record.decision_confidence,
                 quality_metrics=quality,
+                memory=(
+                    MemoryPresentation(
+                        availability="AVAILABLE",
+                        layered_graph=memory.layered_memory_graph,
+                        relation_edges=memory.relation_edges,
+                        degree_statistics=memory.degree_statistics,
+                        propagation_steps=memory.propagation_steps,
+                        node_confidences={
+                            node_id: {
+                                "initial": memory.initial_confidences.get(node_id),
+                                "final": memory.final_confidences.get(node_id),
+                            }
+                            for node_id in sorted(
+                                set(memory.initial_confidences) | set(memory.final_confidences)
+                            )
+                        },
+                        node_layers=memory.node_layers,
+                        alpha=memory.alpha,
+                        alpha_source=memory.alpha_source,
+                        configuration_version=memory.configuration_version,
+                        warnings=memory.warnings,
+                    )
+                    if memory is not None
+                    else MemoryPresentation()
+                ),
+                causal=(
+                    CausalPresentation(
+                        availability="AVAILABLE",
+                        model_build_id=(
+                            causal.model_snapshot.model_build_id
+                            if causal.model_snapshot is not None
+                            else causal.model_version
+                        ),
+                        history_sample_count=causal.sample_count,
+                        dag_edges=causal.pruned_edges,
+                        parent_state_signatures=causal.parent_state_statistics,
+                        prior_components=causal.prior_components,
+                        node_weights=causal.node_weights,
+                        entropy=(causal.entropy if causal.confidence_status == "AVAILABLE" else None),
+                        decision_confidence=causal.decision_confidence,
+                        confidence_status=causal.confidence_status,
+                        insufficiency_reason=causal.insufficiency_reason,
+                    )
+                    if causal is not None
+                    else CausalPresentation()
+                ),
             ),
             gate_result=self.gate(record),
             score_result=self.score(record),
             validation_result=self.validation(record),
-            decision_result=self.decision(effective_decision),
+            decision_result=self.decision(effective_decision, record.decision_explanation),
             review=self.review(record, events),
             authorization=self.authorization(record),
             execution=self.execution(record),
@@ -591,6 +668,20 @@ class PresentationAssembler:
         if node is None:
             return None
         public = _public_node(node)
+        memory = record.memory_propagation
+        causal = record.causal_correction
+        node_weight = next(
+            (item for item in (causal.node_weights if causal else []) if item.node_id == node_id),
+            None,
+        )
+        parent_stats = next(
+            (
+                item
+                for item in (causal.parent_state_statistics if causal else [])
+                if item.node_id == node_id
+            ),
+            None,
+        )
         return EvidenceNodeDetail(
             turn_id=record.turn_id,
             node_id=public.node_id,
@@ -619,6 +710,28 @@ class PresentationAssembler:
             layer_memberships=public.hnsw_layer_memberships,
             classification_source=public.security_classification_source,
             formula_source=public.formula_source,
+            initial_memory_confidence=(
+                memory.initial_confidences.get(node_id) if memory else None
+            ),
+            memory_initial_confidence=(
+                memory.initial_confidences.get(node_id) if memory else None
+            ),
+            final_memory_confidence=(
+                memory.final_confidences.get(node_id) if memory else None
+            ),
+            canonicalization_source=public.canonicalization_source,
+            merged_node_sources=public.merged_node_sources,
+            field_resolution=public.field_resolution,
+            canonicalization_warnings=public.canonicalization_warnings,
+            incoming_propagation=(
+                [step for step in memory.propagation_steps if step.child_node_id == node_id]
+                if memory
+                else []
+            ),
+            causal_parents=(parent_stats.parent_variables if parent_stats else []),
+            prior_probability=(node_weight.prior_probability if node_weight else None),
+            causal_support=(node_weight.causal_support if node_weight else None),
+            corrected_weight=(node_weight.corrected_weight if node_weight else None),
         )
 
     def node_exists(self, node_id: str) -> bool:
@@ -663,6 +776,8 @@ class PresentationAssembler:
             mandatory_recall=[item.model_dump(mode="json") for item in record.mandatory_recall_records],
             evidence_graph_summary=record.evidence_subgraph_summary,
             quality_metrics=presentation.evidence.quality_metrics,
+            memory=presentation.evidence.memory,
+            causal=presentation.evidence.causal,
             validation_result=presentation.validation_result,
             gate_result=presentation.gate_result,
             score_factors=presentation.score_result,
@@ -687,6 +802,8 @@ class PresentationAssembler:
             ),
             review_process=presentation.review,
             final_decision=presentation.decision_result,
+            decision_explanation=presentation.decision_result.decision_explanation,
+            generation_metadata=record.generation_metadata,
             authorization_status=presentation.authorization,
             execution_status=presentation.execution,
             workflow_events=events,

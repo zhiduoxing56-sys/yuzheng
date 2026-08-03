@@ -95,9 +95,14 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
     assert confirmable.semantic_frame.action == "播放"
     assert confirmable.semantic_frame.target == "音乐"
     assert confirmable.decision.final_decision == DecisionLabel.REVIEW
+    confirm_candidate = confirmable.audit.candidate_interpretations[0]
     confirmed = pipeline.review_service.review(
         confirmable.turn_id,
-        ReviewRequest(action=ReviewAction.CONFIRM, confirmation_text="确认播放音乐"),
+        ReviewRequest(
+            action=ReviewAction.CONFIRM,
+            confirmation_text="确认播放音乐",
+            selected_candidate_id=confirm_candidate.candidate_id,
+        ),
     )
     assert confirmed.accepted is True
     assert confirmed.related_turn_id != confirmable.turn_id
@@ -153,10 +158,9 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
             limited.turn_id, ReviewRequest(action=ReviewAction.CONFIRM)
         )
         assert attempt.accepted is False
-    with pytest.raises(ReviewWorkflowError, match="最大复核次数"):
-        pipeline.review_service.review(
-            limited.turn_id, ReviewRequest(action=ReviewAction.CONFIRM)
-        )
+    limited_status = pipeline.review_service.status(limited.turn_id)
+    assert limited_status.review_attempts == 1
+    assert limited_status.latest_decision == DecisionLabel.REVIEW
 
     expired = _command(pipeline, "把那个打开")
     pipeline.review_service.config["review_ttl_seconds"] = -1
@@ -180,7 +184,7 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
     )
     assert conflict_confirmation.accepted is False
     assert conflict_confirmation.decision.final_decision == DecisionLabel.REVIEW
-    assert "冲突" in conflict_confirmation.reason
+    assert conflict_confirmation.rejection_code == "SELECTED_CANDIDATE_REQUIRED"
 
 
 def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) -> None:

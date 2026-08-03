@@ -27,6 +27,7 @@ from app.models.schemas import (
     EvidenceQualityMetrics,
     GateCheck,
     IndexStatus,
+    MemoryRelationType,
     PipelineEvent,
     RetrievalMetadata,
     RuntimeCapabilityStatus,
@@ -63,6 +64,7 @@ from app.services.evidence.repository import EvidenceRepository
 from app.services.execution.service import ExecutionService
 from app.services.graph.builder import EvidenceSubgraphBuilder
 from app.services.index.hnsw import HNSWIndexService
+from app.services.interpreter.service import InterpreterService
 from app.services.runtime.capability import RuntimeCapabilityService
 from app.services.memory.service import DualMemoryService
 from app.services.quality.evaluator import EvidenceQualityService
@@ -104,6 +106,7 @@ class CommandPipeline:
         self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
         self.event_broker = event_broker or PipelineEventBroker()
         self.review_config = load_yaml("review_policy.yaml")
+        self.interpreter_config = load_yaml("interpreter.yaml")
         self.scenario_config = load_yaml("demo_scenarios.yaml")
         self.voice_config = load_yaml("voice.yaml")
         configured_voice_mode = str(
@@ -131,6 +134,11 @@ class CommandPipeline:
         self.demand_service = EvidenceDemandService(
             load_yaml("action_evidence_map.yaml"), self.embedder
         )
+        self.interpreter_service = InterpreterService(
+            self.interpreter_config,
+            self.parser,
+            self.demand_service,
+        )
         self.evidence_repository = EvidenceRepository(
             quality_config, load_yaml("evidence_retention.yaml")
         )
@@ -147,9 +155,12 @@ class CommandPipeline:
             int(quality_config.get("window", {}).get("short_length", 8))
         )
         self.graph_builder = EvidenceSubgraphBuilder()
-        self.memory_service = DualMemoryService(load_yaml("memory.yaml"))
+        memory_config = load_yaml("memory.yaml")
+        self.memory_service = DualMemoryService(memory_config)
         self.validation_service = AdvancedValidationService(load_yaml("jailbreak_policy.yaml"))
-        self.causal_service = CausalCorrectionService(load_yaml("causal_policy.yaml"))
+        self.causal_service = CausalCorrectionService(
+            load_yaml("causal_policy.yaml"), memory_config=memory_config
+        )
         self.gate_service = SafetyGateService(safety_config)
         self.decision_service = DecisionService(load_yaml("decision_policy.yaml"))
         self.audit_repository = AuditRepository(
@@ -180,8 +191,12 @@ class CommandPipeline:
 
     def _refresh_causal_model(self, *, restore_stable: bool = False):
         status = self.audit_repository.learning_status()
-        records = self.audit_repository.learning_records(
-            self.causal_service.maximum_training_records
+        records = (
+            self.audit_repository.learning_records(
+                self.causal_service.maximum_training_records
+            )
+            if self.audit_repository.verify_chain()
+            else []
         )
         stored = self.audit_repository.load_causal_model_metadata() if restore_stable else None
         if stored is not None:
@@ -1231,28 +1246,109 @@ class CommandPipeline:
             physical_conflicts,
             self._safety_rule_nodes,
         )
+        graph_nodes_by_id = {node.node_id: node for node in subgraph.nodes}
+        evaluated_node_ids = list(dict.fromkeys(node.node_id for node in evaluated))
+        canonical_evidence = [
+            graph_nodes_by_id[node_id]
+            for node_id in evaluated_node_ids
+            if node_id in graph_nodes_by_id
+        ]
         emit(
             "GRAPH_BUILT",
             "运行时证据子图已构建",
-            {"node_count": len(subgraph.nodes), "edge_count": len(subgraph.edges)},
-        )
-
-        reasoning_evidence = self._merge_latest(snapshot_nodes, override_nodes, evaluated)
-        memory_evidence = [node for node in reasoning_evidence if node.timestamp is not None]
-        memory = self.memory_service.propagate(memory_evidence, frame, physical_conflicts)
-        emit(
-            "MEMORY_PROPAGATED",
-            "横向与纵向记忆传播完成",
             {
-                "horizontal_links": len(memory.horizontal_links),
-                "vertical_links": len(memory.vertical_links),
+                "node_count": len(subgraph.nodes),
+                "edge_count": len(subgraph.edges),
+                "canonical_nodes": [
+                    {
+                        "node_id": node.node_id,
+                        "semantic_similarity": node.semantic_similarity,
+                        "quality_label": node.quality_label.value,
+                        "canonicalization_source": node.canonicalization_source,
+                    }
+                    for node in canonical_evidence[:20]
+                ],
             },
         )
-        causal = self.causal_service.apply(frame, evaluated, memory)
+
+        reasoning_evidence = self._merge_latest(
+            snapshot_nodes, override_nodes, canonical_evidence
+        )
+        final_top_k_ids = set(retrieval_metadata.final_top_k_node_ids)
+        recall_origins = {
+            record.recalled_node_id: record.retrieval_origin
+            for record in recall_records
+            if record.recalled_node_id is not None
+        }
+        algorithm2_ids = final_top_k_ids | set(recall_origins)
+        memory_evidence = [
+            node for node in canonical_evidence if node.node_id in algorithm2_ids
+        ]
+        retrieval_origins: dict[str, str] = {}
+        for node in memory_evidence:
+            from_hnsw = node.node_id in final_top_k_ids
+            recall_origin = recall_origins.get(node.node_id)
+            if from_hnsw and recall_origin == "MANDATORY_RECALL":
+                retrieval_origins[node.node_id] = "BOTH"
+            elif from_hnsw:
+                retrieval_origins[node.node_id] = "HNSW"
+            elif recall_origin == "MANDATORY_RECALL":
+                retrieval_origins[node.node_id] = "MANDATORY_RECALL"
+            else:
+                retrieval_origins[node.node_id] = "NONE"
+        memory = self.memory_service.propagate(
+            memory_evidence,
+            frame,
+            physical_conflicts,
+            retrieval_origins=retrieval_origins,
+        )
+        emit(
+            "MEMORY_PROPAGATED",
+            "Algorithm 2稀疏关系图与相邻层传播完成",
+            {
+                "layer_counts": {
+                    key: len(value)
+                    for key, value in memory.layered_memory_graph.get("layers", {}).items()
+                },
+                "relation_edge_counts": {
+                    relation.value: sum(
+                        relation in edge.relation_types for edge in memory.relation_edges
+                    )
+                    for relation in MemoryRelationType
+                },
+                "average_degree": memory.degree_statistics.average_degree,
+                "propagation_count": len(memory.propagation_steps),
+            },
+        )
+        causal = self.causal_service.apply(
+            frame,
+            memory_evidence,
+            memory,
+            availability_by_type=quality_metrics.short_term_availability,
+            availability_source="QUALITY_WINDOW_SHORT_TERM_AT_DECISION",
+            current_turn_id=turn_id,
+        )
         emit(
             "CAUSAL_CORRECTED",
             "因果贝叶斯修正完成",
-            {"sample_count": causal.sample_count, "feature_cutoff": causal.feature_cutoff},
+            {
+                "model_build_id": (
+                    causal.model_snapshot.model_build_id
+                    if causal.model_snapshot is not None
+                    else causal.model_version
+                ),
+                "history_count": causal.sample_count,
+                "causal_edge_count": len(causal.pruned_edges),
+                "confidence_status": causal.confidence_status,
+                "decision_confidence": causal.decision_confidence,
+                "top_corrected_nodes": [
+                    item.model_dump(mode="json")
+                    for item in sorted(
+                        causal.node_weights,
+                        key=lambda value: -(value.corrected_weight or 0.0),
+                    )[:5]
+                ],
+            },
         )
         validation = self.validation_service.validate(frame, reasoning_evidence, physical_conflicts)
         emit(
@@ -1310,6 +1406,29 @@ class CommandPipeline:
             },
         )
         scoring_ms = (perf_counter() - scoring_started) * 1000
+        interpreter = self.interpreter_service.generate(
+            frame=frame,
+            evidence=canonical_evidence,
+            missing_types=missing_types,
+            gate=gate,
+            decision=decision,
+            causal=causal,
+            decision_sources=[source.value for source in decision.decision_sources],
+            decision_merge_reason=decision.decision_merge_reason,
+        )
+        if interpreter.review_question != decision.review_question:
+            decision = decision.model_copy(
+                update={"review_question": interpreter.review_question}
+            )
+        emit(
+            "EXPLANATION_GENERATED",
+            "受限解释与复核数据生成完成",
+            {
+                "generation_mode": interpreter.generation_metadata.generation_mode,
+                "candidate_count": len(interpreter.candidate_interpretations),
+                "validation_status": interpreter.generation_metadata.validation_status,
+            },
+        )
         advanced = AdvancedReasoningResult(
             memory_propagation=memory,
             causal_correction=causal,
@@ -1326,7 +1445,7 @@ class CommandPipeline:
             mandatory_evidence_complete=not missing_types,
             supporting_evidence_ids=[
                 node.node_id
-                for node in evaluated
+                for node in canonical_evidence
                 if node.mandatory and node.quality_label.value in {"VALID", "SUSPICIOUS"}
             ],
             conflicting_evidence_ids=sorted(
@@ -1337,7 +1456,7 @@ class CommandPipeline:
                 }
             ),
             hit_rules=gate.hit_rules,
-            review_question=decision.review_question,
+            review_question=interpreter.review_question,
             performance_ms={
                 "quality": round(quality_ms, 4),
                 "horizontal_memory": memory.horizontal_duration_ms,
@@ -1383,7 +1502,11 @@ class CommandPipeline:
             audio_input_metadata=audio_input_metadata,
             semantic_frame=frame,
             evidence_demand=demand,
-            candidate_recall_results=candidate_evidence,
+            candidate_recall_results=[
+                node
+                for node in canonical_evidence
+                if node.node_id in {item.node_id for item in candidate_evidence}
+            ],
             mandatory_supplement_records=[record.model_dump(mode="json") for record in recall_records],
             vectorization_metadata=demand.vectorization_metadata,
             query_vector_digest=(demand.vectorization_metadata.vector_digest if demand.vectorization_metadata else ""),
@@ -1396,6 +1519,10 @@ class CommandPipeline:
                 "node_count": len(subgraph.nodes),
                 "edge_count": len(subgraph.edges),
                 "missing_types": subgraph.missing_types,
+                "canonicalization_source": "FIELD_LEVEL_EVIDENCE_NODE_MERGE",
+                "canonicalization_warning_count": sum(
+                    len(node.canonicalization_warnings) for node in canonical_evidence
+                ),
             },
             evidence_quality_metrics=quality_metrics,
             conflict_records=physical_conflicts,
@@ -1422,6 +1549,14 @@ class CommandPipeline:
             advanced_explanations=decision.explanations,
             memory_propagation=memory,
             causal_correction=causal,
+            decision_explanation=interpreter.decision_explanation,
+            candidate_interpretations=interpreter.candidate_interpretations,
+            candidate_availability=interpreter.candidate_availability,
+            interpreter_review_question=interpreter.review_question,
+            recommended_recovery=interpreter.recommended_recovery,
+            generation_metadata=interpreter.generation_metadata,
+            interpreter_validation_result=interpreter.validation_result,
+            interpreter_result=interpreter,
             advanced_reasoning=advanced,
             turn_timing=timing,
             runtime_capability=runtime_capability,
@@ -1445,7 +1580,8 @@ class CommandPipeline:
                 parent_turn_id=parent_turn_id,
                 event_type=WorkflowEventType.REVIEW_REQUESTED,
                 payload={
-                    "review_question": decision.review_question,
+                    "review_question": interpreter.review_question,
+                    "candidate_count": len(interpreter.candidate_interpretations),
                     "action": frame.action,
                     "target": frame.target,
                     "attempt_no": attempt_no,
@@ -1454,7 +1590,10 @@ class CommandPipeline:
             emit(
                 "REVIEW_REQUIRED",
                 "当前轮次需要用户复核",
-                {"review_question": decision.review_question},
+                {
+                    "review_question": interpreter.review_question,
+                    "candidate_count": len(interpreter.candidate_interpretations),
+                },
             )
 
         response_decision = decision
@@ -1501,10 +1640,14 @@ class CommandPipeline:
             zone_permission_result=zone_permission,
             semantic_frame=frame,
             evidence_demand=demand,
-            evidence=evaluated,
+            evidence=canonical_evidence,
             query_vector=demand.query_vector,
             retrieval_metadata=retrieval_metadata,
-            candidate_evidence=candidate_evidence,
+            candidate_evidence=[
+                node
+                for node in canonical_evidence
+                if node.node_id in {item.node_id for item in candidate_evidence}
+            ],
             mandatory_recall_records=recall_records,
             evidence_subgraph=subgraph,
             quality_metrics=quality_metrics,
@@ -1516,6 +1659,7 @@ class CommandPipeline:
             advanced_reasoning=advanced,
             memory_propagation=memory,
             causal_correction=causal,
+            interpreter_result=interpreter,
             grounding_failures=validation.grounding_failures,
             jailbreak_conflicts=validation.conflicts,
             jailbreak_risk=validation.jailbreak_risk,
@@ -1653,7 +1797,7 @@ class CommandPipeline:
             root_audit = self.audit_repository.get_by_turn(root)
             audits = [root_audit] if root_audit else []
         events = self.workflow_repository.events(root)
-        ordered = [
+        ordered: list[dict[str, Any]] = [
             {
                 "kind": "AUDIT",
                 "timestamp": audit.created_at.isoformat(),
@@ -1667,6 +1811,71 @@ class CommandPipeline:
             }
             for audit in audits
         ]
+        for audit in audits:
+            timestamp = audit.created_at.isoformat()
+            memory = audit.memory_propagation
+            if memory is not None:
+                relation_edge_counts: dict[str, int] = {}
+                for edge in memory.relation_edges:
+                    for relation_type in edge.relation_types:
+                        key = relation_type.value
+                        relation_edge_counts[key] = relation_edge_counts.get(key, 0) + 1
+                ordered.append(
+                    {
+                        "kind": "PIPELINE_STAGE",
+                        "stage": "MEMORY_PROPAGATED",
+                        "timestamp": timestamp,
+                        "turn_id": audit.turn_id,
+                        "audit_id": audit.audit_id,
+                        "status": "COMPLETED",
+                        "summary": {
+                            "layer_counts": memory.layered_memory_graph.get("layer_counts", {}),
+                            "relation_edge_counts": relation_edge_counts,
+                            "average_degree": memory.degree_statistics.average_degree,
+                            "propagation_count": len(memory.propagation_steps),
+                        },
+                    }
+                )
+            causal = audit.causal_correction
+            if causal is not None:
+                ordered.append(
+                    {
+                        "kind": "PIPELINE_STAGE",
+                        "stage": "CAUSAL_CORRECTED",
+                        "timestamp": timestamp,
+                        "turn_id": audit.turn_id,
+                        "audit_id": audit.audit_id,
+                        "status": causal.confidence_status,
+                        "summary": {
+                            "model_build_id": (
+                                causal.model_snapshot.model_build_id
+                                if causal.model_snapshot is not None
+                                else causal.model_version
+                            ),
+                            "history_sample_count": causal.sample_count,
+                            "causal_edge_count": len(causal.pruned_edges),
+                            "confidence_status": causal.confidence_status,
+                            "decision_confidence": causal.decision_confidence,
+                        },
+                    }
+                )
+            metadata = audit.generation_metadata
+            if metadata is not None:
+                ordered.append(
+                    {
+                        "kind": "PIPELINE_STAGE",
+                        "stage": "EXPLANATION_GENERATED",
+                        "timestamp": timestamp,
+                        "turn_id": audit.turn_id,
+                        "audit_id": audit.audit_id,
+                        "status": metadata.validation_status,
+                        "summary": {
+                            "generation_mode": metadata.generation_mode,
+                            "candidate_count": len(audit.candidate_interpretations),
+                            "validation_status": metadata.validation_status,
+                        },
+                    }
+                )
         ordered.extend(
             {
                 "kind": "WORKFLOW_EVENT",
@@ -1678,9 +1887,34 @@ class CommandPipeline:
             }
             for event in events
         )
-        ordered.sort(key=lambda item: (item["timestamp"], item["kind"]))
+        kind_order = {"PIPELINE_STAGE": 0, "AUDIT": 1, "WORKFLOW_EVENT": 2}
+        stage_order = {
+            "MEMORY_PROPAGATED": 0,
+            "CAUSAL_CORRECTED": 1,
+            "EXPLANATION_GENERATED": 2,
+        }
+        ordered.sort(
+            key=lambda item: (
+                item["timestamp"],
+                kind_order[item["kind"]],
+                stage_order.get(str(item.get("stage", "")), 0),
+            )
+        )
         timeline_items: list[dict[str, Any]] = []
         for sequence, item in enumerate(ordered, 1):
+            if item["kind"] == "PIPELINE_STAGE":
+                timeline_items.append(
+                    {
+                        "sequence": sequence,
+                        "stage": item["stage"],
+                        "timestamp": item["timestamp"],
+                        "status": item["status"],
+                        "summary": item["summary"],
+                        "turn_id": item["turn_id"],
+                        "audit_id": item["audit_id"],
+                    }
+                )
+                continue
             if item["kind"] == "AUDIT":
                 timeline_items.append(
                     {

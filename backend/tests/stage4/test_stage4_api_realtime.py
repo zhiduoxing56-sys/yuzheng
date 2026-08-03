@@ -133,6 +133,7 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
         "EVIDENCE_VALIDATED",
         "GATE_CHECKED",
         "DECISION_COMPLETED",
+        "EXPLANATION_GENERATED",
         "AUDIT_SAVED",
         "TOKEN_ISSUED",
     ]

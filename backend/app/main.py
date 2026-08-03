@@ -75,6 +75,9 @@ def create_app(
             if "CORRECTED_TEXT_REQUIRED" in serialized:
                 code = ErrorCode.CORRECTED_TEXT_REQUIRED
                 message = "action=CORRECT 时 corrected_text 必填"
+            elif "SELECTED_CANDIDATE_REQUIRED" in serialized:
+                code = ErrorCode.SELECTED_CANDIDATE_REQUIRED
+                message = "action=CONFIRM 时 selected_candidate_id 必填"
             elif path.startswith("/api/audits") and request.method == "GET":
                 code = ErrorCode.INVALID_FILTER
                 message = "审计筛选参数无效"
