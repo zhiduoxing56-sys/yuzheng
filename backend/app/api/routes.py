@@ -30,8 +30,11 @@ from app.models.schemas import (
     TurnTimeline,
     TurnWorkflowStatus,
     VehicleState,
+    VehicleStatePatch,
     WorkflowChainVerification,
     DecisionLabel,
+    CarlaObstacleRequest,
+    CarlaTrafficLightRequest,
 )
 from app.models.frontend_contract import (
     AuditDetailResponse,
@@ -201,6 +204,35 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.get("/state", response_model=VehicleState)
     def state_get() -> VehicleState:
         return pipeline.get_vehicle_state()
+
+    @router.patch("/state", response_model=VehicleState)
+    def state_patch(request: VehicleStatePatch) -> VehicleState:
+        return pipeline.update_vehicle_state(request)
+
+    @router.post("/state/reset", response_model=VehicleState)
+    def state_reset() -> VehicleState:
+        return pipeline.reset_vehicle_state()
+
+    @router.post("/carla/obstacle")
+    def carla_obstacle(request: CarlaObstacleRequest) -> dict[str, object]:
+        if not hasattr(pipeline.vehicle, "spawn_obstacle"):
+            raise HTTPException(status_code=400, detail="当前车辆适配器不是 CARLA，无法生成障碍物")
+        ok = pipeline.vehicle.spawn_obstacle(request.type)
+        return {"ok": ok, "obstacle_count": pipeline.vehicle.obstacle_count()}
+
+    @router.post("/carla/obstacle/clear")
+    def carla_obstacle_clear() -> dict[str, object]:
+        if not hasattr(pipeline.vehicle, "clear_obstacles"):
+            raise HTTPException(status_code=400, detail="当前车辆适配器不是 CARLA，无法清除障碍物")
+        cleared = pipeline.vehicle.clear_obstacles()
+        return {"ok": True, "cleared": cleared}
+
+    @router.post("/carla/traffic-light")
+    def carla_traffic_light(request: CarlaTrafficLightRequest) -> dict[str, object]:
+        if not hasattr(pipeline.vehicle, "set_traffic_light"):
+            raise HTTPException(status_code=400, detail="当前车辆适配器不是 CARLA，无法控制交通灯")
+        ok = pipeline.vehicle.set_traffic_light(request.state)
+        return {"ok": ok}
 
     @router.get("/evidence/current", response_model=CurrentEvidenceResponse)
     def evidence_current() -> CurrentEvidenceResponse:

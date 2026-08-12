@@ -9,12 +9,18 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     resolve: { alias: { "@": "/src" } },
     server: {
-      host: "127.0.0.1",
+      host: "0.0.0.0",
       port: 5173,
       strictPort: true,
+      allowedHosts: true,
       proxy: {
         "/api": { target, changeOrigin: true },
         "/ws": { target: target.replace(/^http/, "ws"), ws: true, changeOrigin: true },
+        "/carla/stream": {
+          target: "http://8.137.160.51:8080",
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/carla/, ""),
+        },
       },
     },
   };

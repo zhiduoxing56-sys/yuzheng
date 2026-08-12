@@ -1560,6 +1560,14 @@ class IndexParametersRequest(StrictModel):
     layer_count: int = Field(gt=0)
 
 
+class CarlaObstacleRequest(StrictModel):
+    type: str = Field(default="obstacle", pattern="^(pedestrian|vehicle|obstacle)$")
+
+
+class CarlaTrafficLightRequest(StrictModel):
+    state: str = Field(default="RED", pattern="^(RED|GREEN|YELLOW)$")
+
+
 class IndexStatus(StrictModel):
     implementation: str
     node_count: int = Field(ge=0)

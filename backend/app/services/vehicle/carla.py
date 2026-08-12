@@ -1,0 +1,510 @@
+from __future__ import annotations
+
+import math
+import threading
+import time
+from threading import RLock
+from time import perf_counter
+from typing import Any
+
+from app.models.schemas import (
+    VehicleExecutionResult,
+    VehicleState,
+    VehicleStatePatch,
+    make_id,
+    utc_now,
+)
+
+
+class CarlaVehicleAdapter:
+    """连接云服务器上的 CARLA 模拟器；把语证动作映射为真实车辆控制，并回读真实状态。
+
+    CARLA 0.9.16 限制（如实保留）：
+      - 无 set_door_open_state：车门/车窗/大屏/音乐等动作只更新镜像状态，无物理动画。
+      - 车速用 throttle/brake 比例控制逼近，是“接近”而非精确瞬移。
+      - CARLA 断开时 get_state 回退镜像状态，health 的 adapter_name 如实反映。
+    """
+
+    adapter_name = "carla"
+
+    # {动作}|{目标} -> CARLA 控制参数
+    ACTION_CONTROLS: dict[tuple[str, str], dict[str, Any]] = {
+        ("加速", "速度"): {"throttle": 0.6, "duration_s": 1.5, "feedback": "车辆已在 CARLA 中加速"},
+        ("减速", "速度"): {"brake": 0.5, "duration_s": 1.5, "feedback": "车辆已在 CARLA 中减速"},
+        ("打开", "制动"): {"brake": 0.9, "duration_s": 2.0, "feedback": "车辆已在 CARLA 中紧急制动"},
+        ("关闭", "前照灯"): {"light_off": True, "feedback": "前照灯已关闭"},
+        ("打开", "前照灯"): {"light_on": True, "feedback": "前照灯已打开"},
+        # 解析器把"打开/关闭前照灯"都归一化为"设置|前照灯"且不带值 → 执行时切换
+        ("设置", "前照灯"): {"light_toggle": True, "feedback": "前照灯已切换"},
+    }
+
+    # 该 CARLA 0.9.16 构建的可用预设：无 RainyNoon/FoggyNoon，雨天用 MidRainyNoon，
+    # 雾天无预设，改用自定义 WeatherParameters(fog_density=80)。
+    WEATHER_MAP = {
+        "CLEAR": "ClearNoon",
+        "CLOUDY": "CloudyNoon",
+        "RAIN": "MidRainyNoon",
+        "NIGHT": "ClearNight",
+        "SUNSET": "ClearSunset",
+    }
+
+    def __init__(
+        self,
+        action_config: dict[str, Any] | None = None,
+        *,
+        host: str = "127.0.0.1",
+        port: int = 2000,
+        timeout: float = 10.0,
+        autopilot_port: int = 8000,
+    ) -> None:
+        import carla
+
+        self._carla = carla
+        self._lock = RLock()
+        self._actions = dict((action_config or {}).get("actions", {}))
+        self._last_feedback: VehicleExecutionResult | None = None
+        self._connected = False
+
+        started_at = utc_now()
+        base_state = VehicleState()
+        self._initial_state = base_state.model_copy(
+            update={
+                "state_epoch_id": make_id("EPOCH"),
+                "started_at": started_at,
+                "reset_count": 0,
+                "last_reset_at": None,
+                "reset_reason": "service_started",
+                "updated_at": started_at,
+            }
+        )
+        self._mirror = self._initial_state.model_copy(deep=True)
+        self._spawned_obstacles: list[Any] = []
+        self._obstacle_counter = 0
+        self._cleanup_stale_obstacles()
+
+        self._client = carla.Client(host, port)
+        self._client.set_timeout(float(timeout))
+        self._world = self._client.get_world()
+        self._autopilot_port = int(autopilot_port)
+        self._vehicle = self._find_or_spawn_vehicle()
+        if self._vehicle is None:
+            raise RuntimeError("CARLA 中无法找到或生成车辆")
+        self._connected = True
+        # 默认假设车辆处于自动驾驶；后续 set_autopilot 调用会同步更新此标志
+        self._autopilot_enabled = True
+        threading.Thread(target=self._stuck_monitor, daemon=True).start()
+
+    # ------------------------------------------------------------------ 内部
+
+    def _find_or_spawn_vehicle(self) -> Any | None:
+        for actor in self._world.get_actors().filter("vehicle.*"):
+            if actor.is_alive:
+                return actor
+        blueprints = self._world.get_blueprint_library().filter("vehicle.tesla.model3")
+        if not blueprints:
+            blueprints = self._world.get_blueprint_library().filter("vehicle.*")
+        for spawn_point in self._world.get_map().get_spawn_points():
+            vehicle = self._world.try_spawn_actor(blueprints[0], spawn_point)
+            if vehicle is not None:
+                return vehicle
+        return None
+
+    def _current_speed_kmh(self) -> float:
+        velocity = self._vehicle.get_velocity()
+        return math.sqrt(velocity.x ** 2 + velocity.y ** 2 + velocity.z ** 2) * 3.6
+
+    def _apply_weather(self, code: str) -> None:
+        if code == "FOG":
+            # 该构建无 FoggyNoon 预设，构造自定义大雾天气
+            self._world.set_weather(
+                self._carla.WeatherParameters(
+                    cloudiness=50.0,
+                    precipitation=0.0,
+                    fog_density=80.0,
+                    fog_distance=15.0,
+                )
+            )
+            return
+        preset = self.WEATHER_MAP.get(code)
+        if preset is None:
+            return
+        weather = getattr(self._carla.WeatherParameters, preset, None)
+        if weather is None:
+            return
+        self._world.set_weather(weather)
+
+    def _weather_to_code(self, weather: Any) -> str:
+        precipitation = float(weather.precipitation or 0)
+        fog = float(weather.fog_density or 0)
+        cloudiness = float(weather.cloudiness or 0)
+        if precipitation > 20:
+            return "RAIN"
+        if fog > 20:
+            return "FOG"
+        if cloudiness > 40:
+            return "CLOUDY"
+        return "CLEAR"
+
+    def _apply_headlight(self, on: bool) -> None:
+        # CARLA 0.9.16 的 VehicleLightState 不支持位运算 int，直接设 LowBeam / NONE
+        self._vehicle.set_light_state(
+            self._carla.VehicleLightState.LowBeam if on else self._carla.VehicleLightState.NONE
+        )
+
+    def _apply_control_impulse(
+        self, throttle: float, brake: float, duration_s: float
+    ) -> None:
+        def run() -> None:
+            try:
+                self._vehicle.set_autopilot(False)
+                self._autopilot_enabled = False
+                self._vehicle.apply_control(
+                    self._carla.VehicleControl(throttle=float(throttle), brake=float(brake))
+                )
+                time.sleep(float(duration_s))
+                self._vehicle.apply_control(self._carla.VehicleControl())
+                self._vehicle.set_autopilot(True)
+                self._autopilot_enabled = True
+            except Exception:
+                pass
+
+        threading.Thread(target=run, daemon=True).start()
+
+    def _drive_to_speed(self, target_kmh: float) -> None:
+        def run() -> None:
+            try:
+                self._vehicle.set_autopilot(False)
+                self._autopilot_enabled = False
+                for _ in range(90):  # 最长 ~9 秒
+                    speed = self._current_speed_kmh()
+                    diff = target_kmh - speed
+                    control = self._carla.VehicleControl()
+                    if diff > 3.0:
+                        control.throttle = min(0.8, 0.25 + abs(diff) / 80.0)
+                    elif diff < -3.0:
+                        control.brake = min(0.9, 0.15 + abs(diff) / 80.0)
+                    else:
+                        control.throttle = 0.3
+                    self._vehicle.apply_control(control)
+                    time.sleep(0.1)
+                    if abs(diff) <= 3.0 and speed > 1.0:
+                        break  # 已达目标速度
+                self._vehicle.apply_control(self._carla.VehicleControl())
+                # 目标速度 0 → 保持驻车(状态稳定,便于指令执行)；>0 → 恢复自动驾驶
+                if target_kmh > 0:
+                    self._vehicle.set_autopilot(True)
+                    self._autopilot_enabled = True
+            except Exception:
+                pass
+
+        threading.Thread(target=run, daemon=True).start()
+
+    # ------------------------------------------------------------ 环境控制
+
+    def _point_ahead(self, distance: float = 20.0) -> Any:
+        transform = self._vehicle.get_transform()
+        yaw_rad = math.radians(transform.rotation.yaw)
+        location = self._carla.Location(
+            x=transform.location.x + distance * math.cos(yaw_rad),
+            y=transform.location.y + distance * math.sin(yaw_rad),
+            z=transform.location.z + 0.5,
+        )
+        return self._carla.Transform(location, transform.rotation)
+
+    def _road_point_ahead(self, distance: float = 30.0) -> Any | None:
+        """找一个位于自车前方、且在同一条车道方向上的道路出生点(供车辆使用)。"""
+        transform = self._vehicle.get_transform()
+        yaw_rad = math.radians(transform.rotation.yaw)
+        forward = (math.cos(yaw_rad), math.sin(yaw_rad))
+        best: Any | None = None
+        best_score = float("inf")
+        for spawn in self._world.get_map().get_spawn_points():
+            dx = spawn.location.x - transform.location.x
+            dy = spawn.location.y - transform.location.y
+            ahead = dx * forward[0] + dy * forward[1]
+            lateral = abs(-dx * forward[1] + dy * forward[0])
+            if ahead > distance - 15 and lateral < 6:
+                score = ahead + lateral
+                if score < best_score:
+                    best_score = score
+                    best = spawn
+        return best
+
+    def _cleanup_stale_obstacles(self) -> None:
+        """清理可能遗留的障碍物 actor（后端重启后 _spawned_obstacles 丢失追踪）。
+
+        只清理本适配器会生成的类型（行人 / 交通锥），不动地图默认装饰。
+        """
+        try:
+            for actor in self._world.get_actors():
+                if actor.type_id.startswith("walker.pedestrian") or actor.type_id == "static.prop.trafficcone01":
+                    if actor.is_alive:
+                        actor.destroy()
+        except Exception:
+            pass
+
+    def spawn_obstacle(self, kind: str) -> bool:
+        """在自车前方生成障碍物：pedestrian 行人 / vehicle 车辆 / obstacle 静态物。"""
+        blueprints = self._world.get_blueprint_library()
+        try:
+            if kind == "pedestrian":
+                candidates = blueprints.filter("walker.pedestrian.*")
+                blueprint = candidates[self._obstacle_counter % len(candidates)]
+                location = self._point_ahead(20.0)
+            elif kind == "vehicle":
+                candidates = blueprints.filter("vehicle.tesla.model3")
+                if not candidates:
+                    candidates = blueprints.filter("vehicle.*")
+                blueprint = candidates[self._obstacle_counter % len(candidates)]
+                location = self._road_point_ahead()
+                if location is None:
+                    return False
+            elif kind == "obstacle":
+                candidates = blueprints.filter("static.prop.trafficcone01")
+                if not candidates:
+                    candidates = blueprints.filter("static.prop.*")
+                blueprint = candidates[self._obstacle_counter % len(candidates)]
+                location = self._point_ahead(20.0)
+            else:
+                return False
+        except Exception:
+            return False
+        self._obstacle_counter += 1
+        actor = self._world.try_spawn_actor(blueprint, location)
+        if actor is None:
+            return False
+        self._spawned_obstacles.append(actor)
+        return True
+
+    def clear_obstacles(self) -> int:
+        cleared = 0
+        for actor in list(self._spawned_obstacles):
+            try:
+                if actor.is_alive:
+                    actor.destroy()
+                cleared += 1
+            except Exception:
+                pass
+        self._spawned_obstacles.clear()
+        return cleared
+
+    def obstacle_count(self) -> int:
+        return len(self._spawned_obstacles)
+
+    def _teleport_to_safe_spawn(self) -> None:
+        """把车传送到可靠出生点(第 0 个)并重新启用自动驾驶，用于脱困/复位。"""
+        spawn_points = self._world.get_map().get_spawn_points()
+        if not spawn_points:
+            return
+        try:
+            self._vehicle.set_autopilot(False)
+            self._autopilot_enabled = False
+            self._vehicle.set_simulate_physics(False)
+            self._vehicle.set_transform(spawn_points[0])
+            time.sleep(0.2)
+            self._vehicle.set_simulate_physics(True)
+            self._vehicle.apply_control(self._carla.VehicleControl())
+            time.sleep(0.5)
+            self._vehicle.set_autopilot(True, self._autopilot_port)
+            self._autopilot_enabled = True
+        except Exception:
+            self._connected = False
+
+    def _stuck_monitor(self) -> None:
+        """后台线程：自动驾驶中低速且不在红绿灯连续超过 15 秒 → 判定卡住，自动传送到可靠出生点。
+
+        手动驻车(autopilot 关闭)不算卡住，避免误传送破坏驻车状态。
+        """
+        low_speed_since: float | None = None
+        while True:
+            time.sleep(3)
+            try:
+                speed = self._current_speed_kmh()
+                at_light = bool(self._vehicle.is_at_traffic_light())
+                if speed < 1.0 and not at_light and self._autopilot_enabled:
+                    if low_speed_since is None:
+                        low_speed_since = time.time()
+                    elif time.time() - low_speed_since > 15:
+                        self._teleport_to_safe_spawn()
+                        low_speed_since = None
+                else:
+                    low_speed_since = None
+            except Exception:
+                pass
+
+    def set_traffic_light(self, state: str) -> bool:
+        """把全部交通灯设为指定状态 RED / GREEN / YELLOW。"""
+        lights = list(self._world.get_actors().filter("traffic.traffic_light"))
+        if not lights:
+            return False
+        state_map = {
+            "RED": self._carla.TrafficLightState.Red,
+            "GREEN": self._carla.TrafficLightState.Green,
+            "YELLOW": self._carla.TrafficLightState.Yellow,
+        }
+        selected = state_map.get(state.upper())
+        if selected is None:
+            return False
+        for light in lights:
+            try:
+                light.set_state(selected)
+            except Exception:
+                pass
+        return True
+
+    @staticmethod
+    def _apply_operation(state_data: dict[str, Any], operation: dict[str, Any]) -> None:
+        field = str(operation["field"])
+        kind = str(operation.get("operation", "set"))
+        value = operation.get("value")
+        if kind == "set":
+            state_data[field] = value
+            return
+        current = state_data.get(field)
+        if not isinstance(current, (int, float)) or not isinstance(value, (int, float)):
+            raise ValueError(f"数值操作字段不可用: {field}")
+        if kind == "increment":
+            updated = current + value
+        elif kind == "decrement":
+            updated = current - value
+        else:
+            raise ValueError(f"未知车辆状态操作: {kind}")
+        if "minimum" in operation:
+            updated = max(float(operation["minimum"]), updated)
+        if "maximum" in operation:
+            updated = min(float(operation["maximum"]), updated)
+        state_data[field] = updated
+
+    # ------------------------------------------------------------- Protocol
+
+    def get_state(self) -> VehicleState:
+        with self._lock:
+            state_data = self._mirror.model_dump()
+            try:
+                if self._vehicle is not None:
+                    state_data["vehicle_speed"] = round(self._current_speed_kmh(), 1)
+                    gear = self._vehicle.get_control().gear
+                    if gear >= 1:
+                        state_data["gear_position"] = "D"
+                    elif gear <= -1:
+                        state_data["gear_position"] = "R"
+                    control = self._vehicle.get_control()
+                    state_data["brake_state"] = "ACTIVE" if control.brake > 0.05 else "RELEASED"
+                    light = self._vehicle.get_light_state()
+                    state_data["headlight_state"] = (
+                        "ON" if light == self._carla.VehicleLightState.LowBeam else "OFF"
+                    )
+                    state_data["weather"] = self._weather_to_code(self._world.get_weather())
+                    state_data["updated_at"] = utc_now()
+                    self._connected = True
+            except Exception:
+                self._connected = False
+            return VehicleState.model_validate(state_data)
+
+    def update_state(self, patch: VehicleStatePatch) -> VehicleState:
+        updates = patch.model_dump(exclude_unset=True)
+        with self._lock:
+            if updates.get("weather") is not None:
+                try:
+                    self._apply_weather(str(updates["weather"]))
+                except Exception:
+                    self._connected = False
+            if updates.get("headlight_state") is not None:
+                try:
+                    self._apply_headlight(str(updates["headlight_state"]) == "ON")
+                except Exception:
+                    self._connected = False
+            target_speed = updates.pop("vehicle_speed", None)
+            state_data = self._mirror.model_dump()
+            for key, value in updates.items():
+                if key in state_data:
+                    state_data[key] = value
+            state_data["updated_at"] = utc_now()
+            self._mirror = VehicleState.model_validate(state_data)
+        if target_speed is not None:
+            try:
+                self._drive_to_speed(float(target_speed))
+            except Exception:
+                self._connected = False
+        return self.get_state()
+
+    def execute(self, action: str, target: str, area: str) -> VehicleExecutionResult:
+        started = perf_counter()
+        before = self.get_state()
+        key = f"{action}|{target}"
+        mapping = self.ACTION_CONTROLS.get((action, target))
+        if mapping is None:
+            # 无 CARLA 物理映射的动作：按既有 action_config 字段操作更新镜像
+            config_mapping = self._actions.get(key)
+            if config_mapping is None:
+                raise ValueError(f"CARLA 适配器不支持车辆动作: {key}")
+            with self._lock:
+                state_data = self._mirror.model_dump()
+                for operation in config_mapping.get("operations", []):
+                    self._apply_operation(state_data, operation)
+                state_data["updated_at"] = utc_now()
+                self._mirror = VehicleState.model_validate(state_data)
+            feedback = str(config_mapping.get("feedback", "动作已执行"))
+        else:
+            try:
+                if "light_toggle" in mapping:
+                    state = self._vehicle.get_light_state()
+                    currently_on = state == self._carla.VehicleLightState.LowBeam
+                    self._apply_headlight(not currently_on)
+                elif "light_on" in mapping or "light_off" in mapping:
+                    self._apply_headlight(bool(mapping.get("light_on")))
+                elif "throttle" in mapping or "brake" in mapping:
+                    self._apply_control_impulse(
+                        float(mapping.get("throttle", 0.0)),
+                        float(mapping.get("brake", 0.0)),
+                        float(mapping.get("duration_s", 1.0)),
+                    )
+                else:
+                    raise ValueError(f"未知 CARLA 控制映射: {key}")
+                feedback = str(mapping.get("feedback", "动作已在 CARLA 中执行"))
+            except Exception as exc:
+                raise RuntimeError(f"CARLA 执行失败: {type(exc).__name__}: {exc}") from exc
+        after = self.get_state()
+        result = VehicleExecutionResult(
+            adapter=self.adapter_name,
+            simulated=True,
+            status="SUCCEEDED",
+            action=action,
+            target=target,
+            area=area,
+            before_state=before,
+            after_state=after,
+            feedback=feedback,
+            duration_ms=round((perf_counter() - started) * 1000, 4),
+        )
+        with self._lock:
+            self._last_feedback = result
+        return result
+
+    def get_feedback(self) -> VehicleExecutionResult | None:
+        with self._lock:
+            return self._last_feedback.model_copy(deep=True) if self._last_feedback else None
+
+    def reset(self, reason: str = "manual_reset") -> VehicleState:
+        with self._lock:
+            reset_at = utc_now()
+            next_count = self._mirror.reset_count + 1
+            self._mirror = self._initial_state.model_copy(
+                deep=True,
+                update={
+                    "state_epoch_id": make_id("EPOCH"),
+                    "started_at": reset_at,
+                    "reset_count": next_count,
+                    "last_reset_at": reset_at,
+                    "reset_reason": reason,
+                    "updated_at": reset_at,
+                },
+            )
+            self._last_feedback = None
+            try:
+                self._world.set_weather(self._carla.WeatherParameters.ClearNoon)
+                self._apply_headlight(False)
+                self._teleport_to_safe_spawn()
+            except Exception:
+                self._connected = False
+            return self.get_state()

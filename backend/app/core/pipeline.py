@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 from threading import RLock
@@ -7,6 +8,8 @@ from time import perf_counter
 from typing import Any, Callable
 
 from app.core.config import ConfigurationError, PROJECT_ROOT, load_yaml
+
+_LOGGER = logging.getLogger(__name__)
 from app.core.performance import mark_stage, set_metric
 from app.models.schemas import (
     AdvancedReasoningResult,
@@ -82,6 +85,7 @@ from app.services.review.service import ReviewService
 from app.services.semantic.orchestrator import SemanticOrchestratorService
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
+from app.services.vehicle.carla import CarlaVehicleAdapter
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 from app.services.asr.whisper import ASRModelError, WhisperASRService
 from app.services.voice.antispoof import ASVspoofLADetector, ASVspoofPADetector
@@ -114,7 +118,24 @@ class CommandPipeline:
         audit_database_role = AuditDatabaseRole(audit_database_role)
         quality_config = load_yaml("evidence_quality.yaml")
         self.vehicle_config = load_yaml("vehicle_actions.yaml")
-        self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
+        adapter_type = os.getenv(
+            "YUZHENG_VEHICLE_ADAPTER",
+            str(self.vehicle_config.get("adapter", "simulator")),
+        ).strip().lower()
+        if adapter_type == "carla":
+            try:
+                carla_options = dict(self.vehicle_config.get("carla", {}))
+                self.vehicle = CarlaVehicleAdapter(
+                    action_config=self.vehicle_config, **carla_options
+                )
+            except Exception:
+                _LOGGER.warning(
+                    "CARLA 适配器初始化失败，回退到确定性模拟器适配器",
+                    exc_info=True,
+                )
+                self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
+        else:
+            self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
         self.event_broker = event_broker or PipelineEventBroker()
         self.review_config = load_yaml("review_policy.yaml")
         self.interpreter_config = load_yaml("interpreter.yaml")

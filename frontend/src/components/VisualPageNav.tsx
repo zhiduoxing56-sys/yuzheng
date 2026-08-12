@@ -4,6 +4,7 @@ const PAGE_LINKS = [
   { to: "/decision", label: "裁决" },
   { to: "/evidence", label: "证据检索" },
   { to: "/audits", label: "审计记录" },
+  { to: "/carla", label: "模拟器" },
 ];
 
 export function VisualPageNav() {

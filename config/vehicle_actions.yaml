@@ -1,4 +1,9 @@
 adapter: simulator
+carla:
+  host: 127.0.0.1
+  port: 2000
+  timeout: 10
+  autopilot_port: 8000
 can:
   enabled: false
   whitelist: []

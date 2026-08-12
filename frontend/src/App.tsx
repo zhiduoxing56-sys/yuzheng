@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell, VisualPageShell } from "./components/AppShell";
+import { CarlaPage } from "./pages/CarlaPage";
 import { DecisionPage } from "./pages/DecisionPage";
 import { DemoPage } from "./pages/DemoPage";
 import { SystemPage } from "./pages/SystemPage";
@@ -20,6 +21,7 @@ export function App() {
         <Route path="/evidence" element={<Suspense fallback={<div className="loading-state"><span className="loading-dot" />正在加载证据页面……</div>}><EvidencePage /></Suspense>} />
         <Route path="/evidence/:turnId" element={<Suspense fallback={<div className="loading-state"><span className="loading-dot" />正在加载证据页面……</div>}><EvidencePage /></Suspense>} />
         <Route path="/audits" element={<Suspense fallback={<div className="loading-state"><span className="loading-dot" />正在加载审计列表…</div>}><AuditsPage /></Suspense>} />
+        <Route path="/carla" element={<CarlaPage />} />
       </Route>
       <Route element={<AppShell />}>
         <Route path="/review/:turnId" element={<Suspense fallback={<div className="loading-state"><span className="loading-dot" />正在加载复核页面……</div>}><ReviewPage /></Suspense>} />

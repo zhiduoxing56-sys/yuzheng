@@ -950,6 +950,36 @@ export interface VehicleState {
   updated_at: string;
 }
 
+/** 车辆状态部分更新请求(对应后端 VehicleStatePatch,不含元数据字段)。 */
+export interface VehicleStatePatch {
+  vehicle_speed?: number | null;
+  gear_position?: string | null;
+  door_lock_state?: string | null;
+  door_state?: string | null;
+  occupant_role?: string | null;
+  speaker_zone?: string | null;
+  vehicle_mode?: string | null;
+  authentication_state?: string | boolean | null;
+  ambient_light?: number | string | null;
+  headlight_state?: string | null;
+  weather?: string | null;
+  window_state?: string | null;
+  navigation_active?: boolean | null;
+  reverse_camera_active?: boolean | null;
+  display_state?: string | null;
+  music_state?: string | null;
+  front_obstacle_distance?: number | null;
+  speed_limit?: number | null;
+  brake_state?: string | null;
+  rear_obstacle_distance?: number | null;
+  road_condition?: string | null;
+  ultrasonic_distance?: number | null;
+  surround_camera_state?: string | null;
+  emergency_flag?: boolean | null;
+  collision_state?: string | boolean | null;
+  safety_constraint?: string | null;
+}
+
 export interface TurnWorkflowStatus {
   root_turn_id: string;
   current_turn_id: string;
