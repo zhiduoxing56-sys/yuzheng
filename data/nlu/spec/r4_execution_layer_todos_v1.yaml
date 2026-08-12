@@ -1,0 +1,50 @@
+version: r4_execution_layer_todos_v1
+registry_semantics_modified: false
+todos:
+- todo_id: HIGH_RISK_PRECONDITION_GATE
+  applies_to_intent_ids_at_minimum:
+  - DOOR_OPEN
+  - DOOR_CLOSE
+  - ACCELERATE
+  - DECELERATE
+  - BRAKE
+  - EMERGENCY_BRAKE
+  - LANE_CHANGE
+  - LANE_KEEP
+  - EVASIVE_STEER
+  responsibility_boundary:
+    nlu: RECOGNIZE_USER_INTENT
+    execution_safety_chain:
+    - VEHICLE_SPEED
+    - GEAR
+    - ROAD_STATE
+    - OBSTACLE
+    - PEDESTRIAN
+    - AUTHORIZATION
+    execution_conditions_as_nlu_required_slots_prohibited: true
+  status: DEFERRED_TO_EXECUTION_SAFETY_LAYER
+  blocks_gold_build: false
+  blocks_nlu_training: false
+- todo_id: COMPOSITE_AREA_FANOUT_GATE
+  applies_to_families_at_minimum:
+  - WINDOW
+  - DOOR
+  composite_areas:
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  nlu_outputs_remain_valid:
+  - AREA=ALL
+  - AREA=FRONT_ROW
+  - AREA=REAR_ROW
+  runtime_gate_if_fanout_unavailable:
+  - REVIEW
+  - BLOCK
+  - CAPABILITY_UNAVAILABLE
+  incorrect_direct_execution_prohibited: true
+  removing_valid_composite_area_from_gold_prohibited: true
+  status: DEFERRED_TO_EXECUTION_CAPABILITY_LAYER
+  blocks_gold_build: false
+  blocks_nlu_training: false

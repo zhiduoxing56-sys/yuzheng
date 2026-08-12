@@ -4,6 +4,8 @@ from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 
 import hnswlib
+import pytest
+from pydantic import ValidationError
 
 from app.core.config import load_yaml
 from app.models.schemas import EvidenceNode, EvidenceStatus, SecurityClass, utc_now
@@ -19,6 +21,7 @@ from app.services.index.hnsw import (
     index_content_digest,
     stable_index_fingerprint,
 )
+from app.services.evidence.catalog import CANONICAL_EVIDENCE_TYPES
 from app.services.vector.embedding import DeterministicHashEmbeddingService
 
 
@@ -42,8 +45,6 @@ def _node(
         freshness=1,
         consistency=1,
         availability=1,
-        semantic_similarity=0,
-        mandatory=False,
         quality_label=EvidenceStatus.VALID,
         integrity_hash=(evidence_type.encode("utf-8").hex() + "0" * 64)[:64],
         metadata={"entity_id": entity_id or evidence_type},
@@ -70,35 +71,36 @@ def test_pdf_formula_2_8_uses_approved_ranks_and_exact_adjustments() -> None:
     assert [service.safety_adjustment_for_rank(rank) for rank in range(4)] == [0, 0, 1, 1]
 
     expected = {
-        "music_state": (SecurityClass.ENTERTAINMENT, 0),
-        "door_state": (SecurityClass.COCKPIT, 1),
-        "vehicle_speed": (SecurityClass.DRIVING, 2),
-        "safety_rule": (SecurityClass.EMERGENCY, 3),
+        "DOOR_STATE": (SecurityClass.COCKPIT, 1),
+        "VEHICLE_SPEED": (SecurityClass.DRIVING, 2),
+        "SERVICE_BRAKE_STATE": (SecurityClass.EMERGENCY, 3),
     }
     for evidence_type, (security_class, rank) in expected.items():
         info = service.security_class_info(evidence_type)
         assert (info.name, info.rank) == (security_class, rank)
 
 
-def test_cabin_is_only_a_legacy_input_name_and_public_class_is_cockpit() -> None:
+def test_security_class_names_accept_only_public_enum_values() -> None:
     service = _service()
 
-    assert service.normalize_security_class("CABIN") == SecurityClass.COCKPIT
-    assert service.normalize_security_class("L1_CABIN") == SecurityClass.COCKPIT
-    assert service.classify_node(_node("door_state")).security_class == SecurityClass.COCKPIT
+    with pytest.raises(ValueError):
+        service.normalize_security_class("CABIN")
+    with pytest.raises(ValueError):
+        service.normalize_security_class("L1_CABIN")
+    assert service.classify_node(_node("DOOR_STATE")).security_class == SecurityClass.COCKPIT
 
 
 def test_reinstantiated_same_logical_nodes_ignore_runtime_uuid_and_keep_current_ids() -> None:
     timestamp = datetime(2026, 8, 3, 1, 2, 3, tzinfo=timezone.utc)
     first_nodes = [
-        _node("music_state", timestamp=timestamp),
-        _node("vehicle_speed", timestamp=timestamp),
-        _node("safety_rule", timestamp=timestamp),
+        _node("DOOR_STATE", timestamp=timestamp),
+        _node("VEHICLE_SPEED", timestamp=timestamp),
+        _node("SERVICE_BRAKE_STATE", timestamp=timestamp),
     ]
     second_nodes = [
-        _node("music_state", timestamp=timestamp),
-        _node("vehicle_speed", timestamp=timestamp),
-        _node("safety_rule", timestamp=timestamp),
+        _node("DOOR_STATE", timestamp=timestamp),
+        _node("VEHICLE_SPEED", timestamp=timestamp),
+        _node("SERVICE_BRAKE_STATE", timestamp=timestamp),
     ]
     assert {node.node_id for node in first_nodes}.isdisjoint(
         {node.node_id for node in second_nodes}
@@ -149,9 +151,9 @@ def test_reinstantiated_same_logical_nodes_ignore_runtime_uuid_and_keep_current_
 def test_node_order_does_not_change_node_set_digest_or_build_id() -> None:
     timestamp = datetime(2026, 8, 3, tzinfo=timezone.utc)
     nodes = [
-        _node("music_state", timestamp=timestamp),
-        _node("vehicle_speed", timestamp=timestamp),
-        _node("safety_rule", timestamp=timestamp),
+        _node("DOOR_STATE", timestamp=timestamp),
+        _node("VEHICLE_SPEED", timestamp=timestamp),
+        _node("SERVICE_BRAKE_STATE", timestamp=timestamp),
     ]
     first = _service().build(nodes)
     second = _service().build(list(reversed(nodes)))
@@ -162,18 +164,18 @@ def test_node_order_does_not_change_node_set_digest_or_build_id() -> None:
 
 def test_content_or_physical_identity_change_changes_digest_and_build_id() -> None:
     timestamp = datetime(2026, 8, 3, tzinfo=timezone.utc)
-    baseline_node = _node("vehicle_speed", timestamp=timestamp, value={"speed": 10})
-    changed_content = _node("vehicle_speed", timestamp=timestamp, value={"speed": 11})
+    baseline_node = _node("VEHICLE_SPEED", timestamp=timestamp, value={"speed": 10})
+    changed_content = _node("VEHICLE_SPEED", timestamp=timestamp, value={"speed": 11})
     changed_time = _node(
-        "vehicle_speed",
+        "VEHICLE_SPEED",
         timestamp=timestamp + timedelta(seconds=1),
         value={"speed": 10},
     )
     changed_status = _node(
-        "vehicle_speed", timestamp=timestamp, value={"speed": 10}
+        "VEHICLE_SPEED", timestamp=timestamp, value={"speed": 10}
     ).model_copy(update={"quality_label": EvidenceStatus.SUSPICIOUS})
     changed_identity = _node(
-        "vehicle_speed",
+        "VEHICLE_SPEED",
         source="other_stable_source",
         timestamp=timestamp,
         value={"speed": 10},
@@ -202,8 +204,8 @@ def test_content_or_physical_identity_change_changes_digest_and_build_id() -> No
 
 def test_uuid_and_built_at_do_not_change_build_id() -> None:
     timestamp = datetime(2026, 8, 3, tzinfo=timezone.utc)
-    first_node = _node("vehicle_speed", timestamp=timestamp, node_id="EVI_runtime_first")
-    second_node = _node("vehicle_speed", timestamp=timestamp, node_id="EVI_runtime_second")
+    first_node = _node("VEHICLE_SPEED", timestamp=timestamp, node_id="EVI_runtime_first")
+    second_node = _node("VEHICLE_SPEED", timestamp=timestamp, node_id="EVI_runtime_second")
     first_service = _service()
     second_service = _service()
     first = first_service.build([first_node])
@@ -218,13 +220,13 @@ def test_uuid_and_built_at_do_not_change_build_id() -> None:
 
 def test_classification_or_duplicate_count_changes_digest_and_build_id() -> None:
     timestamp = datetime(2026, 8, 3, tzinfo=timezone.utc)
-    first_node = _node("vehicle_speed", timestamp=timestamp)
-    duplicate_node = _node("vehicle_speed", timestamp=timestamp)
+    first_node = _node("VEHICLE_SPEED", timestamp=timestamp)
+    duplicate_node = _node("VEHICLE_SPEED", timestamp=timestamp)
     baseline = _service().build([first_node])
     duplicated = _service().build([first_node, duplicate_node])
 
     changed_config = deepcopy(load_yaml("index.yaml"))
-    changed_config["security_layering"]["evidence_type_mapping"]["vehicle_speed"] = {
+    changed_config["security_layering"]["evidence_type_mapping"]["VEHICLE_SPEED"] = {
         "security_class": "EMERGENCY",
         "source": "EXISTING_PROJECT_MAPPING",
     }
@@ -238,7 +240,7 @@ def test_classification_or_duplicate_count_changes_digest_and_build_id() -> None
 
 
 def test_different_seed_changes_build_id_without_changing_formula_source() -> None:
-    nodes = [_node("vehicle_speed"), _node("safety_rule")]
+    nodes = [_node("VEHICLE_SPEED"), _node("SERVICE_BRAKE_STATE")]
     first_config = load_yaml("index.yaml")
     second_config = deepcopy(first_config)
     second_config["security_layering"]["index_seed"] = "different-audited-seed"
@@ -254,10 +256,10 @@ def test_different_seed_changes_build_id_without_changing_formula_source() -> No
 def test_l3_builds_four_real_cumulative_hnswlib_indices() -> None:
     service = _service()
     nodes = [
-        _node("music_state"),
-        _node("door_state"),
-        _node("vehicle_speed"),
-        _node("safety_rule"),
+        _node("DOOR_STATE"),
+        _node("OCCUPANT_STATE"),
+        _node("VEHICLE_SPEED"),
+        _node("SERVICE_BRAKE_STATE"),
     ]
     status = service.build(nodes)
 
@@ -274,16 +276,8 @@ def test_l3_builds_four_real_cumulative_hnswlib_indices() -> None:
             assert present is (layer in memberships)
 
 
-def test_unknown_type_is_transparent_unclassified_base_only() -> None:
+def test_non_catalog_type_is_rejected_and_mapping_covers_catalog() -> None:
     service = _service()
-    status = service.build([_node("future_unknown_sensor")])
-    stored = next(iter(service._nodes.values()))
-
-    assert stored.security_class == SecurityClass.UNCLASSIFIED
-    assert stored.security_rank is None
-    assert stored.hnsw_max_layer == 0
-    assert stored.hnsw_layer_memberships == [0]
-    assert stored.security_classification_source == "UNCLASSIFIED_BASE_ONLY"
-    assert status.mapping_coverage == 0
-    assert status.unclassified_types == ["future_unknown_sensor"]
-    assert status.per_layer_node_count == {0: 1, 1: 0, 2: 0, 3: 0}
+    with pytest.raises(ValidationError):
+        _node("future_unknown_sensor")
+    assert set(service.security_classification.evidence_type_mapping) == CANONICAL_EVIDENCE_TYPES

@@ -1,0 +1,169 @@
+{
+  "experiment_id": "sys014-poc7-rbt3-exp001",
+  "status": "COMPLETED_NO_ELIGIBLE_SAFETY_CHECKPOINT",
+  "dataset_version": "sys014-poc7-v2",
+  "dataset_manifest_sha256": "122621c0ce5e7a6fbaadbbe97cb3e7e86a32812ee1c69fe5ee27c45d94ac8d42",
+  "registry_version": "sys-014-stage2.1-draft-2",
+  "model_id": "hfl/rbt3",
+  "model_revision": "0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+  "seed": 14031,
+  "device": "CPU",
+  "cpu_model": "Intel(R) Core(TM) i9-14900HX",
+  "torch_threads": 24,
+  "torch_interop_threads": 24,
+  "torch_version": "2.13.0+cpu",
+  "transformers_version": "5.14.1",
+  "python_executable": "D:\\software\\anaconda\\envs\\yuzheng311\\python.exe",
+  "git_commit": "ecb9701b6c20cfb9f360b3b33292ebd22e75bc78",
+  "started_at": "2026-08-08T19:36:43+08:00",
+  "finished_at": "2026-08-08T19:39:08+08:00",
+  "training_duration_seconds": 143.35214759991504,
+  "rss_before_training_bytes": 576249856,
+  "rss_after_training_bytes": 1078599680,
+  "test_evaluation_executed": false,
+  "safety_gold_evaluation_executed": false,
+  "preflight": {
+    "hash_verification": {
+      "dataset_manifest_sha256": "122621c0ce5e7a6fbaadbbe97cb3e7e86a32812ee1c69fe5ee27c45d94ac8d42",
+      "verified_file_count": 14,
+      "verified_files": [
+        {
+          "file": "README.md",
+          "sha256": "c6b84ba8b920d199fec1ac92169f31f20b0817c583f93c3a8ff80b1439a704a0"
+        },
+        {
+          "file": "data/nlu/poc/candidate_pool.jsonl",
+          "sha256": "5facede3e3e1d83178d5e4da23c69af949bc5d49bbfda4444ab02fb804560ea9"
+        },
+        {
+          "file": "data/nlu/poc/safety_gold_candidates.jsonl",
+          "sha256": "d9d9b597d888ec24c8fec52631b3dd9dabd4b48013a768ef8ff037ffbee77565"
+        },
+        {
+          "file": "data/nlu/spec/annotation_guidelines.md",
+          "sha256": "20dba043fae4bb54629a4547b8c6c93eb10ca2750b81f0e28cc7104989c1350c"
+        },
+        {
+          "file": "data/nlu/spec/annotation_schema.json",
+          "sha256": "5a67db9562df24aa6ad309b15dd4dda19821f6eecfee37cf652ff97df0146650"
+        },
+        {
+          "file": "data/nlu/spec/intent_registry_draft.yaml",
+          "sha256": "e28bed95c2e1456c6ca53c4a7f37814c992998158fd84fd7ae682669f8769fad"
+        },
+        {
+          "file": "leakage_audit.md",
+          "sha256": "a2710a5844c809caf4da523c1360298e89e2b83f79d465db2bdb5972918243e7"
+        },
+        {
+          "file": "safety_gold.jsonl",
+          "sha256": "87d667321e94c36ce89ce4ceb604fb34205f22d2611838454c3c61ee7416f48c"
+        },
+        {
+          "file": "split_group_balance_diagnosis.md",
+          "sha256": "98b5c38f5bcaecbe20c8e225a9d70418e1cd551b49cd9bf07b44b169fba4b1f4"
+        },
+        {
+          "file": "split_report.md",
+          "sha256": "7a8dc8e5319f4bb37a7ff87b909c772cd80b89a03a903cc7f9bebad1f4983f2d"
+        },
+        {
+          "file": "test.jsonl",
+          "sha256": "813465b8b3667a74c99c519bab85baf1e38e09388979a77ce95d7cb7b99e9d29"
+        },
+        {
+          "file": "train.jsonl",
+          "sha256": "dadfee10cd5356c136311d828a22bdb88d37f09853d00c464d6d686c3b44feee"
+        },
+        {
+          "file": "v1_to_v2_split_diff.md",
+          "sha256": "3b6ae35d38cae182ca61f2300a03d2af2a4c1b746944bbbe118d5f9c516e9aba"
+        },
+        {
+          "file": "validation.jsonl",
+          "sha256": "3edc527eea43d6e075bc2d633b7a601450fdecbc1e0ecac665fd5bd0a4becf9a"
+        }
+      ],
+      "failures": [],
+      "DATASET_HASH_VERIFIED": true
+    },
+    "official_validator": {
+      "dataset_version": "sys014-poc7-v2",
+      "train_count": 587,
+      "validation_count": 129,
+      "test_count": 133,
+      "safety_gold_count": 60,
+      "test_asset_in_train": 0,
+      "exact_cross_split_duplicates": 0,
+      "normalized_cross_split_duplicates": 0,
+      "template_signature_cross_split_duplicates": 0,
+      "mechanical_near_duplicate_cross_split_failures": 0,
+      "family_leakage_failures": 0,
+      "split_group_leakage_failures": 0,
+      "span_validation_failures": 0,
+      "registry_validation_failures": 0,
+      "structure_failures": 0,
+      "source_copy_failures": 0,
+      "forbidden_family_change_failures": 0,
+      "safety_gold_copy_failures": 0,
+      "safety_gold_isolation_failures": 0,
+      "manifest_count_failures": 0,
+      "manifest_digest_failures": 0,
+      "manifest_statistics_failures": 0,
+      "manifest_hash_failures": 0,
+      "parent_v1_integrity_failures": 0,
+      "balance_failures": 0,
+      "negated_soft_target_blocked_count": 6,
+      "reproducibility_failures": 0,
+      "report_failures": 0,
+      "validation_failures": 0
+    },
+    "split_counts": {
+      "train": 587,
+      "validation": 129,
+      "test": 133
+    },
+    "safety_gold_policy": "INTEGRITY_ONLY_NOT_LOADED_FOR_LOSS_OR_SELECTION"
+  },
+  "epochs_completed": 10,
+  "training_steps_executed": 370,
+  "best_epoch": null,
+  "best_checkpoint_sha256": null,
+  "rbt3_baseline_training_pass": false,
+  "postmortem_finalized": true,
+  "closest_safety_candidate_epoch": 5,
+  "best_checkpoint_saved": false,
+  "last_checkpoint_sha256": "bc12273c91372d7a5738a726f520a68093c5ccb9114ac406342da96dbfe02efd",
+  "training_failure_diagnosis": {
+    "status": "NO_VALIDATION_CHECKPOINT_PASSED_FROZEN_SAFETY_GATES",
+    "closest_safety_candidate_epoch": 5,
+    "closest_candidate_quality_score": 0.9397006374635573,
+    "closest_candidate_raw_ufar": 0.034482758620689655,
+    "blocking_gate": "AMBIGUOUS_FALSE_ACCEPT_RATE_MAX_0",
+    "blocking_false_accept_count": 1,
+    "blocking_category_total": 9,
+    "blocking_samples": [
+      {
+        "sample_id": "SYS014-POC-0731",
+        "text": "速度那个再弄点"
+      }
+    ],
+    "pipeline_diagnosis": {
+      "loss_masking": "PASS_STAGE4B_TESTS_AND_ALL_HEADS_LEARNED",
+      "class_weights": "FROZEN_SQRT_INVERSE_FREQ_APPLIED; AMBIGUOUS validation support is only 9",
+      "learning_rate": "HEALTHY_FINITE_DESCENT_AT_FIXED_2E-5",
+      "head_initialization": "HEALTHY; intent/structure/slot/negation all rose far above random/collapse",
+      "token_projection": "PASS_ZERO_FAILURES",
+      "gradient": {
+        "status": "FINITE",
+        "epoch_mean_gradient_norm_min": 4.924832685573681,
+        "epoch_mean_gradient_norm_max": 22.196619961712813
+      },
+      "dataset_batching": "DETERMINISTIC_SHUFFLE_SEED_14031_BATCH_16"
+    },
+    "recommended_next_action": "STOP; human validation review before either limited RBT3 safety optimization or Stage 4C-B decision",
+    "electra_training_started": false,
+    "test_evaluation_executed": false,
+    "safety_gold_evaluation_executed": false
+  }
+}

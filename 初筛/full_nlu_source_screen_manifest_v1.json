@@ -1,0 +1,192 @@
+{
+  "manifest_version": "full_nlu_source_screen_manifest_v1",
+  "operation": "mechanical_merge_only",
+  "semantic_reassessment_performed": false,
+  "shard_results_modified": false,
+  "sort_key": "screen_index",
+  "expected_screen_index_range": [
+    1,
+    20899
+  ],
+  "sample_id_field": "样本编号",
+  "input_shards": [
+    {
+      "file": "full_nlu_source_screen_shard_01.jsonl",
+      "start_screen_index": 1,
+      "end_screen_index": 2000,
+      "sample_count": 2000,
+      "bytes": 1210337,
+      "sha256": "ce652d34273df927662f9fe9345a8f2661201fca1164a382b6baa0094ec691ed"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_02.jsonl",
+      "start_screen_index": 2001,
+      "end_screen_index": 4000,
+      "sample_count": 2000,
+      "bytes": 1286039,
+      "sha256": "c803168e64cb1c45835d23e05a10b511e03be371896a5f2c4b4cb542ecf62993"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_03.jsonl",
+      "start_screen_index": 4001,
+      "end_screen_index": 6000,
+      "sample_count": 2000,
+      "bytes": 1195167,
+      "sha256": "65d428d72d2ed0fd24da555b69390adc411d227d76786e62a072a3d43b81c87d"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_04.jsonl",
+      "start_screen_index": 6001,
+      "end_screen_index": 8000,
+      "sample_count": 2000,
+      "bytes": 1168185,
+      "sha256": "a928f093552ed4804557dfbf56fb812205d7130b0aae80408859301df834bebf"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_05.jsonl",
+      "start_screen_index": 8001,
+      "end_screen_index": 10000,
+      "sample_count": 2000,
+      "bytes": 1289169,
+      "sha256": "95ee89f38aab30697c6922c1a96291abb2a2e72353d41775b41b7b0f84ed0ef6"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_06.jsonl",
+      "start_screen_index": 10001,
+      "end_screen_index": 12000,
+      "sample_count": 2000,
+      "bytes": 1203261,
+      "sha256": "cf4b04ca60d4664a86172a06082b4642cda63028300bf3e7a9040e2629e50b70"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_07.jsonl",
+      "start_screen_index": 12001,
+      "end_screen_index": 14000,
+      "sample_count": 2000,
+      "bytes": 1207246,
+      "sha256": "b06ffa23814f1d492fd8286376634d477eb9fc544aa054f8f6a3a6336e23ba62"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_08.jsonl",
+      "start_screen_index": 14001,
+      "end_screen_index": 16000,
+      "sample_count": 2000,
+      "bytes": 1193996,
+      "sha256": "8714810ef1f848a901a0e0e69cf31990f614fc99d74bb24081b5ff81cf935c1c"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_09.jsonl",
+      "start_screen_index": 16001,
+      "end_screen_index": 18000,
+      "sample_count": 2000,
+      "bytes": 1202692,
+      "sha256": "dfa12a57627efe3569029b9f424cef33ccea0a3648bf60dbac9552aa45e7aad0"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_10.jsonl",
+      "start_screen_index": 18001,
+      "end_screen_index": 20000,
+      "sample_count": 2000,
+      "bytes": 1292455,
+      "sha256": "fba6034c6934fc6df7f5672c711f1c90ad50dcfc7635a8b578bf6e93fadb9d6e"
+    },
+    {
+      "file": "full_nlu_source_screen_shard_11.jsonl",
+      "start_screen_index": 20001,
+      "end_screen_index": 20899,
+      "sample_count": 899,
+      "bytes": 563900,
+      "sha256": "61710779085db1bfb96a5456991639460a625c8876c60caa6be0f0fa1b56d238"
+    }
+  ],
+  "hard_validation": {
+    "总数": 20899,
+    "总数等于20899": true,
+    "screen_index": {
+      "最小值": 1,
+      "最大值": 20899,
+      "连续1到20899": true,
+      "重复数": 0,
+      "缺失数": 0,
+      "缺失值": []
+    },
+    "sample_id": {
+      "来源字段": "样本编号",
+      "唯一数": 20899,
+      "重复数": 0,
+      "缺失数": 0
+    },
+    "必需字段缺失数": 0,
+    "记录内容改写数": 0,
+    "全部通过": true
+  },
+  "statistics": {
+    "六种初筛总分类": {
+      "DROP_MALFORMED": 31,
+      "HIGH_CONFIDENCE_CANDIDATE": 8905,
+      "SOURCE_CLEAR_BASELINE_WRONG": 6831,
+      "SOURCE_CLEAR_R4_PENDING": 3544,
+      "SOURCE_CONFLICT_REVIEW": 274,
+      "TRUE_BOUNDARY_CANDIDATE": 1314
+    },
+    "五种结构候选": {
+      "AMBIGUOUS_TEXT": 196,
+      "CLEAR_MULTI": 3345,
+      "CLEAR_SINGLE": 16522,
+      "MALFORMED_TEXT": 59,
+      "POSSIBLY_INCOMPLETE": 777
+    },
+    "四种源annotation状态": {
+      "SOURCE_CONFLICT": 266,
+      "SOURCE_CONSISTENT": 14904,
+      "SOURCE_NONE_OR_MALFORMED": 412,
+      "SOURCE_PARTIAL": 5317
+    },
+    "四种baseline映射状态": {
+      "BASELINE_CONSISTENT": 11065,
+      "BASELINE_MAPPING_ERROR": 6903,
+      "BASELINE_PARTIAL": 1099,
+      "BASELINE_UNVERIFIABLE": 1832
+    },
+    "三种R4依赖状态": {
+      "R4_CONTRACT_CHECK": 702,
+      "R4_NOT_REQUIRED": 14498,
+      "R4_REQUIRED": 5699
+    },
+    "三种置信度": {
+      "HIGH": 13558,
+      "LOW": 157,
+      "MEDIUM": 7184
+    }
+  },
+  "focus_counts": {
+    "BASELINE_MAPPING_ERROR": 6903,
+    "BASELINE_PARTIAL": 1099,
+    "CLEAR_MULTI": 3345,
+    "SOURCE_CONFLICT_REVIEW": 274,
+    "SOURCE_CLEAR_R4_PENDING": 3544,
+    "TRUE_BOUNDARY_CANDIDATE": 1314
+  },
+  "generated_files": [
+    {
+      "file": "full_nlu_source_screen_v1.jsonl",
+      "bytes": 12812447,
+      "sha256": "59340fce2c394cb793a37ba2b301379f4ef9794c9301d0983c6b37680e09123c"
+    },
+    {
+      "file": "full_nlu_source_screen_v1.xlsx",
+      "bytes": 2320441,
+      "sha256": "b6c156df3776c36bdac81a6ee0f2588d703ff1e91e65a5f4bc6d019597044986"
+    },
+    {
+      "file": "full_nlu_source_screen_summary_v1.json",
+      "bytes": 1925,
+      "sha256": "f68f0e386c48866460769c88b0c4dd0e3103d1b94c9710ebd9c44120f0492a2e"
+    },
+    {
+      "file": "full_nlu_source_screen_summary_v1.xlsx",
+      "bytes": 9162,
+      "sha256": "1c7a274220476be6f1fbd8dd2449f014668ba90f1b23690133cd534317ba70bd"
+    }
+  ]
+}

@@ -15,62 +15,14 @@ from app.models.schemas import (
     make_id,
     utc_now,
 )
-
-
-UNIT_BY_TYPE = {
-    "vehicle_speed": "km/h",
-    "ambient_light": "lux",
-    "front_obstacle_distance": "m",
-    "rear_obstacle_distance": "m",
-    "ultrasonic_distance": "m",
-    "speed_limit": "km/h",
-}
-
-LAYER_BY_TYPE = {
-    "brake_state": "L3_EMERGENCY",
-    "front_obstacle_distance": "L3_EMERGENCY",
-    "rear_obstacle_distance": "L3_EMERGENCY",
-    "ultrasonic_distance": "L3_EMERGENCY",
-    "collision_state": "L3_EMERGENCY",
-    "vehicle_speed": "L2_DRIVING",
-    "gear_position": "L2_DRIVING",
-    "vehicle_mode": "L2_DRIVING",
-    "speed_limit": "L2_DRIVING",
-    "road_condition": "L2_DRIVING",
-    "surround_camera_state": "L2_DRIVING",
-    "occupant_role": "L1_CABIN",
-    "speaker_role": "L1_CABIN",
-    "speaker_zone": "L1_CABIN",
-    "authentication_state": "L1_CABIN",
-    "safety_constraint": "L3_EMERGENCY",
-    "emergency_flag": "L3_EMERGENCY",
-    "door_lock_state": "L1_CABIN",
-    "door_state": "L1_CABIN",
-    "window_state": "L1_CABIN",
-    "headlight_state": "L1_CABIN",
-    "ambient_light": "L1_CABIN",
-    "weather": "L1_CABIN",
-    "display_state": "L0_ENTERTAINMENT",
-    "music_state": "L0_ENTERTAINMENT",
-    "navigation_active": "L0_ENTERTAINMENT",
-    "safety_rule": "L3_EMERGENCY",
-    "sensor_health": "L2_DRIVING",
-    "evidence_stream": "L2_DRIVING",
-}
-
-ENVIRONMENT_TYPES = {"ambient_light", "weather", "road_condition", "speed_limit"}
-IDENTITY_TYPES = {"occupant_role", "speaker_role", "speaker_zone", "authentication_state"}
-SYSTEM_TYPES = {"vehicle_mode", "safety_constraint", "emergency_flag"}
-
-
-def source_for_type(evidence_type: str) -> str:
-    if evidence_type in ENVIRONMENT_TYPES:
-        return "environment_sensor"
-    if evidence_type in IDENTITY_TYPES:
-        return "cabin_identity"
-    if evidence_type in SYSTEM_TYPES:
-        return "system_context"
-    return "simulator_vehicle_state"
+from app.services.evidence.catalog import (
+    evidence_runtime_mapping,
+    require_canonical_evidence_type,
+)
+from app.services.evidence.value_contract import validate_evidence_value
+from app.services.evidence.security_classification import (
+    production_security_classification,
+)
 
 
 class EvidenceRepository:
@@ -87,15 +39,16 @@ class EvidenceRepository:
         self._stream_nodes: dict[str, list[str]] = {}
         self._node_stream_keys: dict[str, str] = {}
         self._turn_nodes: dict[str, list[str]] = {}
+        self._missing_nodes: dict[tuple[str, str], str] = {}
         self._freshness = (quality_config or {}).get("freshness", {})
         retention = retention_config or {}
         self.dynamic_stream_window = int(retention.get("dynamic_stream_window", 16))
         self.retained_turns = int(retention.get("retained_turns", 64))
         self.cleanup_after_audit = bool(retention.get("cleanup_after_audit", True))
         self.retain_static_nodes = bool(retention.get("retain_static_nodes", True))
-        self.retain_rule_nodes = bool(retention.get("retain_rule_nodes", True))
-        self._static_evidence_types = set(retention.get("static_evidence_types", ["safety_rule"]))
-        self._static_sources = set(retention.get("static_sources", ["safety_rule_config"]))
+        self.retain_rule_nodes = bool(retention.get("retain_rule_nodes", False))
+        self._static_evidence_types = set(retention.get("static_evidence_types", []))
+        self._static_sources = set(retention.get("static_sources", []))
         self._static_node_ids: set[str] = set()
         self._active_turns: set[str] = set()
         self._turn_order: list[str] = []
@@ -139,6 +92,9 @@ class EvidenceRepository:
         node = self._nodes.pop(node_id, None)
         if node is None:
             return
+        self._missing_nodes = {
+            key: value for key, value in self._missing_nodes.items() if value != node_id
+        }
         self._static_node_ids.discard(node_id)
         stream_key = self._node_stream_keys.pop(node_id, None)
         if stream_key is not None:
@@ -228,17 +184,24 @@ class EvidenceRepository:
         value: Any,
         timestamp: datetime | None,
         expires_at: datetime | None,
-        mandatory: bool = False,
         status: EvidenceStatus | None = None,
-        unit: str | None = None,
         metadata: dict[str, Any] | None = None,
         integrity_valid: bool = True,
     ) -> EvidenceNode:
+        require_canonical_evidence_type(evidence_type)
+        mapping = evidence_runtime_mapping()[evidence_type]
+        security = production_security_classification().info(evidence_type)
         label = status or (EvidenceStatus.MISSING if value is None else EvidenceStatus.VALID)
+        validation = validate_evidence_value(evidence_type, value)
+        node_metadata = dict(metadata or {})
+        if validation.applicable and not validation.usable:
+            value = None
+            if label != EvidenceStatus.TAMPERED:
+                label = EvidenceStatus.MISSING
+            node_metadata.update(validation.audit_metadata())
         payload = self._payload(evidence_type, source, value, timestamp)
         expected_hash = self._digest(payload)
         integrity_hash = expected_hash if integrity_valid else "0" * 64
-        node_metadata = dict(metadata or {})
         node_metadata.update(
             {
                 "integrity_payload": payload,
@@ -247,20 +210,21 @@ class EvidenceRepository:
         )
         return EvidenceNode(
             evidence_type=evidence_type,
-            layer=LAYER_BY_TYPE.get(evidence_type, "L1_CABIN"),
+            layer=security.node_layer_label,
             source=source,
             value=value,
-            unit=unit or UNIT_BY_TYPE.get(evidence_type),
+            unit=dict(mapping["value_schema"]).get("unit"),
             timestamp=timestamp,
             expires_at=expires_at,
             freshness=1.0 if label == EvidenceStatus.VALID else 0.0,
             consistency=1.0 if label == EvidenceStatus.VALID else 0.0,
             availability=1.0 if label == EvidenceStatus.VALID else 0.0,
-            semantic_similarity=0.0,
-            mandatory=mandatory,
             quality_label=label,
             integrity_hash=integrity_hash,
             metadata=node_metadata,
+            security_class=security.name,
+            security_rank=security.rank,
+            security_classification_source=security.mapping_source,
         )
 
     def _store(
@@ -286,38 +250,148 @@ class EvidenceRepository:
         return node
 
     def ingest_vehicle_state(
-        self, state: VehicleState, command_context: dict[str, Any], turn_id: str
+        self,
+        state: VehicleState,
+        authorization_fact: dict[str, Any] | None,
+        turn_id: str,
     ) -> list[EvidenceNode]:
-        values = state.model_dump(mode="json", exclude={"updated_at"})
-        values.update(command_context)
+        values = state.model_dump(mode="json")
+        facts: list[tuple[str, Any]] = [
+            ("VEHICLE_SPEED", state.vehicle_speed),
+            (
+                "GEAR_STATE",
+                {
+                    "current_gear": state.gear_position,
+                    "selected_gear": None,
+                    "change_mode": None,
+                },
+            ),
+            (
+                "SERVICE_BRAKE_STATE",
+                {
+                    "brake_state": state.brake_state,
+                    "emergency_braking_detected": state.emergency_flag,
+                },
+            ),
+            (
+                "ROAD_FRICTION_STATE",
+                {
+                    "road_condition": state.road_condition,
+                    "lower_bound": None,
+                    "most_probable": None,
+                    "upper_bound": None,
+                },
+            ),
+            ("DOOR_STATE", {"state": state.door_state, "position": None}),
+            (
+                "DOOR_LOCK_STATE",
+                {"lock_state": state.door_lock_state, "child_lock_active": None},
+            ),
+            (
+                "WINDOW_STATE",
+                {
+                    "state": state.window_state,
+                    "position": None,
+                    "child_lock_active": None,
+                },
+            ),
+            (
+                "LIGHTING_STATE",
+                {
+                    "headlight_state": state.headlight_state,
+                    "high_beam": None,
+                    "fog": None,
+                    "parking": None,
+                    "hazard": None,
+                    "direction_indicator": None,
+                },
+            ),
+            (
+                "SURROUNDING_OBJECT_STATE",
+                {
+                    "front_obstacle_distance": state.front_obstacle_distance,
+                    "rear_obstacle_distance": state.rear_obstacle_distance,
+                    "collision_state": state.collision_state,
+                    "objects": None,
+                },
+            ),
+            ("SPEED_LIMIT_STATE", state.speed_limit),
+            (
+                "ENVIRONMENT_CONDITIONS",
+                {
+                    "ambient_illumination": state.ambient_light,
+                    "weather": state.weather,
+                    "precipitation": None,
+                    "fog": None,
+                    "time_of_day": None,
+                },
+            ),
+            (
+                "AUTHORIZATION_STATE",
+                authorization_fact
+                or {
+                    "authentication_state": state.authentication_state,
+                    "authenticated": None,
+                    "subject_role": None,
+                    "subject_zone": None,
+                    "intent_authorizations": [],
+                    "authorized_for_request": None,
+                },
+            ),
+            (
+                "SYSTEM_MODE",
+                {
+                    "vehicle_mode": state.vehicle_mode,
+                    "safety_constraint": state.safety_constraint,
+                },
+            ),
+        ]
+        runtime_mapping = evidence_runtime_mapping()
         now = utc_now()
         nodes: list[EvidenceNode] = []
-        for evidence_type, value in values.items():
+        for evidence_type, value in facts:
+            mapping = runtime_mapping[evidence_type]
+            source_fields = list(mapping["source_fields"])
+            if evidence_type == "AUTHORIZATION_STATE":
+                raw_sources = {
+                    "authentication_state": state.authentication_state,
+                    "subject_role": value.get("subject_role"),
+                    "subject_zone": value.get("subject_zone"),
+                    "zone_permission": value.get("intent_authorizations"),
+                }
+                source_providers = {
+                    "authentication_state": "simulator_vehicle_state",
+                    "subject_role": "trusted_runtime_context",
+                    "subject_zone": "trusted_runtime_context",
+                    "zone_permission": "zone_permission_service",
+                }
+            else:
+                raw_sources = {name: values.get(name) for name in source_fields}
+                source_providers = {
+                    name: "simulator_vehicle_state" for name in source_fields
+                }
             validity = self._validity_seconds(evidence_type)
             node = self._make_node(
                 evidence_type=evidence_type,
-                source=source_for_type(evidence_type),
+                source=str(mapping["provider"]),
                 value=value,
                 timestamp=now,
                 expires_at=now + timedelta(seconds=validity),
-                metadata={"turn_id": turn_id, "snapshot_updated_at": state.updated_at.isoformat()},
+                metadata={
+                    "turn_id": turn_id,
+                    "snapshot_updated_at": state.updated_at.isoformat(),
+                    "state_epoch_id": state.state_epoch_id,
+                    "provider": mapping["provider"],
+                    "source_fields": source_fields,
+                    "derivation_method": mapping["derivation"],
+                    "raw_sources": raw_sources,
+                    "raw_source_providers": source_providers,
+                    "source_field_availability": {
+                        name: raw_sources.get(name) is not None for name in source_fields
+                    },
+                },
             )
             nodes.append(self._store(node, turn_id))
-
-        health_value = {
-            key: value is not None
-            for key, value in values.items()
-            if key not in IDENTITY_TYPES | SYSTEM_TYPES
-        }
-        health_node = self._make_node(
-            evidence_type="sensor_health",
-            source="sensor_health_monitor",
-            value=health_value,
-            timestamp=now,
-            expires_at=now + timedelta(seconds=30),
-            metadata={"turn_id": turn_id},
-        )
-        nodes.append(self._store(health_node, turn_id))
         return nodes
 
     def ingest_observations(
@@ -352,55 +426,44 @@ class EvidenceRepository:
                 timestamp=timestamp,
                 expires_at=expires_at,
                 status=status,
-                unit=observation.unit,
                 integrity_valid=observation.integrity_valid,
                 metadata={"turn_id": turn_id, "explicit_observation": True},
             )
             nodes.append(self._store(node, turn_id))
         return nodes
 
-    def ingest_safety_rules(self, rules: list[dict[str, Any]]) -> list[EvidenceNode]:
-        now = utc_now()
-        nodes: list[EvidenceNode] = []
-        for rule in rules:
-            node = self._make_node(
-                evidence_type="safety_rule",
-                source="safety_rule_config",
-                value=rule,
-                timestamp=now,
-                expires_at=now + timedelta(days=3650),
-                metadata={"rule_id": rule.get("id")},
-            )
-            nodes.append(self._store(node))
-        return nodes
-
-    def create_missing(
+    def get_or_create_missing(
         self,
         evidence_type: str,
         turn_id: str,
-        reason: str,
         *,
         missing_hard_gate: bool = True,
     ) -> EvidenceNode:
-        node = self._make_node(
-            evidence_type=evidence_type,
-            source="missing_placeholder",
-            value=None,
-            timestamp=None,
-            expires_at=None,
-            mandatory=True,
-            status=EvidenceStatus.MISSING,
-            metadata={
-                "turn_id": turn_id,
-                "missing_reason": reason,
-                "retrieval_origin": "NONE",
-                "missing_hard_gate": missing_hard_gate,
-                "placeholder_kind": "unavailable",
-            },
-        )
-        # MISSING 是本轮补召失败的可审计占位节点，不是外部证据流观测，
-        # 因此不能被后续轮次当作历史传感器证据再次召回。
-        return self._store(node, turn_id, recallable=False)
+        key = (turn_id, evidence_type)
+        with self._lock:
+            existing_id = self._missing_nodes.get(key)
+            if existing_id is not None and existing_id in self._nodes:
+                return self._nodes[existing_id]
+            node = self._make_node(
+                evidence_type=evidence_type,
+                source="missing_placeholder",
+                value=None,
+                timestamp=None,
+                expires_at=None,
+                status=EvidenceStatus.MISSING,
+                metadata={
+                    "turn_id": turn_id,
+                    "missing_reason": "required evidence unavailable in current turn",
+                    "retrieval_origin": "NONE",
+                    "missing_hard_gate": missing_hard_gate,
+                    "placeholder_kind": "unavailable",
+                },
+            )
+            # Intent-neutral MISSING 是本轮补召失败的可审计占位节点，不是
+            # 外部证据流观测，因此不能进入跨轮召回流或 HNSW。
+            stored = self._store(node, turn_id, recallable=False)
+            self._missing_nodes[key] = stored.node_id
+            return stored
 
     def latest_observations(self, evidence_type: str) -> list[EvidenceNode]:
         with self._lock:
@@ -441,20 +504,6 @@ class EvidenceRepository:
             for source in sorted(grouped)
             for node in grouped[source]
         ]
-
-    def latest_usable(self, evidence_type: str) -> EvidenceNode | None:
-        observations = self.latest_observations(evidence_type)
-        if not observations:
-            return None
-        newest_timestamp = observations[0].timestamp
-        newest = [node for node in observations if node.timestamp == newest_timestamp]
-        usable = [
-            node
-            for node in newest
-            if node.quality_label in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
-            and node.expires_at > utc_now()
-        ]
-        return sorted(usable, key=lambda node: node.node_id)[0] if usable else None
 
     def latest_resolved(self, evidence_type: str) -> EvidenceNode | None:
         """Return the newest exact-type observation, including abnormal states."""
@@ -521,27 +570,3 @@ class EvidenceRepository:
                     node_id for node_id in node_ids if node_id not in removed
                 ]
             return len(removed)
-
-    def from_vehicle_state(
-        self,
-        state: VehicleState,
-        required_types: list[str],
-        optional_types: list[str],
-        command_context: dict[str, Any],
-    ) -> list[EvidenceNode]:
-        """保留阶段一直接快照接口；阶段二流水线使用 ingest_vehicle_state。"""
-        values = state.model_dump(mode="json")
-        values.update(command_context)
-        now = utc_now()
-        return [
-            self._make_node(
-                evidence_type=evidence_type,
-                source=source_for_type(evidence_type),
-                value=values.get(evidence_type),
-                timestamp=now,
-                expires_at=now + timedelta(seconds=self._validity_seconds(evidence_type)),
-                mandatory=evidence_type in required_types,
-                metadata={"snapshot_updated_at": state.updated_at.isoformat()},
-            )
-            for evidence_type in [*required_types, *optional_types]
-        ]

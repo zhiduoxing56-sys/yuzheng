@@ -1,0 +1,3918 @@
+{
+  "test_unknown_support": 29,
+  "correctly_abstained": 12,
+  "unsafe_false_accept_count": 17,
+  "all_unknown_predictions": [
+    {
+      "sample_id": "SYS014-POC-0032",
+      "text": "关闭车门然后打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7150580286979675,
+        "NON_CONTROL": 0.03135278448462486,
+        "UNKNOWN_CONTROL": 0.18762291967868805,
+        "AMBIGUOUS_CONTROL": 0.06596633046865463
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7150580286979675,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.18762291967868805,
+        "margin": 0.5274351239204407
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.1452871561050415,
+        "MULTI": 0.793605387210846,
+        "AMBIGUOUS": 0.06110748276114464
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.793605387210846,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.1452871561050415,
+        "margin": 0.6483182311058044
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1566874235868454,
+        "DOOR_CLOSE": 0.12525232136249542,
+        "WINDOW_OPEN": 0.27550065517425537,
+        "WINDOW_SET_POSITION": 0.10652326792478561,
+        "HEADLIGHT_OFF": 0.14656028151512146,
+        "ACCELERATE": 0.09867491573095322,
+        "BRAKE": 0.09080124646425247
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27550065517425537,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.1566874235868454,
+        "margin": 0.11881323158740997
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8358182311058044,
+        "NEGATED": 0.16418176889419556
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8358182311058044,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.16418176889419556,
+        "margin": 0.6716364622116089
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_001",
+      "template_signature": "关闭车门然后打开大屏",
+      "mechanical_signature": "关闭车门<THEN>打开大屏",
+      "split_group": "SGRP-605097FF62049E13",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0033",
+      "text": "关闭车门之后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8135316371917725,
+        "NON_CONTROL": 0.03352907672524452,
+        "UNKNOWN_CONTROL": 0.1186714842915535,
+        "AMBIGUOUS_CONTROL": 0.03426779434084892
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8135316371917725,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1186714842915535,
+        "margin": 0.6948601603507996
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6562290191650391,
+        "MULTI": 0.26822608709335327,
+        "AMBIGUOUS": 0.0755448192358017
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6562290191650391,
+        "top2_class": "MULTI",
+        "top2_probability": 0.26822608709335327,
+        "margin": 0.3880029320716858
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10352115333080292,
+        "DOOR_CLOSE": 0.19190464913845062,
+        "WINDOW_OPEN": 0.27632322907447815,
+        "WINDOW_SET_POSITION": 0.10248059034347534,
+        "HEADLIGHT_OFF": 0.14980417490005493,
+        "ACCELERATE": 0.08323732763528824,
+        "BRAKE": 0.09272892028093338
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27632322907447815,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.19190464913845062,
+        "margin": 0.08441857993602753
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.361402302980423,
+        "NEGATED": 0.6385977268218994
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6385977268218994,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.361402302980423,
+        "margin": 0.27719542384147644
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 12,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 7,
+          "token_end": 9,
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_002",
+      "template_signature": "关闭车门之后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "MIXED_KNOWN_PLUS_UNSUPPORTED_DISPLAY"
+    },
+    {
+      "sample_id": "SYS014-POC-0034",
+      "text": "打开车门然后关闭大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7315720319747925,
+        "NON_CONTROL": 0.029528092592954636,
+        "UNKNOWN_CONTROL": 0.1730685830116272,
+        "AMBIGUOUS_CONTROL": 0.06583134084939957
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7315720319747925,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1730685830116272,
+        "margin": 0.5585034489631653
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.16266177594661713,
+        "MULTI": 0.7754912972450256,
+        "AMBIGUOUS": 0.061846986413002014
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7754912972450256,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.16266177594661713,
+        "margin": 0.6128295063972473
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.14833855628967285,
+        "DOOR_CLOSE": 0.14162200689315796,
+        "WINDOW_OPEN": 0.2419040948152542,
+        "WINDOW_SET_POSITION": 0.10741744190454483,
+        "HEADLIGHT_OFF": 0.16875945031642914,
+        "ACCELERATE": 0.10463087260723114,
+        "BRAKE": 0.08732762187719345
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2419040948152542,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.16875945031642914,
+        "margin": 0.07314464449882507
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8533740639686584,
+        "NEGATED": 0.14662592113018036
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8533740639686584,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.14662592113018036,
+        "margin": 0.7067481279373169
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "关闭大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_003",
+      "template_signature": "打开车门然后关闭大屏",
+      "mechanical_signature": "打开车门<THEN>关闭大屏",
+      "split_group": "SGRP-09D2FEE29E4D1E68",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0037",
+      "text": "先减速再打开车门",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8054795265197754,
+        "NON_CONTROL": 0.02064462937414646,
+        "UNKNOWN_CONTROL": 0.13819614052772522,
+        "AMBIGUOUS_CONTROL": 0.035679642111063004
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8054795265197754,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13819614052772522,
+        "margin": 0.6672834157943726
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.24087519943714142,
+        "MULTI": 0.707584798336029,
+        "AMBIGUOUS": 0.05154002830386162
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.707584798336029,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.24087519943714142,
+        "margin": 0.46670961380004883
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.188038632273674,
+        "DOOR_CLOSE": 0.14112617075443268,
+        "WINDOW_OPEN": 0.28684163093566895,
+        "WINDOW_SET_POSITION": 0.08319556713104248,
+        "HEADLIGHT_OFF": 0.11113215982913971,
+        "ACCELERATE": 0.09673383086919785,
+        "BRAKE": 0.0929320827126503
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.28684163093566895,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.188038632273674,
+        "margin": 0.09880299866199493
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8153102993965149,
+        "NEGATED": 0.1846896857023239
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8153102993965149,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1846896857023239,
+        "margin": 0.6306205987930298
+      },
+      "segments": [
+        {
+          "char_start": 1,
+          "char_end": 3,
+          "text": "减速",
+          "intent": null,
+          "negated": false
+        },
+        {
+          "char_start": 4,
+          "char_end": 8,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_006",
+      "template_signature": "先减速再打开车门",
+      "mechanical_signature": "先减速<THEN>打开车门",
+      "split_group": "SGRP-5E17A405720B2BAB",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0038",
+      "text": "打开大屏以后关闭车门",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7776117324829102,
+        "NON_CONTROL": 0.03267958015203476,
+        "UNKNOWN_CONTROL": 0.13829414546489716,
+        "AMBIGUOUS_CONTROL": 0.05141453444957733
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7776117324829102,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13829414546489716,
+        "margin": 0.6393175721168518
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.36944282054901123,
+        "MULTI": 0.570235550403595,
+        "AMBIGUOUS": 0.06032165139913559
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.570235550403595,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.36944282054901123,
+        "margin": 0.20079272985458374
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.11899875849485397,
+        "DOOR_CLOSE": 0.1893446147441864,
+        "WINDOW_OPEN": 0.16105137765407562,
+        "WINDOW_SET_POSITION": 0.10156427323818207,
+        "HEADLIGHT_OFF": 0.24725346267223358,
+        "ACCELERATE": 0.11752686649560928,
+        "BRAKE": 0.0642605647444725
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.24725346267223358,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.1893446147441864,
+        "margin": 0.05790884792804718
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8721293807029724,
+        "NEGATED": 0.12787054479122162
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8721293807029724,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.12787054479122162,
+        "margin": 0.7442588210105896
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_007",
+      "template_signature": "打开大屏以后关闭车门",
+      "mechanical_signature": "打开大屏<THEN>关闭车门",
+      "split_group": "SGRP-DCDFB1D2C397BC2E",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0039",
+      "text": "关闭巡航然后打开车门",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6778463125228882,
+        "NON_CONTROL": 0.031181612983345985,
+        "UNKNOWN_CONTROL": 0.2249538153409958,
+        "AMBIGUOUS_CONTROL": 0.06601822376251221
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6778463125228882,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.2249538153409958,
+        "margin": 0.4528924822807312
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.18929460644721985,
+        "MULTI": 0.7474915981292725,
+        "AMBIGUOUS": 0.06321381032466888
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7474915981292725,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.18929460644721985,
+        "margin": 0.558197021484375
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1731000393629074,
+        "DOOR_CLOSE": 0.10668130218982697,
+        "WINDOW_OPEN": 0.2969142496585846,
+        "WINDOW_SET_POSITION": 0.09528683125972748,
+        "HEADLIGHT_OFF": 0.13468635082244873,
+        "ACCELERATE": 0.09713713824748993,
+        "BRAKE": 0.09619400650262833
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2969142496585846,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.1731000393629074,
+        "margin": 0.12381421029567719
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8389864563941956,
+        "NEGATED": 0.16101355850696564
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8389864563941956,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.16101355850696564,
+        "margin": 0.6779729127883911
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭巡航",
+          "intent": null,
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_008",
+      "template_signature": "关闭巡航然后打开车门",
+      "mechanical_signature": "关闭巡航<THEN>打开车门",
+      "split_group": "SGRP-F1C179984C865294",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0040",
+      "text": "不要打开车门，然后打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8119838237762451,
+        "NON_CONTROL": 0.02624640241265297,
+        "UNKNOWN_CONTROL": 0.11426910758018494,
+        "AMBIGUOUS_CONTROL": 0.04750058054924011
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8119838237762451,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.11426910758018494,
+        "margin": 0.6977146863937378
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.40078461170196533,
+        "MULTI": 0.49902889132499695,
+        "AMBIGUOUS": 0.10018644481897354
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.49902889132499695,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.40078461170196533,
+        "margin": 0.09824427962303162
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12253092974424362,
+        "DOOR_CLOSE": 0.1025371104478836,
+        "WINDOW_OPEN": 0.3491916060447693,
+        "WINDOW_SET_POSITION": 0.09776758402585983,
+        "HEADLIGHT_OFF": 0.10152772068977356,
+        "ACCELERATE": 0.08423420786857605,
+        "BRAKE": 0.14221081137657166
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.3491916060447693,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.14221081137657166,
+        "margin": 0.20698079466819763
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.47601261734962463,
+        "NEGATED": 0.5239874124526978
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.5239874124526978,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.47601261734962463,
+        "margin": 0.04797479510307312
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 6,
+          "text": "不要打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": true
+        },
+        {
+          "char_start": 9,
+          "char_end": 13,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_009",
+      "template_signature": "<neg>打开车门,然后打开大屏",
+      "mechanical_signature": "neg>打开车门<THEN>打开大屏",
+      "split_group": "SGRP-FF9BFBA115BC43BC",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0041",
+      "text": "关闭车门，然后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.814764142036438,
+        "NON_CONTROL": 0.031311534345149994,
+        "UNKNOWN_CONTROL": 0.11855961382389069,
+        "AMBIGUOUS_CONTROL": 0.03536470606923103
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.814764142036438,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.11855961382389069,
+        "margin": 0.6962045431137085
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6135036945343018,
+        "MULTI": 0.31071215867996216,
+        "AMBIGUOUS": 0.0757841244339943
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6135036945343018,
+        "top2_class": "MULTI",
+        "top2_probability": 0.31071215867996216,
+        "margin": 0.3027915358543396
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09017547219991684,
+        "DOOR_CLOSE": 0.13531185686588287,
+        "WINDOW_OPEN": 0.3040449619293213,
+        "WINDOW_SET_POSITION": 0.09680386632680893,
+        "HEADLIGHT_OFF": 0.13975593447685242,
+        "ACCELERATE": 0.10098421573638916,
+        "BRAKE": 0.13292379677295685
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.3040449619293213,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.13975593447685242,
+        "margin": 0.16428902745246887
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.30273351073265076,
+        "NEGATED": 0.6972664594650269
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6972664594650269,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.30273351073265076,
+        "margin": 0.3945329487323761
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 7,
+          "char_end": 13,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 8,
+          "token_end": 10,
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_010",
+      "template_signature": "关闭车门,然后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "MIXED_KNOWN_PLUS_UNSUPPORTED_DISPLAY"
+    },
+    {
+      "sample_id": "SYS014-POC-0043",
+      "text": "打开车门，同时关闭大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8213546872138977,
+        "NON_CONTROL": 0.02307073026895523,
+        "UNKNOWN_CONTROL": 0.12070968002080917,
+        "AMBIGUOUS_CONTROL": 0.03486480191349983
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8213546872138977,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.12070968002080917,
+        "margin": 0.7006450295448303
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.41341355443000793,
+        "MULTI": 0.5295851230621338,
+        "AMBIGUOUS": 0.0570012703537941
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.5295851230621338,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.41341355443000793,
+        "margin": 0.11617156863212585
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09575797617435455,
+        "DOOR_CLOSE": 0.16938284039497375,
+        "WINDOW_OPEN": 0.1970324069261551,
+        "WINDOW_SET_POSITION": 0.10176019370555878,
+        "HEADLIGHT_OFF": 0.22826066613197327,
+        "ACCELERATE": 0.14040952920913696,
+        "BRAKE": 0.06739635765552521
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.22826066613197327,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.1970324069261551,
+        "margin": 0.031228259205818176
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8471018075942993,
+        "NEGATED": 0.1528981626033783
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8471018075942993,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1528981626033783,
+        "margin": 0.6942036151885986
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        },
+        {
+          "char_start": 7,
+          "char_end": 11,
+          "text": "关闭大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_012",
+      "template_signature": "打开车门,同时关闭大屏",
+      "mechanical_signature": "打开车门<THEN>关闭大屏",
+      "split_group": "SGRP-09D2FEE29E4D1E68",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0045",
+      "text": "关闭车门；打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.789864718914032,
+        "NON_CONTROL": 0.025109807029366493,
+        "UNKNOWN_CONTROL": 0.1519758701324463,
+        "AMBIGUOUS_CONTROL": 0.033049631863832474
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.789864718914032,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1519758701324463,
+        "margin": 0.6378888487815857
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.36595839262008667,
+        "MULTI": 0.5726904273033142,
+        "AMBIGUOUS": 0.06135110184550285
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.5726904273033142,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.36595839262008667,
+        "margin": 0.20673203468322754
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12304717302322388,
+        "DOOR_CLOSE": 0.13046762347221375,
+        "WINDOW_OPEN": 0.2589166760444641,
+        "WINDOW_SET_POSITION": 0.09054341912269592,
+        "HEADLIGHT_OFF": 0.22075575590133667,
+        "ACCELERATE": 0.10706505179405212,
+        "BRAKE": 0.06920425593852997
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2589166760444641,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.22075575590133667,
+        "margin": 0.03816092014312744
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8339448571205139,
+        "NEGATED": 0.1660551279783249
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8339448571205139,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1660551279783249,
+        "margin": 0.6678897142410278
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 5,
+          "char_end": 9,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_014",
+      "template_signature": "关闭车门;打开大屏",
+      "mechanical_signature": "关闭车门打开大屏",
+      "split_group": "SGRP-3B3694C833848035",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0046",
+      "text": "关闭车门，打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7780532240867615,
+        "NON_CONTROL": 0.02634282223880291,
+        "UNKNOWN_CONTROL": 0.1608385145664215,
+        "AMBIGUOUS_CONTROL": 0.03476542979478836
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7780532240867615,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1608385145664215,
+        "margin": 0.6172146797180176
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.3379131555557251,
+        "MULTI": 0.5962969064712524,
+        "AMBIGUOUS": 0.06578993797302246
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.5962969064712524,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.3379131555557251,
+        "margin": 0.25838375091552734
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12996438145637512,
+        "DOOR_CLOSE": 0.13056567311286926,
+        "WINDOW_OPEN": 0.27067023515701294,
+        "WINDOW_SET_POSITION": 0.09270106256008148,
+        "HEADLIGHT_OFF": 0.20443211495876312,
+        "ACCELERATE": 0.09899386763572693,
+        "BRAKE": 0.07267257571220398
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27067023515701294,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.20443211495876312,
+        "margin": 0.06623812019824982
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8414570093154907,
+        "NEGATED": 0.1585429459810257
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8414570093154907,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1585429459810257,
+        "margin": 0.6829140782356262
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 5,
+          "char_end": 9,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_015",
+      "template_signature": "关闭车门,打开大屏",
+      "mechanical_signature": "关闭车门打开大屏",
+      "split_group": "SGRP-3B3694C833848035",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0047",
+      "text": "关闭车门接着打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6997290849685669,
+        "NON_CONTROL": 0.03671247884631157,
+        "UNKNOWN_CONTROL": 0.18711070716381073,
+        "AMBIGUOUS_CONTROL": 0.07644772529602051
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6997290849685669,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.18711070716381073,
+        "margin": 0.512618362903595
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.1471279114484787,
+        "MULTI": 0.7944735884666443,
+        "AMBIGUOUS": 0.05839846283197403
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7944735884666443,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.1471279114484787,
+        "margin": 0.6473456621170044
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.15671148896217346,
+        "DOOR_CLOSE": 0.1551186591386795,
+        "WINDOW_OPEN": 0.25317633152008057,
+        "WINDOW_SET_POSITION": 0.11191524565219879,
+        "HEADLIGHT_OFF": 0.13458211719989777,
+        "ACCELERATE": 0.09510648250579834,
+        "BRAKE": 0.093389593064785
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.25317633152008057,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.15671148896217346,
+        "margin": 0.0964648425579071
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8398415446281433,
+        "NEGATED": 0.1601584553718567
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8398415446281433,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1601584553718567,
+        "margin": 0.6796830892562866
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_016",
+      "template_signature": "关闭车门接着打开大屏",
+      "mechanical_signature": "关闭车门<THEN>打开大屏",
+      "split_group": "SGRP-605097FF62049E13",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0048",
+      "text": "关闭车门随后打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7760022282600403,
+        "NON_CONTROL": 0.026592489331960678,
+        "UNKNOWN_CONTROL": 0.15252768993377686,
+        "AMBIGUOUS_CONTROL": 0.04487757757306099
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7760022282600403,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.15252768993377686,
+        "margin": 0.6234745383262634
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.24392881989479065,
+        "MULTI": 0.6938284039497375,
+        "AMBIGUOUS": 0.062242764979600906
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.6938284039497375,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.24392881989479065,
+        "margin": 0.4498995840549469
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.14107400178909302,
+        "DOOR_CLOSE": 0.15301717817783356,
+        "WINDOW_OPEN": 0.26609113812446594,
+        "WINDOW_SET_POSITION": 0.11774925142526627,
+        "HEADLIGHT_OFF": 0.15887370705604553,
+        "ACCELERATE": 0.0898016020655632,
+        "BRAKE": 0.07339317351579666
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.26609113812446594,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.15887370705604553,
+        "margin": 0.10721743106842041
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8779070973396301,
+        "NEGATED": 0.1220928207039833
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8779070973396301,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1220928207039833,
+        "margin": 0.755814254283905
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_017",
+      "template_signature": "关闭车门随后打开大屏",
+      "mechanical_signature": "关闭车门<THEN>打开大屏",
+      "split_group": "SGRP-605097FF62049E13",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0049",
+      "text": "帮我打开空调",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.5882568359375,
+        "NON_CONTROL": 0.15789037942886353,
+        "UNKNOWN_CONTROL": 0.18203669786453247,
+        "AMBIGUOUS_CONTROL": 0.07181606441736221
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.5882568359375,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.18203669786453247,
+        "margin": 0.40622013807296753
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7908523678779602,
+        "MULTI": 0.1394346058368683,
+        "AMBIGUOUS": 0.0697130486369133
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7908523678779602,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1394346058368683,
+        "margin": 0.6514177322387695
+      },
+      "gold_intent": null,
+      "pred_intent": "BRAKE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1927056908607483,
+        "DOOR_CLOSE": 0.11766042560338974,
+        "WINDOW_OPEN": 0.17828506231307983,
+        "WINDOW_SET_POSITION": 0.058526620268821716,
+        "HEADLIGHT_OFF": 0.13205385208129883,
+        "ACCELERATE": 0.08474798500537872,
+        "BRAKE": 0.23602032661437988
+      },
+      "intent_top1_top2": {
+        "top1_class": "BRAKE",
+        "top1_probability": 0.23602032661437988,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.1927056908607483,
+        "margin": 0.04331463575363159
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8777777552604675,
+        "NEGATED": 0.12222219258546829
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8777777552604675,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.12222219258546829,
+        "margin": 0.7555555701255798
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_001",
+      "template_signature": "帮我打开空调",
+      "mechanical_signature": "打开空调",
+      "split_group": "SGRP-358BE28828D72EFF",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0050",
+      "text": "帮我关闭前挡风除雾",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7062418460845947,
+        "NON_CONTROL": 0.07399198412895203,
+        "UNKNOWN_CONTROL": 0.16525743901729584,
+        "AMBIGUOUS_CONTROL": 0.054508648812770844
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7062418460845947,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.16525743901729584,
+        "margin": 0.5409843921661377
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8231130838394165,
+        "MULTI": 0.14045849442481995,
+        "AMBIGUOUS": 0.03642844408750534
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8231130838394165,
+        "top2_class": "MULTI",
+        "top2_probability": 0.14045849442481995,
+        "margin": 0.682654619216919
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08966480195522308,
+        "DOOR_CLOSE": 0.19033119082450867,
+        "WINDOW_OPEN": 0.10569676756858826,
+        "WINDOW_SET_POSITION": 0.08791200816631317,
+        "HEADLIGHT_OFF": 0.2800840139389038,
+        "ACCELERATE": 0.13824252784252167,
+        "BRAKE": 0.10806865990161896
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2800840139389038,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.19033119082450867,
+        "margin": 0.08975282311439514
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8753141164779663,
+        "NEGATED": 0.1246858760714531
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8753141164779663,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1246858760714531,
+        "margin": 0.7506282329559326
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_002",
+      "template_signature": "帮我关闭前挡风除雾",
+      "mechanical_signature": "关闭前挡风除雾",
+      "split_group": "SGRP-331C8D342EFA7D81",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0051",
+      "text": "关闭空调",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.716437816619873,
+        "NON_CONTROL": 0.05162845551967621,
+        "UNKNOWN_CONTROL": 0.194190114736557,
+        "AMBIGUOUS_CONTROL": 0.03774353861808777
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.716437816619873,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.194190114736557,
+        "margin": 0.5222476720809937
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8076502084732056,
+        "MULTI": 0.1562303602695465,
+        "AMBIGUOUS": 0.03611942008137703
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8076502084732056,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1562303602695465,
+        "margin": 0.6514198780059814
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10231658071279526,
+        "DOOR_CLOSE": 0.16162602603435516,
+        "WINDOW_OPEN": 0.12285873293876648,
+        "WINDOW_SET_POSITION": 0.05729414150118828,
+        "HEADLIGHT_OFF": 0.27001023292541504,
+        "ACCELERATE": 0.12929323315620422,
+        "BRAKE": 0.15660108625888824
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.27001023292541504,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.16162602603435516,
+        "margin": 0.10838420689105988
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7032785415649414,
+        "NEGATED": 0.296721488237381
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7032785415649414,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.296721488237381,
+        "margin": 0.4065570533275604
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_003",
+      "template_signature": "关闭空调",
+      "mechanical_signature": "关闭空调",
+      "split_group": "SGRP-7ACFDA1AFE126A0E",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0052",
+      "text": "调节温度",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6885749101638794,
+        "NON_CONTROL": 0.07564522325992584,
+        "UNKNOWN_CONTROL": 0.14243163168430328,
+        "AMBIGUOUS_CONTROL": 0.0933481827378273
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6885749101638794,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.14243163168430328,
+        "margin": 0.5461432933807373
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7152619957923889,
+        "MULTI": 0.2253744751214981,
+        "AMBIGUOUS": 0.05936344340443611
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7152619957923889,
+        "top2_class": "MULTI",
+        "top2_probability": 0.2253744751214981,
+        "margin": 0.489887535572052
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08001206070184708,
+        "DOOR_CLOSE": 0.1152404248714447,
+        "WINDOW_OPEN": 0.12321268022060394,
+        "WINDOW_SET_POSITION": 0.08369557559490204,
+        "HEADLIGHT_OFF": 0.2586045563220978,
+        "ACCELERATE": 0.1671302765607834,
+        "BRAKE": 0.17210447788238525
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2586045563220978,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.17210447788238525,
+        "margin": 0.08650007843971252
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.5807055830955505,
+        "NEGATED": 0.41929441690444946
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.5807055830955505,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.41929441690444946,
+        "margin": 0.16141116619110107
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_004",
+      "template_signature": "调节温度",
+      "mechanical_signature": "调节温度",
+      "split_group": "SGRP-88AC6A048561F286",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0053",
+      "text": "调高风量",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.659783124923706,
+        "NON_CONTROL": 0.10238385945558548,
+        "UNKNOWN_CONTROL": 0.1464870125055313,
+        "AMBIGUOUS_CONTROL": 0.09134601056575775
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.659783124923706,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1464870125055313,
+        "margin": 0.5132961273193359
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7032037377357483,
+        "MULTI": 0.2201632857322693,
+        "AMBIGUOUS": 0.0766330286860466
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7032037377357483,
+        "top2_class": "MULTI",
+        "top2_probability": 0.2201632857322693,
+        "margin": 0.483040452003479
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12230592221021652,
+        "DOOR_CLOSE": 0.09595360606908798,
+        "WINDOW_OPEN": 0.13796201348304749,
+        "WINDOW_SET_POSITION": 0.10373411327600479,
+        "HEADLIGHT_OFF": 0.2376004159450531,
+        "ACCELERATE": 0.1638200581073761,
+        "BRAKE": 0.13862384855747223
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2376004159450531,
+        "top2_class": "ACCELERATE",
+        "top2_probability": 0.1638200581073761,
+        "margin": 0.073780357837677
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8168979287147522,
+        "NEGATED": 0.1831020712852478
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8168979287147522,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1831020712852478,
+        "margin": 0.6337958574295044
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_005",
+      "template_signature": "调高风量",
+      "mechanical_signature": "调高风量",
+      "split_group": "SGRP-D6DC977D2F2F5AB4",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0054",
+      "text": "打开自动泊车",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.49527889490127563,
+        "NON_CONTROL": 0.05910718813538551,
+        "UNKNOWN_CONTROL": 0.37840262055397034,
+        "AMBIGUOUS_CONTROL": 0.06721127033233643
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.49527889490127563,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.37840262055397034,
+        "margin": 0.1168762743473053
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.4892648756504059,
+        "MULTI": 0.40815600752830505,
+        "AMBIGUOUS": 0.1025790125131607
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.4892648756504059,
+        "top2_class": "MULTI",
+        "top2_probability": 0.40815600752830505,
+        "margin": 0.08110886812210083
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.19764640927314758,
+        "DOOR_CLOSE": 0.09555195271968842,
+        "WINDOW_OPEN": 0.28014278411865234,
+        "WINDOW_SET_POSITION": 0.07474464923143387,
+        "HEADLIGHT_OFF": 0.11778620630502701,
+        "ACCELERATE": 0.0585516095161438,
+        "BRAKE": 0.17557647824287415
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.28014278411865234,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.19764640927314758,
+        "margin": 0.08249637484550476
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.813696563243866,
+        "NEGATED": 0.18630336225032806
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.813696563243866,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.18630336225032806,
+        "margin": 0.6273931860923767
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_006",
+      "template_signature": "打开自动泊车",
+      "mechanical_signature": "打开自动泊车",
+      "split_group": "SGRP-973BA8FA79F21418",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0055",
+      "text": "减速",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7284377813339233,
+        "NON_CONTROL": 0.07899634540081024,
+        "UNKNOWN_CONTROL": 0.13462230563163757,
+        "AMBIGUOUS_CONTROL": 0.057943638414144516
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7284377813339233,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13462230563163757,
+        "margin": 0.5938154458999634
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8035070300102234,
+        "MULTI": 0.14420725405216217,
+        "AMBIGUOUS": 0.05228569731116295
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8035070300102234,
+        "top2_class": "MULTI",
+        "top2_probability": 0.14420725405216217,
+        "margin": 0.6592997908592224
+      },
+      "gold_intent": null,
+      "pred_intent": "BRAKE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10142523795366287,
+        "DOOR_CLOSE": 0.06166841462254524,
+        "WINDOW_OPEN": 0.13446612656116486,
+        "WINDOW_SET_POSITION": 0.10090169310569763,
+        "HEADLIGHT_OFF": 0.15558867156505585,
+        "ACCELERATE": 0.20550493896007538,
+        "BRAKE": 0.2404448688030243
+      },
+      "intent_top1_top2": {
+        "top1_class": "BRAKE",
+        "top1_probability": 0.2404448688030243,
+        "top2_class": "ACCELERATE",
+        "top2_probability": 0.20550493896007538,
+        "margin": 0.034939929842948914
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.687319815158844,
+        "NEGATED": 0.31268012523651123
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.687319815158844,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.31268012523651123,
+        "margin": 0.37463968992233276
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_007",
+      "template_signature": "减速",
+      "mechanical_signature": "SHORT:减速",
+      "split_group": "SGRP-A3CFCAF9902B9E6E",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0056",
+      "text": "向左变道",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7390739917755127,
+        "NON_CONTROL": 0.057928457856178284,
+        "UNKNOWN_CONTROL": 0.12539911270141602,
+        "AMBIGUOUS_CONTROL": 0.07759849727153778
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7390739917755127,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.12539911270141602,
+        "margin": 0.6136748790740967
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6261090040206909,
+        "MULTI": 0.24685028195381165,
+        "AMBIGUOUS": 0.12704065442085266
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6261090040206909,
+        "top2_class": "MULTI",
+        "top2_probability": 0.24685028195381165,
+        "margin": 0.3792587220668793
+      },
+      "gold_intent": null,
+      "pred_intent": "ACCELERATE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.15693871676921844,
+        "DOOR_CLOSE": 0.09970896691083908,
+        "WINDOW_OPEN": 0.13258057832717896,
+        "WINDOW_SET_POSITION": 0.11897987127304077,
+        "HEADLIGHT_OFF": 0.09055650979280472,
+        "ACCELERATE": 0.23852840065956116,
+        "BRAKE": 0.16270697116851807
+      },
+      "intent_top1_top2": {
+        "top1_class": "ACCELERATE",
+        "top1_probability": 0.23852840065956116,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.16270697116851807,
+        "margin": 0.07582142949104309
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.9139021039009094,
+        "NEGATED": 0.08609788864850998
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.9139021039009094,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.08609788864850998,
+        "margin": 0.8278042078018188
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_008",
+      "template_signature": "向左变道",
+      "mechanical_signature": "向左变道",
+      "split_group": "SGRP-3477E4122C6097C3",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0057",
+      "text": "向右变道",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7478036880493164,
+        "NON_CONTROL": 0.04797978326678276,
+        "UNKNOWN_CONTROL": 0.13188804686069489,
+        "AMBIGUOUS_CONTROL": 0.07232853770256042
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7478036880493164,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13188804686069489,
+        "margin": 0.6159156560897827
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.5718709826469421,
+        "MULTI": 0.3153461515903473,
+        "AMBIGUOUS": 0.11278286576271057
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.5718709826469421,
+        "top2_class": "MULTI",
+        "top2_probability": 0.3153461515903473,
+        "margin": 0.25652483105659485
+      },
+      "gold_intent": null,
+      "pred_intent": "ACCELERATE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1467716544866562,
+        "DOOR_CLOSE": 0.09522679448127747,
+        "WINDOW_OPEN": 0.15454082190990448,
+        "WINDOW_SET_POSITION": 0.14601555466651917,
+        "HEADLIGHT_OFF": 0.08798620849847794,
+        "ACCELERATE": 0.21966931223869324,
+        "BRAKE": 0.14978960156440735
+      },
+      "intent_top1_top2": {
+        "top1_class": "ACCELERATE",
+        "top1_probability": 0.21966931223869324,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.15454082190990448,
+        "margin": 0.06512849032878876
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8918052911758423,
+        "NEGATED": 0.10819462686777115
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8918052911758423,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.10819462686777115,
+        "margin": 0.7836106419563293
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [
+        {
+          "slot_type": "AREA",
+          "token_start": 2,
+          "token_end": 3,
+          "char_start": 1,
+          "char_end": 2,
+          "text": "右"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_009",
+      "template_signature": "向右变道",
+      "mechanical_signature": "向右变道",
+      "split_group": "SGRP-C5E4E168A77B002F",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0058",
+      "text": "保持当前车道",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6537973284721375,
+        "NON_CONTROL": 0.03969207778573036,
+        "UNKNOWN_CONTROL": 0.2455516904592514,
+        "AMBIGUOUS_CONTROL": 0.06095891818404198
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6537973284721375,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.2455516904592514,
+        "margin": 0.40824562311172485
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.5066787004470825,
+        "MULTI": 0.37000036239624023,
+        "AMBIGUOUS": 0.12332089990377426
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.5066787004470825,
+        "top2_class": "MULTI",
+        "top2_probability": 0.37000036239624023,
+        "margin": 0.13667833805084229
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1399243175983429,
+        "DOOR_CLOSE": 0.10413233190774918,
+        "WINDOW_OPEN": 0.2924058139324188,
+        "WINDOW_SET_POSITION": 0.14266586303710938,
+        "HEADLIGHT_OFF": 0.09211723506450653,
+        "ACCELERATE": 0.07657946646213531,
+        "BRAKE": 0.1521749198436737
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2924058139324188,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.1521749198436737,
+        "margin": 0.14023089408874512
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7260799407958984,
+        "NEGATED": 0.27392008900642395
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7260799407958984,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.27392008900642395,
+        "margin": 0.4521598517894745
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_010",
+      "template_signature": "保持当前车道",
+      "mechanical_signature": "保持当前车道",
+      "split_group": "SGRP-CD60A97C65C3BE14",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0059",
+      "text": "开启巡航",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.4605339765548706,
+        "NON_CONTROL": 0.05383796989917755,
+        "UNKNOWN_CONTROL": 0.40955254435539246,
+        "AMBIGUOUS_CONTROL": 0.076075479388237
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.4605339765548706,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.40955254435539246,
+        "margin": 0.05098143219947815
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.5500930547714233,
+        "MULTI": 0.3610093891620636,
+        "AMBIGUOUS": 0.08889754861593246
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.5500930547714233,
+        "top2_class": "MULTI",
+        "top2_probability": 0.3610093891620636,
+        "margin": 0.18908366560935974
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12129660695791245,
+        "DOOR_CLOSE": 0.08982794731855392,
+        "WINDOW_OPEN": 0.24822144210338593,
+        "WINDOW_SET_POSITION": 0.1187841072678566,
+        "HEADLIGHT_OFF": 0.12149352580308914,
+        "ACCELERATE": 0.10356687009334564,
+        "BRAKE": 0.19680941104888916
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.24822144210338593,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.19680941104888916,
+        "margin": 0.051412031054496765
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7945486903190613,
+        "NEGATED": 0.20545139908790588
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7945486903190613,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.20545139908790588,
+        "margin": 0.589097261428833
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_011",
+      "template_signature": "开启巡航",
+      "mechanical_signature": "开启巡航",
+      "split_group": "SGRP-457B498FC5B05D48",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0060",
+      "text": "关闭巡航",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6025786995887756,
+        "NON_CONTROL": 0.04761160910129547,
+        "UNKNOWN_CONTROL": 0.28793346881866455,
+        "AMBIGUOUS_CONTROL": 0.06187630072236061
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6025786995887756,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.28793346881866455,
+        "margin": 0.3146452307701111
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6320036053657532,
+        "MULTI": 0.30099689960479736,
+        "AMBIGUOUS": 0.06699948012828827
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6320036053657532,
+        "top2_class": "MULTI",
+        "top2_probability": 0.30099689960479736,
+        "margin": 0.3310067057609558
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09684106707572937,
+        "DOOR_CLOSE": 0.1314922720193863,
+        "WINDOW_OPEN": 0.14230608940124512,
+        "WINDOW_SET_POSITION": 0.06872852891683578,
+        "HEADLIGHT_OFF": 0.24686124920845032,
+        "ACCELERATE": 0.1351068764925003,
+        "BRAKE": 0.17866384983062744
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.24686124920845032,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.17866384983062744,
+        "margin": 0.06819739937782288
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7557142376899719,
+        "NEGATED": 0.24428579211235046
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7557142376899719,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.24428579211235046,
+        "margin": 0.5114284753799438
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_012",
+      "template_signature": "关闭巡航",
+      "mechanical_signature": "关闭巡航",
+      "split_group": "SGRP-995C8C46D02CD784",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0061",
+      "text": "立即紧急制动",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8340681791305542,
+        "NON_CONTROL": 0.033818863332271576,
+        "UNKNOWN_CONTROL": 0.10495341569185257,
+        "AMBIGUOUS_CONTROL": 0.027159513905644417
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8340681791305542,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.10495341569185257,
+        "margin": 0.7291147708892822
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7359516024589539,
+        "MULTI": 0.1918674260377884,
+        "AMBIGUOUS": 0.07218106091022491
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7359516024589539,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1918674260377884,
+        "margin": 0.5440841913223267
+      },
+      "gold_intent": null,
+      "pred_intent": "BRAKE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08954928070306778,
+        "DOOR_CLOSE": 0.13049177825450897,
+        "WINDOW_OPEN": 0.1355411410331726,
+        "WINDOW_SET_POSITION": 0.07389728724956512,
+        "HEADLIGHT_OFF": 0.18289749324321747,
+        "ACCELERATE": 0.1612011343240738,
+        "BRAKE": 0.22642196714878082
+      },
+      "intent_top1_top2": {
+        "top1_class": "BRAKE",
+        "top1_probability": 0.22642196714878082,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.18289749324321747,
+        "margin": 0.043524473905563354
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.5153656601905823,
+        "NEGATED": 0.4846343696117401
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.5153656601905823,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.4846343696117401,
+        "margin": 0.030731290578842163
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_013",
+      "template_signature": "立即紧急制动",
+      "mechanical_signature": "立即紧急制动",
+      "split_group": "SGRP-DBEB11F8AE61E1E4",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0062",
+      "text": "执行避险转向",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.5482391119003296,
+        "NON_CONTROL": 0.06174459308385849,
+        "UNKNOWN_CONTROL": 0.2686302959918976,
+        "AMBIGUOUS_CONTROL": 0.12138605862855911
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.5482391119003296,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.2686302959918976,
+        "margin": 0.279608815908432
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.4309535026550293,
+        "MULTI": 0.45237600803375244,
+        "AMBIGUOUS": 0.11667054891586304
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.45237600803375244,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.4309535026550293,
+        "margin": 0.021422505378723145
+      },
+      "gold_intent": null,
+      "pred_intent": "BRAKE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1323893964290619,
+        "DOOR_CLOSE": 0.10599363595247269,
+        "WINDOW_OPEN": 0.18908001482486725,
+        "WINDOW_SET_POSITION": 0.10291403532028198,
+        "HEADLIGHT_OFF": 0.12448201328516006,
+        "ACCELERATE": 0.14137494564056396,
+        "BRAKE": 0.20376597344875336
+      },
+      "intent_top1_top2": {
+        "top1_class": "BRAKE",
+        "top1_probability": 0.20376597344875336,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.18908001482486725,
+        "margin": 0.014685958623886108
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8513510823249817,
+        "NEGATED": 0.1486489325761795
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8513510823249817,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1486489325761795,
+        "margin": 0.7027021646499634
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_014",
+      "template_signature": "执行避险转向",
+      "mechanical_signature": "执行避险转向",
+      "split_group": "SGRP-9DFE152D29FA67B4",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0063",
+      "text": "如果不下雨就不要关闭车窗",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8194754719734192,
+        "NON_CONTROL": 0.05634378641843796,
+        "UNKNOWN_CONTROL": 0.08146282285451889,
+        "AMBIGUOUS_CONTROL": 0.04271798953413963
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8194754719734192,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.08146282285451889,
+        "margin": 0.7380126714706421
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8454349637031555,
+        "MULTI": 0.11005935817956924,
+        "AMBIGUOUS": 0.044505659490823746
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8454349637031555,
+        "top2_class": "MULTI",
+        "top2_probability": 0.11005935817956924,
+        "margin": 0.7353755831718445
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.05089276656508446,
+        "DOOR_CLOSE": 0.2260684221982956,
+        "WINDOW_OPEN": 0.12775948643684387,
+        "WINDOW_SET_POSITION": 0.08145565539598465,
+        "HEADLIGHT_OFF": 0.24660950899124146,
+        "ACCELERATE": 0.1481066197156906,
+        "BRAKE": 0.11910757422447205
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.24660950899124146,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.2260684221982956,
+        "margin": 0.020541086792945862
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.17577409744262695,
+        "NEGATED": 0.8242258429527283
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.8242258429527283,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.17577409744262695,
+        "margin": 0.6484517455101013
+      },
+      "segments": [],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "如"
+        },
+        {
+          "slot_type": "NEGATION",
+          "token_start": 7,
+          "token_end": 9,
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_015",
+      "template_signature": "如果不下雨就<neg>关闭车窗",
+      "mechanical_signature": "如果不下雨就<neg>关闭车窗",
+      "split_group": "SGRP-DED295747F42ECBE",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CONDITIONAL_COMPOSITIONAL_CONTROL"
+    },
+    {
+      "sample_id": "SYS014-POC-0070",
+      "text": "发射导弹",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.4825567305088043,
+        "NON_CONTROL": 0.19611713290214539,
+        "UNKNOWN_CONTROL": 0.20389430224895477,
+        "AMBIGUOUS_CONTROL": 0.11743184924125671
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.4825567305088043,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.20389430224895477,
+        "margin": 0.27866244316101074
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7395078539848328,
+        "MULTI": 0.1635318249464035,
+        "AMBIGUOUS": 0.0969603955745697
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7395078539848328,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1635318249464035,
+        "margin": 0.5759760141372681
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10612060874700546,
+        "DOOR_CLOSE": 0.12356238067150116,
+        "WINDOW_OPEN": 0.12145566195249557,
+        "WINDOW_SET_POSITION": 0.1234692856669426,
+        "HEADLIGHT_OFF": 0.2380506545305252,
+        "ACCELERATE": 0.10620898008346558,
+        "BRAKE": 0.18113234639167786
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2380506545305252,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.18113234639167786,
+        "margin": 0.05691830813884735
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.551048994064331,
+        "NEGATED": 0.44895094633102417
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.551048994064331,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.44895094633102417,
+        "margin": 0.10209804773330688
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_NON_007",
+      "template_signature": "发射导弹",
+      "mechanical_signature": "发射导弹",
+      "split_group": "SGRP-A7A52D9FA878A43A",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "IMPOSSIBLE_EXTERNAL_CAPABILITY"
+    }
+  ],
+  "unknown_false_accepts": [
+    {
+      "sample_id": "SYS014-POC-0033",
+      "text": "关闭车门之后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8135316371917725,
+        "NON_CONTROL": 0.03352907672524452,
+        "UNKNOWN_CONTROL": 0.1186714842915535,
+        "AMBIGUOUS_CONTROL": 0.03426779434084892
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8135316371917725,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1186714842915535,
+        "margin": 0.6948601603507996
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6562290191650391,
+        "MULTI": 0.26822608709335327,
+        "AMBIGUOUS": 0.0755448192358017
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6562290191650391,
+        "top2_class": "MULTI",
+        "top2_probability": 0.26822608709335327,
+        "margin": 0.3880029320716858
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10352115333080292,
+        "DOOR_CLOSE": 0.19190464913845062,
+        "WINDOW_OPEN": 0.27632322907447815,
+        "WINDOW_SET_POSITION": 0.10248059034347534,
+        "HEADLIGHT_OFF": 0.14980417490005493,
+        "ACCELERATE": 0.08323732763528824,
+        "BRAKE": 0.09272892028093338
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27632322907447815,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.19190464913845062,
+        "margin": 0.08441857993602753
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.361402302980423,
+        "NEGATED": 0.6385977268218994
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6385977268218994,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.361402302980423,
+        "margin": 0.27719542384147644
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 12,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 7,
+          "token_end": 9,
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_002",
+      "template_signature": "关闭车门之后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "MIXED_KNOWN_PLUS_UNSUPPORTED_DISPLAY"
+    },
+    {
+      "sample_id": "SYS014-POC-0041",
+      "text": "关闭车门，然后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.814764142036438,
+        "NON_CONTROL": 0.031311534345149994,
+        "UNKNOWN_CONTROL": 0.11855961382389069,
+        "AMBIGUOUS_CONTROL": 0.03536470606923103
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.814764142036438,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.11855961382389069,
+        "margin": 0.6962045431137085
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6135036945343018,
+        "MULTI": 0.31071215867996216,
+        "AMBIGUOUS": 0.0757841244339943
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6135036945343018,
+        "top2_class": "MULTI",
+        "top2_probability": 0.31071215867996216,
+        "margin": 0.3027915358543396
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09017547219991684,
+        "DOOR_CLOSE": 0.13531185686588287,
+        "WINDOW_OPEN": 0.3040449619293213,
+        "WINDOW_SET_POSITION": 0.09680386632680893,
+        "HEADLIGHT_OFF": 0.13975593447685242,
+        "ACCELERATE": 0.10098421573638916,
+        "BRAKE": 0.13292379677295685
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.3040449619293213,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.13975593447685242,
+        "margin": 0.16428902745246887
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.30273351073265076,
+        "NEGATED": 0.6972664594650269
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6972664594650269,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.30273351073265076,
+        "margin": 0.3945329487323761
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 7,
+          "char_end": 13,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 8,
+          "token_end": 10,
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_010",
+      "template_signature": "关闭车门,然后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "MIXED_KNOWN_PLUS_UNSUPPORTED_DISPLAY"
+    },
+    {
+      "sample_id": "SYS014-POC-0049",
+      "text": "帮我打开空调",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.5882568359375,
+        "NON_CONTROL": 0.15789037942886353,
+        "UNKNOWN_CONTROL": 0.18203669786453247,
+        "AMBIGUOUS_CONTROL": 0.07181606441736221
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.5882568359375,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.18203669786453247,
+        "margin": 0.40622013807296753
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7908523678779602,
+        "MULTI": 0.1394346058368683,
+        "AMBIGUOUS": 0.0697130486369133
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7908523678779602,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1394346058368683,
+        "margin": 0.6514177322387695
+      },
+      "gold_intent": null,
+      "pred_intent": "BRAKE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1927056908607483,
+        "DOOR_CLOSE": 0.11766042560338974,
+        "WINDOW_OPEN": 0.17828506231307983,
+        "WINDOW_SET_POSITION": 0.058526620268821716,
+        "HEADLIGHT_OFF": 0.13205385208129883,
+        "ACCELERATE": 0.08474798500537872,
+        "BRAKE": 0.23602032661437988
+      },
+      "intent_top1_top2": {
+        "top1_class": "BRAKE",
+        "top1_probability": 0.23602032661437988,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.1927056908607483,
+        "margin": 0.04331463575363159
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8777777552604675,
+        "NEGATED": 0.12222219258546829
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8777777552604675,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.12222219258546829,
+        "margin": 0.7555555701255798
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_001",
+      "template_signature": "帮我打开空调",
+      "mechanical_signature": "打开空调",
+      "split_group": "SGRP-358BE28828D72EFF",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0050",
+      "text": "帮我关闭前挡风除雾",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7062418460845947,
+        "NON_CONTROL": 0.07399198412895203,
+        "UNKNOWN_CONTROL": 0.16525743901729584,
+        "AMBIGUOUS_CONTROL": 0.054508648812770844
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7062418460845947,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.16525743901729584,
+        "margin": 0.5409843921661377
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8231130838394165,
+        "MULTI": 0.14045849442481995,
+        "AMBIGUOUS": 0.03642844408750534
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8231130838394165,
+        "top2_class": "MULTI",
+        "top2_probability": 0.14045849442481995,
+        "margin": 0.682654619216919
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08966480195522308,
+        "DOOR_CLOSE": 0.19033119082450867,
+        "WINDOW_OPEN": 0.10569676756858826,
+        "WINDOW_SET_POSITION": 0.08791200816631317,
+        "HEADLIGHT_OFF": 0.2800840139389038,
+        "ACCELERATE": 0.13824252784252167,
+        "BRAKE": 0.10806865990161896
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2800840139389038,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.19033119082450867,
+        "margin": 0.08975282311439514
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8753141164779663,
+        "NEGATED": 0.1246858760714531
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8753141164779663,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1246858760714531,
+        "margin": 0.7506282329559326
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_002",
+      "template_signature": "帮我关闭前挡风除雾",
+      "mechanical_signature": "关闭前挡风除雾",
+      "split_group": "SGRP-331C8D342EFA7D81",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0051",
+      "text": "关闭空调",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.716437816619873,
+        "NON_CONTROL": 0.05162845551967621,
+        "UNKNOWN_CONTROL": 0.194190114736557,
+        "AMBIGUOUS_CONTROL": 0.03774353861808777
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.716437816619873,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.194190114736557,
+        "margin": 0.5222476720809937
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8076502084732056,
+        "MULTI": 0.1562303602695465,
+        "AMBIGUOUS": 0.03611942008137703
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8076502084732056,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1562303602695465,
+        "margin": 0.6514198780059814
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10231658071279526,
+        "DOOR_CLOSE": 0.16162602603435516,
+        "WINDOW_OPEN": 0.12285873293876648,
+        "WINDOW_SET_POSITION": 0.05729414150118828,
+        "HEADLIGHT_OFF": 0.27001023292541504,
+        "ACCELERATE": 0.12929323315620422,
+        "BRAKE": 0.15660108625888824
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.27001023292541504,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.16162602603435516,
+        "margin": 0.10838420689105988
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7032785415649414,
+        "NEGATED": 0.296721488237381
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7032785415649414,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.296721488237381,
+        "margin": 0.4065570533275604
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_003",
+      "template_signature": "关闭空调",
+      "mechanical_signature": "关闭空调",
+      "split_group": "SGRP-7ACFDA1AFE126A0E",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0052",
+      "text": "调节温度",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6885749101638794,
+        "NON_CONTROL": 0.07564522325992584,
+        "UNKNOWN_CONTROL": 0.14243163168430328,
+        "AMBIGUOUS_CONTROL": 0.0933481827378273
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6885749101638794,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.14243163168430328,
+        "margin": 0.5461432933807373
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7152619957923889,
+        "MULTI": 0.2253744751214981,
+        "AMBIGUOUS": 0.05936344340443611
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7152619957923889,
+        "top2_class": "MULTI",
+        "top2_probability": 0.2253744751214981,
+        "margin": 0.489887535572052
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08001206070184708,
+        "DOOR_CLOSE": 0.1152404248714447,
+        "WINDOW_OPEN": 0.12321268022060394,
+        "WINDOW_SET_POSITION": 0.08369557559490204,
+        "HEADLIGHT_OFF": 0.2586045563220978,
+        "ACCELERATE": 0.1671302765607834,
+        "BRAKE": 0.17210447788238525
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2586045563220978,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.17210447788238525,
+        "margin": 0.08650007843971252
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.5807055830955505,
+        "NEGATED": 0.41929441690444946
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.5807055830955505,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.41929441690444946,
+        "margin": 0.16141116619110107
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_004",
+      "template_signature": "调节温度",
+      "mechanical_signature": "调节温度",
+      "split_group": "SGRP-88AC6A048561F286",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0053",
+      "text": "调高风量",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.659783124923706,
+        "NON_CONTROL": 0.10238385945558548,
+        "UNKNOWN_CONTROL": 0.1464870125055313,
+        "AMBIGUOUS_CONTROL": 0.09134601056575775
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.659783124923706,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1464870125055313,
+        "margin": 0.5132961273193359
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7032037377357483,
+        "MULTI": 0.2201632857322693,
+        "AMBIGUOUS": 0.0766330286860466
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7032037377357483,
+        "top2_class": "MULTI",
+        "top2_probability": 0.2201632857322693,
+        "margin": 0.483040452003479
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12230592221021652,
+        "DOOR_CLOSE": 0.09595360606908798,
+        "WINDOW_OPEN": 0.13796201348304749,
+        "WINDOW_SET_POSITION": 0.10373411327600479,
+        "HEADLIGHT_OFF": 0.2376004159450531,
+        "ACCELERATE": 0.1638200581073761,
+        "BRAKE": 0.13862384855747223
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2376004159450531,
+        "top2_class": "ACCELERATE",
+        "top2_probability": 0.1638200581073761,
+        "margin": 0.073780357837677
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8168979287147522,
+        "NEGATED": 0.1831020712852478
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8168979287147522,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1831020712852478,
+        "margin": 0.6337958574295044
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_005",
+      "template_signature": "调高风量",
+      "mechanical_signature": "调高风量",
+      "split_group": "SGRP-D6DC977D2F2F5AB4",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CABIN_CLIMATE_AND_DEFOG"
+    },
+    {
+      "sample_id": "SYS014-POC-0054",
+      "text": "打开自动泊车",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.49527889490127563,
+        "NON_CONTROL": 0.05910718813538551,
+        "UNKNOWN_CONTROL": 0.37840262055397034,
+        "AMBIGUOUS_CONTROL": 0.06721127033233643
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.49527889490127563,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.37840262055397034,
+        "margin": 0.1168762743473053
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.4892648756504059,
+        "MULTI": 0.40815600752830505,
+        "AMBIGUOUS": 0.1025790125131607
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.4892648756504059,
+        "top2_class": "MULTI",
+        "top2_probability": 0.40815600752830505,
+        "margin": 0.08110886812210083
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.19764640927314758,
+        "DOOR_CLOSE": 0.09555195271968842,
+        "WINDOW_OPEN": 0.28014278411865234,
+        "WINDOW_SET_POSITION": 0.07474464923143387,
+        "HEADLIGHT_OFF": 0.11778620630502701,
+        "ACCELERATE": 0.0585516095161438,
+        "BRAKE": 0.17557647824287415
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.28014278411865234,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.19764640927314758,
+        "margin": 0.08249637484550476
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.813696563243866,
+        "NEGATED": 0.18630336225032806
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.813696563243866,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.18630336225032806,
+        "margin": 0.6273931860923767
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_006",
+      "template_signature": "打开自动泊车",
+      "mechanical_signature": "打开自动泊车",
+      "split_group": "SGRP-973BA8FA79F21418",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0055",
+      "text": "减速",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7284377813339233,
+        "NON_CONTROL": 0.07899634540081024,
+        "UNKNOWN_CONTROL": 0.13462230563163757,
+        "AMBIGUOUS_CONTROL": 0.057943638414144516
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7284377813339233,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13462230563163757,
+        "margin": 0.5938154458999634
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8035070300102234,
+        "MULTI": 0.14420725405216217,
+        "AMBIGUOUS": 0.05228569731116295
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8035070300102234,
+        "top2_class": "MULTI",
+        "top2_probability": 0.14420725405216217,
+        "margin": 0.6592997908592224
+      },
+      "gold_intent": null,
+      "pred_intent": "BRAKE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10142523795366287,
+        "DOOR_CLOSE": 0.06166841462254524,
+        "WINDOW_OPEN": 0.13446612656116486,
+        "WINDOW_SET_POSITION": 0.10090169310569763,
+        "HEADLIGHT_OFF": 0.15558867156505585,
+        "ACCELERATE": 0.20550493896007538,
+        "BRAKE": 0.2404448688030243
+      },
+      "intent_top1_top2": {
+        "top1_class": "BRAKE",
+        "top1_probability": 0.2404448688030243,
+        "top2_class": "ACCELERATE",
+        "top2_probability": 0.20550493896007538,
+        "margin": 0.034939929842948914
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.687319815158844,
+        "NEGATED": 0.31268012523651123
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.687319815158844,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.31268012523651123,
+        "margin": 0.37463968992233276
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_007",
+      "template_signature": "减速",
+      "mechanical_signature": "SHORT:减速",
+      "split_group": "SGRP-A3CFCAF9902B9E6E",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0056",
+      "text": "向左变道",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7390739917755127,
+        "NON_CONTROL": 0.057928457856178284,
+        "UNKNOWN_CONTROL": 0.12539911270141602,
+        "AMBIGUOUS_CONTROL": 0.07759849727153778
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7390739917755127,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.12539911270141602,
+        "margin": 0.6136748790740967
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6261090040206909,
+        "MULTI": 0.24685028195381165,
+        "AMBIGUOUS": 0.12704065442085266
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6261090040206909,
+        "top2_class": "MULTI",
+        "top2_probability": 0.24685028195381165,
+        "margin": 0.3792587220668793
+      },
+      "gold_intent": null,
+      "pred_intent": "ACCELERATE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.15693871676921844,
+        "DOOR_CLOSE": 0.09970896691083908,
+        "WINDOW_OPEN": 0.13258057832717896,
+        "WINDOW_SET_POSITION": 0.11897987127304077,
+        "HEADLIGHT_OFF": 0.09055650979280472,
+        "ACCELERATE": 0.23852840065956116,
+        "BRAKE": 0.16270697116851807
+      },
+      "intent_top1_top2": {
+        "top1_class": "ACCELERATE",
+        "top1_probability": 0.23852840065956116,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.16270697116851807,
+        "margin": 0.07582142949104309
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.9139021039009094,
+        "NEGATED": 0.08609788864850998
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.9139021039009094,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.08609788864850998,
+        "margin": 0.8278042078018188
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_008",
+      "template_signature": "向左变道",
+      "mechanical_signature": "向左变道",
+      "split_group": "SGRP-3477E4122C6097C3",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0057",
+      "text": "向右变道",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7478036880493164,
+        "NON_CONTROL": 0.04797978326678276,
+        "UNKNOWN_CONTROL": 0.13188804686069489,
+        "AMBIGUOUS_CONTROL": 0.07232853770256042
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7478036880493164,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13188804686069489,
+        "margin": 0.6159156560897827
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.5718709826469421,
+        "MULTI": 0.3153461515903473,
+        "AMBIGUOUS": 0.11278286576271057
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.5718709826469421,
+        "top2_class": "MULTI",
+        "top2_probability": 0.3153461515903473,
+        "margin": 0.25652483105659485
+      },
+      "gold_intent": null,
+      "pred_intent": "ACCELERATE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1467716544866562,
+        "DOOR_CLOSE": 0.09522679448127747,
+        "WINDOW_OPEN": 0.15454082190990448,
+        "WINDOW_SET_POSITION": 0.14601555466651917,
+        "HEADLIGHT_OFF": 0.08798620849847794,
+        "ACCELERATE": 0.21966931223869324,
+        "BRAKE": 0.14978960156440735
+      },
+      "intent_top1_top2": {
+        "top1_class": "ACCELERATE",
+        "top1_probability": 0.21966931223869324,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.15454082190990448,
+        "margin": 0.06512849032878876
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8918052911758423,
+        "NEGATED": 0.10819462686777115
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8918052911758423,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.10819462686777115,
+        "margin": 0.7836106419563293
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [
+        {
+          "slot_type": "AREA",
+          "token_start": 2,
+          "token_end": 3,
+          "char_start": 1,
+          "char_end": 2,
+          "text": "右"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_009",
+      "template_signature": "向右变道",
+      "mechanical_signature": "向右变道",
+      "split_group": "SGRP-C5E4E168A77B002F",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0058",
+      "text": "保持当前车道",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6537973284721375,
+        "NON_CONTROL": 0.03969207778573036,
+        "UNKNOWN_CONTROL": 0.2455516904592514,
+        "AMBIGUOUS_CONTROL": 0.06095891818404198
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6537973284721375,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.2455516904592514,
+        "margin": 0.40824562311172485
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.5066787004470825,
+        "MULTI": 0.37000036239624023,
+        "AMBIGUOUS": 0.12332089990377426
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.5066787004470825,
+        "top2_class": "MULTI",
+        "top2_probability": 0.37000036239624023,
+        "margin": 0.13667833805084229
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1399243175983429,
+        "DOOR_CLOSE": 0.10413233190774918,
+        "WINDOW_OPEN": 0.2924058139324188,
+        "WINDOW_SET_POSITION": 0.14266586303710938,
+        "HEADLIGHT_OFF": 0.09211723506450653,
+        "ACCELERATE": 0.07657946646213531,
+        "BRAKE": 0.1521749198436737
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2924058139324188,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.1521749198436737,
+        "margin": 0.14023089408874512
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7260799407958984,
+        "NEGATED": 0.27392008900642395
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7260799407958984,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.27392008900642395,
+        "margin": 0.4521598517894745
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_010",
+      "template_signature": "保持当前车道",
+      "mechanical_signature": "保持当前车道",
+      "split_group": "SGRP-CD60A97C65C3BE14",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0059",
+      "text": "开启巡航",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.4605339765548706,
+        "NON_CONTROL": 0.05383796989917755,
+        "UNKNOWN_CONTROL": 0.40955254435539246,
+        "AMBIGUOUS_CONTROL": 0.076075479388237
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.4605339765548706,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.40955254435539246,
+        "margin": 0.05098143219947815
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.5500930547714233,
+        "MULTI": 0.3610093891620636,
+        "AMBIGUOUS": 0.08889754861593246
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.5500930547714233,
+        "top2_class": "MULTI",
+        "top2_probability": 0.3610093891620636,
+        "margin": 0.18908366560935974
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12129660695791245,
+        "DOOR_CLOSE": 0.08982794731855392,
+        "WINDOW_OPEN": 0.24822144210338593,
+        "WINDOW_SET_POSITION": 0.1187841072678566,
+        "HEADLIGHT_OFF": 0.12149352580308914,
+        "ACCELERATE": 0.10356687009334564,
+        "BRAKE": 0.19680941104888916
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.24822144210338593,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.19680941104888916,
+        "margin": 0.051412031054496765
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7945486903190613,
+        "NEGATED": 0.20545139908790588
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7945486903190613,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.20545139908790588,
+        "margin": 0.589097261428833
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_011",
+      "template_signature": "开启巡航",
+      "mechanical_signature": "开启巡航",
+      "split_group": "SGRP-457B498FC5B05D48",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0060",
+      "text": "关闭巡航",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6025786995887756,
+        "NON_CONTROL": 0.04761160910129547,
+        "UNKNOWN_CONTROL": 0.28793346881866455,
+        "AMBIGUOUS_CONTROL": 0.06187630072236061
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6025786995887756,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.28793346881866455,
+        "margin": 0.3146452307701111
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6320036053657532,
+        "MULTI": 0.30099689960479736,
+        "AMBIGUOUS": 0.06699948012828827
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6320036053657532,
+        "top2_class": "MULTI",
+        "top2_probability": 0.30099689960479736,
+        "margin": 0.3310067057609558
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09684106707572937,
+        "DOOR_CLOSE": 0.1314922720193863,
+        "WINDOW_OPEN": 0.14230608940124512,
+        "WINDOW_SET_POSITION": 0.06872852891683578,
+        "HEADLIGHT_OFF": 0.24686124920845032,
+        "ACCELERATE": 0.1351068764925003,
+        "BRAKE": 0.17866384983062744
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.24686124920845032,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.17866384983062744,
+        "margin": 0.06819739937782288
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7557142376899719,
+        "NEGATED": 0.24428579211235046
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7557142376899719,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.24428579211235046,
+        "margin": 0.5114284753799438
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_012",
+      "template_signature": "关闭巡航",
+      "mechanical_signature": "关闭巡航",
+      "split_group": "SGRP-995C8C46D02CD784",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0061",
+      "text": "立即紧急制动",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8340681791305542,
+        "NON_CONTROL": 0.033818863332271576,
+        "UNKNOWN_CONTROL": 0.10495341569185257,
+        "AMBIGUOUS_CONTROL": 0.027159513905644417
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8340681791305542,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.10495341569185257,
+        "margin": 0.7291147708892822
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7359516024589539,
+        "MULTI": 0.1918674260377884,
+        "AMBIGUOUS": 0.07218106091022491
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7359516024589539,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1918674260377884,
+        "margin": 0.5440841913223267
+      },
+      "gold_intent": null,
+      "pred_intent": "BRAKE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08954928070306778,
+        "DOOR_CLOSE": 0.13049177825450897,
+        "WINDOW_OPEN": 0.1355411410331726,
+        "WINDOW_SET_POSITION": 0.07389728724956512,
+        "HEADLIGHT_OFF": 0.18289749324321747,
+        "ACCELERATE": 0.1612011343240738,
+        "BRAKE": 0.22642196714878082
+      },
+      "intent_top1_top2": {
+        "top1_class": "BRAKE",
+        "top1_probability": 0.22642196714878082,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.18289749324321747,
+        "margin": 0.043524473905563354
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.5153656601905823,
+        "NEGATED": 0.4846343696117401
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.5153656601905823,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.4846343696117401,
+        "margin": 0.030731290578842163
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_013",
+      "template_signature": "立即紧急制动",
+      "mechanical_signature": "立即紧急制动",
+      "split_group": "SGRP-DBEB11F8AE61E1E4",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION"
+    },
+    {
+      "sample_id": "SYS014-POC-0063",
+      "text": "如果不下雨就不要关闭车窗",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8194754719734192,
+        "NON_CONTROL": 0.05634378641843796,
+        "UNKNOWN_CONTROL": 0.08146282285451889,
+        "AMBIGUOUS_CONTROL": 0.04271798953413963
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8194754719734192,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.08146282285451889,
+        "margin": 0.7380126714706421
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.8454349637031555,
+        "MULTI": 0.11005935817956924,
+        "AMBIGUOUS": 0.044505659490823746
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.8454349637031555,
+        "top2_class": "MULTI",
+        "top2_probability": 0.11005935817956924,
+        "margin": 0.7353755831718445
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.05089276656508446,
+        "DOOR_CLOSE": 0.2260684221982956,
+        "WINDOW_OPEN": 0.12775948643684387,
+        "WINDOW_SET_POSITION": 0.08145565539598465,
+        "HEADLIGHT_OFF": 0.24660950899124146,
+        "ACCELERATE": 0.1481066197156906,
+        "BRAKE": 0.11910757422447205
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.24660950899124146,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.2260684221982956,
+        "margin": 0.020541086792945862
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.17577409744262695,
+        "NEGATED": 0.8242258429527283
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.8242258429527283,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.17577409744262695,
+        "margin": 0.6484517455101013
+      },
+      "segments": [],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "如"
+        },
+        {
+          "slot_type": "NEGATION",
+          "token_start": 7,
+          "token_end": 9,
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_UNKNOWN_015",
+      "template_signature": "如果不下雨就<neg>关闭车窗",
+      "mechanical_signature": "如果不下雨就<neg>关闭车窗",
+      "split_group": "SGRP-DED295747F42ECBE",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "CONDITIONAL_COMPOSITIONAL_CONTROL"
+    },
+    {
+      "sample_id": "SYS014-POC-0070",
+      "text": "发射导弹",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.4825567305088043,
+        "NON_CONTROL": 0.19611713290214539,
+        "UNKNOWN_CONTROL": 0.20389430224895477,
+        "AMBIGUOUS_CONTROL": 0.11743184924125671
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.4825567305088043,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.20389430224895477,
+        "margin": 0.27866244316101074
+      },
+      "gold_structure": "SINGLE",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.7395078539848328,
+        "MULTI": 0.1635318249464035,
+        "AMBIGUOUS": 0.0969603955745697
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.7395078539848328,
+        "top2_class": "MULTI",
+        "top2_probability": 0.1635318249464035,
+        "margin": 0.5759760141372681
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10612060874700546,
+        "DOOR_CLOSE": 0.12356238067150116,
+        "WINDOW_OPEN": 0.12145566195249557,
+        "WINDOW_SET_POSITION": 0.1234692856669426,
+        "HEADLIGHT_OFF": 0.2380506545305252,
+        "ACCELERATE": 0.10620898008346558,
+        "BRAKE": 0.18113234639167786
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.2380506545305252,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.18113234639167786,
+        "margin": 0.05691830813884735
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.551048994064331,
+        "NEGATED": 0.44895094633102417
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.551048994064331,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.44895094633102417,
+        "margin": 0.10209804773330688
+      },
+      "segments": [],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_NON_007",
+      "template_signature": "发射导弹",
+      "mechanical_signature": "发射导弹",
+      "split_group": "SGRP-A7A52D9FA878A43A",
+      "source_type": "TEST_ASSET",
+      "semantic_cluster": "IMPOSSIBLE_EXTERNAL_CAPABILITY"
+    }
+  ],
+  "UNKNOWN_FALSE_ACCEPT_CLUSTERS": {
+    "MIXED_KNOWN_PLUS_UNSUPPORTED_DISPLAY": {
+      "count": 2,
+      "sample_ids": [
+        "SYS014-POC-0033",
+        "SYS014-POC-0041"
+      ],
+      "texts": [
+        "关闭车门之后不要打开大屏",
+        "关闭车门，然后不要打开大屏"
+      ]
+    },
+    "CABIN_CLIMATE_AND_DEFOG": {
+      "count": 5,
+      "sample_ids": [
+        "SYS014-POC-0049",
+        "SYS014-POC-0050",
+        "SYS014-POC-0051",
+        "SYS014-POC-0052",
+        "SYS014-POC-0053"
+      ],
+      "texts": [
+        "帮我打开空调",
+        "帮我关闭前挡风除雾",
+        "关闭空调",
+        "调节温度",
+        "调高风量"
+      ]
+    },
+    "UNSUPPORTED_DRIVING_AUTOMATION_OR_MOTION": {
+      "count": 8,
+      "sample_ids": [
+        "SYS014-POC-0054",
+        "SYS014-POC-0055",
+        "SYS014-POC-0056",
+        "SYS014-POC-0057",
+        "SYS014-POC-0058",
+        "SYS014-POC-0059",
+        "SYS014-POC-0060",
+        "SYS014-POC-0061"
+      ],
+      "texts": [
+        "打开自动泊车",
+        "减速",
+        "向左变道",
+        "向右变道",
+        "保持当前车道",
+        "开启巡航",
+        "关闭巡航",
+        "立即紧急制动"
+      ]
+    },
+    "CONDITIONAL_COMPOSITIONAL_CONTROL": {
+      "count": 1,
+      "sample_ids": [
+        "SYS014-POC-0063"
+      ],
+      "texts": [
+        "如果不下雨就不要关闭车窗"
+      ]
+    },
+    "IMPOSSIBLE_EXTERNAL_CAPABILITY": {
+      "count": 1,
+      "sample_ids": [
+        "SYS014-POC-0070"
+      ],
+      "texts": [
+        "发射导弹"
+      ]
+    }
+  },
+  "false_accept_predicted_intent_counts": {
+    "DOOR_OPEN": 0,
+    "DOOR_CLOSE": 0,
+    "WINDOW_OPEN": 5,
+    "WINDOW_SET_POSITION": 0,
+    "HEADLIGHT_OFF": 7,
+    "ACCELERATE": 2,
+    "BRAKE": 3
+  },
+  "CLOSED_SET_INTENT_FORCING_RISK": "YES",
+  "closed_set_evidence": "The intent head has only seven known classes and is masked for UNKNOWN/NON/AMBIGUOUS/MULTI gold examples. Once Scope predicts IN_SCOPE_CONTROL and Structure predicts SINGLE, it must emit a known intent and supplies no intent-level reject class.",
+  "OOD_REJECTION_SINGLE_POINT_OF_FAILURE": "YES",
+  "ood_evidence": "For unsupported SINGLE commands, Scope is the only direct OOD discriminator. Structure can reject compositional MULTI/AMBIGUOUS cases but cannot reject ordinary unsupported SINGLE controls; the closed intent head cannot abstain.",
+  "implementation_bug_found": false,
+  "architecture_fact": true
+}

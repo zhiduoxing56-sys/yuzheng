@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:yuzheng:full-nlu:sample-schema:v1",
+  "title": "Full NLU 冻结中文统一样本结构 v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "样本编号",
+    "原始文本",
+    "规范文本",
+    "来源",
+    "原始文件",
+    "原始编号",
+    "控制范围",
+    "结构状态",
+    "语气状态",
+    "子意图列表",
+    "合同是否完整",
+    "是否允许进入正式正样本",
+    "是否需要人工复核",
+    "映射规则版本",
+    "人工覆盖规则版本"
+  ],
+  "properties": {
+    "样本编号": {"type": "string", "minLength": 1},
+    "原始文本": {"type": "string"},
+    "规范文本": {"type": "string"},
+    "来源": {
+      "enum": ["MAC-SLU", "人工弱覆盖种子", "人工安全边界种子", "受控扩写"]
+    },
+    "原始文件": {"type": "string", "minLength": 1},
+    "原始编号": {"type": "string", "minLength": 1},
+    "控制范围": {"enum": ["正式可执行", "已知但不开放", "非控制", "未知"]},
+    "结构状态": {"enum": ["单意图", "多意图", "歧义", "缺槽"]},
+    "语气状态": {"enum": ["肯定", "否定", "取消"]},
+    "子意图列表": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/子意图"}
+    },
+    "合同是否完整": {"type": "boolean"},
+    "是否允许进入正式正样本": {"type": "boolean"},
+    "是否需要人工复核": {"type": "boolean"},
+    "映射规则版本": {"type": "string", "minLength": 1},
+    "人工覆盖规则版本": {"type": ["string", "null"], "minLength": 1}
+  },
+  "$defs": {
+    "可空字符串": {"type": ["string", "null"], "minLength": 1},
+    "数值槽": {"type": ["string", "number", "null"], "minLength": 1},
+    "子意图": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["规范动作", "规范对象", "控制属性", "位置", "数值", "方向", "模式"],
+      "properties": {
+        "规范动作": {"$ref": "#/$defs/可空字符串"},
+        "规范对象": {"$ref": "#/$defs/可空字符串"},
+        "控制属性": {"$ref": "#/$defs/可空字符串"},
+        "位置": {"$ref": "#/$defs/可空字符串"},
+        "数值": {"$ref": "#/$defs/数值槽"},
+        "方向": {"$ref": "#/$defs/可空字符串"},
+        "模式": {"$ref": "#/$defs/可空字符串"}
+      }
+    }
+  }
+}

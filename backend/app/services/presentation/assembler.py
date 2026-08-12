@@ -13,6 +13,7 @@ from app.models.frontend_contract import (
     DecisionResultPresentation,
     EvidenceDemandItem,
     EvidenceDemandPresentation,
+    IntentEvidenceDemandPresentation,
     EvidenceDemandStatus,
     EvidenceNodeDetail,
     EvidencePresentation,
@@ -24,6 +25,8 @@ from app.models.frontend_contract import (
     OriginalDecisionAuditView,
     QualityMetricsPresentation,
     RetrievalCandidate,
+    RetrievalLayer,
+    RetrievalLayerNode,
     RetrievalOrigin,
     RetrievalSummary,
     ReviewPresentation,
@@ -43,9 +46,12 @@ from app.models.schemas import (
     EvidenceStatus,
     LayerNavigationAvailability,
     ReviewAction,
+    ReviewOutcomeRecord,
     WorkflowEvent,
     WorkflowEventType,
 )
+from app.services.audit.repository import AuditListSummary
+from app.services.evidence.resolution import project_evidence_resolutions
 
 if TYPE_CHECKING:
     from app.core.pipeline import CommandPipeline
@@ -87,13 +93,17 @@ class PresentationAssembler:
         self.pipeline = pipeline
 
     @staticmethod
-    def _origin(node_id: str, candidates: set[str], recalled: set[str]) -> RetrievalOrigin:
-        if node_id in candidates and node_id in recalled:
+    def _combine_origins(origins: set[RetrievalOrigin]) -> RetrievalOrigin:
+        effective = origins - {RetrievalOrigin.NONE}
+        if RetrievalOrigin.BOTH in effective or {
+            RetrievalOrigin.HNSW,
+            RetrievalOrigin.MANDATORY_RECALL,
+        } <= effective:
             return RetrievalOrigin.BOTH
-        if node_id in candidates:
-            return RetrievalOrigin.HNSW
-        if node_id in recalled:
+        if RetrievalOrigin.MANDATORY_RECALL in effective:
             return RetrievalOrigin.MANDATORY_RECALL
+        if RetrievalOrigin.HNSW in effective:
+            return RetrievalOrigin.HNSW
         return RetrievalOrigin.NONE
 
     def input_summary(self, record: AuditRecord) -> InputPresentation:
@@ -164,84 +174,130 @@ class PresentationAssembler:
         demand = record.evidence_demand
         graph = record.evidence_subgraph
         nodes = graph.nodes if graph else []
-        candidate_ids = {node.node_id for node in record.candidate_recall_results}
-        recalled_ids = {
-            recall.recalled_node_id
-            for recall in record.mandatory_recall_records
-            if recall.recalled_node_id and recall.retrieval_origin != "NONE"
-        }
+        projection = project_evidence_resolutions(
+            graph.intent_evidence_resolutions if graph else []
+        )
+        nodes_by_id = {node.node_id: node for node in nodes}
         conflict_ids = {
             node_id
             for edge in (graph.edges if graph else [])
             if edge.relation == EvidenceRelation.CONFLICTS
             for node_id in (edge.source, edge.target)
         }
-        items: list[EvidenceDemandItem] = []
-        for evidence_type in [*demand.required_types, *demand.optional_types]:
-            matching = [node for node in nodes if node.evidence_type == evidence_type]
-            ids = [node.node_id for node in matching]
-            origin_values = {self._origin(node_id, candidate_ids, recalled_ids) for node_id in ids}
-            if RetrievalOrigin.BOTH in origin_values or {
-                RetrievalOrigin.HNSW,
-                RetrievalOrigin.MANDATORY_RECALL,
-            } <= origin_values:
-                origin = RetrievalOrigin.BOTH
-            elif RetrievalOrigin.MANDATORY_RECALL in origin_values:
-                origin = RetrievalOrigin.MANDATORY_RECALL
-            elif RetrievalOrigin.HNSW in origin_values:
-                origin = RetrievalOrigin.HNSW
-            else:
-                origin = RetrievalOrigin.NONE
-            labels = {node.quality_label for node in matching}
-            if EvidenceStatus.TAMPERED in labels:
-                status = EvidenceDemandStatus.TAMPERED
-            elif any(node_id in conflict_ids for node_id in ids):
-                status = EvidenceDemandStatus.CONFLICT
-            elif EvidenceStatus.STALE in labels:
-                status = EvidenceDemandStatus.STALE
-            elif not matching or labels == {EvidenceStatus.MISSING}:
-                status = EvidenceDemandStatus.MISSING
-            elif origin in {RetrievalOrigin.MANDATORY_RECALL, RetrievalOrigin.BOTH}:
-                status = EvidenceDemandStatus.MANDATORY_RECALLED
-            else:
-                status = EvidenceDemandStatus.RETRIEVED
-            items.append(
-                EvidenceDemandItem(
-                    evidence_type=evidence_type,
-                    required=evidence_type in demand.required_types,
-                    status=status,
-                    node_ids=ids,
-                    retrieval_origin=origin,
-                    reason=(
-                        "本轮强制证据缺失"
-                        if status == EvidenceDemandStatus.MISSING
-                        else f"本轮证据状态为 {status.value}"
-                    ),
+        intent_presentations: list[IntentEvidenceDemandPresentation] = []
+        for intent_demand in demand.intent_demands:
+            occurrence = (intent_demand.clause_index, intent_demand.intent_id)
+            resolution = projection.by_occurrence.get(occurrence)
+            if resolution is None:
+                raise ValueError(
+                    "IntentEvidenceResolution missing presentation occurrence: "
+                    f"{intent_demand.clause_index}:{intent_demand.intent_id}"
+                )
+            items: list[EvidenceDemandItem] = []
+            for evidence_type in [
+                *intent_demand.required_types,
+                *intent_demand.optional_types,
+            ]:
+                bindings = [
+                    binding
+                    for binding in resolution.bindings
+                    if binding.evidence_type == evidence_type
+                ]
+                if len(bindings) != 1:
+                    raise ValueError(
+                        "IntentEvidenceResolution must contain exactly one binding "
+                        f"for {intent_demand.clause_index}:{intent_demand.intent_id}:"
+                        f"{evidence_type}; observed={len(bindings)}"
+                    )
+                ids = list(
+                    dict.fromkeys(
+                        binding.node_id for binding in bindings if binding.node_id
+                    )
+                )
+                matching = [nodes_by_id[node_id] for node_id in ids if node_id in nodes_by_id]
+                origin = self._combine_origins(
+                    {binding.retrieval_origin for binding in bindings}
+                )
+                labels = {node.quality_label for node in matching}
+                if EvidenceStatus.TAMPERED in labels:
+                    status = EvidenceDemandStatus.TAMPERED
+                elif any(node_id in conflict_ids for node_id in ids):
+                    status = EvidenceDemandStatus.CONFLICT
+                elif EvidenceStatus.STALE in labels:
+                    status = EvidenceDemandStatus.STALE
+                elif (
+                    not matching
+                    or labels == {EvidenceStatus.MISSING}
+                    or any(binding.resolution_status == "MISSING" for binding in bindings)
+                ):
+                    status = EvidenceDemandStatus.MISSING
+                elif any(
+                    binding.resolution_status == "MANDATORY_RECALLED"
+                    for binding in bindings
+                ):
+                    status = EvidenceDemandStatus.MANDATORY_RECALLED
+                else:
+                    status = EvidenceDemandStatus.RETRIEVED
+                items.append(
+                    EvidenceDemandItem(
+                        evidence_type=evidence_type,
+                        required=any(
+                            binding.requirement_level == "REQUIRED"
+                            for binding in bindings
+                        ),
+                        status=status,
+                        node_ids=ids,
+                        retrieval_origin=origin,
+                        semantic_similarity=next(
+                            (
+                                binding.semantic_similarity
+                                for binding in bindings
+                                if binding.semantic_similarity is not None
+                            ),
+                            None,
+                        ),
+                        reason=(
+                            "本轮强制证据缺失"
+                            if status == EvidenceDemandStatus.MISSING
+                            else f"本轮证据状态为 {status.value}"
+                        ),
+                    )
+                )
+            intent_presentations.append(
+                IntentEvidenceDemandPresentation(
+                    intent_id=intent_demand.intent_id,
+                    clause_index=intent_demand.clause_index,
+                    action=intent_demand.action,
+                    target=intent_demand.target,
+                    area=intent_demand.area,
+                    risk_level=intent_demand.risk_level,
+                    query_text=intent_demand.query_text,
+                    required_types=intent_demand.required_types,
+                    optional_types=intent_demand.optional_types,
+                    priority=intent_demand.priority,
+                    retrieval_scope=intent_demand.retrieval_scope,
+                    demand_items=items,
                 )
             )
         return EvidenceDemandPresentation(
             demand_id=demand.demand_id,
             turn_id=demand.turn_id,
-            action=demand.action,
-            target=demand.target,
-            risk_level=demand.risk_level,
-            query_text=demand.query_text,
-            required_types=demand.required_types,
-            optional_types=demand.optional_types,
-            priority=demand.priority,
-            retrieval_scope=demand.retrieval_scope,
-            demand_items=items,
+            intent_demands=intent_presentations,
         )
 
     def retrieval(self, record: AuditRecord) -> RetrievalSummary:
         metadata = record.retrieval_metadata
-        candidate_ids = {node.node_id for node in record.candidate_recall_results}
+        graph = record.evidence_subgraph
+        projection = project_evidence_resolutions(
+            graph.intent_evidence_resolutions if graph else []
+        )
         recalled_ids = {
             item.recalled_node_id
-            for item in record.mandatory_recall_records
-            if item.recalled_node_id and item.retrieval_origin != "NONE"
+            for item in projection.mandatory_recall_records
+            if item.recalled_node_id
+            and item.retrieval_origin != RetrievalOrigin.NONE
         }
-        graph_nodes = {node.node_id: node for node in (record.evidence_subgraph.nodes if record.evidence_subgraph else [])}
+        graph_nodes = {node.node_id: node for node in (graph.nodes if graph else [])}
         preferred_order = (
             list(metadata.final_top_k_node_ids)
             if metadata and metadata.final_top_k_node_ids
@@ -258,19 +314,80 @@ class PresentationAssembler:
                     node_id=node.node_id,
                     evidence_type=node.evidence_type,
                     display_name=str(node.metadata.get("display_name", node.evidence_type)),
-                    sas=node.semantic_similarity,
+                    sas=projection.semantic_similarity_by_node_id.get(
+                        node.node_id, 0.0
+                    ),
                     quality_label=node.quality_label.value,
                     source=node.source,
                     timestamp=node.timestamp,
-                    mandatory=node.mandatory,
-                    retrieval_origin=self._origin(node.node_id, candidate_ids, recalled_ids),
+                    retrieval_origin=projection.retrieval_origins_by_node_id.get(
+                        node.node_id, RetrievalOrigin.NONE
+                    ),
                     security_class=node.security_class,
                     security_rank=node.security_rank,
                     hnsw_max_layer=node.hnsw_max_layer,
                     layer_memberships=node.hnsw_layer_memberships,
                 )
             )
-        vector = record.vectorization_metadata
+        vector = record.vectorization_metadata[0] if record.vectorization_metadata else None
+        successful_mandatory_records = [
+            item
+            for item in projection.mandatory_recall_records
+            if item.recalled_node_id
+            and item.retrieval_origin == RetrievalOrigin.MANDATORY_RECALL
+        ]
+        layer_nodes: dict[int, dict[str, RetrievalLayerNode]] = {}
+        if metadata is not None:
+            for occurrence in metadata.occurrence_layer_navigations:
+                matched_intent = f"{occurrence.clause_index}:{occurrence.intent_id}"
+                for step in occurrence.navigation.steps:
+                    by_node = layer_nodes.setdefault(step.layer, {})
+                    for candidate in step.candidates:
+                        current = by_node.get(candidate.node_id)
+                        if current is None:
+                            by_node[candidate.node_id] = RetrievalLayerNode(
+                                node_id=candidate.node_id,
+                                display_name=candidate.display_name,
+                                evidence_type=candidate.evidence_type,
+                                sas=candidate.sas,
+                                rank=candidate.rank_in_layer,
+                                matched_intents=[matched_intent],
+                            )
+                        else:
+                            intents = list(
+                                dict.fromkeys([*current.matched_intents, matched_intent])
+                            )
+                            better = (
+                                candidate.sas > current.sas
+                                or (
+                                    candidate.sas == current.sas
+                                    and candidate.rank_in_layer < current.rank
+                                )
+                            )
+                            by_node[candidate.node_id] = current.model_copy(
+                                update={
+                                    "sas": candidate.sas if better else current.sas,
+                                    "rank": (
+                                        candidate.rank_in_layer
+                                        if better
+                                        else current.rank
+                                    ),
+                                    "matched_intents": intents,
+                                }
+                            )
+        layers = []
+        for layer in range((metadata.security_layer_count if metadata else 0) - 1, -1, -1):
+            nodes = sorted(
+                layer_nodes.get(layer, {}).values(), key=lambda item: (item.rank, item.node_id)
+            )
+            layers.append(
+                RetrievalLayer(
+                    layer=layer,
+                    layer_name=f"第{layer + 1}层",
+                    hit_count=len(nodes),
+                    nodes=nodes,
+                )
+            )
         return RetrievalSummary(
             top_k=metadata.top_k if metadata else None,
             candidate_count=(metadata.candidate_count if metadata else len(candidates)),
@@ -280,8 +397,13 @@ class PresentationAssembler:
             embedding_dimension=vector.dimension if vector else None,
             degraded=(metadata.degraded if metadata else None),
             candidates=candidates,
-            mandatory_recall=[item.model_dump(mode="json") for item in record.mandatory_recall_records],
-            missing_types=record.missing_evidence_types,
+            layers=layers,
+            mandatory_recall_count=len(successful_mandatory_records),
+            mandatory_recall=[
+                item.model_dump(mode="json")
+                for item in successful_mandatory_records
+            ],
+            missing_types=projection.missing_required_types_union,
             index_build_id=metadata.index_build_id if metadata else None,
             index_config_digest=metadata.index_config_digest if metadata else None,
             node_set_digest=metadata.node_set_digest if metadata else None,
@@ -363,6 +485,9 @@ class PresentationAssembler:
                 )
                 for check in gate.checks
             ],
+            hit_rules=gate.hit_rules,
+            reasons=gate.reasons,
+            observed=gate.observed_values,
         )
 
     @staticmethod
@@ -423,6 +548,71 @@ class PresentationAssembler:
                     "validation_status": "EFFECTIVE_OUTCOME_AGGREGATED",
                 }
             )
+        def assessment_quality(metrics):
+            return QualityMetricsPresentation(
+                ecr=metrics.ecr,
+                ecs=metrics.ecs,
+                ef=metrics.ef,
+                sas=metrics.sas,
+                eas=metrics.eas,
+                evidence_pair_count=metrics.evidence_pair_count,
+                conflict_pair_count=metrics.conflict_pair_count,
+                eas_weight_profile=metrics.eas_weight_profile,
+                eas_weight_source=metrics.eas_weight_source,
+                eas_weights=metrics.eas_weights,
+                evidence_alignment_route=metrics.evidence_alignment_route,
+                availability={
+                    "ecr": Availability.AVAILABLE if metrics.ecr is not None else Availability.NOT_APPLICABLE,
+                    "ecs": Availability.AVAILABLE,
+                    "ef": Availability.AVAILABLE,
+                    "sas": Availability.AVAILABLE,
+                    "eas": Availability.AVAILABLE,
+                },
+            )
+
+        def assessment_score(assessment):
+            factors = assessment.score_factors.five_factors
+            value = lambda name: factors[name].value if name in factors else None
+            return ScoreResultPresentation(
+                semantic_clarity=value("Csem"),
+                evidence_support=value("Ccov"),
+                evidence_trust=value("Ctrust"),
+                jailbreak_suppression=value("Cjb"),
+                scene_necessity=value("Cnec"),
+                safety_score=assessment.safety_score,
+                semantic_confidence=assessment.score_factors.semantic_confidence,
+                ambiguity_penalty=assessment.score_factors.ambiguity_penalty,
+                semantic_ambiguity_beta=assessment.score_factors.semantic_ambiguity_beta,
+                beta_source=assessment.score_factors.beta_source,
+                validated_evidence_count=assessment.score_factors.validated_evidence_count,
+                validated_trust_values=assessment.score_factors.validated_trust_values,
+                trust_formula=assessment.score_factors.trust_formula,
+                trust_value_source=assessment.score_factors.trust_value_source,
+            )
+
+        intent_assessments = [
+            {
+                "clause_index": assessment.clause_index,
+                "intent_id": assessment.intent_id,
+                "quality": assessment_quality(assessment.quality_metrics),
+                "gate": GateResultPresentation(
+                    blocked=assessment.gate_blocked,
+                    overall_status="BLOCKED" if assessment.gate_blocked else "PASSED",
+                    hit_rules=assessment.gate_hit_rules,
+                    reasons=assessment.gate_reasons,
+                    observed=assessment.gate_observed,
+                ),
+                "score": assessment_score(assessment),
+                "safety_score": assessment.safety_score,
+                "score_decision": assessment.score_decision,
+                "final_safety_decision": assessment.final_safety_decision,
+                "decision_sources": assessment.decision_sources,
+                "decision_merge_reason": assessment.decision_merge_reason,
+                "reason_codes": assessment.reason_codes,
+                "explanations": assessment.explanations,
+            }
+            for assessment in decision.intent_safety_assessments
+        ]
         return DecisionResultPresentation(
             initial_decision=decision.decision,
             score_decision=decision.score_decision,
@@ -434,6 +624,8 @@ class PresentationAssembler:
             explanation="；".join(decision.explanations),
             review_required=final == DecisionLabel.REVIEW,
             execution_allowed=final == DecisionLabel.PASS and not decision.gate_blocked,
+            aggregate_safety_decision=decision.aggregate_safety_decision,
+            intent_safety_assessments=intent_assessments,
             decision_explanation=effective_explanation,
         )
 
@@ -465,10 +657,16 @@ class PresentationAssembler:
         }
         ambiguity_field = None
         ambiguity_value: Any = None
-        if original.semantic_frame.action == "unknown":
-            ambiguity_field, ambiguity_value = "action", original.semantic_frame.action
-        elif original.semantic_frame.target == "unknown":
-            ambiguity_field, ambiguity_value = "target", original.semantic_frame.target
+        if not original.semantic_frame.intents:
+            ambiguity_field, ambiguity_value = (
+                "semantic_status",
+                original.semantic_frame.semantic_status,
+            )
+        elif original.semantic_frame.unresolved_clauses:
+            ambiguity_field, ambiguity_value = (
+                "unresolved_clauses",
+                original.semantic_frame.unresolved_clauses,
+            )
         if latest_action is not None:
             status = "CANCELLED" if latest_action.event_type == WorkflowEventType.REVIEW_CANCELLED else "COMPLETED"
         elif record.final_decision.final_decision == DecisionLabel.REVIEW:
@@ -544,8 +742,12 @@ class PresentationAssembler:
             return ExecutionPresentation(
                 request_status="NOT_REQUESTED",
                 execution_status="NOT_EXECUTED",
-                action=record.semantic_frame.action,
-                target=record.semantic_frame.target,
+                action="+".join(
+                    intent.action for intent in record.semantic_frame.intents
+                ),
+                target="+".join(
+                    intent.target for intent in record.semantic_frame.intents
+                ),
             )
         execution = executions[-1]
         return ExecutionPresentation(
@@ -569,6 +771,16 @@ class PresentationAssembler:
         timestamps = [record.created_at, *(event.created_at for event in events)]
         executions = self.pipeline.workflow_repository.executions(root)
         timestamps.extend(item.created_at for item in executions)
+        cached_chain_valid = self.pipeline.audit_repository.cached_chain_valid()
+        if cached_chain_valid is None:
+            local_integrity = self.pipeline.audit_repository.verify_record_local(
+                record.audit_id
+            )
+            cached_chain_valid = bool(
+                local_integrity
+                and local_integrity["record_hash_valid"]
+                and local_integrity["previous_link_valid"]
+            )
         graph = record.evidence_subgraph
         if graph is not None:
             graph = graph.model_copy(update={"nodes": [_public_node(node) for node in graph.nodes]})
@@ -624,6 +836,8 @@ class PresentationAssembler:
                 causal=(
                     CausalPresentation(
                         availability="AVAILABLE",
+                        mode=causal.mode,
+                        corrected_weights_projection=causal.corrected_weights_projection,
                         model_build_id=(
                             causal.model_snapshot.model_build_id
                             if causal.model_snapshot is not None
@@ -654,7 +868,7 @@ class PresentationAssembler:
                 audit_id=record.audit_id,
                 record_hash=record.current_hash,
                 previous_hash=record.previous_hash,
-                audit_chain_valid=self.pipeline.audit_repository.verify_chain(),
+                audit_chain_valid=cached_chain_valid,
                 workflow_chain_valid=workflow_verification.valid,
                 workflow_event_count=workflow_verification.event_count,
             ),
@@ -670,9 +884,16 @@ class PresentationAssembler:
         public = _public_node(node)
         memory = record.memory_propagation
         causal = record.causal_correction
-        node_weight = next(
-            (item for item in (causal.node_weights if causal else []) if item.node_id == node_id),
-            None,
+        causal_occurrence_weights = sorted(
+            (
+                item
+                for item in (causal.node_weights if causal else [])
+                if item.node_id == node_id
+            ),
+            key=lambda item: (
+                item.clause_index if item.clause_index is not None else -1,
+                item.intent_id or "",
+            ),
         )
         parent_stats = next(
             (
@@ -695,8 +916,6 @@ class PresentationAssembler:
             freshness=public.freshness,
             consistency=public.consistency,
             availability=public.availability,
-            semantic_similarity=public.semantic_similarity,
-            mandatory=public.mandatory,
             quality_label=public.quality_label.value,
             integrity_hash=public.integrity_hash,
             metadata=public.metadata,
@@ -729,9 +948,7 @@ class PresentationAssembler:
                 else []
             ),
             causal_parents=(parent_stats.parent_variables if parent_stats else []),
-            prior_probability=(node_weight.prior_probability if node_weight else None),
-            causal_support=(node_weight.causal_support if node_weight else None),
-            corrected_weight=(node_weight.corrected_weight if node_weight else None),
+            causal_occurrence_weights=causal_occurrence_weights,
         )
 
     def node_exists(self, node_id: str) -> bool:
@@ -758,9 +975,47 @@ class PresentationAssembler:
             semantic_frame=record.semantic_frame,
         )
 
-    def audit_detail(self, record: AuditRecord) -> AuditDetailResponse:
+    def audit_list_summary_item(
+        self,
+        summary: AuditListSummary,
+        *,
+        outcome: ReviewOutcomeRecord | None,
+        execution_status: str,
+    ) -> AuditListItem:
+        effective_decision = (
+            self.pipeline.effective_audit_resolver.resolve_effective_decision(
+                audit_id=summary.audit_id,
+                turn_id=summary.turn_id,
+                original=summary.original_final_decision,
+                gate_result=summary.safety_gate_result,
+                evidence_alignment_route=summary.evidence_alignment_route,
+                outcome=outcome,
+            )
+        )
+        return AuditListItem(
+            audit_id=summary.audit_id,
+            turn_id=summary.turn_id,
+            created_at=summary.created_at,
+            instruction_summary=summary.instruction_summary,
+            initial_decision=summary.original_final_decision.decision,
+            original_decision=summary.original_final_decision.final_decision,
+            final_decision=effective_decision,
+            execution_status=execution_status,
+            semantic_frame=summary.semantic_frame,
+        )
+
+    def audit_detail(
+        self,
+        record: AuditRecord,
+        turn_presentation: TurnPresentationResponse | None = None,
+    ) -> AuditDetailResponse:
         resolution = self.pipeline.effective_audit_resolver.resolve(record)
-        presentation = self.assemble(record)
+        presentation = turn_presentation or self.assemble(record)
+        evidence_projection = project_evidence_resolutions(
+            record.evidence_subgraph.intent_evidence_resolutions
+            if record.evidence_subgraph
+            else []
+        )
         root = record.root_turn_id or record.turn_id
         events = self.pipeline.workflow_repository.events(root)
         return AuditDetailResponse(
@@ -773,7 +1028,10 @@ class PresentationAssembler:
             semantic_frame=record.semantic_frame,
             evidence_demand=presentation.evidence_demand,
             retrieval_summary=presentation.retrieval_summary,
-            mandatory_recall=[item.model_dump(mode="json") for item in record.mandatory_recall_records],
+            mandatory_recall=[
+                item.model_dump(mode="json")
+                for item in evidence_projection.mandatory_recall_records
+            ],
             evidence_graph_summary=record.evidence_subgraph_summary,
             quality_metrics=presentation.evidence.quality_metrics,
             memory=presentation.evidence.memory,

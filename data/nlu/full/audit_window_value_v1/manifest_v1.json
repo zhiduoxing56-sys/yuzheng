@@ -1,0 +1,35 @@
+{
+  "manifest_version": "window_value_contract_audit_v1",
+  "generated_at_utc": "2026-08-09T14:23:03.814274+00:00",
+  "script_path": "scripts/full_nlu/audit_window_value_contract.py",
+  "script_sha256": "0b5311580f6d0a9a0061eaf3a891dcc06beaa99a0930d8d9557a3730088d2f58",
+  "source_canonical_pool_sha256": "6d8645adf0fd9429bb8fd6d3d75ecfdf6d65ff4c33926ea1cc27054dd5c51a51",
+  "artifacts": [
+    {
+      "path": "data/nlu/full/audit_window_value_v1/window_value_contract_audit_v1.json",
+      "sha256": "7f6fc0edc638a3076c452d679bbb024302b86d99b8c81b626729c17c2ba94943",
+      "bytes": 39310
+    },
+    {
+      "path": "data/nlu/full/audit_window_value_v1/window_value_contract_audit_v1.md",
+      "sha256": "da0e1ec5bd5ba7a63abee2c324be7feadcdf37b8f198956ed5ab4c49b9612b16",
+      "bytes": 5699
+    },
+    {
+      "path": "data/nlu/full/audit_window_value_v1/window_value_expression_missing_slot_samples_v1.jsonl",
+      "sha256": "00d9a26eab78e52e346af872dbffbd974574903697c57f9cfcff740212fff62f",
+      "bytes": 37598
+    },
+    {
+      "path": "data/nlu/full/audit_window_value_v1/window_value_expression_window_missing_slot_samples_v1.jsonl",
+      "sha256": "412493379890d9f7e5c98a5e462873b3b152defadb167dfe5224e9978b228d2a",
+      "bytes": 22768
+    }
+  ],
+  "mutations": {
+    "registry": false,
+    "mapping_rules": false,
+    "baseline_v2": false,
+    "raw_sources": false
+  }
+}

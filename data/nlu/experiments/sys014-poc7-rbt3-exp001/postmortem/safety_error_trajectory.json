@@ -1,0 +1,859 @@
+{
+  "experiment_id": "sys014-poc7-rbt3-exp001",
+  "AMBIGUOUS_ERROR_TRAJECTORY": {
+    "SYS014-POC-0731": {
+      "unsafe_false_accept_epochs": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "correctly_abstained_epochs": [
+        2
+      ],
+      "classification": "B_EPOCH_DEPENDENT",
+      "unique_blocker_at_closest_candidate_epoch_5": true,
+      "unique_persistent_blocker_across_all_epochs": false,
+      "interpretation": "Epoch-dependent, but false-accepted in 9/10 epochs and continuously from epoch 3 through 10; it is the sole blocker at epoch 5."
+    },
+    "all_unsafe_samples_to_epochs": {
+      "SYS014-POC-0590": [
+        1
+      ],
+      "SYS014-POC-0595": [
+        1
+      ],
+      "SYS014-POC-0598": [
+        1
+      ],
+      "SYS014-POC-0599": [
+        1
+      ],
+      "SYS014-POC-0618": [
+        1
+      ],
+      "SYS014-POC-0620": [
+        1
+      ],
+      "SYS014-POC-0625": [
+        1
+      ],
+      "SYS014-POC-0628": [
+        1
+      ],
+      "SYS014-POC-0629": [
+        1,
+        2
+      ],
+      "SYS014-POC-0650": [
+        1
+      ],
+      "SYS014-POC-0655": [
+        1
+      ],
+      "SYS014-POC-0658": [
+        1
+      ],
+      "SYS014-POC-0659": [
+        1
+      ],
+      "SYS014-POC-0680": [
+        1
+      ],
+      "SYS014-POC-0681": [
+        1
+      ],
+      "SYS014-POC-0722": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "SYS014-POC-0723": [
+        1
+      ],
+      "SYS014-POC-0731": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "SYS014-POC-0732": [
+        1,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "SYS014-POC-0748": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "SYS014-POC-0762": [
+        1,
+        2,
+        3
+      ],
+      "SYS014-POC-0773": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        8,
+        10
+      ],
+      "SYS014-POC-0855": [
+        1,
+        2
+      ],
+      "SYS014-POC-0859": [
+        1
+      ]
+    }
+  },
+  "epochs": [
+    {
+      "epoch": 1,
+      "RAW_UFAR": 0.8275862068965517,
+      "UNKNOWN_false_accepts": 1,
+      "NON_CONTROL_false_accepts": 2,
+      "MULTI_false_accepts": 15,
+      "AMBIGUOUS_false_accepts": 6,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0590",
+          "text": "打开左前车门然后踩下刹车",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0595",
+          "text": "关闭右后车门然后踩下刹车",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0598",
+          "text": "左后车窗开到一半然后把前照灯关了",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_SET_POSITION"
+        },
+        {
+          "sample_id": "SYS014-POC-0599",
+          "text": "左后车窗开到一半然后再提点速度",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0618",
+          "text": "打开左前车门再把前照灯关了",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0620",
+          "text": "打开左前车门再踩下刹车",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0625",
+          "text": "关闭右后车门再踩下刹车",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0628",
+          "text": "左后车窗开到一半再把前照灯关了",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0629",
+          "text": "左后车窗开到一半再提点速度",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0650",
+          "text": "打开左前车门接着踩下刹车",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0655",
+          "text": "关闭右后车门接着踩下刹车",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0658",
+          "text": "左后车窗开到一半接着把前照灯关了",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0659",
+          "text": "左后车窗开到一半接着再提点速度",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0680",
+          "text": "关掉那个",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0681",
+          "text": "麻烦关掉那个",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0722",
+          "text": "副驾那边动一下",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0723",
+          "text": "麻烦副驾那边动一下",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0732",
+          "text": "麻烦速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0748",
+          "text": "导航去最近的餐厅",
+          "gold_scope": "NON_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0762",
+          "text": "今天星期几",
+          "gold_scope": "NON_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0773",
+          "text": "打开危险警示灯",
+          "gold_scope": "UNKNOWN_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0855",
+          "text": "先打开副驾车窗再加速",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0859",
+          "text": "打开后排车窗再打开车门",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_OPEN"
+        }
+      ]
+    },
+    {
+      "epoch": 2,
+      "RAW_UFAR": 0.20689655172413793,
+      "UNKNOWN_false_accepts": 1,
+      "NON_CONTROL_false_accepts": 2,
+      "MULTI_false_accepts": 2,
+      "AMBIGUOUS_false_accepts": 1,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0629",
+          "text": "左后车窗开到一半再提点速度",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_SET_POSITION"
+        },
+        {
+          "sample_id": "SYS014-POC-0722",
+          "text": "副驾那边动一下",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0748",
+          "text": "导航去最近的餐厅",
+          "gold_scope": "NON_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0762",
+          "text": "今天星期几",
+          "gold_scope": "NON_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0773",
+          "text": "打开危险警示灯",
+          "gold_scope": "UNKNOWN_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "HEADLIGHT_OFF"
+        },
+        {
+          "sample_id": "SYS014-POC-0855",
+          "text": "先打开副驾车窗再加速",
+          "gold_scope": "IN_SCOPE_CONTROL",
+          "gold_structure": "MULTI",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "WINDOW_SET_POSITION"
+        }
+      ]
+    },
+    {
+      "epoch": 3,
+      "RAW_UFAR": 0.1724137931034483,
+      "UNKNOWN_false_accepts": 1,
+      "NON_CONTROL_false_accepts": 2,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 2,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0722",
+          "text": "副驾那边动一下",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0748",
+          "text": "导航去最近的餐厅",
+          "gold_scope": "NON_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0762",
+          "text": "今天星期几",
+          "gold_scope": "NON_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0773",
+          "text": "打开危险警示灯",
+          "gold_scope": "UNKNOWN_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "HEADLIGHT_OFF"
+        }
+      ]
+    },
+    {
+      "epoch": 4,
+      "RAW_UFAR": 0.1724137931034483,
+      "UNKNOWN_false_accepts": 1,
+      "NON_CONTROL_false_accepts": 1,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 3,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0722",
+          "text": "副驾那边动一下",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "DOOR_OPEN"
+        },
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0732",
+          "text": "麻烦速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0748",
+          "text": "导航去最近的餐厅",
+          "gold_scope": "NON_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0773",
+          "text": "打开危险警示灯",
+          "gold_scope": "UNKNOWN_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "HEADLIGHT_OFF"
+        }
+      ]
+    },
+    {
+      "epoch": 5,
+      "RAW_UFAR": 0.034482758620689655,
+      "UNKNOWN_false_accepts": 0,
+      "NON_CONTROL_false_accepts": 0,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 1,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        }
+      ]
+    },
+    {
+      "epoch": 6,
+      "RAW_UFAR": 0.10344827586206896,
+      "UNKNOWN_false_accepts": 1,
+      "NON_CONTROL_false_accepts": 0,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 2,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0732",
+          "text": "麻烦速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0773",
+          "text": "打开危险警示灯",
+          "gold_scope": "UNKNOWN_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "HEADLIGHT_OFF"
+        }
+      ]
+    },
+    {
+      "epoch": 7,
+      "RAW_UFAR": 0.06896551724137931,
+      "UNKNOWN_false_accepts": 0,
+      "NON_CONTROL_false_accepts": 0,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 2,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0732",
+          "text": "麻烦速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        }
+      ]
+    },
+    {
+      "epoch": 8,
+      "RAW_UFAR": 0.10344827586206896,
+      "UNKNOWN_false_accepts": 1,
+      "NON_CONTROL_false_accepts": 0,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 2,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0732",
+          "text": "麻烦速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0773",
+          "text": "打开危险警示灯",
+          "gold_scope": "UNKNOWN_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "HEADLIGHT_OFF"
+        }
+      ]
+    },
+    {
+      "epoch": 9,
+      "RAW_UFAR": 0.06896551724137931,
+      "UNKNOWN_false_accepts": 0,
+      "NON_CONTROL_false_accepts": 0,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 2,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0732",
+          "text": "麻烦速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        }
+      ]
+    },
+    {
+      "epoch": 10,
+      "RAW_UFAR": 0.10344827586206896,
+      "UNKNOWN_false_accepts": 1,
+      "NON_CONTROL_false_accepts": 0,
+      "MULTI_false_accepts": 0,
+      "AMBIGUOUS_false_accepts": 2,
+      "unsafe_false_accept_cases": [
+        {
+          "sample_id": "SYS014-POC-0731",
+          "text": "速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0732",
+          "text": "麻烦速度那个再弄点",
+          "gold_scope": "AMBIGUOUS_CONTROL",
+          "gold_structure": "AMBIGUOUS",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "ACCELERATE"
+        },
+        {
+          "sample_id": "SYS014-POC-0773",
+          "text": "打开危险警示灯",
+          "gold_scope": "UNKNOWN_CONTROL",
+          "gold_structure": "SINGLE",
+          "predicted_scope": "IN_SCOPE_CONTROL",
+          "predicted_structure": "SINGLE",
+          "predicted_intent": "HEADLIGHT_OFF"
+        }
+      ]
+    }
+  ],
+  "pipeline_audit": {
+    "loss_masking": {
+      "expected_supervised_counts": {
+        "scope": 2,
+        "structure": 2,
+        "intent": 1,
+        "slot_tokens": 2,
+        "negation": 1
+      },
+      "actual_supervised_counts": {
+        "scope": 2,
+        "structure": 2,
+        "intent": 1,
+        "slot_tokens": 2,
+        "negation": 1
+      },
+      "pass": true
+    },
+    "class_weight_configuration_match": true,
+    "model_head_dimensions": {
+      "scope": 4,
+      "structure": 3,
+      "intent": 7,
+      "slot": 7,
+      "negation": 2
+    },
+    "expected_model_head_dimensions": {
+      "scope": 4,
+      "structure": 3,
+      "intent": 7,
+      "slot": 7,
+      "negation": 2
+    },
+    "model_head_dimensions_match": true,
+    "label_mapping_match": true,
+    "frozen_safety_gate_configuration_match": true,
+    "epoch_ufar_and_gate_cross_checks": [
+      {
+        "epoch": 1,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 2,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 3,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 4,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 5,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 6,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 7,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 8,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 9,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      },
+      {
+        "epoch": 10,
+        "ufar_match": true,
+        "category_counts_match": true,
+        "safety_gate_match": true
+      }
+    ],
+    "named_SafetyTextGuard_class_present": false,
+    "vague_text_logic_owner": "SemanticFrameParser + DecisionEngine incomplete-frame REVIEW path",
+    "advanced_validation_adds_vague_text_logic": false,
+    "interpreter_can_override_decision": false,
+    "PIPELINE_BUG_FOUND": false,
+    "LABEL_MAPPING_BUG_FOUND": false,
+    "UFAR_IMPLEMENTATION_BUG_FOUND": false
+  },
+  "epoch5_confidence_artifact_audit": {
+    "inspected_files": [
+      "data\\nlu\\experiments\\sys014-poc7-rbt3-exp001\\metrics_by_epoch.jsonl",
+      "data\\nlu\\experiments\\sys014-poc7-rbt3-exp001\\training_log.jsonl",
+      "data\\nlu\\experiments\\sys014-poc7-rbt3-exp001\\best_validation_metrics.json",
+      "data\\nlu\\experiments\\sys014-poc7-rbt3-exp001\\evaluation\\validation\\metrics.json",
+      "data\\nlu\\experiments\\sys014-poc7-rbt3-exp001\\evaluation\\validation\\error_cases.jsonl"
+    ],
+    "confidence_field_hits": [],
+    "EPOCH5_LOGITS_AVAILABLE": false,
+    "EPOCH5_CONFIDENCE_NOT_RECOVERABLE_FROM_EXISTING_ARTIFACTS": true
+  },
+  "runtime_guard_0731": {
+    "normalized_text": "速度那个再弄点",
+    "configured_vague_pronoun_hits": [
+      "那个"
+    ],
+    "vague_detected": true,
+    "vague_branch_contributed_to_ambiguity": false,
+    "parsed_action": "unknown",
+    "parsed_target": "速度",
+    "semantic_confidence": 0.65,
+    "ambiguity_score": 0.45,
+    "incomplete_frame": true,
+    "actual_runtime_fail_close": true,
+    "actual_runtime_fail_close_outcome": "REVIEW",
+    "strategy_b_adapter_abstains": true
+  },
+  "runtime_files_sha256": {
+    "config\\semantic_rules.yaml": "c7c86cb657917015627c21cbd5084d0408c86b5e8483ffed160ab338fb897b7b",
+    "backend\\app\\services\\semantic\\parser.py": "967f90a8795cc2c4ed526f83d05d95db9577615b3de3ea1db2121266a0539213",
+    "backend\\app\\services\\decision\\safety_gate.py": "daddca42f498ddd22323f5430da51216324ae64fede1991302af678ae4484579",
+    "backend\\app\\services\\decision\\engine.py": "44f4ef4a3172e5a16f20ef4deec2016ef1d97fba4e47b0b73a8507c0dc5920e4",
+    "backend\\app\\services\\validation\\advanced.py": "fc68ee3f2c6109cc7f85fd7b70345184e168ae642a072ca5a80f163223de13ea",
+    "backend\\app\\services\\interpreter\\service.py": "94fcadd91f100a8e00378e9d66096f3df6ab92f04efae1a18eaba79ba6b51cf5"
+  }
+}

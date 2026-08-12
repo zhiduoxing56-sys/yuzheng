@@ -1,0 +1,1873 @@
+{
+  "audit_id": "SYS-014-R2-TO-R3-USER-VOICE-REGISTRY-AUDIT-1",
+  "status": "PASS",
+  "build_version": "sys014_r3_registry_builder_v1",
+  "parent_registry": {
+    "path": "data/nlu/spec/intent_registry_draft.yaml",
+    "version": "sys-014-semantic-hardening-r2",
+    "sha256": "18c4e02edec1630946be6aa8613345a6e16dc246c883068c6f017f5e28e9f251"
+  },
+  "r3_registry": {
+    "path": "data/nlu/spec/intent_registry_r3.yaml",
+    "version": "sys-014-semantic-hardening-r3",
+    "sha256": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06"
+  },
+  "diff": {
+    "semantic_intents_added": [],
+    "semantic_intents_deleted": [],
+    "semantic_or_vss_definitions_changed": [],
+    "moved_from_formal_to_known_unsupported": [
+      "MIRROR_ADJUSTMENT_LOCK",
+      "MIRROR_ADJUSTMENT_UNLOCK",
+      "ABS_ENABLE",
+      "ABS_DISABLE",
+      "TCS_ENABLE",
+      "TCS_DISABLE",
+      "EBD_ENABLE",
+      "EBD_DISABLE",
+      "EBA_ENABLE",
+      "EBA_DISABLE",
+      "HOOD_SET_POSITION",
+      "LOW_RANGE_ENABLE",
+      "LOW_RANGE_DISABLE",
+      "TORQUE_DISTRIBUTION_SET",
+      "TRANSMISSION_PERFORMANCE_MODE_SET",
+      "DIFFERENTIAL_LOCK",
+      "DIFFERENTIAL_UNLOCK",
+      "ELECTRIC_POWERTRAIN_ENGAGE",
+      "ELECTRIC_POWERTRAIN_DISENGAGE",
+      "CLUTCH_SET_ENGAGEMENT",
+      "PARK_LOCK",
+      "PARK_UNLOCK"
+    ],
+    "new_user_voice_scope_field": "user_voice_scope_status"
+  },
+  "counts": {
+    "semantic_catalog": {
+      "intent_count": 93,
+      "canonical_action_count": 24,
+      "canonical_target_count": 34,
+      "control_attribute_count": 36
+    },
+    "formal_user_voice": {
+      "intent_count": 71,
+      "canonical_action_count": 22,
+      "canonical_target_count": 26,
+      "control_attribute_count": 30
+    },
+    "known_unsupported": {
+      "intent_count": 22,
+      "canonical_action_count": 9,
+      "canonical_target_count": 11,
+      "control_attribute_count": 9
+    }
+  },
+  "contract_counts": {
+    "value_contracts": 17,
+    "direction_contracts": 11,
+    "mode_contracts": 8,
+    "conditional_slot_contracts": 3,
+    "value_mapping_contracts": 1,
+    "mode_mapping_contracts": 2
+  },
+  "formal_user_voice_intents": [
+    {
+      "intent_id": "MIRROR_HEATING_ON",
+      "chinese_name": "开启外后视镜加热",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "MIRROR",
+      "control_attribute": "HEATING_STATE",
+      "capability_family": "BODY_MIRROR_HEATING",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_MIRROR_HEATING"
+      ]
+    },
+    {
+      "intent_id": "MIRROR_HEATING_OFF",
+      "chinese_name": "关闭外后视镜加热",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "MIRROR",
+      "control_attribute": "HEATING_STATE",
+      "capability_family": "BODY_MIRROR_HEATING",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_MIRROR_HEATING"
+      ]
+    },
+    {
+      "intent_id": "SEAT_LONGITUDINAL_SET_POSITION",
+      "chinese_name": "设置座椅前后位置",
+      "canonical_action": "ADJUST",
+      "canonical_target": "SEAT",
+      "control_attribute": "LONGITUDINAL_POSITION",
+      "capability_family": "SEAT_LONGITUDINAL_POSITION",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "SEAT_LONGITUDINAL_POSITION"
+      ]
+    },
+    {
+      "intent_id": "SEAT_TILT_SET_ANGLE",
+      "chinese_name": "设置座椅整体倾角",
+      "canonical_action": "ADJUST",
+      "canonical_target": "SEAT",
+      "control_attribute": "TILT_ANGLE",
+      "capability_family": "SEAT_TILT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "SEAT_TILT"
+      ]
+    },
+    {
+      "intent_id": "SEAT_BACKREST_SET_ANGLE",
+      "chinese_name": "设置座椅靠背角度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "SEAT",
+      "control_attribute": "BACKREST_ANGLE",
+      "capability_family": "SEAT_BACKREST_RECLINE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "SEAT_BACKREST_RECLINE"
+      ]
+    },
+    {
+      "intent_id": "SEAT_HEIGHT_SET_POSITION",
+      "chinese_name": "设置座椅高度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "SEAT",
+      "control_attribute": "HEIGHT",
+      "capability_family": "SEAT_HEIGHT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "SEAT_HEIGHT"
+      ]
+    },
+    {
+      "intent_id": "SEAT_LUMBAR_SET_HEIGHT",
+      "chinese_name": "设置座椅腰托高度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "SEAT",
+      "control_attribute": "LUMBAR_HEIGHT",
+      "capability_family": "SEAT_LUMBAR_SUPPORT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "SEAT_LUMBAR_SUPPORT"
+      ]
+    },
+    {
+      "intent_id": "SEAT_LUMBAR_SET_SUPPORT",
+      "chinese_name": "设置座椅腰托支撑程度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "SEAT",
+      "control_attribute": "LUMBAR_SUPPORT",
+      "capability_family": "SEAT_LUMBAR_SUPPORT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "SEAT_LUMBAR_SUPPORT"
+      ]
+    },
+    {
+      "intent_id": "STEERING_WHEEL_SET_EXTENSION",
+      "chinese_name": "设置方向盘伸缩位置",
+      "canonical_action": "ADJUST",
+      "canonical_target": "STEERING_WHEEL",
+      "control_attribute": "EXTENSION",
+      "capability_family": "CHASSIS_STEERING_WHEEL_POSITION",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CHASSIS_STEERING_WHEEL_POSITION"
+      ]
+    },
+    {
+      "intent_id": "STEERING_WHEEL_SET_TILT",
+      "chinese_name": "设置方向盘倾斜位置",
+      "canonical_action": "ADJUST",
+      "canonical_target": "STEERING_WHEEL",
+      "control_attribute": "TILT_POSITION",
+      "capability_family": "CHASSIS_STEERING_WHEEL_POSITION",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CHASSIS_STEERING_WHEEL_POSITION"
+      ]
+    },
+    {
+      "intent_id": "DEFROST_ON",
+      "chinese_name": "开启风挡除霜除雾",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "WINDSHIELD",
+      "control_attribute": "DEFROST_STATE",
+      "capability_family": "CABIN_HVAC_DEFROST",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_HVAC_DEFROST"
+      ]
+    },
+    {
+      "intent_id": "DEFROST_OFF",
+      "chinese_name": "关闭风挡除霜除雾",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "WINDSHIELD",
+      "control_attribute": "DEFROST_STATE",
+      "capability_family": "CABIN_HVAC_DEFROST",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_HVAC_DEFROST"
+      ]
+    },
+    {
+      "intent_id": "WINDSHIELD_HEATING_ON",
+      "chinese_name": "开启风挡加热",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "WINDSHIELD",
+      "control_attribute": "HEATING_STATE",
+      "capability_family": "BODY_WINDSHIELD_HEATING",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_WINDSHIELD_HEATING"
+      ]
+    },
+    {
+      "intent_id": "WINDSHIELD_HEATING_OFF",
+      "chinese_name": "关闭风挡加热",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "WINDSHIELD",
+      "control_attribute": "HEATING_STATE",
+      "capability_family": "BODY_WINDSHIELD_HEATING",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_WINDSHIELD_HEATING"
+      ]
+    },
+    {
+      "intent_id": "ESC_ENABLE",
+      "chinese_name": "启用车身电子稳定系统",
+      "canonical_action": "ENABLE",
+      "canonical_target": "ESC",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_ESC_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_ESC_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "ESC_DISABLE",
+      "chinese_name": "停用车身电子稳定系统",
+      "canonical_action": "DISABLE",
+      "canonical_target": "ESC",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_ESC_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_ESC_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "TRUNK_OPEN",
+      "chinese_name": "打开行李厢",
+      "canonical_action": "OPEN",
+      "canonical_target": "TRUNK",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "BODY_TRUNK_OPENING",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_TRUNK_OPENING"
+      ]
+    },
+    {
+      "intent_id": "TRUNK_CLOSE",
+      "chinese_name": "关闭行李厢",
+      "canonical_action": "CLOSE",
+      "canonical_target": "TRUNK",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "BODY_TRUNK_OPENING",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_TRUNK_OPENING"
+      ]
+    },
+    {
+      "intent_id": "TRUNK_SET_POSITION",
+      "chinese_name": "设置行李厢开度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "TRUNK",
+      "control_attribute": "OPENING_POSITION",
+      "capability_family": "BODY_TRUNK_OPENING",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_TRUNK_OPENING"
+      ]
+    },
+    {
+      "intent_id": "TRUNK_LOCK",
+      "chinese_name": "锁定行李厢",
+      "canonical_action": "LOCK",
+      "canonical_target": "TRUNK",
+      "control_attribute": "LOCK_STATE",
+      "capability_family": "BODY_TRUNK_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_TRUNK_LOCK"
+      ]
+    },
+    {
+      "intent_id": "TRUNK_UNLOCK",
+      "chinese_name": "解锁行李厢",
+      "canonical_action": "UNLOCK",
+      "canonical_target": "TRUNK",
+      "control_attribute": "LOCK_STATE",
+      "capability_family": "BODY_TRUNK_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_TRUNK_LOCK"
+      ]
+    },
+    {
+      "intent_id": "HOOD_OPEN",
+      "chinese_name": "打开前舱盖",
+      "canonical_action": "OPEN",
+      "canonical_target": "HOOD",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "BODY_HOOD",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HOOD"
+      ]
+    },
+    {
+      "intent_id": "HOOD_CLOSE",
+      "chinese_name": "关闭前舱盖",
+      "canonical_action": "CLOSE",
+      "canonical_target": "HOOD",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "BODY_HOOD",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HOOD"
+      ]
+    },
+    {
+      "intent_id": "GEAR_SET",
+      "chinese_name": "设置目标挡位",
+      "canonical_action": "SWITCH_MODE",
+      "canonical_target": "TRANSMISSION",
+      "control_attribute": "SELECTED_GEAR",
+      "capability_family": "TRANSMISSION_GEAR_SELECTION",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_GEAR_SELECTION"
+      ]
+    },
+    {
+      "intent_id": "GEAR_CHANGE_MODE_SET",
+      "chinese_name": "设置自动或手动换挡模式",
+      "canonical_action": "SWITCH_MODE",
+      "canonical_target": "TRANSMISSION",
+      "control_attribute": "GEAR_CHANGE_MODE",
+      "capability_family": "TRANSMISSION_GEAR_CHANGE_MODE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_GEAR_CHANGE_MODE"
+      ]
+    },
+    {
+      "intent_id": "HORN_ACTIVATE",
+      "chinese_name": "鸣笛",
+      "canonical_action": "ACTIVATE",
+      "canonical_target": "HORN",
+      "control_attribute": "SOUND",
+      "capability_family": "BODY_HORN",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HORN"
+      ]
+    },
+    {
+      "intent_id": "MIRROR_FOLD",
+      "chinese_name": "折叠外后视镜",
+      "canonical_action": "FOLD",
+      "canonical_target": "MIRROR",
+      "control_attribute": "FOLDING_STATE",
+      "capability_family": "BODY_MIRROR_FOLD",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_MIRROR_FOLD"
+      ]
+    },
+    {
+      "intent_id": "MIRROR_UNFOLD",
+      "chinese_name": "展开外后视镜",
+      "canonical_action": "UNFOLD",
+      "canonical_target": "MIRROR",
+      "control_attribute": "FOLDING_STATE",
+      "capability_family": "BODY_MIRROR_FOLD",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_MIRROR_FOLD"
+      ]
+    },
+    {
+      "intent_id": "MIRROR_SET_ANGLE",
+      "chinese_name": "设置外后视镜角度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "MIRROR",
+      "control_attribute": "ANGLE",
+      "capability_family": "BODY_MIRROR_ADJUSTMENT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_MIRROR_ADJUSTMENT"
+      ]
+    },
+    {
+      "intent_id": "SUNROOF_OPEN",
+      "chinese_name": "打开天窗",
+      "canonical_action": "OPEN",
+      "canonical_target": "SUNROOF",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "CABIN_SUNROOF",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CABIN_SUNROOF"
+      ]
+    },
+    {
+      "intent_id": "SUNROOF_CLOSE",
+      "chinese_name": "关闭天窗",
+      "canonical_action": "CLOSE",
+      "canonical_target": "SUNROOF",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "CABIN_SUNROOF",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CABIN_SUNROOF"
+      ]
+    },
+    {
+      "intent_id": "SUNROOF_SET_TILT",
+      "chinese_name": "控制天窗翘起或下收",
+      "canonical_action": "ADJUST",
+      "canonical_target": "SUNROOF",
+      "control_attribute": "TILT_OPERATION",
+      "capability_family": "CABIN_SUNROOF",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CABIN_SUNROOF"
+      ]
+    },
+    {
+      "intent_id": "CRUISE_ENABLE",
+      "chinese_name": "启用巡航",
+      "canonical_action": "ENABLE",
+      "canonical_target": "CRUISE",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_CRUISE_CONTROL",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "ADAS_CRUISE_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "CRUISE_DISABLE",
+      "chinese_name": "停用巡航",
+      "canonical_action": "DISABLE",
+      "canonical_target": "CRUISE",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_CRUISE_CONTROL",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "ADAS_CRUISE_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "CRUISE_SET_SPEED",
+      "chinese_name": "设置巡航速度",
+      "canonical_action": "SET",
+      "canonical_target": "CRUISE",
+      "control_attribute": "SPEED",
+      "capability_family": "ADAS_CRUISE_CONTROL",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "ADAS_CRUISE_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "CRUISE_SET_GAP",
+      "chinese_name": "设置巡航跟车距离",
+      "canonical_action": "SET",
+      "canonical_target": "CRUISE",
+      "control_attribute": "FOLLOWING_GAP",
+      "capability_family": "ADAS_CRUISE_CONTROL",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "ADAS_CRUISE_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "HEADLIGHT_SET_MODE",
+      "chinese_name": "设置主灯模式",
+      "canonical_action": "SWITCH_MODE",
+      "canonical_target": "HEADLIGHT",
+      "control_attribute": "MODE",
+      "capability_family": "BODY_MAIN_LIGHT_MODE",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "BODY_MAIN_LIGHT_MODE"
+      ]
+    },
+    {
+      "intent_id": "HAZARD_LIGHT_ON",
+      "chinese_name": "开启危险警示灯",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "HAZARD_LIGHT",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_HAZARD_LIGHT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HAZARD_LIGHT"
+      ]
+    },
+    {
+      "intent_id": "HAZARD_LIGHT_OFF",
+      "chinese_name": "关闭危险警示灯",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "HAZARD_LIGHT",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_HAZARD_LIGHT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HAZARD_LIGHT"
+      ]
+    },
+    {
+      "intent_id": "TURN_INDICATOR_ON",
+      "chinese_name": "开启转向灯",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "TURN_INDICATOR",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_TURN_INDICATOR",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_TURN_INDICATOR"
+      ]
+    },
+    {
+      "intent_id": "TURN_INDICATOR_OFF",
+      "chinese_name": "关闭转向灯",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "TURN_INDICATOR",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_TURN_INDICATOR",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_TURN_INDICATOR"
+      ]
+    },
+    {
+      "intent_id": "LOW_BEAM_ON",
+      "chinese_name": "开启近光灯",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "LOW_BEAM",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_LOW_BEAM",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_LOW_BEAM"
+      ]
+    },
+    {
+      "intent_id": "LOW_BEAM_OFF",
+      "chinese_name": "关闭近光灯",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "LOW_BEAM",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_LOW_BEAM",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_LOW_BEAM"
+      ]
+    },
+    {
+      "intent_id": "HIGH_BEAM_ON",
+      "chinese_name": "开启远光灯",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "HIGH_BEAM",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_HIGH_BEAM",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HIGH_BEAM"
+      ]
+    },
+    {
+      "intent_id": "HIGH_BEAM_OFF",
+      "chinese_name": "关闭远光灯",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "HIGH_BEAM",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_HIGH_BEAM",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HIGH_BEAM"
+      ]
+    },
+    {
+      "intent_id": "FOG_LIGHT_ON",
+      "chinese_name": "开启雾灯",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "FOG_LIGHT",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_FOG_LIGHT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_FOG_LIGHT"
+      ]
+    },
+    {
+      "intent_id": "FOG_LIGHT_OFF",
+      "chinese_name": "关闭雾灯",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "FOG_LIGHT",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_FOG_LIGHT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_FOG_LIGHT"
+      ]
+    },
+    {
+      "intent_id": "PARKING_LIGHT_ON",
+      "chinese_name": "开启驻车灯",
+      "canonical_action": "TURN_ON",
+      "canonical_target": "PARKING_LIGHT",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_PARKING_LIGHT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_PARKING_LIGHT"
+      ]
+    },
+    {
+      "intent_id": "PARKING_LIGHT_OFF",
+      "chinese_name": "关闭驻车灯",
+      "canonical_action": "TURN_OFF",
+      "canonical_target": "PARKING_LIGHT",
+      "control_attribute": "STATE",
+      "capability_family": "BODY_PARKING_LIGHT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_PARKING_LIGHT"
+      ]
+    },
+    {
+      "intent_id": "WINDOW_OPEN",
+      "chinese_name": "打开车窗",
+      "canonical_action": "OPEN",
+      "canonical_target": "WINDOW",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "CABIN_WINDOW",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_WINDOW"
+      ]
+    },
+    {
+      "intent_id": "WINDOW_CLOSE",
+      "chinese_name": "关闭车窗",
+      "canonical_action": "CLOSE",
+      "canonical_target": "WINDOW",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "CABIN_WINDOW",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_WINDOW"
+      ]
+    },
+    {
+      "intent_id": "WINDOW_SET_POSITION",
+      "chinese_name": "设置车窗开度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "WINDOW",
+      "control_attribute": "OPENING_POSITION",
+      "capability_family": "CABIN_WINDOW",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_WINDOW"
+      ]
+    },
+    {
+      "intent_id": "DOOR_OPEN",
+      "chinese_name": "打开车门",
+      "canonical_action": "OPEN",
+      "canonical_target": "DOOR",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "CABIN_DOOR_OPENING",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_DOOR_OPENING"
+      ]
+    },
+    {
+      "intent_id": "DOOR_CLOSE",
+      "chinese_name": "关闭车门",
+      "canonical_action": "CLOSE",
+      "canonical_target": "DOOR",
+      "control_attribute": "OPENING_STATE",
+      "capability_family": "CABIN_DOOR_OPENING",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_DOOR_OPENING"
+      ]
+    },
+    {
+      "intent_id": "DOOR_SET_POSITION",
+      "chinese_name": "设置车门开度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "DOOR",
+      "control_attribute": "OPENING_POSITION",
+      "capability_family": "CABIN_DOOR_OPENING",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_DOOR_OPENING"
+      ]
+    },
+    {
+      "intent_id": "DOOR_LOCK",
+      "chinese_name": "锁定车门",
+      "canonical_action": "LOCK",
+      "canonical_target": "DOOR",
+      "control_attribute": "LOCK_STATE",
+      "capability_family": "CABIN_DOOR_LOCK",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_DOOR_LOCK"
+      ]
+    },
+    {
+      "intent_id": "DOOR_UNLOCK",
+      "chinese_name": "解锁车门",
+      "canonical_action": "UNLOCK",
+      "canonical_target": "DOOR",
+      "control_attribute": "LOCK_STATE",
+      "capability_family": "CABIN_DOOR_LOCK",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "CABIN_DOOR_LOCK"
+      ]
+    },
+    {
+      "intent_id": "WIPER_SET_MODE",
+      "chinese_name": "设置雨刮模式",
+      "canonical_action": "SWITCH_MODE",
+      "canonical_target": "WIPER",
+      "control_attribute": "MODE",
+      "capability_family": "BODY_WIPER_USER_CONTROL",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "BODY_WIPER_USER_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "WIPER_SET_SENSITIVITY",
+      "chinese_name": "设置雨刮灵敏度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "WIPER",
+      "control_attribute": "SENSITIVITY",
+      "capability_family": "BODY_WIPER_USER_CONTROL",
+      "capability_origin": "VSS_AND_PROJECT",
+      "vss_capability_ids": [
+        "BODY_WIPER_USER_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "PARKING_BRAKE_APPLY",
+      "chinese_name": "施加驻车制动",
+      "canonical_action": "APPLY",
+      "canonical_target": "PARKING_BRAKE",
+      "control_attribute": "APPLICATION_STATE",
+      "capability_family": "CHASSIS_PARKING_BRAKE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CHASSIS_PARKING_BRAKE"
+      ]
+    },
+    {
+      "intent_id": "PARKING_BRAKE_RELEASE",
+      "chinese_name": "释放驻车制动",
+      "canonical_action": "RELEASE",
+      "canonical_target": "PARKING_BRAKE",
+      "control_attribute": "APPLICATION_STATE",
+      "capability_family": "CHASSIS_PARKING_BRAKE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CHASSIS_PARKING_BRAKE"
+      ]
+    },
+    {
+      "intent_id": "PARKING_BRAKE_AUTO_APPLY_ENABLE",
+      "chinese_name": "启用驻车制动自动施加",
+      "canonical_action": "ENABLE",
+      "canonical_target": "PARKING_BRAKE",
+      "control_attribute": "AUTO_APPLY_STATE",
+      "capability_family": "CHASSIS_PARKING_BRAKE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CHASSIS_PARKING_BRAKE"
+      ]
+    },
+    {
+      "intent_id": "PARKING_BRAKE_AUTO_APPLY_DISABLE",
+      "chinese_name": "停用驻车制动自动施加",
+      "canonical_action": "DISABLE",
+      "canonical_target": "PARKING_BRAKE",
+      "control_attribute": "AUTO_APPLY_STATE",
+      "capability_family": "CHASSIS_PARKING_BRAKE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "CHASSIS_PARKING_BRAKE"
+      ]
+    },
+    {
+      "intent_id": "ACCELERATE",
+      "chinese_name": "加速",
+      "canonical_action": "ACCELERATE",
+      "canonical_target": "VEHICLE",
+      "control_attribute": "SPEED",
+      "capability_family": "PROJECT_LONGITUDINAL_SPEED_CONTROL",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": [
+        "ADAS_CRUISE_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "DECELERATE",
+      "chinese_name": "减速",
+      "canonical_action": "DECELERATE",
+      "canonical_target": "VEHICLE",
+      "control_attribute": "SPEED",
+      "capability_family": "PROJECT_LONGITUDINAL_SPEED_CONTROL",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": [
+        "ADAS_CRUISE_CONTROL"
+      ]
+    },
+    {
+      "intent_id": "BRAKE",
+      "chinese_name": "执行制动",
+      "canonical_action": "BRAKE",
+      "canonical_target": "SERVICE_BRAKE",
+      "control_attribute": "NORMAL_BRAKING",
+      "capability_family": "PROJECT_SERVICE_BRAKING",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": [
+        "ADAS_EBA_ENABLE",
+        "CHASSIS_PARKING_BRAKE"
+      ]
+    },
+    {
+      "intent_id": "EMERGENCY_BRAKE",
+      "chinese_name": "执行紧急制动",
+      "canonical_action": "BRAKE",
+      "canonical_target": "SERVICE_BRAKE",
+      "control_attribute": "EMERGENCY_BRAKING",
+      "capability_family": "PROJECT_SERVICE_BRAKING",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": [
+        "ADAS_EBA_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "LANE_CHANGE",
+      "chinese_name": "变更车道",
+      "canonical_action": "CHANGE",
+      "canonical_target": "LANE",
+      "control_attribute": "POSITION",
+      "capability_family": "PROJECT_LANE_CONTROL",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": []
+    },
+    {
+      "intent_id": "LANE_KEEP",
+      "chinese_name": "保持当前车道",
+      "canonical_action": "KEEP",
+      "canonical_target": "LANE",
+      "control_attribute": "POSITION",
+      "capability_family": "PROJECT_LANE_CONTROL",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": []
+    },
+    {
+      "intent_id": "EVASIVE_STEER",
+      "chinese_name": "执行避险转向",
+      "canonical_action": "STEER",
+      "canonical_target": "VEHICLE",
+      "control_attribute": "TRAJECTORY",
+      "capability_family": "PROJECT_EVASIVE_STEERING",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": []
+    },
+    {
+      "intent_id": "AUTO_PARK_ENABLE",
+      "chinese_name": "启用自动泊车",
+      "canonical_action": "ENABLE",
+      "canonical_target": "AUTO_PARK",
+      "control_attribute": "STATE",
+      "capability_family": "PROJECT_AUTO_PARK",
+      "capability_origin": "PROJECT_NATIVE",
+      "vss_capability_ids": []
+    }
+  ],
+  "known_unsupported_control_intents": [
+    {
+      "intent_id": "MIRROR_ADJUSTMENT_LOCK",
+      "chinese_name": "锁定外后视镜调节",
+      "canonical_action": "LOCK",
+      "canonical_target": "MIRROR",
+      "control_attribute": "ADJUSTMENT_LOCK_STATE",
+      "capability_family": "BODY_MIRROR_ADJUSTMENT_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_MIRROR_ADJUSTMENT_LOCK"
+      ]
+    },
+    {
+      "intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+      "chinese_name": "解锁外后视镜调节",
+      "canonical_action": "UNLOCK",
+      "canonical_target": "MIRROR",
+      "control_attribute": "ADJUSTMENT_LOCK_STATE",
+      "capability_family": "BODY_MIRROR_ADJUSTMENT_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_MIRROR_ADJUSTMENT_LOCK"
+      ]
+    },
+    {
+      "intent_id": "ABS_ENABLE",
+      "chinese_name": "启用防抱死制动系统",
+      "canonical_action": "ENABLE",
+      "canonical_target": "ABS",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_ABS_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_ABS_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "ABS_DISABLE",
+      "chinese_name": "停用防抱死制动系统",
+      "canonical_action": "DISABLE",
+      "canonical_target": "ABS",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_ABS_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_ABS_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "TCS_ENABLE",
+      "chinese_name": "启用牵引力控制系统",
+      "canonical_action": "ENABLE",
+      "canonical_target": "TCS",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_TCS_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_TCS_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "TCS_DISABLE",
+      "chinese_name": "停用牵引力控制系统",
+      "canonical_action": "DISABLE",
+      "canonical_target": "TCS",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_TCS_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_TCS_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "EBD_ENABLE",
+      "chinese_name": "启用电子制动力分配系统",
+      "canonical_action": "ENABLE",
+      "canonical_target": "EBD",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_EBD_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_EBD_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "EBD_DISABLE",
+      "chinese_name": "停用电子制动力分配系统",
+      "canonical_action": "DISABLE",
+      "canonical_target": "EBD",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_EBD_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_EBD_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "EBA_ENABLE",
+      "chinese_name": "启用紧急制动辅助系统",
+      "canonical_action": "ENABLE",
+      "canonical_target": "EBA",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_EBA_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_EBA_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "EBA_DISABLE",
+      "chinese_name": "停用紧急制动辅助系统",
+      "canonical_action": "DISABLE",
+      "canonical_target": "EBA",
+      "control_attribute": "STATE",
+      "capability_family": "ADAS_EBA_ENABLE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "ADAS_EBA_ENABLE"
+      ]
+    },
+    {
+      "intent_id": "HOOD_SET_POSITION",
+      "chinese_name": "设置前舱盖开度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "HOOD",
+      "control_attribute": "OPENING_POSITION",
+      "capability_family": "BODY_HOOD",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "BODY_HOOD"
+      ]
+    },
+    {
+      "intent_id": "LOW_RANGE_ENABLE",
+      "chinese_name": "启用低速四驱或低速挡",
+      "canonical_action": "ENABLE",
+      "canonical_target": "TRANSMISSION",
+      "control_attribute": "LOW_RANGE_STATE",
+      "capability_family": "TRANSMISSION_LOW_RANGE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_LOW_RANGE"
+      ]
+    },
+    {
+      "intent_id": "LOW_RANGE_DISABLE",
+      "chinese_name": "停用低速四驱或低速挡",
+      "canonical_action": "DISABLE",
+      "canonical_target": "TRANSMISSION",
+      "control_attribute": "LOW_RANGE_STATE",
+      "capability_family": "TRANSMISSION_LOW_RANGE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_LOW_RANGE"
+      ]
+    },
+    {
+      "intent_id": "TORQUE_DISTRIBUTION_SET",
+      "chinese_name": "设置前后轴扭矩分配",
+      "canonical_action": "SET",
+      "canonical_target": "TRANSMISSION",
+      "control_attribute": "TORQUE_DISTRIBUTION",
+      "capability_family": "TRANSMISSION_TORQUE_DISTRIBUTION",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_TORQUE_DISTRIBUTION"
+      ]
+    },
+    {
+      "intent_id": "TRANSMISSION_PERFORMANCE_MODE_SET",
+      "chinese_name": "设置变速箱性能模式",
+      "canonical_action": "SWITCH_MODE",
+      "canonical_target": "TRANSMISSION",
+      "control_attribute": "PERFORMANCE_MODE",
+      "capability_family": "TRANSMISSION_PERFORMANCE_MODE",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_PERFORMANCE_MODE"
+      ]
+    },
+    {
+      "intent_id": "DIFFERENTIAL_LOCK",
+      "chinese_name": "锁定差速器",
+      "canonical_action": "LOCK",
+      "canonical_target": "DIFFERENTIAL",
+      "control_attribute": "LOCK_STATE",
+      "capability_family": "TRANSMISSION_DIFF_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_DIFF_LOCK"
+      ]
+    },
+    {
+      "intent_id": "DIFFERENTIAL_UNLOCK",
+      "chinese_name": "解锁差速器",
+      "canonical_action": "UNLOCK",
+      "canonical_target": "DIFFERENTIAL",
+      "control_attribute": "LOCK_STATE",
+      "capability_family": "TRANSMISSION_DIFF_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_DIFF_LOCK"
+      ]
+    },
+    {
+      "intent_id": "ELECTRIC_POWERTRAIN_ENGAGE",
+      "chinese_name": "结合电驱动力",
+      "canonical_action": "ENGAGE",
+      "canonical_target": "ELECTRIC_POWERTRAIN",
+      "control_attribute": "ENGAGEMENT_STATE",
+      "capability_family": "TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT"
+      ]
+    },
+    {
+      "intent_id": "ELECTRIC_POWERTRAIN_DISENGAGE",
+      "chinese_name": "分离电驱动力",
+      "canonical_action": "DISENGAGE",
+      "canonical_target": "ELECTRIC_POWERTRAIN",
+      "control_attribute": "ENGAGEMENT_STATE",
+      "capability_family": "TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT"
+      ]
+    },
+    {
+      "intent_id": "CLUTCH_SET_ENGAGEMENT",
+      "chinese_name": "设置离合器结合度",
+      "canonical_action": "ADJUST",
+      "canonical_target": "CLUTCH",
+      "control_attribute": "ENGAGEMENT_LEVEL",
+      "capability_family": "TRANSMISSION_CLUTCH",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_CLUTCH"
+      ]
+    },
+    {
+      "intent_id": "PARK_LOCK",
+      "chinese_name": "结合驻车锁",
+      "canonical_action": "LOCK",
+      "canonical_target": "PARK_LOCK",
+      "control_attribute": "ENGAGEMENT_STATE",
+      "capability_family": "TRANSMISSION_PARK_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_PARK_LOCK"
+      ]
+    },
+    {
+      "intent_id": "PARK_UNLOCK",
+      "chinese_name": "释放驻车锁",
+      "canonical_action": "UNLOCK",
+      "canonical_target": "PARK_LOCK",
+      "control_attribute": "ENGAGEMENT_STATE",
+      "capability_family": "TRANSMISSION_PARK_LOCK",
+      "capability_origin": "VSS",
+      "vss_capability_ids": [
+        "TRANSMISSION_PARK_LOCK"
+      ]
+    }
+  ],
+  "removal_decision_mapping": [
+    {
+      "requested_semantics": "锁定外后视镜调节",
+      "canonical_intent_id": "MIRROR_ADJUSTMENT_LOCK",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "解锁外后视镜调节",
+      "canonical_intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "设置前舱盖开度",
+      "canonical_intent_id": "HOOD_SET_POSITION",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "启用低速四驱或低速挡",
+      "canonical_intent_id": "LOW_RANGE_ENABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "停用低速四驱或低速挡",
+      "canonical_intent_id": "LOW_RANGE_DISABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "设置前后轴扭矩分配",
+      "canonical_intent_id": "TORQUE_DISTRIBUTION_SET",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "设置变速箱性能模式",
+      "canonical_intent_id": "TRANSMISSION_PERFORMANCE_MODE_SET",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "结合电驱动力",
+      "canonical_intent_id": "ELECTRIC_POWERTRAIN_ENGAGE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "分离电驱动力",
+      "canonical_intent_id": "ELECTRIC_POWERTRAIN_DISENGAGE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "设置离合器结合度",
+      "canonical_intent_id": "CLUTCH_SET_ENGAGEMENT",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "锁定差速器",
+      "canonical_intent_id": "DIFFERENTIAL_LOCK",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "解锁差速器",
+      "canonical_intent_id": "DIFFERENTIAL_UNLOCK",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "结合驻车锁",
+      "canonical_intent_id": "PARK_LOCK",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "释放驻车锁",
+      "canonical_intent_id": "PARK_UNLOCK",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "启用防抱死制动系统",
+      "canonical_intent_id": "ABS_ENABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "停用防抱死制动系统",
+      "canonical_intent_id": "ABS_DISABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "启用牵引力控制系统",
+      "canonical_intent_id": "TCS_ENABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "停用牵引力控制系统",
+      "canonical_intent_id": "TCS_DISABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "启用电子制动力分配系统",
+      "canonical_intent_id": "EBD_ENABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "停用电子制动力分配系统",
+      "canonical_intent_id": "EBD_DISABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "启用紧急制动辅助系统",
+      "canonical_intent_id": "EBA_ENABLE",
+      "unique_match": true
+    },
+    {
+      "requested_semantics": "停用紧急制动辅助系统",
+      "canonical_intent_id": "EBA_DISABLE",
+      "unique_match": true
+    }
+  ],
+  "runtime_support_audit": {
+    "source": "data/nlu/spec/intent_runtime_support.yaml",
+    "source_sha256": "aae671d3a7064adfd6cc12ed9e8b95908eb1f323ef125139e204fd38d2452407",
+    "execution_full_count": 7,
+    "items": [
+      {
+        "canonical_intent_id": "WINDOW_OPEN",
+        "execution_support": "FULL",
+        "adapter_action_key": "打开|车窗",
+        "adapter_config": "config/vehicle_actions.yaml",
+        "adapter_implementation": "backend/app/services/vehicle/simulator.py",
+        "execution_service": "backend/app/services/execution/service.py",
+        "test_evidence": [
+          "backend/tests/stage4/test_stage4_workflow.py",
+          "backend/tests/unit/test_semantic.py"
+        ],
+        "finding": "INDEPENDENT_BACKEND_IMPLEMENTATION_CONFIRMED",
+        "defines_full_nlu_label_space": false
+      },
+      {
+        "canonical_intent_id": "DOOR_OPEN",
+        "execution_support": "FULL",
+        "adapter_action_key": "打开|车门",
+        "adapter_config": "config/vehicle_actions.yaml",
+        "adapter_implementation": "backend/app/services/vehicle/simulator.py",
+        "execution_service": "backend/app/services/execution/service.py",
+        "test_evidence": [
+          "backend/tests/stage4/test_stage4_workflow.py",
+          "backend/tests/api/test_command_api.py"
+        ],
+        "finding": "INDEPENDENT_BACKEND_IMPLEMENTATION_CONFIRMED",
+        "defines_full_nlu_label_space": false
+      },
+      {
+        "canonical_intent_id": "DOOR_UNLOCK",
+        "execution_support": "FULL",
+        "adapter_action_key": "解锁|车门",
+        "adapter_config": "config/vehicle_actions.yaml",
+        "adapter_implementation": "backend/app/services/vehicle/simulator.py",
+        "execution_service": "backend/app/services/execution/service.py",
+        "test_evidence": [
+          "backend/tests/stage4/test_stage4_workflow.py"
+        ],
+        "finding": "INDEPENDENT_BACKEND_IMPLEMENTATION_CONFIRMED",
+        "defines_full_nlu_label_space": false
+      },
+      {
+        "canonical_intent_id": "ACCELERATE",
+        "execution_support": "FULL",
+        "adapter_action_key": "加速|速度",
+        "adapter_config": "config/vehicle_actions.yaml",
+        "adapter_implementation": "backend/app/services/vehicle/simulator.py",
+        "execution_service": "backend/app/services/execution/service.py",
+        "test_evidence": [
+          "backend/tests/stage4/test_stage4_workflow.py",
+          "backend/tests/unit/test_semantic.py"
+        ],
+        "finding": "INDEPENDENT_BACKEND_IMPLEMENTATION_CONFIRMED",
+        "defines_full_nlu_label_space": false
+      },
+      {
+        "canonical_intent_id": "DECELERATE",
+        "execution_support": "FULL",
+        "adapter_action_key": "减速|速度",
+        "adapter_config": "config/vehicle_actions.yaml",
+        "adapter_implementation": "backend/app/services/vehicle/simulator.py",
+        "execution_service": "backend/app/services/execution/service.py",
+        "test_evidence": [
+          "backend/tests/stage4/test_stage4_workflow.py",
+          "backend/tests/stage3/test_stage3_scenarios.py"
+        ],
+        "finding": "INDEPENDENT_BACKEND_IMPLEMENTATION_CONFIRMED",
+        "defines_full_nlu_label_space": false
+      },
+      {
+        "canonical_intent_id": "BRAKE",
+        "execution_support": "FULL",
+        "adapter_action_key": "打开|制动",
+        "adapter_config": "config/vehicle_actions.yaml",
+        "adapter_implementation": "backend/app/services/vehicle/simulator.py",
+        "execution_service": "backend/app/services/execution/service.py",
+        "test_evidence": [
+          "backend/tests/stage4/test_stage4_workflow.py"
+        ],
+        "finding": "INDEPENDENT_BACKEND_IMPLEMENTATION_CONFIRMED",
+        "defines_full_nlu_label_space": false
+      },
+      {
+        "canonical_intent_id": "AUTO_PARK_ENABLE",
+        "execution_support": "FULL",
+        "adapter_action_key": "打开|自动泊车",
+        "adapter_config": "config/vehicle_actions.yaml",
+        "adapter_implementation": "backend/app/services/vehicle/simulator.py",
+        "execution_service": "backend/app/services/execution/service.py",
+        "test_evidence": [
+          "backend/tests/stage3/test_stage3_scenarios.py",
+          "backend/tests/step1/test_action_evidence_alignment.py"
+        ],
+        "finding": "INDEPENDENT_BACKEND_IMPLEMENTATION_CONFIRMED",
+        "defines_full_nlu_label_space": false
+      }
+    ],
+    "conclusion": "KEEP_AS_CURRENT_BACKEND_ENGINEERING_FACT_ONLY"
+  },
+  "historical_poc_dependency_audit": {
+    "audit_name": "7-Intent PoC Active Dependency Audit",
+    "scan_roots": [
+      "backend/app",
+      "backend/tests/offline_nlu",
+      "config",
+      "scripts"
+    ],
+    "scan_exclusions": [
+      "scripts/build_sys014_r3_voice_registry.py",
+      "scripts/validate_sys014_r3_voice_registry.py"
+    ],
+    "classification_counts": {
+      "HISTORICAL_POC_ONLY": 53
+    },
+    "ACTIVE_FULL_NLU_DEPENDENCY_COUNT": 0,
+    "active_references": [],
+    "all_code_references": [
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "line": 28,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DATASET_NAME = \"SYS-014 7-Intent PoC\""
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "line": 29,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DATASET_VERSION = \"sys014-poc7-v1\""
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "line": 448,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"## 7-Intent 覆盖\", \"\","
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "line": 465,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"- UNKNOWN_CONTROL 表示当前 7-Intent PoC 必须 abstain；不等价于完整 95-Intent Registry 永远未知。\","
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "line": 485,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "这是 SYS-014 的 7-Intent PoC 冻结数据集，包含 {counts['candidate']} 条 candidate 切分记录和 {counts['safety']} 条独立 Safety Gold。"
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "line": 492,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "4. PoC 中 `UNKNOWN_CONTROL` 表示“当前 7-Intent 模型必须 abstain 的控制请求”。它既可能是完整 Registry 已知但 PoC 未覆盖的车辆能力，也可能是 Registry 外的外域控制；不表示完整 95-Intent Registry 永远不知道该能力。"
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "line": 496,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "8. 本目录是不可变 v1，禁止原地修改；未来数据变化必须创建 `sys014-poc7-v2`。"
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "line": 29,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "PARENT_PATH = FROZEN_PARENT / \"sys014-poc7-v1\""
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "line": 31,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DATASET_VERSION = \"sys014-poc7-v2\""
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "line": 32,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "PARENT_DATASET_VERSION = \"sys014-poc7-v1\""
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "line": 409,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"# sys014-poc7-v1 split group 失衡诊断\", \"\","
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "line": 448,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "), \"\", \"## 7-Intent 覆盖\", \"\","
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "line": 506,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"# sys014-poc7-v1 → sys014-poc7-v2 split 差异\", \"\","
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "line": 526,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "这是 SYS-014 的第二个不可变 7-Intent PoC 冻结版本，parent 为 `{PARENT_DATASET_VERSION}`。它使用同一批 {counts['candidate']} 条 candidate 和 {counts['safety']} 条独立 Safety Gold，主要修正 v1 的 split group 粗粒度与类别失衡；不是一次重新人工标注。"
+      },
+      {
+        "path": "scripts/profile_sys014_stage4a.py",
+        "line": 28,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DATASET_DIR = REPO_ROOT / \"data\" / \"nlu\" / \"poc\" / \"frozen\" / \"sys014-poc7-v2\""
+      },
+      {
+        "path": "scripts/profile_sys014_stage4a.py",
+        "line": 948,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "- Intent Head：仅 eligible 的 `SINGLE + IN_SCOPE_CONTROL` 预测冻结 7 Intent；其余样本 loss masked。"
+      },
+      {
+        "path": "scripts/profile_sys014_stage4a.py",
+        "line": 960,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "MULTI 只监督 Structure=MULTI，Intent masked；slot 可继续学习。segments 仅作离线诊断，不实现 token-level sub-intent segmentation。AMBIGUOUS 监督 Structure，三类 scope abstention 监督 Scope；均不得被硬塞入 7 Intent。"
+      },
+      {
+        "path": "scripts/profile_sys014_stage4a.py",
+        "line": 977,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "- Safety：`UNSAFE_FALSE_ACCEPT_RATE = unsafe abstention cases incorrectly released as executable 7-Intent / all unsafe abstention cases`。"
+      },
+      {
+        "path": "scripts/validate_sys014_frozen.py",
+        "line": 19,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DEFAULT_FROZEN = ROOT / \"data/nlu/poc/frozen/sys014-poc7-v1\""
+      },
+      {
+        "path": "scripts/validate_sys014_frozen.py",
+        "line": 186,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "report_failures = int(\"7-Intent 覆盖\" not in (frozen / \"split_report.md\").read_text(encoding=\"utf-8\"))"
+      },
+      {
+        "path": "scripts/validate_sys014_frozen_v2.py",
+        "line": 19,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DEFAULT_FROZEN = ROOT / \"data/nlu/poc/frozen/sys014-poc7-v2\""
+      },
+      {
+        "path": "scripts/nlu_training/dry_run.py",
+        "line": 126,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"dataset_version\": \"sys014-poc7-v2\","
+      },
+      {
+        "path": "scripts/nlu_training/dry_run.py",
+        "line": 423,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "- dataset：`sys014-poc7-v2`，仅 train/validation/test；Safety Gold 只校验完整性。"
+      },
+      {
+        "path": "scripts/nlu_training/dry_run.py",
+        "line": 471,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "`UFAR = unsafe_false_accepts / total_should_abstain`。should-abstain 包括 NON_CONTROL、UNKNOWN_CONTROL、AMBIGUOUS_CONTROL、MULTI、AMBIGUOUS；预测路径只有同时产生 IN_SCOPE_CONTROL + SINGLE + 7-Intent 才视为可执行。分别报告五类 false accept。"
+      },
+      {
+        "path": "scripts/nlu_training/dry_run.py",
+        "line": 477,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "后续离线 adapter 在同一 frozen test 上将 Legacy action-target 映射到公平可比的 7-Intent 子集，比较 correctness、negation、MULTI/OOD fail-close 和 latency；不得修改 runtime parser。"
+      },
+      {
+        "path": "scripts/nlu_training/dry_run.py",
+        "line": 551,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "(OUTPUT_DIR / \"label_mapping.json\").write_text("
+      },
+      {
+        "path": "scripts/nlu_training/finalize_exp001_failure.py",
+        "line": 17,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "repository_root() / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-rbt3-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_a1_postmortem.py",
+        "line": 57,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXP_DIR = ROOT / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-rbt3-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_a1_postmortem.py",
+        "line": 593,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "checkpoint_mapping = read_json(CHECKPOINT_DIR / \"label_mapping.json\")"
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_b1_slot_diagnosis.py",
+        "line": 37,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "ELECTRA_DIR = ROOT / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-electra-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_b1_slot_diagnosis.py",
+        "line": 38,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "RBT3_EXP002_DIR = ROOT / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-rbt3-exp002\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp001.py",
+        "line": 57,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXPERIMENT_ID = \"sys014-poc7-electra-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp001.py",
+        "line": 78,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "repository_root() / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-rbt3-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp001.py",
+        "line": 372,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "write_json(directory / \"label_mapping.json\", label_mapping_report())"
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp002.py",
+        "line": 67,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXPERIMENT_ID = \"sys014-poc7-electra-exp002\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp002.py",
+        "line": 69,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXP001_DIR = repository_root() / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-electra-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp002.py",
+        "line": 616,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "write_json(directory / \"label_mapping.json\", label_mapping_report())"
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp002.py",
+        "line": 1121,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"label_mapping.json\","
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_exp001.py",
+        "line": 55,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXPERIMENT_ID = \"sys014-poc7-rbt3-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_exp001.py",
+        "line": 299,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "directory / \"label_mapping.json\","
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_exp001.py",
+        "line": 326,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"label_mapping_file\": \"label_mapping.json\","
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_exp002.py",
+        "line": 61,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXPERIMENT_ID = \"sys014-poc7-rbt3-exp002\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_exp002.py",
+        "line": 63,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXP001_DIR = repository_root() / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-rbt3-exp001\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_exp002.py",
+        "line": 678,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "write_json(directory / \"label_mapping.json\", label_mapping_report())"
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a1_postmortem.py",
+        "line": 19,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DATASET_DIR = ROOT / \"data\" / \"nlu\" / \"poc\" / \"frozen\" / \"sys014-poc7-v2\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a1_postmortem.py",
+        "line": 20,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "FINAL_DIR = ROOT / \"data\" / \"nlu\" / \"final_evaluation\" / \"sys014-electra-exp002-epoch9\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a1_postmortem.py",
+        "line": 24,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "VAL_DIR = ROOT / \"data\" / \"nlu\" / \"experiments\" / \"sys014-poc7-electra-exp002\" / \"evaluation\" / \"validation\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a_locked_test.py",
+        "line": 54,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "EXPERIMENT_ID = \"sys014-poc7-electra-exp002\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a_locked_test.py",
+        "line": 66,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "ROOT / \"data\" / \"nlu\" / \"final_evaluation\" / \"sys014-electra-exp002-epoch9\""
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a_locked_test.py",
+        "line": 161,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "checkpoint_labels = read_json(CHECKPOINT_DIR / \"label_mapping.json\")"
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a_locked_test.py",
+        "line": 355,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "\"raw_executable_definition\": \"pred_scope=IN_SCOPE_CONTROL AND pred_structure=SINGLE AND pred_intent in frozen 7 intents\","
+      },
+      {
+        "path": "scripts/nlu_training/train_config.py",
+        "line": 36,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "dataset_version: str = \"sys014-poc7-v2\""
+      },
+      {
+        "path": "scripts/nlu_training/validation.py",
+        "line": 16,
+        "classification": "HISTORICAL_POC_ONLY",
+        "text": "DATASET_DIR = repository_root() / \"data\" / \"nlu\" / \"poc\" / \"frozen\" / \"sys014-poc7-v2\""
+      }
+    ],
+    "required_status": "HISTORICAL_POC_ONLY / NOT_FOR_FULL_NLU"
+  },
+  "mapping_rule_source": {
+    "path": "data/nlu/spec/mapping_rules/full_nlu_mapping_v1.yaml",
+    "version": "nlu_mapping_v1",
+    "sha256": "54ba55446d2961fd85f9ac329779fff658bee04b0c0de1a08d5df1c2976f15eb"
+  },
+  "annotation_schema_conflict": {
+    "path": "data/nlu/spec/annotation_schema.json",
+    "status": "RECORDED_NOT_MODIFIED",
+    "next_stage": "CHINESE_UNIFIED_SAMPLE_SCHEMA"
+  },
+  "validator": {
+    "status": "PASS",
+    "registry_version": "sys-014-semantic-hardening-r3",
+    "registry_sha256": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06",
+    "metrics": {
+      "SEMANTIC_INTENT_COUNT": 93,
+      "FORMAL_USER_VOICE_INTENT_COUNT": 71,
+      "KNOWN_UNSUPPORTED_CONTROL_INTENT_COUNT": 22,
+      "DUPLICATE_INTENT_ID_COUNT": 0,
+      "SEMANTIC_KEY_COLLISION_COUNT": 0,
+      "UNRESOLVED_CONTRACT_COUNT": 0,
+      "UNKNOWN_AREA_REFERENCE_COUNT": 0,
+      "SOURCE_TRACEABILITY_ERROR_COUNT": 0,
+      "CANONICAL_ACTION_COUNT_FORMAL": 22,
+      "CANONICAL_TARGET_COUNT_FORMAL": 26,
+      "CONTROL_ATTRIBUTE_COUNT_FORMAL": 30,
+      "VALUE_CONTRACT_COUNT": 17,
+      "DIRECTION_CONTRACT_COUNT": 11,
+      "MODE_CONTRACT_COUNT": 8,
+      "CONDITIONAL_SLOT_CONTRACT_COUNT": 3,
+      "RUNTIME_EXECUTION_FULL_COUNT": 7,
+      "ACTIVE_FULL_NLU_DEPENDENCY_COUNT": 0
+    },
+    "formal_user_voice_intent_ids": [
+      "MIRROR_HEATING_ON",
+      "MIRROR_HEATING_OFF",
+      "SEAT_LONGITUDINAL_SET_POSITION",
+      "SEAT_TILT_SET_ANGLE",
+      "SEAT_BACKREST_SET_ANGLE",
+      "SEAT_HEIGHT_SET_POSITION",
+      "SEAT_LUMBAR_SET_HEIGHT",
+      "SEAT_LUMBAR_SET_SUPPORT",
+      "STEERING_WHEEL_SET_EXTENSION",
+      "STEERING_WHEEL_SET_TILT",
+      "DEFROST_ON",
+      "DEFROST_OFF",
+      "WINDSHIELD_HEATING_ON",
+      "WINDSHIELD_HEATING_OFF",
+      "ESC_ENABLE",
+      "ESC_DISABLE",
+      "TRUNK_OPEN",
+      "TRUNK_CLOSE",
+      "TRUNK_SET_POSITION",
+      "TRUNK_LOCK",
+      "TRUNK_UNLOCK",
+      "HOOD_OPEN",
+      "HOOD_CLOSE",
+      "GEAR_SET",
+      "GEAR_CHANGE_MODE_SET",
+      "HORN_ACTIVATE",
+      "MIRROR_FOLD",
+      "MIRROR_UNFOLD",
+      "MIRROR_SET_ANGLE",
+      "SUNROOF_OPEN",
+      "SUNROOF_CLOSE",
+      "SUNROOF_SET_TILT",
+      "CRUISE_ENABLE",
+      "CRUISE_DISABLE",
+      "CRUISE_SET_SPEED",
+      "CRUISE_SET_GAP",
+      "HEADLIGHT_SET_MODE",
+      "HAZARD_LIGHT_ON",
+      "HAZARD_LIGHT_OFF",
+      "TURN_INDICATOR_ON",
+      "TURN_INDICATOR_OFF",
+      "LOW_BEAM_ON",
+      "LOW_BEAM_OFF",
+      "HIGH_BEAM_ON",
+      "HIGH_BEAM_OFF",
+      "FOG_LIGHT_ON",
+      "FOG_LIGHT_OFF",
+      "PARKING_LIGHT_ON",
+      "PARKING_LIGHT_OFF",
+      "WINDOW_OPEN",
+      "WINDOW_CLOSE",
+      "WINDOW_SET_POSITION",
+      "DOOR_OPEN",
+      "DOOR_CLOSE",
+      "DOOR_SET_POSITION",
+      "DOOR_LOCK",
+      "DOOR_UNLOCK",
+      "WIPER_SET_MODE",
+      "WIPER_SET_SENSITIVITY",
+      "PARKING_BRAKE_APPLY",
+      "PARKING_BRAKE_RELEASE",
+      "PARKING_BRAKE_AUTO_APPLY_ENABLE",
+      "PARKING_BRAKE_AUTO_APPLY_DISABLE",
+      "ACCELERATE",
+      "DECELERATE",
+      "BRAKE",
+      "EMERGENCY_BRAKE",
+      "LANE_CHANGE",
+      "LANE_KEEP",
+      "EVASIVE_STEER",
+      "AUTO_PARK_ENABLE"
+    ],
+    "known_unsupported_control_intent_ids": [
+      "MIRROR_ADJUSTMENT_LOCK",
+      "MIRROR_ADJUSTMENT_UNLOCK",
+      "ABS_ENABLE",
+      "ABS_DISABLE",
+      "TCS_ENABLE",
+      "TCS_DISABLE",
+      "EBD_ENABLE",
+      "EBD_DISABLE",
+      "EBA_ENABLE",
+      "EBA_DISABLE",
+      "HOOD_SET_POSITION",
+      "LOW_RANGE_ENABLE",
+      "LOW_RANGE_DISABLE",
+      "TORQUE_DISTRIBUTION_SET",
+      "TRANSMISSION_PERFORMANCE_MODE_SET",
+      "DIFFERENTIAL_LOCK",
+      "DIFFERENTIAL_UNLOCK",
+      "ELECTRIC_POWERTRAIN_ENGAGE",
+      "ELECTRIC_POWERTRAIN_DISENGAGE",
+      "CLUTCH_SET_ENGAGEMENT",
+      "PARK_LOCK",
+      "PARK_UNLOCK"
+    ],
+    "errors": []
+  }
+}

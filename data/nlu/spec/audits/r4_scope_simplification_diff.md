@@ -1,0 +1,252 @@
+# R4 Scope Simplification Diff
+
+- Parent final candidate SHA256: `55bbb90780a969cb249f73833d7d34d9e464d99c65e1a6352ead15aa34db4440`
+- Simplified candidate SHA256: `4eb697a9cc9daf48d1292e34b5ca37936de114028e71cfcf495e773335e6406f`
+- Known-control archive SHA256: `584165b608730658081df9ceb3ab3fdd6b9d45c58f3b79085a966e79258920ed`
+- Validator: **PASS**
+
+## Required outcome report
+
+1. FORMAL_EXECUTABLE 完全未变：**True**
+2. 移出运行 Intent 空间的 Known Unsupported：**91**
+3. Archive 数量：**91**
+4. 运行 Intent Head 已无 KNOWN_UNSUPPORTED_CONTROL：**True**
+5. 已新增统一 KNOWN_CONTROL_BYPASS scope：**True**
+6. NON_CONTROL / UNKNOWN_OOD 仍分离：**True**
+7. 多意图允许 FORMAL + BYPASS 混合：**True**
+
+## Runtime projection
+
+- Intent head: **162 → 71**
+- Capability families: **72 → 37**
+- Archived detailed KNOWN definitions: **91**
+
+## Scope routing
+
+- `FORMAL_EXECUTABLE` → precise Intent + formal safety chain
+- `KNOWN_CONTROL_BYPASS` → `PASS_BYPASS`, no Yuzheng authorization, target `NATIVE_COCKPIT_ASSISTANT`
+- `NON_CONTROL` and `UNKNOWN_OOD` remain separate scopes
+
+## Changed paths
+
+- `annotation_guidance.camera_mode_routing`
+- `annotation_guidance.family_area_semantic_policy`
+- `annotation_guidance.interior_lighting_lexical_boundary`
+- `annotation_guidance.media_sound_effect_mode_routing`
+- `annotation_guidance.registry_version`
+- `annotation_guidance.trunk_frunk_hood_routing.FRUNK.detailed_intent_assignment_prohibited`
+- `annotation_guidance.trunk_frunk_hood_routing.FRUNK.pending_operations`
+- `annotation_guidance.trunk_frunk_hood_routing.FRUNK.proven_operations`
+- `annotation_guidance.trunk_frunk_hood_routing.FRUNK.runtime_scope`
+- `annotation_guidance.trunk_frunk_hood_routing.deferred_candidate_intent_ids`
+- `annotation_guidance.trunk_frunk_hood_routing.formal_user_voice_projection_prohibited`
+- `annotation_guidance.trunk_frunk_hood_routing.frunk_close_status`
+- `annotation_guidance.trunk_frunk_hood_routing.frunk_expansion_status`
+- `annotation_guidance.trunk_frunk_hood_routing.included_intent_ids`
+- `annotation_guidance.trunk_frunk_hood_routing.prohibited_symmetric_expansion`
+- `annotation_guidance.version`
+- `annotation_schema_compatibility.existing_annotation_data_modified`
+- `annotation_schema_compatibility.runtime_scope_schema_embedded_in_registry`
+- `capability_families.ADAS_ABS_ENABLE`
+- `capability_families.ADAS_EBA_ENABLE`
+- `capability_families.ADAS_EBD_ENABLE`
+- `capability_families.ADAS_TCS_ENABLE`
+- `capability_families.BODY_HOOD.intents`
+- `capability_families.BODY_MIRROR_ADJUSTMENT_LOCK`
+- `capability_families.PROJECT_AIR_PURIFIER_KNOWN_CONTROL`
+- `capability_families.PROJECT_AMBIENT_LIGHT_KNOWN_CONTROL`
+- `capability_families.PROJECT_ARMREST_KNOWN_CONTROL`
+- `capability_families.PROJECT_BLUETOOTH_KNOWN_CONTROL`
+- `capability_families.PROJECT_CAMERA_KNOWN_CONTROL`
+- `capability_families.PROJECT_CHILD_LOCK_KNOWN_CONTROL`
+- `capability_families.PROJECT_DISPLAY_KNOWN_CONTROL`
+- `capability_families.PROJECT_DRIVING_MODE_KNOWN_CONTROL`
+- `capability_families.PROJECT_DRIVING_RECORDER_KNOWN_CONTROL`
+- `capability_families.PROJECT_FRAGRANCE_KNOWN_CONTROL`
+- `capability_families.PROJECT_FRUNK_KNOWN_CONTROL`
+- `capability_families.PROJECT_GLASS_ROOF_KNOWN_CONTROL`
+- `capability_families.PROJECT_HOTSPOT_KNOWN_CONTROL`
+- `capability_families.PROJECT_HVAC_KNOWN_CONTROL`
+- `capability_families.PROJECT_INTERIOR_LIGHT_KNOWN_CONTROL`
+- `capability_families.PROJECT_MEDIA_KNOWN_CONTROL`
+- `capability_families.PROJECT_READING_LIGHT_KNOWN_CONTROL`
+- `capability_families.PROJECT_REFRIGERATOR_KNOWN_CONTROL`
+- `capability_families.PROJECT_SEAT_HEATING_KNOWN_CONTROL`
+- `capability_families.PROJECT_SEAT_MASSAGE_KNOWN_CONTROL`
+- `capability_families.PROJECT_SEAT_VENTILATION_KNOWN_CONTROL`
+- `capability_families.PROJECT_SHADE_KNOWN_CONTROL`
+- `capability_families.PROJECT_STEERING_WHEEL_HEATING_KNOWN_CONTROL`
+- `capability_families.TRANSMISSION_CLUTCH`
+- `capability_families.TRANSMISSION_DIFF_LOCK`
+- `capability_families.TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT`
+- `capability_families.TRANSMISSION_LOW_RANGE`
+- `capability_families.TRANSMISSION_PARK_LOCK`
+- `capability_families.TRANSMISSION_PERFORMANCE_MODE`
+- `capability_families.TRANSMISSION_TORQUE_DISTRIBUTION`
+- `conditional_slot_contracts.TORQUE_DIRECTION_FOR_NONZERO_VALUE`
+- `direction_contracts.TORQUE_DISTRIBUTION_FRONT_REAR`
+- `enums.runtime_scope`
+- `enums.user_voice_scope_status`
+- `final_semantic_consistency_patch`
+- `formal_contract_completeness`
+- `gold_scope_mapping_policy`
+- `intents.ABS_DISABLE`
+- `intents.ABS_ENABLE`
+- `intents.AIR_PURIFIER_OFF`
+- `intents.AIR_PURIFIER_ON`
+- `intents.AIR_PURIFIER_SET_FAN_SPEED`
+- `intents.AIR_PURIFIER_SET_MODE`
+- `intents.AMBIENT_LIGHT_OFF`
+- `intents.AMBIENT_LIGHT_ON`
+- `intents.AMBIENT_LIGHT_SET_BRIGHTNESS`
+- `intents.AMBIENT_LIGHT_SET_COLOR`
+- `intents.AMBIENT_LIGHT_SET_MODE`
+- `intents.ARMREST_SET_POSITION`
+- `intents.BLUETOOTH_OFF`
+- `intents.BLUETOOTH_ON`
+- `intents.CAMERA_OFF`
+- `intents.CAMERA_ON`
+- `intents.CAMERA_SET_MODE`
+- `intents.CHILD_LOCK_OFF`
+- `intents.CHILD_LOCK_ON`
+- `intents.CLUTCH_SET_ENGAGEMENT`
+- `intents.DIFFERENTIAL_LOCK`
+- `intents.DIFFERENTIAL_UNLOCK`
+- `intents.DISPLAY_OFF`
+- `intents.DISPLAY_ON`
+- `intents.DISPLAY_SET_BRIGHTNESS`
+- `intents.DISPLAY_SET_MODE`
+- `intents.DISPLAY_SET_POSITION`
+- `intents.DRIVING_MODE_SET`
+- `intents.DRIVING_RECORDER_ON`
+- `intents.EBA_DISABLE`
+- `intents.EBA_ENABLE`
+- `intents.EBD_DISABLE`
+- `intents.EBD_ENABLE`
+- `intents.ELECTRIC_POWERTRAIN_DISENGAGE`
+- `intents.ELECTRIC_POWERTRAIN_ENGAGE`
+- `intents.FRAGRANCE_OFF`
+- `intents.FRAGRANCE_ON`
+- `intents.FRAGRANCE_SET_LEVEL`
+- `intents.FRAGRANCE_SET_SCENT`
+- `intents.FRUNK_OPEN`
+- `intents.GLASS_ROOF_SET_TRANSPARENCY`
+- `intents.HOOD_SET_POSITION`
+- `intents.HOTSPOT_OFF`
+- `intents.HOTSPOT_ON`
+- `intents.HVAC_OFF`
+- `intents.HVAC_ON`
+- `intents.HVAC_SET_AIRFLOW_DIRECTION`
+- `intents.HVAC_SET_FAN_SPEED`
+- `intents.HVAC_SET_MODE`
+- `intents.HVAC_SET_TEMPERATURE`
+- `intents.INTERIOR_LIGHT_OFF`
+- `intents.INTERIOR_LIGHT_ON`
+- `intents.INTERIOR_LIGHT_SET_BRIGHTNESS`
+- `intents.INTERIOR_LIGHT_SET_COLOR`
+- `intents.INTERIOR_LIGHT_SET_MODE`
+- `intents.LOW_RANGE_DISABLE`
+- `intents.LOW_RANGE_ENABLE`
+- `intents.MEDIA_SOUND_EFFECT_SET`
+- `intents.MEDIA_VOLUME_SET`
+- `intents.MIRROR_ADJUSTMENT_LOCK`
+- `intents.MIRROR_ADJUSTMENT_UNLOCK`
+- `intents.PARK_LOCK`
+- `intents.PARK_UNLOCK`
+- `intents.READING_LIGHT_OFF`
+- `intents.READING_LIGHT_ON`
+- `intents.READING_LIGHT_SET_BRIGHTNESS`
+- `intents.READING_LIGHT_SET_MODE`
+- `intents.REFRIGERATOR_ON`
+- `intents.REFRIGERATOR_SET_MODE`
+- `intents.REFRIGERATOR_SET_TEMPERATURE`
+- `intents.SEAT_HEATING_OFF`
+- `intents.SEAT_HEATING_ON`
+- `intents.SEAT_HEATING_SET_LEVEL`
+- `intents.SEAT_HEATING_SET_MODE`
+- `intents.SEAT_MASSAGE_OFF`
+- `intents.SEAT_MASSAGE_ON`
+- `intents.SEAT_MASSAGE_SET_LEVEL`
+- `intents.SEAT_MASSAGE_SET_MODE`
+- `intents.SEAT_VENTILATION_OFF`
+- `intents.SEAT_VENTILATION_ON`
+- `intents.SEAT_VENTILATION_SET_LEVEL`
+- `intents.SEAT_VENTILATION_SET_MODE`
+- `intents.SHADE_CLOSE`
+- `intents.SHADE_OPEN`
+- `intents.SHADE_SET_POSITION`
+- `intents.STEERING_WHEEL_HEATING_OFF`
+- `intents.STEERING_WHEEL_HEATING_ON`
+- `intents.TCS_DISABLE`
+- `intents.TCS_ENABLE`
+- `intents.TORQUE_DISTRIBUTION_SET`
+- `intents.TRANSMISSION_PERFORMANCE_MODE_SET`
+- `known_control_bypass_definition`
+- `known_unsupported_control_intent_ids`
+- `known_unsupported_expansion`
+- `mode_contracts.KNOWN_AIR_PURIFIER_SOURCE_MODE`
+- `mode_contracts.KNOWN_AMBIENT_LIGHT_SOURCE_MODE`
+- `mode_contracts.KNOWN_CAMERA_SOURCE_MODE`
+- `mode_contracts.KNOWN_DISPLAY_SOURCE_MODE`
+- `mode_contracts.KNOWN_DRIVING_MODE_SOURCE_MODE`
+- `mode_contracts.KNOWN_HVAC_SOURCE_MODE`
+- `mode_contracts.KNOWN_INTERIOR_LIGHT_SOURCE_MODE`
+- `mode_contracts.KNOWN_MEDIA_SOURCE_MODE`
+- `mode_contracts.KNOWN_READING_LIGHT_SOURCE_MODE`
+- `mode_contracts.KNOWN_REFRIGERATOR_SOURCE_MODE`
+- `mode_contracts.KNOWN_SEAT_HEATING_SOURCE_MODE`
+- `mode_contracts.KNOWN_SEAT_MASSAGE_SOURCE_MODE`
+- `mode_contracts.KNOWN_SEAT_VENTILATION_SOURCE_MODE`
+- `mode_contracts.TRANSMISSION_PERFORMANCE`
+- `multi_intent_schema`
+- `over_atomization_audit.deliberately_split_for_safety_semantics`
+- `over_atomization_audit.parameterized_instead_of_split.HOOD_SET_POSITION`
+- `over_atomization_audit.parameterized_instead_of_split.TRANSMISSION_PERFORMANCE_MODE_SET`
+- `parent_registry.inheritance_rule`
+- `parent_registry.path`
+- `parent_registry.registry_version`
+- `parent_registry.sha256`
+- `registry_version`
+- `runtime_scope_routing`
+- `scope_simplification`
+- `semantic_freeze_status`
+- `semantic_ontology.canonical_actions`
+- `semantic_ontology.canonical_targets`
+- `semantic_ontology.control_attributes`
+- `statistics.archived_known_control_reference_count`
+- `statistics.capability_family_count`
+- `statistics.intent_count`
+- `statistics.known_control_bypass_scope_count`
+- `statistics.known_unsupported_control_intent_count`
+- `statistics.out_of_scope_family_count`
+- `statistics.project_native_family_count`
+- `statistics.project_native_intent_count`
+- `statistics.runtime_intent_head_count`
+- `statistics.runtime_scope_count`
+- `statistics.semantic_intent_count`
+- `statistics.vss_derived_intent_count`
+- `statistics.vss_family_count`
+- `user_voice_scope_contract.FORMAL_EXECUTABLE`
+- `user_voice_scope_contract.KNOWN_CONTROL_BYPASS`
+- `user_voice_scope_contract.KNOWN_UNSUPPORTED_CONTROL`
+- `user_voice_scope_contract.NON_CONTROL`
+- `user_voice_scope_contract.UNKNOWN_OOD`
+- `value_contracts.ANGLE_REQUIRED`
+- `value_contracts.LUMBAR_HEIGHT_MM_REQUIRED`
+- `value_contracts.SEAT_HEIGHT_MM_REQUIRED`
+- `value_contracts.SEAT_LONGITUDINAL_MM_REQUIRED`
+- `value_contracts.SOURCE_AIRFLOW_DIRECTION_OPTIONAL`
+- `value_contracts.SOURCE_AIRFLOW_DIRECTION_REQUIRED`
+- `value_contracts.SOURCE_COLOR_OPTIONAL`
+- `value_contracts.SOURCE_COLOR_REQUIRED`
+- `value_contracts.SOURCE_LEVEL_OPTIONAL`
+- `value_contracts.SOURCE_LEVEL_REQUIRED`
+- `value_contracts.SOURCE_POSITION_OPTIONAL`
+- `value_contracts.SOURCE_POSITION_REQUIRED`
+- `value_contracts.SOURCE_SCENT_REQUIRED`
+- `value_contracts.SOURCE_TEMPERATURE_OPTIONAL`
+- `value_contracts.SOURCE_TEMPERATURE_REQUIRED`
+- `value_contracts.SOURCE_TRANSPARENCY_REQUIRED`
+- `value_contracts.SPEED_OPTIONAL`
+- `value_language_semantics.continuous_numeric_contracts`
+- `value_mapping_contracts.TORQUE_DISTRIBUTION_SIGNED_PERCENT`

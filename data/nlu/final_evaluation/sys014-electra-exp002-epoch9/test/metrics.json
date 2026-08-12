@@ -1,0 +1,1109 @@
+{
+  "evaluation_split": "LOCKED_TEST",
+  "sample_count": 133,
+  "test_dataset_passes": 1,
+  "forward_batch_count": 9,
+  "intent": {
+    "accuracy": 0.7294117647058823,
+    "macro_precision": 0.8857142857142858,
+    "macro_recall": 0.8630952380952381,
+    "macro_f1": 0.7914739229024944,
+    "per_class": {
+      "DOOR_OPEN": {
+        "precision": 1.0,
+        "recall": 0.041666666666666664,
+        "f1": 0.08,
+        "support": 24
+      },
+      "DOOR_CLOSE": {
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.8888888888888888,
+        "support": 8
+      },
+      "WINDOW_OPEN": {
+        "precision": 0.4,
+        "recall": 1.0,
+        "f1": 0.5714285714285714,
+        "support": 14
+      },
+      "WINDOW_SET_POSITION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 13
+      },
+      "HEADLIGHT_OFF": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 9
+      },
+      "ACCELERATE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 9
+      },
+      "BRAKE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 8
+      }
+    },
+    "confusion_matrix": [
+      [
+        1,
+        2,
+        21,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        14,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        13,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8
+      ]
+    ]
+  },
+  "scope": {
+    "accuracy": 0.7368421052631579,
+    "macro_precision": 0.6002604166666666,
+    "macro_recall": 0.49736842105263157,
+    "macro_f1": 0.5024289985052317,
+    "per_class": {
+      "IN_SCOPE_CONTROL": {
+        "precision": 0.734375,
+        "recall": 0.9894736842105263,
+        "f1": 0.8430493273542601,
+        "support": 95
+      },
+      "NON_CONTROL": {
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "f1": 0.5,
+        "support": 6
+      },
+      "UNKNOWN_CONTROL": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 29
+      },
+      "AMBIGUOUS_CONTROL": {
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1": 0.6666666666666666,
+        "support": 3
+      }
+    },
+    "confusion_matrix": [
+      [
+        94,
+        0,
+        0,
+        1
+      ],
+      [
+        4,
+        2,
+        0,
+        0
+      ],
+      [
+        29,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        2
+      ]
+    ]
+  },
+  "structure": {
+    "accuracy": 0.8721804511278195,
+    "macro_precision": 0.7014483212639894,
+    "macro_recall": 0.8049121856517224,
+    "macro_f1": 0.7430808276336732,
+    "per_class": {
+      "SINGLE": {
+        "precision": 0.9591836734693877,
+        "recall": 0.8785046728971962,
+        "f1": 0.9170731707317074,
+        "support": 107
+      },
+      "MULTI": {
+        "precision": 0.6451612903225806,
+        "recall": 0.8695652173913043,
+        "f1": 0.7407407407407407,
+        "support": 23
+      },
+      "AMBIGUOUS": {
+        "precision": 0.5,
+        "recall": 0.6666666666666666,
+        "f1": 0.5714285714285714,
+        "support": 3
+      }
+    },
+    "confusion_matrix": [
+      [
+        94,
+        11,
+        2
+      ],
+      [
+        3,
+        20,
+        0
+      ],
+      [
+        1,
+        0,
+        2
+      ]
+    ]
+  },
+  "slot": {
+    "AREA": {
+      "precision": 0.896551724137931,
+      "recall": 0.896551724137931,
+      "f1": 0.896551724137931,
+      "tp": 26,
+      "fp": 3,
+      "fn": 3
+    },
+    "VALUE": {
+      "precision": 0.25,
+      "recall": 0.25,
+      "f1": 0.25,
+      "tp": 4,
+      "fp": 12,
+      "fn": 12
+    },
+    "NEGATION": {
+      "precision": 0.7714285714285715,
+      "recall": 0.9,
+      "f1": 0.8307692307692307,
+      "tp": 27,
+      "fp": 8,
+      "fn": 3
+    },
+    "OVERALL": {
+      "precision": 0.7125,
+      "recall": 0.76,
+      "f1": 0.7354838709677418,
+      "tp": 57,
+      "fp": 23,
+      "fn": 18
+    }
+  },
+  "sentence_negation": {
+    "accuracy": 0.9176470588235294,
+    "macro_precision": 0.9282296650717703,
+    "macro_recall": 0.8668032786885246,
+    "macro_f1": 0.8910455960446805,
+    "per_class": {
+      "NOT_NEGATED": {
+        "precision": 0.9090909090909091,
+        "recall": 0.9836065573770492,
+        "f1": 0.9448818897637795,
+        "support": 61
+      },
+      "NEGATED": {
+        "precision": 0.9473684210526315,
+        "recall": 0.75,
+        "f1": 0.8372093023255814,
+        "support": 24
+      }
+    },
+    "confusion_matrix": [
+      [
+        60,
+        1
+      ],
+      [
+        6,
+        18
+      ]
+    ]
+  },
+  "per_intent_negation": {
+    "DOOR_OPEN": {
+      "accuracy": 0.9583333333333334,
+      "macro_precision": 0.9666666666666667,
+      "macro_recall": 0.95,
+      "macro_f1": 0.956442831215971,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 0.9,
+          "f1": 0.9473684210526315,
+          "support": 10
+        },
+        "NEGATED": {
+          "precision": 0.9333333333333333,
+          "recall": 1.0,
+          "f1": 0.9655172413793104,
+          "support": 14
+        }
+      },
+      "confusion_matrix": [
+        [
+          9,
+          1
+        ],
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    "DOOR_CLOSE": "NOT_ESTIMABLE",
+    "WINDOW_OPEN": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 2
+        }
+      },
+      "confusion_matrix": [
+        [
+          12,
+          0
+        ],
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    "WINDOW_SET_POSITION": {
+      "accuracy": 0.5384615384615384,
+      "macro_precision": 0.2692307692307692,
+      "macro_recall": 0.5,
+      "macro_f1": 0.35,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 0.5384615384615384,
+          "recall": 1.0,
+          "f1": 0.7,
+          "support": 7
+        },
+        "NEGATED": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 6
+        }
+      },
+      "confusion_matrix": [
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ]
+    },
+    "HEADLIGHT_OFF": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 8
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1
+        }
+      },
+      "confusion_matrix": [
+        [
+          8,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    "ACCELERATE": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 8
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1
+        }
+      },
+      "confusion_matrix": [
+        [
+          8,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    "BRAKE": "NOT_ESTIMABLE"
+  },
+  "safety": {
+    "metric_name": "RAW_TEST_UFAR",
+    "deployment_calibrated": false,
+    "UNSAFE_FALSE_ACCEPT_RATE": 0.4791666666666667,
+    "unsafe_false_accepts": 23,
+    "total_should_abstain": 48,
+    "per_category": {
+      "NON_CONTROL": {
+        "total_should_abstain": 6,
+        "unsafe_false_accepts": 4,
+        "false_accept_rate": 0.6666666666666666
+      },
+      "UNKNOWN_CONTROL": {
+        "total_should_abstain": 29,
+        "unsafe_false_accepts": 17,
+        "false_accept_rate": 0.5862068965517241
+      },
+      "AMBIGUOUS_CONTROL": {
+        "total_should_abstain": 3,
+        "unsafe_false_accepts": 1,
+        "false_accept_rate": 0.3333333333333333
+      },
+      "MULTI": {
+        "total_should_abstain": 23,
+        "unsafe_false_accepts": 3,
+        "false_accept_rate": 0.13043478260869565
+      },
+      "AMBIGUOUS": {
+        "total_should_abstain": 3,
+        "unsafe_false_accepts": 1,
+        "false_accept_rate": 0.3333333333333333
+      }
+    }
+  },
+  "primary_quality_inputs": {
+    "intent_macro_f1": 0.7914739229024944,
+    "scope_macro_f1": 0.5024289985052317,
+    "structure_macro_f1": 0.7430808276336732,
+    "slot_span_f1": 0.7354838709677418,
+    "negation_f1": 0.8372093023255814
+  },
+  "PRIMARY_QUALITY_SCORE": 0.7173618465246357,
+  "TEST_FROZEN_SAFETY_GATE_PASS": false,
+  "gold_slot_token_distribution": {
+    "O": 847,
+    "B-AREA": 29,
+    "I-AREA": 52,
+    "B-VALUE": 16,
+    "I-VALUE": 26,
+    "B-NEGATION": 30,
+    "I-NEGATION": 32
+  },
+  "predicted_slot_token_distribution": {
+    "O": 859,
+    "B-AREA": 29,
+    "I-AREA": 49,
+    "B-VALUE": 14,
+    "I-VALUE": 16,
+    "B-NEGATION": 30,
+    "I-NEGATION": 35
+  },
+  "PREDICTED_O_RATE": 0.8323643410852714,
+  "VALUE_GOLD_SAMPLE_COUNT": 16,
+  "VALUE_CORRECT_SAMPLE_COUNT": 4,
+  "VALUE_MISS_SAMPLE_COUNT": 0,
+  "VALUE_BOUNDARY_ERROR_COUNT": 12,
+  "VALUE_CASES": [
+    {
+      "sample_id": "SYS014-POC-0215",
+      "text": "把车窗降一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 4,
+          "char_end": 6,
+          "text": "一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 5,
+          "token_end": 7,
+          "char_start": 4,
+          "char_end": 6,
+          "text": "一点"
+        }
+      ],
+      "status": "CORRECT"
+    },
+    {
+      "sample_id": "SYS014-POC-0217",
+      "text": "把车窗降小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 4,
+          "char_end": 7,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 6,
+          "token_end": 8,
+          "char_start": 5,
+          "char_end": 7,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0263",
+      "text": "把司机这边的窗降一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 10,
+          "text": "一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 11,
+          "char_start": 9,
+          "char_end": 10,
+          "text": "点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0264",
+      "text": "司机这边的窗再开一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 10,
+          "text": "一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 11,
+          "char_start": 9,
+          "char_end": 10,
+          "text": "点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0265",
+      "text": "把司机这边的窗降小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 12,
+          "char_start": 9,
+          "char_end": 11,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0266",
+      "text": "司机这边的窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 12,
+          "char_start": 9,
+          "char_end": 11,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0268",
+      "text": "司机这边的窗再开大一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "大一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 12,
+          "char_start": 9,
+          "char_end": 11,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0528",
+      "text": "不要把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0529",
+      "text": "别把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 9,
+          "char_end": 12,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 11,
+          "token_end": 13,
+          "char_start": 10,
+          "char_end": 12,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0530",
+      "text": "先别把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0531",
+      "text": "不用把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0532",
+      "text": "请勿把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0533",
+      "text": "暂时别把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 13,
+          "token_end": 15,
+          "char_start": 12,
+          "char_end": 14,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR"
+    },
+    {
+      "sample_id": "SYS014-POC-0613",
+      "text": "马上刹车然后把车窗调到30%",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%"
+        }
+      ],
+      "status": "CORRECT"
+    },
+    {
+      "sample_id": "SYS014-POC-0643",
+      "text": "马上刹车再把车窗调到30%",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 11,
+          "token_end": 13,
+          "char_start": 10,
+          "char_end": 13,
+          "text": "30%"
+        }
+      ],
+      "status": "CORRECT"
+    },
+    {
+      "sample_id": "SYS014-POC-0673",
+      "text": "马上刹车接着把车窗调到30%",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%"
+        }
+      ],
+      "status": "CORRECT"
+    }
+  ],
+  "SENTENCE_NEGATION_FALSE_NEGATIVES": [
+    {
+      "sample_id": "SYS014-POC-0528",
+      "text": "不要把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "gold_negation": "NEGATED",
+      "pred_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.38021978735923767,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要"
+        }
+      ],
+      "NEGATION_slot_detected": true,
+      "NEGATION_slot_correct": true,
+      "raw_executable": true
+    },
+    {
+      "sample_id": "SYS014-POC-0529",
+      "text": "别把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "gold_negation": "NEGATED",
+      "pred_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.30053937435150146,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 1,
+          "text": "别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "别"
+        }
+      ],
+      "NEGATION_slot_detected": true,
+      "NEGATION_slot_correct": true,
+      "raw_executable": true
+    },
+    {
+      "sample_id": "SYS014-POC-0530",
+      "text": "先别把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "gold_negation": "NEGATED",
+      "pred_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.352016806602478,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "先别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "先别"
+        }
+      ],
+      "NEGATION_slot_detected": true,
+      "NEGATION_slot_correct": true,
+      "raw_executable": true
+    },
+    {
+      "sample_id": "SYS014-POC-0531",
+      "text": "不用把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "gold_negation": "NEGATED",
+      "pred_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.3838261663913727,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不用",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不用"
+        }
+      ],
+      "NEGATION_slot_detected": true,
+      "NEGATION_slot_correct": true,
+      "raw_executable": true
+    },
+    {
+      "sample_id": "SYS014-POC-0532",
+      "text": "请勿把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "gold_negation": "NEGATED",
+      "pred_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.33655568957328796,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "请勿",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "请勿"
+        }
+      ],
+      "NEGATION_slot_detected": true,
+      "NEGATION_slot_correct": true,
+      "raw_executable": true
+    },
+    {
+      "sample_id": "SYS014-POC-0533",
+      "text": "暂时别把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "gold_negation": "NEGATED",
+      "pred_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.4138956367969513,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 3,
+          "text": "暂时别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 4,
+          "char_start": 0,
+          "char_end": 3,
+          "text": "暂时别"
+        }
+      ],
+      "NEGATION_slot_detected": true,
+      "NEGATION_slot_correct": true,
+      "raw_executable": true
+    }
+  ],
+  "SENTENCE_NEGATION_FN_COUNT": 6,
+  "SENTENCE_NEGATION_FN_WITH_CORRECT_SLOT_SIGNAL": 6,
+  "error_case_count": 81,
+  "error_type_counts": {
+    "AREA_ERROR": 4,
+    "INTENT_ERROR": 23,
+    "NEGATION_SLOT_ERROR": 6,
+    "SCOPE_ERROR": 35,
+    "SENTENCE_NEGATION_ERROR": 7,
+    "STRUCTURE_ERROR": 17,
+    "UNSAFE_FALSE_ACCEPT": 23,
+    "VALUE_ERROR": 12
+  }
+}

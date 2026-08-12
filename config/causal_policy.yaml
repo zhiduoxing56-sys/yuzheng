@@ -1,9 +1,7 @@
-formula_version: REPORT_FORMULAS_2_9_TO_2_15_V1
-variable_identity_version: NORMALIZED_EVIDENCE_TYPE_V1
-variable_identity_level: NORMALIZED_EVIDENCE_TYPE
-variable_identity_source: ENGINEERING_REALIZATION
-theta_causal: 0.0
-theta_causal_source: EXISTING_ENGINEERING_BEHAVIOR
+formula_version: DETERMINISTIC_CAUSAL_PROXY_V1
+variable_identity_version: OCCURRENCE_EVIDENCE_BINDING_V1
+variable_identity_level: OCCURRENCE_EVIDENCE_BINDING
+variable_identity_source: PHASE4_INTENT_EVIDENCE_BINDING
 lambda_values:
   sas: 0.30
   layer_confidence: 0.25
@@ -11,31 +9,9 @@ lambda_values:
   historical_availability: 0.10
   mandatory: 0.20
 lambda_values_source: ENGINEERING_CONFIG
-laplace_epsilon: 1.0
-laplace_epsilon_source: EXISTING_FORMAL_CONFIG
 numeric_epsilon: 1.0e-12
 numeric_epsilon_source: ENGINEERING_NUMERICAL_STABILITY
-minimum_history_samples: 20
-minimum_history_samples_source: EXISTING_FORMAL_CONFIG
-command_class_source: ELIGIBLE_AUDIT_SEMANTIC_FRAME
-confidence_mode: REPORT_ENTROPY_CALIBRATION
-confidence_threshold: null
-confidence_threshold_source: REPORT_NOT_SPECIFIED
-learning_record_policy: AUDIT_QUALITY_VALID_COMMAND_ONLY
-
-# Legacy names remain internal compatibility aliases for old callers/tests.
-laplace_alpha: 1.0
-outcome_count: 3
-minimum_samples_for_confidence: 20
-auto_rebuild_enabled: true
-rebuild_every_eligible_audits: 20
-maximum_training_records: 5000
-prior_floor: 0.001
-risk_priors:
-  R3: 0.55
-  R2: 0.70
-  R1: 0.85
-domain_order:
-  semantic: 0
-  evidence: 1
-  decision: 2
+deterministic_domain_support:
+  required_weight: 1.0
+  optional_weight: 0.7
+auto_rebuild_enabled: false

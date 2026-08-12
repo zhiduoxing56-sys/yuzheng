@@ -7,19 +7,13 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from app.models.schemas import EvidenceNode, EvidenceQualityMetrics, EvidenceStatus, utc_now
+from app.services.evidence.value_contract import (
+    is_finite_number,
+    validate_evidence_value,
+)
 
 
 class EvidenceQualityService:
-    ECS_AUXILIARY_TYPES = {
-        "semantic_frame",
-        "instruction",
-        "evidence_demand",
-        "control_target",
-        "frontend_display",
-        "conflict_event",
-        "evidence_stream",
-    }
-
     def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
         self.weights = config.get("alignment_weights", {})
@@ -50,6 +44,28 @@ class EvidenceQualityService:
         digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
         return digest == node.integrity_hash
 
+    @staticmethod
+    def _sanitized_invalid_value_fields(
+        node: EvidenceNode, validation_metadata: dict[str, Any]
+    ) -> tuple[dict[str, Any], str]:
+        payload = {
+            "evidence_type": node.evidence_type,
+            "source": node.source,
+            "value": None,
+            "timestamp": node.timestamp.isoformat() if node.timestamp is not None else None,
+        }
+        canonical = json.dumps(
+            payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+        digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+        metadata = {
+            **node.metadata,
+            **validation_metadata,
+            "integrity_payload": payload,
+            "expected_integrity_hash": digest,
+        }
+        return metadata, digest
+
     def _refresh_node(self, node: EvidenceNode, now: datetime) -> EvidenceNode:
         if node.timestamp is None:
             return node.model_copy(
@@ -67,10 +83,22 @@ class EvidenceQualityService:
         freshness = max(0.0, min(1.0, math.exp(-decay * age_seconds)))
         configured_expiry = node.timestamp + timedelta(seconds=validity_seconds)
         expires_at = min(node.expires_at, configured_expiry) if node.expires_at else configured_expiry
-        if not self._integrity_valid(node):
+        validation = validate_evidence_value(node.evidence_type, node.value)
+        metadata = node.metadata
+        value = node.value
+        integrity_hash = node.integrity_hash
+        if node.quality_label == EvidenceStatus.TAMPERED:
             label = EvidenceStatus.TAMPERED
         elif node.value is None or node.quality_label == EvidenceStatus.MISSING:
             label = EvidenceStatus.MISSING
+        elif validation.applicable and not validation.usable:
+            label = EvidenceStatus.MISSING
+            value = None
+            metadata, integrity_hash = self._sanitized_invalid_value_fields(
+                node, validation.audit_metadata()
+            )
+        elif not self._integrity_valid(node):
+            label = EvidenceStatus.TAMPERED
         elif now >= expires_at or node.quality_label == EvidenceStatus.STALE:
             label = EvidenceStatus.STALE
         elif node.quality_label == EvidenceStatus.TAMPERED:
@@ -84,6 +112,9 @@ class EvidenceQualityService:
                 "freshness": round(freshness, 6),
                 "availability": availability,
                 "quality_label": label,
+                "value": value,
+                "metadata": metadata,
+                "integrity_hash": integrity_hash,
             }
         )
 
@@ -103,12 +134,19 @@ class EvidenceQualityService:
                 latest[node.source] = node
         return list(latest.values())
 
+    @staticmethod
+    def _value_field(node: EvidenceNode | None, field: str) -> Any:
+        if node is None or not isinstance(node.value, dict):
+            return None
+        return node.value.get(field)
+
     def _select_profile(self, nodes: list[EvidenceNode]) -> str:
         usable = [node for node in nodes if node.quality_label != EvidenceStatus.MISSING]
         road_values = {
-            str(node.value).strip().upper()
+            str(self._value_field(node, "road_condition")).strip().upper()
             for node in usable
-            if node.evidence_type == "road_condition" and node.value is not None
+            if node.evidence_type == "ROAD_FRICTION_STATE"
+            and self._value_field(node, "road_condition") is not None
         }
         complex_values = {
             str(value).strip().upper()
@@ -119,7 +157,7 @@ class EvidenceQualityService:
         speeds = [
             float(node.value)
             for node in usable
-            if node.evidence_type == "vehicle_speed" and isinstance(node.value, (int, float))
+            if node.evidence_type == "VEHICLE_SPEED" and is_finite_number(node.value)
         ]
         threshold = float(self.profile_selection.get("high_speed_threshold_kmh", 80))
         if speeds and max(speeds) >= threshold and "high_speed" in self.profiles:
@@ -164,8 +202,6 @@ class EvidenceQualityService:
                     node.metadata.get("ecs_exclusion_reason")
                     or "EXPLICIT_AUXILIARY_NODE"
                 )
-            elif node.evidence_type in cls.ECS_AUXILIARY_TYPES:
-                reason = "AUXILIARY_GRAPH_NODE"
             elif identity in seen:
                 reason = "DUPLICATE_PHYSICAL_EVIDENCE_REFERENCE"
             else:
@@ -189,8 +225,8 @@ class EvidenceQualityService:
         conflicts: list[dict[str, Any]] = []
         speed_nodes = [
             node
-            for node in self._latest_per_source(nodes, "vehicle_speed")
-            if isinstance(node.value, (int, float))
+            for node in self._latest_per_source(nodes, "VEHICLE_SPEED")
+            if is_finite_number(node.value)
             and node.quality_label in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
         ]
         threshold = float(self.conflict_config.get("vehicle_speed_delta", 8.0))
@@ -203,7 +239,7 @@ class EvidenceQualityService:
                             "type": "VEHICLE_SPEED_SOURCE_CONFLICT",
                             "severity": 2,
                             "node_ids": [left.node_id, right.node_id],
-                            "evidence_types": ["vehicle_speed"],
+                            "evidence_types": ["VEHICLE_SPEED"],
                             "reason": f"车速来源差值 {delta:.3f} km/h 超过阈值 {threshold:.3f}",
                         }
                     )
@@ -213,7 +249,7 @@ class EvidenceQualityService:
             key=lambda node: node.timestamp.isoformat() if node.timestamp else "",
             default=None,
         )
-        gear_nodes = self._latest_per_source(nodes, "gear_position")
+        gear_nodes = self._latest_per_source(nodes, "GEAR_STATE")
         latest_gear = max(
             gear_nodes,
             key=lambda node: node.timestamp.isoformat() if node.timestamp else "",
@@ -224,42 +260,54 @@ class EvidenceQualityService:
             latest_speed is not None
             and latest_gear is not None
             and float(latest_speed.value) > moving_threshold
-            and str(latest_gear.value).upper() == "P"
+            and str(self._value_field(latest_gear, "current_gear")).upper() == "P"
         ):
             conflicts.append(
                 {
                     "type": "GEAR_SPEED_LOGIC_CONFLICT",
                     "severity": 2,
                     "node_ids": [latest_speed.node_id, latest_gear.node_id],
-                    "evidence_types": ["vehicle_speed", "gear_position"],
+                    "evidence_types": ["VEHICLE_SPEED", "GEAR_STATE"],
                     "reason": "车辆处于运动速度但挡位为 P",
                 }
             )
 
         door = max(
-            self._latest_per_source(nodes, "door_state"),
+            self._latest_per_source(nodes, "DOOR_STATE"),
             key=lambda node: node.timestamp.isoformat() if node.timestamp else "",
             default=None,
         )
         lock = max(
-            self._latest_per_source(nodes, "door_lock_state"),
+            self._latest_per_source(nodes, "DOOR_LOCK_STATE"),
             key=lambda node: node.timestamp.isoformat() if node.timestamp else "",
             default=None,
         )
-        if door is not None and lock is not None and str(door.value).upper() == "OPEN" and str(lock.value).upper() == "LOCKED":
+        if (
+            door is not None
+            and lock is not None
+            and str(self._value_field(door, "state")).upper() == "OPEN"
+            and str(self._value_field(lock, "lock_state")).upper() == "LOCKED"
+        ):
             conflicts.append(
                 {
                     "type": "DOOR_LOCK_LOGIC_CONFLICT",
                     "severity": 1,
                     "node_ids": [door.node_id, lock.node_id],
-                    "evidence_types": ["door_state", "door_lock_state"],
+                    "evidence_types": ["DOOR_STATE", "DOOR_LOCK_STATE"],
                     "reason": "车门为 OPEN 但门锁为 LOCKED",
                 }
             )
 
-        for evidence_type in ("vehicle_mode", "occupant_role"):
+        for evidence_type, value_field in (("SYSTEM_MODE", "vehicle_mode"),):
             source_nodes = self._latest_per_source(nodes, evidence_type)
-            values = {json.dumps(node.value, ensure_ascii=False, sort_keys=True) for node in source_nodes}
+            values = {
+                json.dumps(
+                    self._value_field(node, value_field),
+                    ensure_ascii=False,
+                    sort_keys=True,
+                )
+                for node in source_nodes
+            }
             if len(values) > 1:
                 conflicts.append(
                     {
@@ -276,27 +324,47 @@ class EvidenceQualityService:
         self,
         nodes: list[EvidenceNode],
         required_types: list[str],
+        required_node_ids: frozenset[str],
+        semantic_similarities: list[float] | None = None,
         now: datetime | None = None,
         scene_nodes: list[EvidenceNode] | None = None,
+        *,
+        pre_evaluated: bool = False,
+        physical_conflicts: list[dict[str, Any]] | None = None,
     ) -> tuple[list[EvidenceNode], EvidenceQualityMetrics, list[dict[str, Any]]]:
-        evaluated = [self._refresh_node(node, now or utc_now()) for node in nodes]
-        conflicts = self._detect_conflicts(evaluated)
-        conflict_ids = {node_id for conflict in conflicts for node_id in conflict["node_ids"]}
-        evaluated = [
-            node.model_copy(
-                update={"quality_label": EvidenceStatus.SUSPICIOUS, "consistency": 0.0}
-            )
-            if node.node_id in conflict_ids and node.quality_label == EvidenceStatus.VALID
-            else node
-            for node in evaluated
-        ]
+        if pre_evaluated:
+            evaluated = list(nodes)
+            conflicts = list(physical_conflicts or [])
+        else:
+            reference_time = now or utc_now()
+            evaluated = [self._refresh_node(node, reference_time) for node in nodes]
+            # State snapshots and explicit sensor overrides participate in conflict
+            # detection even when a low-risk command has no mandatory retrieval.
+            # Otherwise a comfort command could be passed while its live sensors
+            # disagree simply because those sensors did not enter semantic TopK.
+            scene_evaluated = [
+                self._refresh_node(node, reference_time) for node in (scene_nodes or [])
+            ]
+            conflict_inputs = {
+                node.node_id: node for node in [*evaluated, *scene_evaluated]
+            }
+            conflicts = self._detect_conflicts(list(conflict_inputs.values()))
+            conflict_ids = {node_id for conflict in conflicts for node_id in conflict["node_ids"]}
+            evaluated = [
+                node.model_copy(
+                    update={"quality_label": EvidenceStatus.SUSPICIOUS, "consistency": 0.0}
+                )
+                if node.node_id in conflict_ids and node.quality_label == EvidenceStatus.VALID
+                else node
+                for node in evaluated
+            ]
 
         required_set = set(required_types)
         coverage_applicable = bool(required_set)
         covered_types = {
             node.evidence_type
             for node in evaluated
-            if node.mandatory
+            if node.node_id in required_node_ids
             and node.evidence_type in required_set
             and node.quality_label in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
         }
@@ -319,13 +387,15 @@ class EvidenceQualityService:
             else 1.0 - conflict_pair_count / evidence_pair_count
         )
         ecs = max(0.0, min(1.0, ecs))
-        metric_nodes = [node for node in evaluated if node.mandatory] or evaluated
+        metric_nodes = [
+            node for node in evaluated if node.node_id in required_node_ids
+        ] or evaluated
         ef = (
             sum(node.freshness for node in metric_nodes) / len(metric_nodes) if metric_nodes else 1.0
         )
         sas = (
-            sum(node.semantic_similarity for node in metric_nodes) / len(metric_nodes)
-            if metric_nodes
+            sum(semantic_similarities) / len(semantic_similarities)
+            if semantic_similarities
             else 0.0
         )
 
@@ -356,7 +426,11 @@ class EvidenceQualityService:
             else 0.0
         )
         eas = max(0.0, min(1.0, eas))
-        route = self.alignment_route(eas)
+        # EAS is a decision constraint only when this command declares mandatory
+        # evidence.  For comfort/diagnostic commands with no required evidence we
+        # keep the numeric metrics for audit diagnostics, but an unrelated low
+        # semantic-similarity retrieval must not upgrade a PASS score to REVIEW.
+        route = self.alignment_route(eas) if coverage_applicable else "EVIDENCE_PASS"
         metrics = EvidenceQualityMetrics(
             ecr=(round(ecr, 6) if ecr is not None else None),
             evidence_coverage_applicable=coverage_applicable,
@@ -373,3 +447,36 @@ class EvidenceQualityService:
             evidence_alignment_route=route,
         )
         return evaluated, metrics, conflicts
+
+    def evaluate_occurrence(
+        self,
+        nodes: list[EvidenceNode],
+        required_types: list[str],
+        required_node_ids: frozenset[str],
+        semantic_similarities: list[float] | None,
+        *,
+        scene_nodes: list[EvidenceNode] | None = None,
+        physical_conflicts: list[dict[str, Any]] | None = None,
+    ) -> EvidenceQualityMetrics:
+        """Evaluate occurrence metrics from the turn's already-refreshed nodes.
+
+        Physical refresh and conflict detection happen once per turn in
+        ``evaluate``.  This method only projects those canonical nodes into one
+        occurrence's ownership view and applies the unchanged metric formulas.
+        """
+        occurrence_ids = {node.node_id for node in nodes}
+        conflicts = [
+            conflict
+            for conflict in (physical_conflicts or [])
+            if occurrence_ids.intersection(conflict.get("node_ids", []))
+        ]
+        _, metrics, _ = self.evaluate(
+            nodes,
+            required_types,
+            required_node_ids,
+            semantic_similarities,
+            scene_nodes=scene_nodes,
+            pre_evaluated=True,
+            physical_conflicts=conflicts,
+        )
+        return metrics

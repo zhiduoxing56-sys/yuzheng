@@ -1,0 +1,3068 @@
+document_status: DRAFT_OFFLINE_NOT_RUNTIME
+registry_version: sys-014-semantic-hardening-r1
+created_date: 2026-08-08
+public_semantic_frame_change_required: false
+runtime_loading_allowed: false
+external_llm_allowed: false
+authority:
+  workbook: 新语证_VSS6.0_113能力筛选表_v0.2.xlsx
+  workbook_sheet: 113能力筛选
+  workbook_range: A1:I45
+  human_approved_vss_capability_count: 44
+  human_rejected_vss_capability_count: 69
+  pending_vss_scope_count: 0
+  rule: HUMAN_APPROVED/HUMAN_REJECTED scope decisions MUST NOT be overridden by this draft.
+statistics:
+  intent_count: 93
+  capability_family_count: 49
+  vss_family_count: 44
+  project_native_family_count: 5
+  vss_derived_intent_count: 85
+  project_native_intent_count: 8
+  legacy_test_only_intent_count: 1
+  out_of_scope_family_count: 1
+  pending_scope_intent_count: 0
+  area_only_duplicate_intent_count: 0
+  numeric_value_only_duplicate_intent_count: 0
+enums:
+  scope_status:
+  - IN_SCOPE
+  - OUT_OF_SCOPE
+  - PENDING_SCOPE
+  capability_origin:
+  - VSS
+  - PROJECT_NATIVE
+  - VSS_AND_PROJECT
+  vss_relation:
+  - DIRECT
+  - INDIRECT
+  - NONE
+  scope_authority:
+  - HUMAN_APPROVED_VSS
+  - EXISTING_PROJECT_DESIGN
+  - BOTH
+  risk_review_status:
+  - CONFIRMED
+  - RISK_REVIEW_REQUIRED
+  capability_slot_type:
+  - AREA
+  - VALUE
+  - DIRECTION
+  - MODE
+  annotation_slot_type:
+  - AREA
+  - VALUE
+  - DIRECTION
+  - MODE
+  - NEGATION
+area_catalog:
+  LEFT_FRONT:
+    semantic_frame_value: 左前
+    examples:
+    - 驾驶位
+    - 主驾
+    - 司机这边
+    - 左前
+  RIGHT_FRONT:
+    semantic_frame_value: 右前
+    examples:
+    - 副驾驶
+    - 副驾
+    - 右前
+  LEFT_REAR:
+    semantic_frame_value: 左后
+    examples:
+    - 左后
+    - 左后排
+  RIGHT_REAR:
+    semantic_frame_value: 右后
+    examples:
+    - 右后
+    - 右后排
+  FRONT_ROW:
+    semantic_frame_value: 前排
+    examples:
+    - 前排
+    - 前面两侧
+  REAR_ROW:
+    semantic_frame_value: 后排
+    examples:
+    - 后排
+    - 后座
+  LEFT_SIDE:
+    semantic_frame_value: 左侧
+    examples:
+    - 左边
+    - 左侧
+  RIGHT_SIDE:
+    semantic_frame_value: 右侧
+    examples:
+    - 右边
+    - 右侧
+  ALL:
+    semantic_frame_value: 全车
+    examples:
+    - 全部
+    - 所有
+    - 全车
+  FRONT:
+    semantic_frame_value: 前部
+    examples:
+    - 前部
+    - 前面
+    - 前舱
+  REAR:
+    semantic_frame_value: 后部
+    examples:
+    - 后部
+    - 后面
+    - 后舱
+value_contracts:
+  NONE:
+    allowed: false
+    required: false
+    type: NONE
+    canonical_unit: null
+    valid_range: null
+    enum_values: []
+  PERCENT_0_100_REQUIRED:
+    allowed: true
+    required: true
+    type: PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: 0
+      max: 100
+    enum_values: []
+  PERCENT_0_100_OPTIONAL:
+    allowed: true
+    required: false
+    type: PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: 0
+      max: 100
+    enum_values: []
+  SIGNED_PERCENT_REQUIRED:
+    allowed: true
+    required: true
+    type: SIGNED_PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: -100
+      max: 100
+    enum_values: []
+  SEAT_LONGITUDINAL_MM_REQUIRED:
+    allowed: true
+    required: true
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.seat_longitudinal_max_mm
+    enum_values:
+    - FRONTMOST
+    - REARMOST
+    - RELATIVE_STEP
+  SEAT_LONGITUDINAL_MM_OPTIONAL:
+    allowed: true
+    required: false
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.seat_longitudinal_max_mm
+    enum_values:
+    - FRONTMOST
+    - REARMOST
+    - RELATIVE_STEP
+  SEAT_HEIGHT_MM_REQUIRED:
+    allowed: true
+    required: true
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.seat_height_max_mm
+    enum_values:
+    - LOWEST
+    - HIGHEST
+    - RELATIVE_STEP
+  SEAT_HEIGHT_MM_OPTIONAL:
+    allowed: true
+    required: false
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.seat_height_max_mm
+    enum_values:
+    - LOWEST
+    - HIGHEST
+    - RELATIVE_STEP
+  LUMBAR_HEIGHT_MM_REQUIRED:
+    allowed: true
+    required: true
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.lumbar_height_max_mm
+    enum_values:
+    - LOWEST
+    - HIGHEST
+    - RELATIVE_STEP
+  LUMBAR_HEIGHT_MM_OPTIONAL:
+    allowed: true
+    required: false
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.lumbar_height_max_mm
+    enum_values:
+    - LOWEST
+    - HIGHEST
+    - RELATIVE_STEP
+  ANGLE_REQUIRED:
+    allowed: true
+    required: true
+    type: ANGLE_OR_RELATIVE_STEP
+    canonical_unit: deg
+    valid_range:
+      min_ref: vehicle_capability_limits.min_angle
+      max_ref: vehicle_capability_limits.max_angle
+    enum_values:
+    - RELATIVE_STEP
+  ANGLE_OPTIONAL:
+    allowed: true
+    required: false
+    type: ANGLE_OR_RELATIVE_STEP
+    canonical_unit: deg
+    valid_range:
+      min_ref: vehicle_capability_limits.min_angle
+      max_ref: vehicle_capability_limits.max_angle
+    enum_values:
+    - RELATIVE_STEP
+  SPEED_REQUIRED:
+    allowed: true
+    required: true
+    type: SPEED
+    canonical_unit: km/h
+    valid_range:
+      min: 0
+      max_ref: vehicle_capability_limits.max_cruise_speed_kmh
+    enum_values: []
+  SPEED_OPTIONAL:
+    allowed: true
+    required: false
+    type: SPEED_OR_DELTA
+    canonical_unit: km/h
+    valid_range:
+      min_ref: vehicle_capability_limits.min_speed_delta_kmh
+      max_ref: vehicle_capability_limits.max_speed_kmh
+    enum_values: []
+  FOLLOWING_GAP_REQUIRED:
+    allowed: true
+    required: true
+    type: FOLLOWING_GAP
+    canonical_unit: policy_defined
+    valid_range:
+      min_ref: vehicle_capability_limits.min_following_gap
+      max_ref: vehicle_capability_limits.max_following_gap
+    enum_values:
+    - LEVEL_1
+    - LEVEL_2
+    - LEVEL_3
+    - LEVEL_4
+  FOLLOWING_GAP_VALUE_OPTIONAL:
+    allowed: true
+    required: false
+    type: DISTANCE_OR_RELATIVE_DELTA
+    canonical_unit: m
+    valid_range:
+      min_ref: vehicle_capability_limits.min_following_gap_m
+      max_ref: vehicle_capability_limits.max_following_gap_m
+    enum_values:
+    - RELATIVE_FARTHER
+    - RELATIVE_CLOSER
+  WIPER_SENSITIVITY_REQUIRED:
+    allowed: true
+    required: true
+    type: LEVEL
+    canonical_unit: policy_defined
+    valid_range:
+      min_ref: vehicle_capability_limits.min_wiper_sensitivity
+      max_ref: vehicle_capability_limits.max_wiper_sensitivity
+    enum_values:
+    - LOW
+    - MEDIUM
+    - HIGH
+  BRAKE_INTENSITY_OPTIONAL:
+    allowed: true
+    required: false
+    type: PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: 0
+      max: 100
+    enum_values: []
+mode_contracts:
+  TRANSMISSION_PERFORMANCE:
+  - NORMAL
+  - SPORT
+  - ECONOMY
+  - SNOW
+  - RAIN
+  GEAR:
+  - P
+  - N
+  - D
+  - R
+  - FORWARD_GEAR_N
+  - REVERSE_GEAR_N
+  GEAR_CHANGE:
+  - MANUAL
+  - AUTOMATIC
+  HEADLIGHT:
+  - 'OFF'
+  - POSITION
+  - DAYTIME_RUNNING_LIGHTS
+  - AUTO
+  - BEAM
+  CRUISE_GAP_LEVEL:
+  - LEVEL_N
+  WIPER:
+  - 'OFF'
+  - SLOW
+  - MEDIUM
+  - FAST
+  - INTERVAL
+  - RAIN_SENSOR
+  LUMBAR_REGION:
+  - GENERIC
+  - TOP
+  - MID
+  - BOTTOM
+direction_contracts:
+  SEAT_FORWARD_BACKWARD:
+  - FORWARD
+  - BACKWARD
+  SEAT_UP_DOWN:
+  - UP
+  - DOWN
+  LUMBAR_SUPPORT_MORE_LESS:
+  - MORE
+  - LESS
+  STEERING_WHEEL_EXTEND_RETRACT:
+  - EXTEND
+  - RETRACT
+  STEERING_WHEEL_UP_DOWN:
+  - UP
+  - DOWN
+  TORQUE_DISTRIBUTION_FRONT_REAR:
+  - FRONT
+  - REAR
+  MIRROR_LEFT_RIGHT_UP_DOWN:
+  - LEFT
+  - RIGHT
+  - UP
+  - DOWN
+  TURN_INDICATOR_LEFT_RIGHT:
+  - LEFT
+  - RIGHT
+  LANE_CHANGE_LEFT_RIGHT:
+  - LEFT
+  - RIGHT
+  EVASIVE_STEER_LEFT_RIGHT:
+  - LEFT
+  - RIGHT
+  SUNROOF_TILT_UP_DOWN:
+  - UP
+  - DOWN
+conditional_slot_contracts:
+  VALUE_OR_DIRECTION:
+    rule: AT_LEAST_ONE_OF
+    slots:
+    - VALUE
+    - DIRECTION
+    same_text_span_policy: DISALLOW_SHARED_SPAN
+  VALUE_XOR_MODE:
+    rule: XOR
+    slots:
+    - VALUE
+    - MODE
+    jointly_present_exception: ALLOW_ONLY_IF_DETERMINISTICALLY_CONSISTENT
+mode_mapping_contracts:
+  GEAR_VEHICLE_SPECIFIC:
+    canonical_modes:
+    - P
+    - N
+    - D
+    - R
+    - FORWARD_GEAR_N
+    - REVERSE_GEAR_N
+    lexical_aliases:
+      R挡: R
+      倒挡: R
+      挂倒挡: R
+      倒N挡: REVERSE_GEAR_N
+    vss_code_rules:
+      P: 126
+      N: 0
+      D: 127
+      R: VEHICLE_CAPABILITY_MAPPING_REQUIRED
+      FORWARD_GEAR_N: POSITIVE_INTEGER_N
+      REVERSE_GEAR_N: NEGATIVE_INTEGER_N
+    physical_mapping_authority: VehicleCapabilityMapping
+    vehicle_specific_validation_required: true
+    prohibited_generic_mapping: R -> -1 or REVERSE_GEAR_1
+  HEADLIGHT_MAIN_SWITCH:
+    canonical_modes:
+    - 'OFF'
+    - POSITION
+    - DAYTIME_RUNNING_LIGHTS
+    - AUTO
+    - BEAM
+    lexical_aliases:
+      'ON':
+        canonical_mode: BEAM
+        condition: EXPLICIT_MAIN_LIGHT_SWITCH_REFERENCE
+capability_families:
+- family_id: BODY_MIRROR_HEATING
+  intents:
+  - MIRROR_HEATING_ON
+  - MIRROR_HEATING_OFF
+- family_id: BODY_MIRROR_ADJUSTMENT_LOCK
+  intents:
+  - MIRROR_ADJUSTMENT_LOCK
+  - MIRROR_ADJUSTMENT_UNLOCK
+- family_id: SEAT_LONGITUDINAL_POSITION
+  intents:
+  - SEAT_LONGITUDINAL_SET_POSITION
+- family_id: SEAT_TILT
+  intents:
+  - SEAT_TILT_SET_ANGLE
+- family_id: SEAT_BACKREST_RECLINE
+  intents:
+  - SEAT_BACKREST_SET_ANGLE
+- family_id: SEAT_HEIGHT
+  intents:
+  - SEAT_HEIGHT_SET_POSITION
+- family_id: SEAT_LUMBAR_SUPPORT
+  intents:
+  - SEAT_LUMBAR_SET_HEIGHT
+  - SEAT_LUMBAR_SET_SUPPORT
+- family_id: CHASSIS_STEERING_WHEEL_POSITION
+  intents:
+  - STEERING_WHEEL_SET_EXTENSION
+  - STEERING_WHEEL_SET_TILT
+- family_id: CABIN_HVAC_DEFROST
+  intents:
+  - DEFROST_ON
+  - DEFROST_OFF
+- family_id: BODY_WINDSHIELD_HEATING
+  intents:
+  - WINDSHIELD_HEATING_ON
+  - WINDSHIELD_HEATING_OFF
+- family_id: ADAS_ABS_ENABLE
+  intents:
+  - ABS_ENABLE
+  - ABS_DISABLE
+- family_id: ADAS_TCS_ENABLE
+  intents:
+  - TCS_ENABLE
+  - TCS_DISABLE
+- family_id: ADAS_EBD_ENABLE
+  intents:
+  - EBD_ENABLE
+  - EBD_DISABLE
+- family_id: ADAS_EBA_ENABLE
+  intents:
+  - EBA_ENABLE
+  - EBA_DISABLE
+- family_id: ADAS_ESC_ENABLE
+  intents:
+  - ESC_ENABLE
+  - ESC_DISABLE
+- family_id: BODY_TRUNK_OPENING
+  intents:
+  - TRUNK_OPEN
+  - TRUNK_CLOSE
+  - TRUNK_SET_POSITION
+- family_id: BODY_TRUNK_LOCK
+  intents:
+  - TRUNK_LOCK
+  - TRUNK_UNLOCK
+- family_id: BODY_HOOD
+  intents:
+  - HOOD_OPEN
+  - HOOD_CLOSE
+  - HOOD_SET_POSITION
+- family_id: TRANSMISSION_LOW_RANGE
+  intents:
+  - LOW_RANGE_ENABLE
+  - LOW_RANGE_DISABLE
+- family_id: TRANSMISSION_TORQUE_DISTRIBUTION
+  intents:
+  - TORQUE_DISTRIBUTION_SET
+- family_id: TRANSMISSION_PERFORMANCE_MODE
+  intents:
+  - TRANSMISSION_PERFORMANCE_MODE_SET
+- family_id: TRANSMISSION_DIFF_LOCK
+  intents:
+  - DIFFERENTIAL_LOCK
+  - DIFFERENTIAL_UNLOCK
+- family_id: TRANSMISSION_GEAR_SELECTION
+  intents:
+  - GEAR_SET
+- family_id: TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT
+  intents:
+  - ELECTRIC_POWERTRAIN_ENGAGE
+  - ELECTRIC_POWERTRAIN_DISENGAGE
+- family_id: TRANSMISSION_CLUTCH
+  intents:
+  - CLUTCH_SET_ENGAGEMENT
+- family_id: TRANSMISSION_GEAR_CHANGE_MODE
+  intents:
+  - GEAR_CHANGE_MODE_SET
+- family_id: TRANSMISSION_PARK_LOCK
+  intents:
+  - PARK_LOCK
+  - PARK_UNLOCK
+- family_id: BODY_HORN
+  intents:
+  - HORN_ACTIVATE
+- family_id: BODY_MIRROR_FOLD
+  intents:
+  - MIRROR_FOLD
+  - MIRROR_UNFOLD
+- family_id: BODY_MIRROR_ADJUSTMENT
+  intents:
+  - MIRROR_SET_ANGLE
+- family_id: CABIN_SUNROOF
+  intents:
+  - SUNROOF_OPEN
+  - SUNROOF_CLOSE
+  - SUNROOF_SET_TILT
+- family_id: ADAS_CRUISE_CONTROL
+  intents:
+  - CRUISE_ENABLE
+  - CRUISE_DISABLE
+  - CRUISE_SET_SPEED
+  - CRUISE_SET_GAP
+- family_id: BODY_MAIN_LIGHT_MODE
+  intents:
+  - HEADLIGHT_SET_MODE
+- family_id: BODY_HAZARD_LIGHT
+  intents:
+  - HAZARD_LIGHT_ON
+  - HAZARD_LIGHT_OFF
+- family_id: BODY_TURN_INDICATOR
+  intents:
+  - TURN_INDICATOR_ON
+  - TURN_INDICATOR_OFF
+- family_id: BODY_LOW_BEAM
+  intents:
+  - LOW_BEAM_ON
+  - LOW_BEAM_OFF
+- family_id: BODY_HIGH_BEAM
+  intents:
+  - HIGH_BEAM_ON
+  - HIGH_BEAM_OFF
+- family_id: BODY_FOG_LIGHT
+  intents:
+  - FOG_LIGHT_ON
+  - FOG_LIGHT_OFF
+- family_id: BODY_PARKING_LIGHT
+  intents:
+  - PARKING_LIGHT_ON
+  - PARKING_LIGHT_OFF
+- family_id: CABIN_WINDOW
+  intents:
+  - WINDOW_OPEN
+  - WINDOW_CLOSE
+  - WINDOW_SET_POSITION
+- family_id: CABIN_DOOR_OPENING
+  intents:
+  - DOOR_OPEN
+  - DOOR_CLOSE
+  - DOOR_SET_POSITION
+- family_id: CABIN_DOOR_LOCK
+  intents:
+  - DOOR_LOCK
+  - DOOR_UNLOCK
+- family_id: BODY_WIPER_USER_CONTROL
+  intents:
+  - WIPER_SET_MODE
+  - WIPER_SET_SENSITIVITY
+- family_id: CHASSIS_PARKING_BRAKE
+  intents:
+  - PARKING_BRAKE_APPLY
+  - PARKING_BRAKE_RELEASE
+  - PARKING_BRAKE_AUTO_APPLY_ENABLE
+  - PARKING_BRAKE_AUTO_APPLY_DISABLE
+- family_id: PROJECT_LONGITUDINAL_SPEED_CONTROL
+  intents:
+  - ACCELERATE
+  - DECELERATE
+- family_id: PROJECT_SERVICE_BRAKING
+  intents:
+  - BRAKE
+  - EMERGENCY_BRAKE
+- family_id: PROJECT_LANE_CONTROL
+  intents:
+  - LANE_CHANGE
+  - LANE_KEEP
+- family_id: PROJECT_EVASIVE_STEERING
+  intents:
+  - EVASIVE_STEER
+- family_id: PROJECT_AUTO_PARK
+  intents:
+  - AUTO_PARK_ENABLE
+intents:
+- intent_id: MIRROR_HEATING_ON
+  chinese_name: 开启外后视镜加热
+  capability_family: BODY_MIRROR_HEATING
+  canonical_action: TURN_ON
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+- intent_id: MIRROR_HEATING_OFF
+  chinese_name: 关闭外后视镜加热
+  capability_family: BODY_MIRROR_HEATING
+  canonical_action: TURN_OFF
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+- intent_id: MIRROR_ADJUSTMENT_LOCK
+  chinese_name: 锁定外后视镜调节
+  capability_family: BODY_MIRROR_ADJUSTMENT_LOCK
+  canonical_action: LOCK
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  - 调节权限
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_ADJUSTMENT_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ADJUSTMENT_LOCK_STATE
+- intent_id: MIRROR_ADJUSTMENT_UNLOCK
+  chinese_name: 解锁外后视镜调节
+  capability_family: BODY_MIRROR_ADJUSTMENT_LOCK
+  canonical_action: UNLOCK
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  - 调节权限
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_ADJUSTMENT_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ADJUSTMENT_LOCK_STATE
+- intent_id: SEAT_LONGITUDINAL_SET_POSITION
+  chinese_name: 设置座椅前后位置
+  capability_family: SEAT_LONGITUDINAL_POSITION
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: SEAT_LONGITUDINAL_MM_OPTIONAL
+  direction_contract: SEAT_FORWARD_BACKWARD
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_LONGITUDINAL_POSITION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LONGITUDINAL_POSITION
+- intent_id: SEAT_TILT_SET_ANGLE
+  chinese_name: 设置座椅整体倾角
+  capability_family: SEAT_TILT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: ANGLE_OPTIONAL
+  direction_contract: SEAT_FORWARD_BACKWARD
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_TILT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TILT_ANGLE
+- intent_id: SEAT_BACKREST_SET_ANGLE
+  chinese_name: 设置座椅靠背角度
+  capability_family: SEAT_BACKREST_RECLINE
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: ANGLE_OPTIONAL
+  direction_contract: SEAT_FORWARD_BACKWARD
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_BACKREST_RECLINE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: BACKREST_ANGLE
+- intent_id: SEAT_HEIGHT_SET_POSITION
+  chinese_name: 设置座椅高度
+  capability_family: SEAT_HEIGHT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: SEAT_HEIGHT_MM_OPTIONAL
+  direction_contract: SEAT_UP_DOWN
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_HEIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEIGHT
+- intent_id: SEAT_LUMBAR_SET_HEIGHT
+  chinese_name: 设置座椅腰托高度
+  capability_family: SEAT_LUMBAR_SUPPORT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  value_contract: LUMBAR_HEIGHT_MM_OPTIONAL
+  direction_contract: SEAT_UP_DOWN
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_LUMBAR_SUPPORT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LUMBAR_HEIGHT
+- intent_id: SEAT_LUMBAR_SET_SUPPORT
+  chinese_name: 设置座椅腰托支撑程度
+  capability_family: SEAT_LUMBAR_SUPPORT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  value_contract: PERCENT_0_100_OPTIONAL
+  mode_contract: LUMBAR_REGION
+  direction_contract: LUMBAR_SUPPORT_MORE_LESS
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  - MODE
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_LUMBAR_SUPPORT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LUMBAR_SUPPORT
+- intent_id: STEERING_WHEEL_SET_EXTENSION
+  chinese_name: 设置方向盘伸缩位置
+  capability_family: CHASSIS_STEERING_WHEEL_POSITION
+  canonical_action: ADJUST
+  canonical_target: STEERING_WHEEL
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas: []
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots:
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_STEERING_WHEEL_POSITION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: EXTENSION
+  direction_contract: STEERING_WHEEL_EXTEND_RETRACT
+- intent_id: STEERING_WHEEL_SET_TILT
+  chinese_name: 设置方向盘倾斜位置
+  capability_family: CHASSIS_STEERING_WHEEL_POSITION
+  canonical_action: ADJUST
+  canonical_target: STEERING_WHEEL
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas: []
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots:
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_STEERING_WHEEL_POSITION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TILT_POSITION
+  direction_contract: STEERING_WHEEL_UP_DOWN
+- intent_id: DEFROST_ON
+  chinese_name: 开启风挡除霜除雾
+  capability_family: CABIN_HVAC_DEFROST
+  canonical_action: TURN_ON
+  canonical_target: WINDSHIELD
+  control_domain: 座舱控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  - 除雾安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_HVAC_DEFROST
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: DEFROST_STATE
+- intent_id: DEFROST_OFF
+  chinese_name: 关闭风挡除霜除雾
+  capability_family: CABIN_HVAC_DEFROST
+  canonical_action: TURN_OFF
+  canonical_target: WINDSHIELD
+  control_domain: 座舱控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 除雾安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_HVAC_DEFROST
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: DEFROST_STATE
+- intent_id: WINDSHIELD_HEATING_ON
+  chinese_name: 开启风挡加热
+  capability_family: BODY_WINDSHIELD_HEATING
+  canonical_action: TURN_ON
+  canonical_target: WINDSHIELD
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_WINDSHIELD_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+- intent_id: WINDSHIELD_HEATING_OFF
+  chinese_name: 关闭风挡加热
+  capability_family: BODY_WINDSHIELD_HEATING
+  canonical_action: TURN_OFF
+  canonical_target: WINDSHIELD
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_WINDSHIELD_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+- intent_id: ABS_ENABLE
+  chinese_name: 启用防抱死制动系统
+  capability_family: ADAS_ABS_ENABLE
+  canonical_action: ENABLE
+  canonical_target: ABS
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_ABS_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: ABS_DISABLE
+  chinese_name: 停用防抱死制动系统
+  capability_family: ADAS_ABS_ENABLE
+  canonical_action: DISABLE
+  canonical_target: ABS
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_ABS_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: TCS_ENABLE
+  chinese_name: 启用牵引力控制系统
+  capability_family: ADAS_TCS_ENABLE
+  canonical_action: ENABLE
+  canonical_target: TCS
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 牵引安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_TCS_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: TCS_DISABLE
+  chinese_name: 停用牵引力控制系统
+  capability_family: ADAS_TCS_ENABLE
+  canonical_action: DISABLE
+  canonical_target: TCS
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 牵引安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_TCS_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: EBD_ENABLE
+  chinese_name: 启用电子制动力分配系统
+  capability_family: ADAS_EBD_ENABLE
+  canonical_action: ENABLE
+  canonical_target: EBD
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_EBD_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: EBD_DISABLE
+  chinese_name: 停用电子制动力分配系统
+  capability_family: ADAS_EBD_ENABLE
+  canonical_action: DISABLE
+  canonical_target: EBD
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_EBD_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: EBA_ENABLE
+  chinese_name: 启用紧急制动辅助系统
+  capability_family: ADAS_EBA_ENABLE
+  canonical_action: ENABLE
+  canonical_target: EBA
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_EBA_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: EBA_DISABLE
+  chinese_name: 停用紧急制动辅助系统
+  capability_family: ADAS_EBA_ENABLE
+  canonical_action: DISABLE
+  canonical_target: EBA
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_EBA_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: ESC_ENABLE
+  chinese_name: 启用车身电子稳定系统
+  capability_family: ADAS_ESC_ENABLE
+  canonical_action: ENABLE
+  canonical_target: ESC
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 车身稳定
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_ESC_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: ESC_DISABLE
+  chinese_name: 停用车身电子稳定系统
+  capability_family: ADAS_ESC_ENABLE
+  canonical_action: DISABLE
+  canonical_target: ESC
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 车身稳定
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_ESC_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+- intent_id: TRUNK_OPEN
+  chinese_name: 打开行李厢
+  capability_family: BODY_TRUNK_OPENING
+  canonical_action: OPEN
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_OPENING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+- intent_id: TRUNK_CLOSE
+  chinese_name: 关闭行李厢
+  capability_family: BODY_TRUNK_OPENING
+  canonical_action: CLOSE
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_OPENING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+- intent_id: TRUNK_SET_POSITION
+  chinese_name: 设置行李厢开度
+  capability_family: BODY_TRUNK_OPENING
+  canonical_action: ADJUST
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_OPENING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_POSITION
+- intent_id: TRUNK_LOCK
+  chinese_name: 锁定行李厢
+  capability_family: BODY_TRUNK_LOCK
+  canonical_action: LOCK
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOCK_STATE
+- intent_id: TRUNK_UNLOCK
+  chinese_name: 解锁行李厢
+  capability_family: BODY_TRUNK_LOCK
+  canonical_action: UNLOCK
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOCK_STATE
+- intent_id: HOOD_OPEN
+  chinese_name: 打开前舱盖
+  capability_family: BODY_HOOD
+  canonical_action: OPEN
+  canonical_target: HOOD
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HOOD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+- intent_id: HOOD_CLOSE
+  chinese_name: 关闭前舱盖
+  capability_family: BODY_HOOD
+  canonical_action: CLOSE
+  canonical_target: HOOD
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HOOD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+- intent_id: HOOD_SET_POSITION
+  chinese_name: 设置前舱盖开度
+  capability_family: BODY_HOOD
+  canonical_action: ADJUST
+  canonical_target: HOOD
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HOOD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_POSITION
+- intent_id: LOW_RANGE_ENABLE
+  chinese_name: 启用低速四驱或低速挡
+  capability_family: TRANSMISSION_LOW_RANGE
+  canonical_action: ENABLE
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 挡位安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_LOW_RANGE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOW_RANGE_STATE
+- intent_id: LOW_RANGE_DISABLE
+  chinese_name: 停用低速四驱或低速挡
+  capability_family: TRANSMISSION_LOW_RANGE
+  canonical_action: DISABLE
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 挡位安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_LOW_RANGE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOW_RANGE_STATE
+- intent_id: TORQUE_DISTRIBUTION_SET
+  chinese_name: 设置前后轴扭矩分配
+  capability_family: TRANSMISSION_TORQUE_DISTRIBUTION
+  canonical_action: SET
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 车辆稳定
+  allowed_areas: []
+  value_contract: SIGNED_PERCENT_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots:
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_TORQUE_DISTRIBUTION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TORQUE_DISTRIBUTION
+  direction_contract: TORQUE_DISTRIBUTION_FRONT_REAR
+- intent_id: TRANSMISSION_PERFORMANCE_MODE_SET
+  chinese_name: 设置变速箱性能模式
+  capability_family: TRANSMISSION_PERFORMANCE_MODE
+  canonical_action: SWITCH_MODE
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 驾驶模式
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: TRANSMISSION_PERFORMANCE
+  required_slots:
+  - MODE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_PERFORMANCE_MODE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: PERFORMANCE_MODE
+- intent_id: DIFFERENTIAL_LOCK
+  chinese_name: 锁定差速器
+  capability_family: TRANSMISSION_DIFF_LOCK
+  canonical_action: LOCK
+  canonical_target: DIFFERENTIAL
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 车辆稳定
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_DIFF_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOCK_STATE
+- intent_id: DIFFERENTIAL_UNLOCK
+  chinese_name: 解锁差速器
+  capability_family: TRANSMISSION_DIFF_LOCK
+  canonical_action: UNLOCK
+  canonical_target: DIFFERENTIAL
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 车辆稳定
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_DIFF_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOCK_STATE
+- intent_id: GEAR_SET
+  chinese_name: 设置目标挡位
+  capability_family: TRANSMISSION_GEAR_SELECTION
+  canonical_action: SWITCH_MODE
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 挡位安全
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: GEAR
+  mode_mapping_contract: GEAR_VEHICLE_SPECIFIC
+  required_slots:
+  - MODE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_GEAR_SELECTION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: SELECTED_GEAR
+- intent_id: ELECTRIC_POWERTRAIN_ENGAGE
+  chinese_name: 结合电驱动力
+  capability_family: TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT
+  canonical_action: ENGAGE
+  canonical_target: ELECTRIC_POWERTRAIN
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ENGAGEMENT_STATE
+- intent_id: ELECTRIC_POWERTRAIN_DISENGAGE
+  chinese_name: 分离电驱动力
+  capability_family: TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT
+  canonical_action: DISENGAGE
+  canonical_target: ELECTRIC_POWERTRAIN
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ENGAGEMENT_STATE
+- intent_id: CLUTCH_SET_ENGAGEMENT
+  chinese_name: 设置离合器结合度
+  capability_family: TRANSMISSION_CLUTCH
+  canonical_action: ADJUST
+  canonical_target: CLUTCH
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  allowed_areas: []
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_CLUTCH
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ENGAGEMENT_LEVEL
+- intent_id: GEAR_CHANGE_MODE_SET
+  chinese_name: 设置自动或手动换挡模式
+  capability_family: TRANSMISSION_GEAR_CHANGE_MODE
+  canonical_action: SWITCH_MODE
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 驾驶模式
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: GEAR_CHANGE
+  required_slots:
+  - MODE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_GEAR_CHANGE_MODE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: GEAR_CHANGE_MODE
+- intent_id: PARK_LOCK
+  chinese_name: 结合驻车锁
+  capability_family: TRANSMISSION_PARK_LOCK
+  canonical_action: LOCK
+  canonical_target: PARK_LOCK
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_PARK_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ENGAGEMENT_STATE
+- intent_id: PARK_UNLOCK
+  chinese_name: 释放驻车锁
+  capability_family: TRANSMISSION_PARK_LOCK
+  canonical_action: UNLOCK
+  canonical_target: PARK_LOCK
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_PARK_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ENGAGEMENT_STATE
+- intent_id: HORN_ACTIVATE
+  chinese_name: 鸣笛
+  capability_family: BODY_HORN
+  canonical_action: ACTIVATE
+  canonical_target: HORN
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 对外信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HORN
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: SOUND
+- intent_id: MIRROR_FOLD
+  chinese_name: 折叠外后视镜
+  capability_family: BODY_MIRROR_FOLD
+  canonical_action: FOLD
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_FOLD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: FOLDING_STATE
+- intent_id: MIRROR_UNFOLD
+  chinese_name: 展开外后视镜
+  capability_family: BODY_MIRROR_FOLD
+  canonical_action: UNFOLD
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_FOLD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: FOLDING_STATE
+- intent_id: MIRROR_SET_ANGLE
+  chinese_name: 设置外后视镜角度
+  capability_family: BODY_MIRROR_ADJUSTMENT
+  canonical_action: ADJUST
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  value_contract: ANGLE_OPTIONAL
+  required_slots:
+  - AREA
+  - DIRECTION
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_ADJUSTMENT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ANGLE
+  direction_contract: MIRROR_LEFT_RIGHT_UP_DOWN
+- intent_id: SUNROOF_OPEN
+  chinese_name: 打开天窗
+  capability_family: CABIN_SUNROOF
+  canonical_action: OPEN
+  canonical_target: SUNROOF
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CABIN_SUNROOF
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+- intent_id: SUNROOF_CLOSE
+  chinese_name: 关闭天窗
+  capability_family: CABIN_SUNROOF
+  canonical_action: CLOSE
+  canonical_target: SUNROOF
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CABIN_SUNROOF
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+- intent_id: SUNROOF_SET_TILT
+  chinese_name: 设置天窗翘起方向
+  capability_family: CABIN_SUNROOF
+  canonical_action: ADJUST
+  canonical_target: SUNROOF
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CABIN_SUNROOF
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TILT_ANGLE
+  direction_contract: SUNROOF_TILT_UP_DOWN
+- intent_id: CRUISE_ENABLE
+  chinese_name: 启用巡航
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: ENABLE
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: STATE
+- intent_id: CRUISE_DISABLE
+  chinese_name: 停用巡航
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: DISABLE
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: STATE
+- intent_id: CRUISE_SET_SPEED
+  chinese_name: 设置巡航速度
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: SET
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: SPEED_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: SPEED
+- intent_id: CRUISE_SET_GAP
+  chinese_name: 设置巡航跟车距离
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: SET
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 跟车安全
+  allowed_areas: []
+  value_contract: FOLLOWING_GAP_VALUE_OPTIONAL
+  mode_contract: CRUISE_GAP_LEVEL
+  conditional_slot_contract: VALUE_XOR_MODE
+  required_slots: []
+  optional_slots:
+  - VALUE
+  - MODE
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: FOLLOWING_GAP
+- intent_id: HEADLIGHT_SET_MODE
+  chinese_name: 设置主灯模式
+  capability_family: BODY_MAIN_LIGHT_MODE
+  canonical_action: SWITCH_MODE
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: HEADLIGHT
+  mode_mapping_contract: HEADLIGHT_MAIN_SWITCH
+  required_slots:
+  - MODE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - BODY_MAIN_LIGHT_MODE
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: HEADLIGHT_MODE
+- intent_id: HAZARD_LIGHT_ON
+  chinese_name: 开启危险警示灯
+  capability_family: BODY_HAZARD_LIGHT
+  canonical_action: TURN_ON
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 警示信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HAZARD_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HAZARD_LIGHT_STATE
+- intent_id: HAZARD_LIGHT_OFF
+  chinese_name: 关闭危险警示灯
+  capability_family: BODY_HAZARD_LIGHT
+  canonical_action: TURN_OFF
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 警示信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HAZARD_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HAZARD_LIGHT_STATE
+- intent_id: TURN_INDICATOR_ON
+  chinese_name: 开启转向灯
+  capability_family: BODY_TURN_INDICATOR
+  canonical_action: TURN_ON
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 转向信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TURN_INDICATOR
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TURN_INDICATOR_STATE
+  direction_contract: TURN_INDICATOR_LEFT_RIGHT
+- intent_id: TURN_INDICATOR_OFF
+  chinese_name: 关闭转向灯
+  capability_family: BODY_TURN_INDICATOR
+  canonical_action: TURN_OFF
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 转向信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TURN_INDICATOR
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TURN_INDICATOR_STATE
+  direction_contract: TURN_INDICATOR_LEFT_RIGHT
+- intent_id: LOW_BEAM_ON
+  chinese_name: 开启近光灯
+  capability_family: BODY_LOW_BEAM
+  canonical_action: TURN_ON
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_LOW_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOW_BEAM_STATE
+- intent_id: LOW_BEAM_OFF
+  chinese_name: 关闭近光灯
+  capability_family: BODY_LOW_BEAM
+  canonical_action: TURN_OFF
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_LOW_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOW_BEAM_STATE
+- intent_id: HIGH_BEAM_ON
+  chinese_name: 开启远光灯
+  capability_family: BODY_HIGH_BEAM
+  canonical_action: TURN_ON
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HIGH_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HIGH_BEAM_STATE
+- intent_id: HIGH_BEAM_OFF
+  chinese_name: 关闭远光灯
+  capability_family: BODY_HIGH_BEAM
+  canonical_action: TURN_OFF
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HIGH_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HIGH_BEAM_STATE
+- intent_id: FOG_LIGHT_ON
+  chinese_name: 开启雾灯
+  capability_family: BODY_FOG_LIGHT
+  canonical_action: TURN_ON
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_FOG_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: FOG_LIGHT_STATE
+- intent_id: FOG_LIGHT_OFF
+  chinese_name: 关闭雾灯
+  capability_family: BODY_FOG_LIGHT
+  canonical_action: TURN_OFF
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_FOG_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: FOG_LIGHT_STATE
+- intent_id: PARKING_LIGHT_ON
+  chinese_name: 开启驻车灯
+  capability_family: BODY_PARKING_LIGHT
+  canonical_action: TURN_ON
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 对外灯光
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_PARKING_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: PARKING_LIGHT_STATE
+- intent_id: PARKING_LIGHT_OFF
+  chinese_name: 关闭驻车灯
+  capability_family: BODY_PARKING_LIGHT
+  canonical_action: TURN_OFF
+  canonical_target: EXTERIOR_LIGHTING
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 对外灯光
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_PARKING_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: PARKING_LIGHT_STATE
+- intent_id: WINDOW_OPEN
+  chinese_name: 打开车窗
+  capability_family: CABIN_WINDOW
+  canonical_action: OPEN
+  canonical_target: WINDOW
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  - 乘员安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_WINDOW
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+- intent_id: WINDOW_CLOSE
+  chinese_name: 关闭车窗
+  capability_family: CABIN_WINDOW
+  canonical_action: CLOSE
+  canonical_target: WINDOW
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  - 乘员安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_WINDOW
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+- intent_id: WINDOW_SET_POSITION
+  chinese_name: 设置车窗开度
+  capability_family: CABIN_WINDOW
+  canonical_action: ADJUST
+  canonical_target: WINDOW
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  - 乘员安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_WINDOW
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_POSITION
+- intent_id: DOOR_OPEN
+  chinese_name: 打开车门
+  capability_family: CABIN_DOOR_OPENING
+  canonical_action: OPEN
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身安全
+  - 运动中误操作
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_OPENING
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+- intent_id: DOOR_CLOSE
+  chinese_name: 关闭车门
+  capability_family: CABIN_DOOR_OPENING
+  canonical_action: CLOSE
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身安全
+  - 夹伤风险
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_OPENING
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+- intent_id: DOOR_SET_POSITION
+  chinese_name: 设置车门开度
+  capability_family: CABIN_DOOR_OPENING
+  canonical_action: ADJUST
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身安全
+  - 夹伤风险
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - AREA
+  - VALUE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_OPENING
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_POSITION
+- intent_id: DOOR_LOCK
+  chinese_name: 锁定车门
+  capability_family: CABIN_DOOR_LOCK
+  canonical_action: LOCK
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_LOCK
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: LOCK_STATE
+- intent_id: DOOR_UNLOCK
+  chinese_name: 解锁车门
+  capability_family: CABIN_DOOR_LOCK
+  canonical_action: UNLOCK
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_LOCK
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: LOCK_STATE
+- intent_id: WIPER_SET_MODE
+  chinese_name: 设置雨刮模式
+  capability_family: BODY_WIPER_USER_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: WIPER
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  mode_contract: WIPER
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - BODY_WIPER_USER_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: MODE
+- intent_id: WIPER_SET_SENSITIVITY
+  chinese_name: 设置雨刮灵敏度
+  capability_family: BODY_WIPER_USER_CONTROL
+  canonical_action: ADJUST
+  canonical_target: WIPER
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: WIPER_SENSITIVITY_REQUIRED
+  mode_contract: WIPER
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  - MODE
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - BODY_WIPER_USER_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: SENSITIVITY
+- intent_id: PARKING_BRAKE_APPLY
+  chinese_name: 施加驻车制动
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: APPLY
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: APPLICATION_STATE
+- intent_id: PARKING_BRAKE_RELEASE
+  chinese_name: 释放驻车制动
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: RELEASE
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: APPLICATION_STATE
+- intent_id: PARKING_BRAKE_AUTO_APPLY_ENABLE
+  chinese_name: 启用驻车制动自动施加
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: ENABLE
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: AUTO_APPLY_STATE
+- intent_id: PARKING_BRAKE_AUTO_APPLY_DISABLE
+  chinese_name: 停用驻车制动自动施加
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: DISABLE
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: AUTO_APPLY_STATE
+- intent_id: ACCELERATE
+  chinese_name: 加速
+  capability_family: PROJECT_LONGITUDINAL_SPEED_CONTROL
+  canonical_action: ACCELERATE
+  canonical_target: VEHICLE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: SPEED_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: SPEED
+- intent_id: DECELERATE
+  chinese_name: 减速
+  capability_family: PROJECT_LONGITUDINAL_SPEED_CONTROL
+  canonical_action: DECELERATE
+  canonical_target: VEHICLE
+  control_domain: 驾驶控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: SPEED_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: SPEED
+- intent_id: BRAKE
+  chinese_name: 执行制动
+  capability_family: PROJECT_SERVICE_BRAKING
+  canonical_action: BRAKE
+  canonical_target: SERVICE_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: BRAKE_INTENSITY_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_EBA_ENABLE
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: NORMAL_BRAKING
+- intent_id: EMERGENCY_BRAKE
+  chinese_name: 执行紧急制动
+  capability_family: PROJECT_SERVICE_BRAKING
+  canonical_action: BRAKE
+  canonical_target: SERVICE_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 紧急制动
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_EBA_ENABLE
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: EMERGENCY_BRAKING
+- intent_id: LANE_CHANGE
+  chinese_name: 变更车道
+  capability_family: PROJECT_LANE_CONTROL
+  canonical_action: CHANGE
+  canonical_target: LANE
+  target_adapter: LANE_TARGET_BY_DIRECTION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 变道
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: POSITION
+  direction_contract: LANE_CHANGE_LEFT_RIGHT
+- intent_id: LANE_KEEP
+  chinese_name: 保持当前车道
+  capability_family: PROJECT_LANE_CONTROL
+  canonical_action: KEEP
+  canonical_target: LANE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 车道保持
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: POSITION
+- intent_id: EVASIVE_STEER
+  chinese_name: 执行避险转向
+  capability_family: PROJECT_EVASIVE_STEERING
+  canonical_action: STEER
+  canonical_target: VEHICLE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 避险转向
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: TRAJECTORY
+  direction_contract: EVASIVE_STEER_LEFT_RIGHT
+- intent_id: AUTO_PARK_ENABLE
+  chinese_name: 启用自动泊车
+  capability_family: PROJECT_AUTO_PARK
+  canonical_action: ENABLE
+  canonical_target: AUTO_PARK
+  control_domain: 驾驶控制
+  risk_level: R2
+  risk_tags:
+  - 辅助驾驶
+  - 泊车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: STATE
+legacy_test_only:
+- intent_id: DISPLAY_OFF
+  chinese_name: 关闭中控显示
+  capability_family: PROJECT_DISPLAY_CONTROL
+  legacy_status: LEGACY_TEST_ONLY
+  scope_status: OUT_OF_SCOPE
+  reason: 普通HMI/大屏控制不属于正式安全相关物理车辆控制标签；仅保留旧SYS-003等测试语义说明
+  current_runtime_tests_may_reference: true
+  formal_nlu_label: false
+risk_review_required_intents:
+- SEAT_LONGITUDINAL_SET_POSITION
+- SEAT_TILT_SET_ANGLE
+- SEAT_BACKREST_SET_ANGLE
+- SEAT_HEIGHT_SET_POSITION
+- STEERING_WHEEL_SET_EXTENSION
+- STEERING_WHEEL_SET_TILT
+over_atomization_audit:
+  area_only_duplicates: []
+  numeric_value_only_duplicates: []
+  parameterized_instead_of_split:
+  - intent_id: WINDOW_SET_POSITION
+    parameter: VALUE
+    examples:
+    - 20%
+    - 50%
+    - 一半
+  - intent_id: DOOR_SET_POSITION
+    parameter: VALUE
+    examples:
+    - 20%
+    - 一半
+  - intent_id: TRUNK_SET_POSITION
+    parameter: VALUE
+    examples:
+    - 30%
+    - 一半
+  - intent_id: HOOD_SET_POSITION
+    parameter: VALUE
+    examples:
+    - 20%
+    - 一半
+  - intent_id: CRUISE_SET_SPEED
+    parameter: VALUE
+    examples:
+    - 80 km/h
+    - 100 km/h
+  - intent_id: GEAR_SET
+    parameter: MODE
+    examples:
+    - P
+    - N
+    - D
+    - R
+    - FORWARD_GEAR_N
+    - REVERSE_GEAR_N
+    lexical_aliases:
+    - R挡 -> R
+    - 倒挡 -> R
+    - 倒N挡 -> REVERSE_GEAR_N
+    physical_mapping_authority: VehicleCapabilityMapping
+  - intent_id: TRANSMISSION_PERFORMANCE_MODE_SET
+    parameter: MODE
+    examples:
+    - NORMAL
+    - SPORT
+    - ECONOMY
+    - SNOW
+    - RAIN
+  - intent_id: GEAR_CHANGE_MODE_SET
+    parameter: MODE
+    examples:
+    - MANUAL
+    - AUTOMATIC
+  - intent_id: HEADLIGHT_SET_MODE
+    parameter: MODE
+    examples:
+    - false
+    - POSITION
+    - DAYTIME_RUNNING_LIGHTS
+    - AUTO
+    - BEAM
+    restricted_alias: ON -> BEAM only for explicit main-light switch reference
+  - intent_id: WIPER_SET_MODE
+    parameter: MODE
+    examples:
+    - false
+    - SLOW
+    - MEDIUM
+    - FAST
+    - INTERVAL
+    - RAIN_SENSOR
+  - intent_id: CRUISE_SET_GAP
+    parameter: VALUE_XOR_MODE
+    examples:
+    - 30m
+    - RELATIVE_FARTHER
+    - RELATIVE_CLOSER
+    - LEVEL_N
+  - intent_id: SEAT_LUMBAR_SET_SUPPORT
+    parameter: MODE
+    examples:
+    - GENERIC
+    - TOP
+    - MID
+    - BOTTOM
+  deliberately_split_for_safety_semantics:
+  - - DOOR_OPEN
+    - DOOR_CLOSE
+  - - DOOR_LOCK
+    - DOOR_UNLOCK
+  - - WINDOW_OPEN
+    - WINDOW_CLOSE
+  - - TRUNK_OPEN
+    - TRUNK_CLOSE
+  - - TRUNK_LOCK
+    - TRUNK_UNLOCK
+  - - HOOD_OPEN
+    - HOOD_CLOSE
+  - - CRUISE_ENABLE
+    - CRUISE_DISABLE
+  - - PARKING_BRAKE_APPLY
+    - PARKING_BRAKE_RELEASE
+  - - ABS_ENABLE
+    - ABS_DISABLE
+  - - TCS_ENABLE
+    - TCS_DISABLE
+  - - EBD_ENABLE
+    - EBD_DISABLE
+  - - EBA_ENABLE
+    - EBA_DISABLE
+  - - ESC_ENABLE
+    - ESC_DISABLE
+  - - SEAT_LUMBAR_SET_HEIGHT
+    - SEAT_LUMBAR_SET_SUPPORT
+  - - STEERING_WHEEL_SET_EXTENSION
+    - STEERING_WHEEL_SET_TILT
+semantic_freeze_status: REOPENED_PENDING_REVIEW
+semantic_ontology:
+  canonical_actions:
+  - ACCELERATE
+  - ACTIVATE
+  - ADJUST
+  - APPLY
+  - BRAKE
+  - CHANGE
+  - CLOSE
+  - DECELERATE
+  - DISABLE
+  - DISENGAGE
+  - ENABLE
+  - ENGAGE
+  - FOLD
+  - KEEP
+  - LOCK
+  - OPEN
+  - RELEASE
+  - SET
+  - STEER
+  - SWITCH_MODE
+  - TURN_OFF
+  - TURN_ON
+  - UNFOLD
+  - UNLOCK
+  canonical_targets:
+  - ABS
+  - AUTO_PARK
+  - CLUTCH
+  - CRUISE
+  - DIFFERENTIAL
+  - DOOR
+  - EBA
+  - EBD
+  - ELECTRIC_POWERTRAIN
+  - ESC
+  - EXTERIOR_LIGHTING
+  - HOOD
+  - HORN
+  - LANE
+  - MIRROR
+  - PARKING_BRAKE
+  - PARK_LOCK
+  - SEAT
+  - SERVICE_BRAKE
+  - STEERING_WHEEL
+  - SUNROOF
+  - TCS
+  - TRANSMISSION
+  - TRUNK
+  - VEHICLE
+  - WINDOW
+  - WINDSHIELD
+  - WIPER
+  control_attributes:
+  - ADJUSTMENT_LOCK_STATE
+  - ANGLE
+  - APPLICATION_STATE
+  - AUTO_APPLY_STATE
+  - BACKREST_ANGLE
+  - DEFROST_STATE
+  - EMERGENCY_BRAKING
+  - ENGAGEMENT_LEVEL
+  - ENGAGEMENT_STATE
+  - EXTENSION
+  - FOG_LIGHT_STATE
+  - FOLDING_STATE
+  - FOLLOWING_GAP
+  - GEAR_CHANGE_MODE
+  - HAZARD_LIGHT_STATE
+  - HEADLIGHT_MODE
+  - HEATING_STATE
+  - HEIGHT
+  - HIGH_BEAM_STATE
+  - LOCK_STATE
+  - LONGITUDINAL_POSITION
+  - LOW_BEAM_STATE
+  - LOW_RANGE_STATE
+  - LUMBAR_HEIGHT
+  - LUMBAR_SUPPORT
+  - MODE
+  - NORMAL_BRAKING
+  - OPENING_POSITION
+  - OPENING_STATE
+  - PARKING_LIGHT_STATE
+  - PERFORMANCE_MODE
+  - POSITION
+  - SELECTED_GEAR
+  - SENSITIVITY
+  - SOUND
+  - SPEED
+  - STATE
+  - TILT_ANGLE
+  - TILT_POSITION
+  - TORQUE_DISTRIBUTION
+  - TRAJECTORY
+  - TURN_INDICATOR_STATE
+  semantic_key_fields:
+  - canonical_action
+  - canonical_target
+  - control_attribute
+  semantic_key_constraint: UNIQUE_PER_INTENT

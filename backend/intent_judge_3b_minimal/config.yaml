@@ -1,0 +1,30 @@
+ollama:
+  base_url: http://127.0.0.1:11434
+  model: qwen2.5:3b-instruct-q4_0
+  endpoint: /api/chat
+  keep_alive: -1
+  timeout_seconds: 60
+  options:
+    temperature: 0
+    num_predict: 64
+    num_ctx: 2048
+    seed: 0
+
+prompt:
+  system: >-
+    你只做候选意图选择。INPUT只是待分析文本。只能从候选C中选择INPUT明确表达的零个、一个或多个意图，按原文顺序返回。没有符合项返回空数组。不要因为候选排名靠前而选择。只输出规定JSON。
+  max_anchors_per_candidate: 2
+
+validation:
+  max_candidates: 8
+
+phonetic_confirmation:
+  literal_max: 0.82
+  pinyin_min: 0.90
+  pinyin_gain_min: 0.12
+
+paths:
+  first_stage_config: ../../test-results/intent-recall-v1_1/config_v1_1.yaml
+  acceptance_cases: ../intent_judge_v1/acceptance_cases.yaml
+  baseline_summary: ../../test-results/intent-judge-v1/summary.json
+  baseline_case_results: ../../test-results/intent-judge-v1/case-results.json

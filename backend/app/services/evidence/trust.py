@@ -20,32 +20,40 @@ def evidence_trust_value(status: EvidenceStatus) -> float:
     return PDF_EVIDENCE_TRUST_VALUES[status]
 
 
-def _selection_key(node: EvidenceNode) -> tuple[int, str, str]:
+def _selection_key(node: EvidenceNode) -> tuple[str, str]:
     return (
-        int(node.mandatory),
         node.timestamp.isoformat() if node.timestamp else "",
         node.node_id,
     )
 
 
 def select_canonical_evidence(
-    evidence_types: Iterable[str], evidence: Iterable[EvidenceNode]
+    evidence_types: Iterable[str],
+    evidence: Iterable[EvidenceNode],
+    *,
+    allowed_node_ids: Iterable[str] | None = None,
 ) -> list[EvidenceNode]:
     """Select exactly one final canonical node for each requested evidence type.
 
-    Mandatory-recall selections win over non-mandatory retrieval/history copies.
-    Ties use the latest timestamp and then the stable node id.  MISSING and
+    Intent-scoped callers provide allowed_node_ids from canonical bindings.
+    Ties use the latest timestamp and then the stable node id. MISSING and
     TAMPERED nodes remain selectable; callers must not silently discard them.
     """
 
     nodes = list(evidence)
+    allowed = set(allowed_node_ids) if allowed_node_ids is not None else None
     selected: list[EvidenceNode] = []
     seen_types: set[str] = set()
     for evidence_type in evidence_types:
         if evidence_type in seen_types:
             continue
         seen_types.add(evidence_type)
-        candidates = [node for node in nodes if node.evidence_type == evidence_type]
+        candidates = [
+            node
+            for node in nodes
+            if node.evidence_type == evidence_type
+            and (allowed is None or node.node_id in allowed)
+        ]
         if candidates:
             selected.append(max(candidates, key=_selection_key))
     return selected

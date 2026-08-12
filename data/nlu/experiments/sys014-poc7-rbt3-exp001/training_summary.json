@@ -1,0 +1,76 @@
+{
+  "TRAINING_DEVICE": "CPU",
+  "ACTUAL_BATCH_SIZE": 16,
+  "LEARNING_RATE": 2e-05,
+  "MAX_EPOCHS": 10,
+  "EPOCHS_COMPLETED": 10,
+  "BEST_EPOCH": null,
+  "TRAINING_STEPS_EXECUTED": 370,
+  "TOTAL_OPTIMIZER_STEPS": 370,
+  "WARMUP_STEPS": 37,
+  "CPU_EPOCH_TIME_MEASURED": true,
+  "EPOCH_DURATIONS_SECONDS": [
+    13.426515500061214,
+    12.170164099894464,
+    11.893790500005707,
+    12.47214169986546,
+    15.16851340001449,
+    14.9666691001039,
+    14.84054660005495,
+    15.207230600062758,
+    17.515957500087097,
+    15.64573340001516
+  ],
+  "MEAN_EPOCH_SECONDS": 14.33072624001652,
+  "TOTAL_TRAINING_SECONDS": 143.35214759991504,
+  "TRAIN_LOSS_INITIAL": 6.333261696068016,
+  "TRAIN_LOSS_FINAL": 0.32589085359831116,
+  "VALIDATION_LOSS_BEST": null,
+  "NON_FINITE_LOSS_DETECTED": false,
+  "OVERFIT_WARNING": false,
+  "PRETRAINED_WEIGHTS_CHANGED": true,
+  "BEST_CHECKPOINT_SAVED": false,
+  "CHECKPOINT_SHA256": null,
+  "TEST_USED_FOR_MODEL_SELECTION": false,
+  "SAFETY_GOLD_USED_FOR_MODEL_SELECTION": false,
+  "TEST_EVALUATION_EXECUTED": false,
+  "SAFETY_GOLD_EVALUATION_EXECUTED": false,
+  "RBT3_BASELINE_TRAINING_PASS": false,
+  "READY_FOR_STAGE_4C_NEXT_DECISION": false,
+  "TRAINING_FAILURE_DIAGNOSIS": {
+    "status": "NO_VALIDATION_CHECKPOINT_PASSED_FROZEN_SAFETY_GATES",
+    "closest_safety_candidate_epoch": 5,
+    "closest_candidate_quality_score": 0.9397006374635573,
+    "closest_candidate_raw_ufar": 0.034482758620689655,
+    "blocking_gate": "AMBIGUOUS_FALSE_ACCEPT_RATE_MAX_0",
+    "blocking_false_accept_count": 1,
+    "blocking_category_total": 9,
+    "blocking_samples": [
+      {
+        "sample_id": "SYS014-POC-0731",
+        "text": "速度那个再弄点"
+      }
+    ],
+    "pipeline_diagnosis": {
+      "loss_masking": "PASS_STAGE4B_TESTS_AND_ALL_HEADS_LEARNED",
+      "class_weights": "FROZEN_SQRT_INVERSE_FREQ_APPLIED; AMBIGUOUS validation support is only 9",
+      "learning_rate": "HEALTHY_FINITE_DESCENT_AT_FIXED_2E-5",
+      "head_initialization": "HEALTHY; intent/structure/slot/negation all rose far above random/collapse",
+      "token_projection": "PASS_ZERO_FAILURES",
+      "gradient": {
+        "status": "FINITE",
+        "epoch_mean_gradient_norm_min": 4.924832685573681,
+        "epoch_mean_gradient_norm_max": 22.196619961712813
+      },
+      "dataset_batching": "DETERMINISTIC_SHUFFLE_SEED_14031_BATCH_16"
+    },
+    "recommended_next_action": "STOP; human validation review before either limited RBT3 safety optimization or Stage 4C-B decision",
+    "electra_training_started": false,
+    "test_evaluation_executed": false,
+    "safety_gold_evaluation_executed": false
+  },
+  "CLOSEST_SAFETY_CANDIDATE_EPOCH": 5,
+  "HIGHEST_QUALITY_UNGATED_EPOCH": 7,
+  "HIGHEST_QUALITY_UNGATED_SCORE": 0.9600325767252336,
+  "LAST_CHECKPOINT_SHA256": "bc12273c91372d7a5738a726f520a68093c5ccb9114ac406342da96dbfe02efd"
+}

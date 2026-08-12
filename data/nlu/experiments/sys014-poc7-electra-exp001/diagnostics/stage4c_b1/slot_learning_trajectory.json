@@ -1,0 +1,92 @@
+[
+  {
+    "epoch": 1,
+    "AREA_F1": 0.0,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.0,
+    "slot_train_loss": 1.7895342981493152,
+    "slot_validation_loss": 1.343012465371026
+  },
+  {
+    "epoch": 2,
+    "AREA_F1": 0.0,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.0,
+    "slot_train_loss": 0.9337866773476472,
+    "slot_validation_loss": 0.7487053689029481
+  },
+  {
+    "epoch": 3,
+    "AREA_F1": 0.0,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.0,
+    "slot_train_loss": 0.6907164728319323,
+    "slot_validation_loss": 0.6386173632409837
+  },
+  {
+    "epoch": 4,
+    "AREA_F1": 0.0,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.0,
+    "slot_train_loss": 0.6155243918702409,
+    "slot_validation_loss": 0.5742201821671592
+  },
+  {
+    "epoch": 5,
+    "AREA_F1": 0.0,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.0,
+    "slot_train_loss": 0.5708605204079602,
+    "slot_validation_loss": 0.5253416581286324
+  },
+  {
+    "epoch": 6,
+    "AREA_F1": 0.0625,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.036036036036036036,
+    "slot_train_loss": 0.5391988867038006,
+    "slot_validation_loss": 0.48875225087006885
+  },
+  {
+    "epoch": 7,
+    "AREA_F1": 0.2891566265060241,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.18461538461538463,
+    "slot_train_loss": 0.5089032794978168,
+    "slot_validation_loss": 0.4606981823841731
+  },
+  {
+    "epoch": 8,
+    "AREA_F1": 0.3516483516483517,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.23188405797101452,
+    "slot_train_loss": 0.4821124479577348,
+    "slot_validation_loss": 0.44203605751196545
+  },
+  {
+    "epoch": 9,
+    "AREA_F1": 0.346938775510204,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.0,
+    "OVERALL_SLOT_F1": 0.22818791946308725,
+    "slot_train_loss": 0.4687067117239978,
+    "slot_validation_loss": 0.43046757413281334
+  },
+  {
+    "epoch": 10,
+    "AREA_F1": 0.3333333333333333,
+    "VALUE_F1": 0.0,
+    "NEGATION_SPAN_F1": 0.12903225806451613,
+    "OVERALL_SLOT_F1": 0.24675324675324675,
+    "slot_train_loss": 0.4653995834492348,
+    "slot_validation_loss": 0.4267058703634474
+  }
+]

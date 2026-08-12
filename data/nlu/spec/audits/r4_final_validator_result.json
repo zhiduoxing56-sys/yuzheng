@@ -1,0 +1,208 @@
+{
+  "status": "PASS",
+  "registry_version": "sys-014-semantic-hardening-r4-final",
+  "semantic_freeze_status": "FROZEN_FOR_FULL_NLU_GOLD_BUILD",
+  "document_status": "FROZEN_OFFLINE_FOR_GOLD_BUILD",
+  "simplified_parent_sha256": "4eb697a9cc9daf48d1292e34b5ca37936de114028e71cfcf495e773335e6406f",
+  "final_sha256": "b6453ff4c264464bb74ceb2aaa78cfc7fea7b55eef9a1d61bb2a7c54df47edae",
+  "metrics": {
+    "INTENT_COUNT": 71,
+    "FORMAL_USER_VOICE_INTENT_COUNT": 71,
+    "RUNTIME_INTENT_HEAD_COUNT": 71,
+    "KNOWN_UNSUPPORTED_CONTROL_INTENT_COUNT": 0,
+    "ARCHIVED_KNOWN_CONTROL_REFERENCE_COUNT": 91,
+    "RUNTIME_SCOPE_COUNT": 4,
+    "ACTIVE_7_INTENT_DEPENDENCY_COUNT": 0,
+    "FORBIDDEN_CHANGED_PATH_COUNT": 0,
+    "CHANGED_METADATA_PATH_COUNT": 10
+  },
+  "mapping_rule_source": {
+    "path": "data/nlu/spec/mapping_rules/full_nlu_mapping_v1.yaml",
+    "version": "nlu_mapping_v1",
+    "sha256": "54ba55446d2961fd85f9ac329779fff658bee04b0c0de1a08d5df1c2976f15eb",
+    "status": "LEGACY_PRE_R4_MAPPING",
+    "usable_for_r4_gold": false,
+    "usable_for_training": false,
+    "required_next_mapping_version": "nlu_mapping_r4_scope_v1"
+  },
+  "r4_mapping_policy": {
+    "architecture": "FORMAL_INTENT_HEAD_PLUS_UNIFIED_SCOPE_CLASSIFICATION",
+    "scope_mapping_required": true,
+    "formal_intent_mapping_only_when_scope_formal": true,
+    "old_baseline_mapping_as_truth_prohibited": true
+  },
+  "known_control_evidence_policy": {
+    "primary_evidence": "RAW_TEXT",
+    "auxiliary_evidence_when_available": [
+      "MAC_SPLIT_SENS",
+      "MAC_SEMANTICS"
+    ],
+    "evidence_priority": [
+      "RAW_TEXT",
+      "MAC_SPLIT_SENS",
+      "MAC_SEMANTICS"
+    ],
+    "all_three_required": false,
+    "baseline_mapping_as_truth_prohibited": true,
+    "known_control_bypass_candidate_rule": {
+      "raw_text_clearly_indicates_real_vehicle_cockpit_or_local_head_unit_control": true,
+      "formal_executable_mapping_unavailable": true
+    },
+    "mac_annotation_role": "AUXILIARY_EVIDENCE_AND_CONFLICT_CHECK_WHEN_AVAILABLE",
+    "source_conflict_policy": {
+      "annotation_must_not_override_raw_text": true,
+      "route": "SOURCE_CONFLICT_REVIEW"
+    },
+    "old_baseline_may_determine_final_scope": false
+  },
+  "changed_paths": [
+    "document_status",
+    "gold_scope_mapping_policy.known_control_evidence_policy",
+    "gold_scope_mapping_policy.known_control_evidence_requirement",
+    "mapping_rule_source.required_next_mapping_version",
+    "mapping_rule_source.status",
+    "mapping_rule_source.usable_for_r4_gold",
+    "mapping_rule_source.usable_for_training",
+    "r4_mapping_policy",
+    "registry_version",
+    "semantic_freeze_status"
+  ],
+  "checks": [
+    {
+      "name": "SIMPLIFIED_PARENT_SHA256",
+      "status": "PASS",
+      "detail": "expected 4eb697a9cc9daf48d1292e34b5ca37936de114028e71cfcf495e773335e6406f, got 4eb697a9cc9daf48d1292e34b5ca37936de114028e71cfcf495e773335e6406f"
+    },
+    {
+      "name": "FINAL_VERSION",
+      "status": "PASS",
+      "detail": "final registry version mismatch"
+    },
+    {
+      "name": "FINAL_FREEZE_STATUS",
+      "status": "PASS",
+      "detail": "semantic freeze status mismatch"
+    },
+    {
+      "name": "FINAL_DOCUMENT_STATUS",
+      "status": "PASS",
+      "detail": "document status mismatch"
+    },
+    {
+      "name": "RUNTIME_LOADING_DISABLED",
+      "status": "PASS",
+      "detail": "frozen Gold registry must not be runtime-loadable"
+    },
+    {
+      "name": "METADATA_ONLY_CHANGED_PATHS",
+      "status": "PASS",
+      "detail": "forbidden changed paths: []"
+    },
+    {
+      "name": "INTENT_COUNT_71",
+      "status": "PASS",
+      "detail": "intent count is 71"
+    },
+    {
+      "name": "FORMAL_INTENTS_ALL_FIELDS_EXACT",
+      "status": "PASS",
+      "detail": "one or more Formal Intent fields changed"
+    },
+    {
+      "name": "FORMAL_ID_SET_AND_ORDER_EXACT",
+      "status": "PASS",
+      "detail": "Formal ID set/order changed"
+    },
+    {
+      "name": "CAPABILITY_FAMILIES_EXACT",
+      "status": "PASS",
+      "detail": "capability families changed"
+    },
+    {
+      "name": "SEMANTIC_ONTOLOGY_EXACT",
+      "status": "PASS",
+      "detail": "semantic ontology changed"
+    },
+    {
+      "name": "ALL_CONTRACTS_EXACT",
+      "status": "PASS",
+      "detail": "contract sections changed: []"
+    },
+    {
+      "name": "FROZEN_STATISTICS",
+      "status": "PASS",
+      "detail": "statistics mismatch: {'intent_count': 71, 'formal_user_voice_intent_count': 71, 'runtime_intent_head_count': 71, 'known_unsupported_control_intent_count': 0, 'archived_known_control_reference_count': 91, 'runtime_scope_count': 4}"
+    },
+    {
+      "name": "STATISTICS_OBJECT_EXACT",
+      "status": "PASS",
+      "detail": "statistics changed during metadata freeze"
+    },
+    {
+      "name": "FOUR_RUNTIME_SCOPES_EXACT",
+      "status": "PASS",
+      "detail": "runtime scope order/content changed"
+    },
+    {
+      "name": "SCOPE_CONTRACT_EXACT",
+      "status": "PASS",
+      "detail": "scope contract changed"
+    },
+    {
+      "name": "BYPASS_ROUTE_EXACT",
+      "status": "PASS",
+      "detail": "KNOWN_CONTROL_BYPASS route changed"
+    },
+    {
+      "name": "MULTI_INTENT_SCHEMA_EXACT",
+      "status": "PASS",
+      "detail": "formal+bypass multi-intent schema changed"
+    },
+    {
+      "name": "FORMAL_COMPLETENESS_POLICY_EXACT",
+      "status": "PASS",
+      "detail": "formal completeness scope changed"
+    },
+    {
+      "name": "LEGACY_MAPPING_PROVENANCE_PRESERVED",
+      "status": "PASS",
+      "detail": "legacy mapping path/version/SHA changed"
+    },
+    {
+      "name": "LEGACY_MAPPING_DISABLED",
+      "status": "PASS",
+      "detail": "legacy mapping not explicitly disabled for R4 Gold/training"
+    },
+    {
+      "name": "R4_MAPPING_POLICY",
+      "status": "PASS",
+      "detail": "R4 mapping policy mismatch"
+    },
+    {
+      "name": "NEXT_MAPPING_FILE_NOT_CREATED",
+      "status": "PASS",
+      "detail": "nlu_mapping_r4_scope_v1 must not be created in this stage"
+    },
+    {
+      "name": "KNOWN_CONTROL_EVIDENCE_PRIORITY_POLICY",
+      "status": "PASS",
+      "detail": "Known Control evidence priority/conflict policy mismatch"
+    },
+    {
+      "name": "OTHER_GOLD_POLICY_FIELDS_EXACT",
+      "status": "PASS",
+      "detail": "unapproved Gold policy fields changed"
+    },
+    {
+      "name": "ACTIVE_7_INTENT_DEPENDENCY_ZERO",
+      "status": "PASS",
+      "detail": "active legacy PoC dependencies: []"
+    },
+    {
+      "name": "FOLLOWING_GAP_REQUIRED_ABSENT",
+      "status": "PASS",
+      "detail": "FOLLOWING_GAP_REQUIRED was restored"
+    }
+  ],
+  "errors": []
+}

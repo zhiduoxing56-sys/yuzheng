@@ -1,0 +1,31 @@
+version: r4_gold_mapping_mandatory_rules_v1
+document_role: MANDATORY_INPUT_FOR_FUTURE_R4_SCOPE_MAPPING
+required_integration_target: nlu_mapping_r4_scope_v1
+integration_must_not_be_omitted: true
+formal_mapping_created_by_this_patch: false
+rules:
+- rule_id: NON_CRUISE_ABSOLUTE_SPEED_TARGET
+  priority: HIGH
+  match_semantics:
+    absolute_target_vehicle_speed_command: true
+    explicit_cruise_context: false
+    examples:
+    - 加速到80
+    - 速度提到80
+    - 减速到40
+    - 速度降到40
+  result: QUARANTINE_CONTRACT_GAP
+  formal_positive_prohibited: true
+  automatic_cruise_mapping_prohibited: true
+  known_control_bypass_prohibited: true
+  accelerate_delta_mapping_prohibited: true
+  decelerate_delta_mapping_prohibited: true
+  reason_code: NON_CRUISE_ABSOLUTE_SPEED_TARGET_UNSUPPORTED
+  semantic_rationale:
+  - ACCELERATE / DECELERATE currently accept relative speed changes only; an absolute target speed is not a delta.
+  - CRUISE_SET_SPEED is allowed only when raw text explicitly establishes cruise context.
+  - A real vehicle-motion control command must not bypass the Yuzheng safety chain via KNOWN_CONTROL_BYPASS.
+  explicit_cruise_positive_examples:
+  - 巡航速度设为80
+  - 把定速巡航调到80
+  explicit_cruise_allowed_intent_id: CRUISE_SET_SPEED

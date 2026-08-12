@@ -21,12 +21,14 @@ from app.models.schemas import (
     SafetyGateResult,
     SecurityClass,
     TextCommandRequest,
+    TrustedRuntimeContext,
     VehicleStatePatch,
     utc_now,
 )
 from app.services.evidence.demand import EvidenceDemandService
+from app.services.evidence.demand_registry import EvidenceDemandRegistry
 from app.services.interpreter.service import InterpreterService
-from app.services.semantic.parser import SemanticFrameParser
+from app.services.semantic.orchestrator import SemanticOrchestratorService
 
 
 class StaticProvider:
@@ -47,12 +49,10 @@ class StaticProvider:
 
 
 def _components(provider=None):
-    parser = SemanticFrameParser(load_yaml("semantic_rules.yaml"))
-    demand = EvidenceDemandService(load_yaml("action_evidence_map.yaml"))
-    service = InterpreterService(
-        load_yaml("interpreter.yaml"), parser, demand, provider=provider
-    )
-    return parser, service
+    semantic = SemanticOrchestratorService()
+    demand = EvidenceDemandService(EvidenceDemandRegistry())
+    service = InterpreterService(load_yaml("interpreter.yaml"), provider=provider)
+    return semantic, demand, service
 
 
 def _decision(turn_id: str, label: DecisionLabel = DecisionLabel.REVIEW) -> DecisionResult:
@@ -78,30 +78,35 @@ def _evidence(node_id: str = "NODE_VALID") -> EvidenceNode:
     timestamp = utc_now()
     return EvidenceNode(
         node_id=node_id,
-        evidence_type="music_state",
+        evidence_type="SYSTEM_MODE",
         layer="L0_ENTERTAINMENT",
         source="vehicle_state",
-        value="STOPPED",
+        value={"music_state": "STOPPED"},
         timestamp=timestamp,
         expires_at=timestamp + timedelta(minutes=1),
         freshness=1,
         consistency=1,
         availability=1,
-        semantic_similarity=0.9,
-        mandatory=False,
         quality_label=EvidenceStatus.VALID,
         integrity_hash="hash-music",
-        security_class=SecurityClass.ENTERTAINMENT,
-        security_rank=0,
+        security_class=SecurityClass.EMERGENCY,
+        security_rank=3,
         security_classification_source="EXISTING_PROJECT_MAPPING",
     )
 
 
-def _generate(service: InterpreterService, parser: SemanticFrameParser, text: str = "可能播放音乐"):
-    frame = parser.parse("TURN_INTERPRETER", text)
+def _generate(
+    service: InterpreterService,
+    semantic: SemanticOrchestratorService,
+    demand_service: EvidenceDemandService,
+    text: str = "可能播放音乐",
+):
+    frame = semantic.parse("TURN_INTERPRETER", text)
+    demand = demand_service.build(frame)
     decision = _decision(frame.turn_id)
     return decision, service.generate(
         frame=frame,
+        demand=demand,
         evidence=[_evidence()],
         missing_types=[],
         gate=SafetyGateResult(blocked=False, checks=[], reasons=[]),
@@ -116,8 +121,8 @@ def _generate(service: InterpreterService, parser: SemanticFrameParser, text: st
 
 
 def test_unconfigured_provider_uses_structured_deterministic_fallback() -> None:
-    parser, service = _components(provider=None)
-    decision, result = _generate(service, parser)
+    semantic, demand_service, service = _components(provider=None)
+    decision, result = _generate(service, semantic, demand_service)
     assert result.generation_metadata.generation_mode == "DETERMINISTIC_FALLBACK"
     assert result.generation_metadata.provider_status == "NOT_CONFIGURED"
     assert result.generation_metadata.fallback_reason == "PROVIDER_NOT_CONFIGURED"
@@ -154,12 +159,14 @@ def test_provider_failure_or_control_attempt_falls_back_without_changing_decisio
     provider_output, expected_reason: str
 ) -> None:
     provider = StaticProvider(provider_output)
-    parser, service = _components(provider=provider)
-    frame = parser.parse("TURN_INTERPRETER", "可能播放音乐")
+    semantic, demand_service, service = _components(provider=provider)
+    frame = semantic.parse("TURN_INTERPRETER", "可能播放音乐")
+    demand = demand_service.build(frame)
     decision = _decision(frame.turn_id)
     before = decision.model_dump(mode="json")
     result = service.generate(
         frame=frame,
+        demand=demand,
         evidence=[_evidence()],
         missing_types=[],
         gate=SafetyGateResult(blocked=False, checks=[], reasons=[]),
@@ -185,8 +192,8 @@ def test_provider_receives_bounded_structured_context_without_audio_vectors_or_t
             "candidate_texts": ["播放音乐"],
         }
     )
-    parser, service = _components(provider=provider)
-    decision, result = _generate(service, parser)
+    semantic, demand_service, service = _components(provider=provider)
+    decision, result = _generate(service, semantic, demand_service)
     assert decision.final_decision == DecisionLabel.REVIEW
     assert result.generation_metadata.generation_mode == "LLM_INTERPRETER"
     assert result.generation_metadata.provider_status == "VERIFIED"
@@ -201,7 +208,7 @@ def test_provider_receives_bounded_structured_context_without_audio_vectors_or_t
     assert len(str(provider.payload)) <= service.maximum_input_characters
 
 
-def test_unknown_provider_candidate_is_rejected_by_local_parser_and_demand_rules() -> None:
+def test_unknown_provider_candidate_is_not_used_as_a_second_semantic_source() -> None:
     provider = StaticProvider(
         {
             "summary": "unknown candidate",
@@ -209,11 +216,13 @@ def test_unknown_provider_candidate_is_rejected_by_local_parser_and_demand_rules
             "candidate_texts": ["发射导弹"],
         }
     )
-    parser, service = _components(provider=provider)
-    frame = parser.parse("TURN_UNKNOWN", "请帮我处理一下")
+    semantic, demand_service, service = _components(provider=provider)
+    frame = semantic.parse("TURN_UNKNOWN", "请帮我处理一下")
+    demand = demand_service.build(frame)
     decision = _decision(frame.turn_id)
     result = service.generate(
         frame=frame,
+        demand=demand,
         evidence=[],
         missing_types=[],
         gate=SafetyGateResult(blocked=False, checks=[], reasons=[]),
@@ -231,10 +240,10 @@ def test_unknown_provider_candidate_is_rejected_by_local_parser_and_demand_rules
 
 def test_candidate_ids_are_bound_to_turn_and_confirm_creates_full_child_turn(pipeline) -> None:
     first = pipeline.process_text(
-        TextCommandRequest(
-            text="可能播放音乐",
+        TextCommandRequest(text="关闭车门然后锁车门"),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
-        )
+        ),
     )
     assert first.decision.final_decision == DecisionLabel.REVIEW
     assert first.interpreter_result is not None
@@ -243,10 +252,10 @@ def test_candidate_ids_are_bound_to_turn_and_confirm_creates_full_child_turn(pip
     assert candidate.turn_id == first.turn_id
 
     second = pipeline.process_text(
-        TextCommandRequest(
-            text="可能播放音乐",
+        TextCommandRequest(text="关闭车门然后锁车门"),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
-        )
+        ),
     )
     other_candidate = second.interpreter_result.candidate_interpretations[0]
     rejected = pipeline.review_service.review(
@@ -271,11 +280,11 @@ def test_candidate_ids_are_bound_to_turn_and_confirm_creates_full_child_turn(pip
     assert confirmed.related_turn_id != first.turn_id
     assert confirmed.command_result.parent_turn_id == first.turn_id
     assert confirmed.command_result.root_turn_id == first.turn_id
-    assert confirmed.command_result.semantic_frame.action == candidate.action
-    assert confirmed.command_result.semantic_frame.target == candidate.target
+    assert confirmed.command_result.semantic_frame.intents[0].action == candidate.action
+    assert confirmed.command_result.semantic_frame.intents[0].target == candidate.target
 
 
-def test_multiple_valid_provider_candidates_require_explicit_selection(pipeline) -> None:
+def test_provider_candidate_texts_do_not_create_parallel_semantic_results(pipeline) -> None:
     pipeline.interpreter_service.provider = StaticProvider(
         {
             "summary": "two locally valid interpretations",
@@ -284,35 +293,58 @@ def test_multiple_valid_provider_candidates_require_explicit_selection(pipeline)
         }
     )
     result = pipeline.process_text(
-        TextCommandRequest(
-            text="把那个打开",
+        TextCommandRequest(text="把那个打开"),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
-        )
-    )
-    candidates = result.interpreter_result.candidate_interpretations
-    assert [(item.action, item.target) for item in candidates] == [
-        ("打开", "车门"),
-        ("打开", "自动泊车"),
-    ]
-    rejected = pipeline.review_service.review(
-        result.turn_id, ReviewRequest(action=ReviewAction.CONFIRM)
-    )
-    assert rejected.accepted is False
-    assert "selected_candidate_id" in rejected.reason
-
-    selected = candidates[0]
-    confirmed = pipeline.review_service.review(
-        result.turn_id,
-        ReviewRequest(
-            action=ReviewAction.CONFIRM,
-            selected_candidate_id=selected.candidate_id,
         ),
     )
-    assert confirmed.accepted is True
-    assert confirmed.command_result is not None
-    assert confirmed.command_result.parent_turn_id == result.turn_id
-    assert confirmed.command_result.semantic_frame.action == selected.action
-    assert confirmed.command_result.semantic_frame.target == selected.target
+    candidates = result.interpreter_result.candidate_interpretations
+    assert candidates == []
+    assert result.semantic_frame.intents == []
+
+
+def test_negated_action_does_not_generate_positive_provider_candidate() -> None:
+    semantic, demand_service, service = _components(
+        provider=StaticProvider(
+            {
+                "summary": "unsafe positive reinterpretation",
+                "decision_label": "REVIEW",
+                "candidate_texts": ["打开车门"],
+            }
+        )
+    )
+
+    _, result = _generate(
+        service, semantic, demand_service, text="不要打开车门"
+    )
+
+    assert result.candidate_interpretations == []
+    assert result.candidate_availability == "NO_VALID_CANDIDATES"
+
+
+def test_review_multi_intent_keeps_only_resolved_semantic_candidate() -> None:
+    semantic, demand_service, service = _components(
+        provider=StaticProvider(
+            {
+                "summary": "unsafe single-action reinterpretation",
+                "decision_label": "REVIEW",
+                "candidate_texts": ["打开车门", "打开大屏"],
+            }
+        )
+    )
+
+    _, result = _generate(
+        service, semantic, demand_service, text="关闭车门然后打开大屏"
+    )
+
+    assert [
+        (candidate.action, candidate.target, candidate.source)
+        for candidate in result.candidate_interpretations
+    ] == [
+        ("关闭", "车门", "SEMANTIC_FRAME")
+    ]
+    assert result.candidate_availability == "AVAILABLE"
+    assert result.validation_result["semantic_reason_codes"] == []
 
 
 def test_public_review_contract_keeps_action_specific_strictness() -> None:

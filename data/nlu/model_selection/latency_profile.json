@@ -1,0 +1,691 @@
+{
+  "protocol": {
+    "device": "CPU",
+    "batch_size": 1,
+    "warmup_minimum": 20,
+    "formal_forward_minimum_per_model": 200,
+    "model_load_excluded": true,
+    "threads_unchanged": true
+  },
+  "models": [
+    {
+      "model_id": "hfl/chinese-electra-180g-small-discriminator",
+      "revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+      "torch_threads": {
+        "num_threads": 24,
+        "num_interop_threads": 24
+      },
+      "latency": {
+        "device": "cpu",
+        "batch_size": 1,
+        "max_sequence_length": 128,
+        "warmup_forward_count": 20,
+        "formal_case_count": 240,
+        "formal_encoder_forward_count": 480,
+        "bucket_rule": "len(text.strip()): short<=8, medium=9..20, long>20 Unicode code points",
+        "bucket_source_counts_before_repeat": {
+          "short": 179,
+          "medium": 81,
+          "long": 2
+        },
+        "token_length_distribution": {
+          "count": 240,
+          "mean": 14.916667,
+          "median": 13.0,
+          "p90": 23.0,
+          "p95": 23.0,
+          "p99": 23.0,
+          "max": 23.0
+        },
+        "tokenization": {
+          "count": 240,
+          "mean_ms": 0.20176,
+          "median_ms": 0.1942,
+          "p90_ms": 0.23901,
+          "p95_ms": 0.26247,
+          "p99_ms": 0.349303,
+          "max_ms": 0.4849
+        },
+        "encoder": {
+          "count": 240,
+          "mean_ms": 12.514454,
+          "median_ms": 12.48335,
+          "p90_ms": 13.85798,
+          "p95_ms": 14.26206,
+          "p99_ms": 15.451486,
+          "max_ms": 16.4531
+        },
+        "total": {
+          "count": 240,
+          "mean_ms": 12.465369,
+          "median_ms": 12.53215,
+          "p90_ms": 14.44139,
+          "p95_ms": 14.78464,
+          "p99_ms": 15.352836,
+          "max_ms": 15.7351
+        },
+        "by_bucket": {
+          "short": {
+            "character_rule": "<=8",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.174532,
+              "median_ms": 0.16725,
+              "p90_ms": 0.20205,
+              "p95_ms": 0.216935,
+              "p99_ms": 0.293823,
+              "max_ms": 0.3541
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 11.718059,
+              "median_ms": 11.8663,
+              "p90_ms": 12.59241,
+              "p95_ms": 12.93962,
+              "p99_ms": 13.274292,
+              "max_ms": 13.7287
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 11.386926,
+              "median_ms": 11.8773,
+              "p90_ms": 12.60639,
+              "p95_ms": 12.795695,
+              "p99_ms": 13.102895,
+              "max_ms": 13.6871
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 8.4375,
+              "median": 9.0,
+              "p90": 10.0,
+              "p95": 10.0,
+              "p99": 10.0,
+              "max": 10.0
+            }
+          },
+          "medium": {
+            "character_rule": "9..20",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.196061,
+              "median_ms": 0.18815,
+              "p90_ms": 0.21959,
+              "p95_ms": 0.245455,
+              "p99_ms": 0.313834,
+              "max_ms": 0.3418
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 12.503234,
+              "median_ms": 12.4489,
+              "p90_ms": 13.68988,
+              "p95_ms": 14.13126,
+              "p99_ms": 14.8465,
+              "max_ms": 15.8893
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 12.284564,
+              "median_ms": 12.50575,
+              "p90_ms": 13.51148,
+              "p95_ms": 13.655365,
+              "p99_ms": 14.411227,
+              "max_ms": 15.2476
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 13.3125,
+              "median": 13.0,
+              "p90": 16.0,
+              "p95": 17.0,
+              "p99": 18.84,
+              "max": 22.0
+            }
+          },
+          "long": {
+            "character_rule": ">20",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.234686,
+              "median_ms": 0.22635,
+              "p90_ms": 0.2552,
+              "p95_ms": 0.270135,
+              "p99_ms": 0.389231,
+              "max_ms": 0.4849
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 13.32207,
+              "median_ms": 13.49245,
+              "p90_ms": 14.26302,
+              "p95_ms": 14.68174,
+              "p99_ms": 16.409018,
+              "max_ms": 16.4531
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 13.724616,
+              "median_ms": 13.9307,
+              "p90_ms": 14.91447,
+              "p95_ms": 15.19224,
+              "p99_ms": 15.491227,
+              "max_ms": 15.7351
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 23.0,
+              "median": 23.0,
+              "p90": 23.0,
+              "p95": 23.0,
+              "p99": 23.0,
+              "max": 23.0
+            }
+          }
+        },
+        "model_load_time_excluded": true
+      },
+      "joint_head": {
+        "name": "UNTRAINED_PROFILE_ONLY_JOINT_HEAD",
+        "random_initialization": true,
+        "training_performed": false,
+        "sentence_negation_head_included": true,
+        "extra_parameters": 5911,
+        "input_shape": [
+          1,
+          13,
+          256
+        ],
+        "output_shapes": {
+          "scope": [
+            1,
+            4
+          ],
+          "structure": [
+            1,
+            3
+          ],
+          "intent": [
+            1,
+            7
+          ],
+          "slot": [
+            1,
+            13,
+            7
+          ],
+          "sentence_negation": [
+            1,
+            2
+          ]
+        },
+        "tensor_shape_compatible": true,
+        "head_only_latency": {
+          "count": 240,
+          "mean_ms": 0.169752,
+          "median_ms": 0.16465,
+          "p90_ms": 0.18241,
+          "p95_ms": 0.190875,
+          "p99_ms": 0.267071,
+          "max_ms": 0.2854
+        }
+      }
+    },
+    {
+      "model_id": "hfl/rbt3",
+      "revision": "0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+      "torch_threads": {
+        "num_threads": 24,
+        "num_interop_threads": 24
+      },
+      "latency": {
+        "device": "cpu",
+        "batch_size": 1,
+        "max_sequence_length": 128,
+        "warmup_forward_count": 20,
+        "formal_case_count": 240,
+        "formal_encoder_forward_count": 480,
+        "bucket_rule": "len(text.strip()): short<=8, medium=9..20, long>20 Unicode code points",
+        "bucket_source_counts_before_repeat": {
+          "short": 179,
+          "medium": 81,
+          "long": 2
+        },
+        "token_length_distribution": {
+          "count": 240,
+          "mean": 14.916667,
+          "median": 13.0,
+          "p90": 23.0,
+          "p95": 23.0,
+          "p99": 23.0,
+          "max": 23.0
+        },
+        "tokenization": {
+          "count": 240,
+          "mean_ms": 0.205496,
+          "median_ms": 0.19355,
+          "p90_ms": 0.23742,
+          "p95_ms": 0.2666,
+          "p99_ms": 0.383485,
+          "max_ms": 1.2675
+        },
+        "encoder": {
+          "count": 240,
+          "mean_ms": 6.052076,
+          "median_ms": 5.9542,
+          "p90_ms": 7.05581,
+          "p95_ms": 7.2371,
+          "p99_ms": 7.567668,
+          "max_ms": 7.7399
+        },
+        "total": {
+          "count": 240,
+          "mean_ms": 6.53964,
+          "median_ms": 6.4073,
+          "p90_ms": 7.76009,
+          "p95_ms": 7.8832,
+          "p99_ms": 8.3038,
+          "max_ms": 9.3864
+        },
+        "by_bucket": {
+          "short": {
+            "character_rule": "<=8",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.176634,
+              "median_ms": 0.1696,
+              "p90_ms": 0.19812,
+              "p95_ms": 0.232935,
+              "p99_ms": 0.313821,
+              "max_ms": 0.3139
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 5.506221,
+              "median_ms": 5.4268,
+              "p90_ms": 6.26388,
+              "p95_ms": 6.41232,
+              "p99_ms": 6.948715,
+              "max_ms": 7.7399
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 5.97511,
+              "median_ms": 5.897,
+              "p90_ms": 6.42317,
+              "p95_ms": 6.623995,
+              "p99_ms": 7.600763,
+              "max_ms": 9.3864
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 8.4375,
+              "median": 9.0,
+              "p90": 10.0,
+              "p95": 10.0,
+              "p99": 10.0,
+              "max": 10.0
+            }
+          },
+          "medium": {
+            "character_rule": "9..20",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.191814,
+              "median_ms": 0.1868,
+              "p90_ms": 0.21618,
+              "p95_ms": 0.22069,
+              "p99_ms": 0.254879,
+              "max_ms": 0.3417
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 5.809549,
+              "median_ms": 5.81255,
+              "p90_ms": 6.34304,
+              "p95_ms": 6.664135,
+              "p99_ms": 7.077365,
+              "max_ms": 7.3669
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 6.299957,
+              "median_ms": 6.36985,
+              "p90_ms": 7.03438,
+              "p95_ms": 7.264335,
+              "p99_ms": 7.677889,
+              "max_ms": 8.0183
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 13.3125,
+              "median": 13.0,
+              "p90": 16.0,
+              "p95": 17.0,
+              "p99": 18.84,
+              "max": 22.0
+            }
+          },
+          "long": {
+            "character_rule": ">20",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.248041,
+              "median_ms": 0.2245,
+              "p90_ms": 0.2668,
+              "p95_ms": 0.321655,
+              "p99_ms": 0.621201,
+              "max_ms": 1.2675
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 6.840459,
+              "median_ms": 6.8581,
+              "p90_ms": 7.26486,
+              "p95_ms": 7.39469,
+              "p99_ms": 7.612866,
+              "max_ms": 7.7113
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 7.343854,
+              "median_ms": 7.4565,
+              "p90_ms": 7.95473,
+              "p95_ms": 8.144405,
+              "p99_ms": 8.323528,
+              "max_ms": 8.3684
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 23.0,
+              "median": 23.0,
+              "p90": 23.0,
+              "p95": 23.0,
+              "p99": 23.0,
+              "max": 23.0
+            }
+          }
+        },
+        "model_load_time_excluded": true
+      },
+      "joint_head": {
+        "name": "UNTRAINED_PROFILE_ONLY_JOINT_HEAD",
+        "random_initialization": true,
+        "training_performed": false,
+        "sentence_negation_head_included": true,
+        "extra_parameters": 17687,
+        "input_shape": [
+          1,
+          13,
+          768
+        ],
+        "output_shapes": {
+          "scope": [
+            1,
+            4
+          ],
+          "structure": [
+            1,
+            3
+          ],
+          "intent": [
+            1,
+            7
+          ],
+          "slot": [
+            1,
+            13,
+            7
+          ],
+          "sentence_negation": [
+            1,
+            2
+          ]
+        },
+        "tensor_shape_compatible": true,
+        "head_only_latency": {
+          "count": 240,
+          "mean_ms": 0.107846,
+          "median_ms": 0.0897,
+          "p90_ms": 0.18051,
+          "p95_ms": 0.1833,
+          "p99_ms": 0.208319,
+          "max_ms": 0.2939
+        }
+      }
+    },
+    {
+      "model_id": "hfl/chinese-macbert-base",
+      "revision": "a986e004d2a7f2a1c2f5a3edef4e20604a974ed1",
+      "torch_threads": {
+        "num_threads": 24,
+        "num_interop_threads": 24
+      },
+      "latency": {
+        "device": "cpu",
+        "batch_size": 1,
+        "max_sequence_length": 128,
+        "warmup_forward_count": 20,
+        "formal_case_count": 240,
+        "formal_encoder_forward_count": 480,
+        "bucket_rule": "len(text.strip()): short<=8, medium=9..20, long>20 Unicode code points",
+        "bucket_source_counts_before_repeat": {
+          "short": 179,
+          "medium": 81,
+          "long": 2
+        },
+        "token_length_distribution": {
+          "count": 240,
+          "mean": 14.916667,
+          "median": 13.0,
+          "p90": 23.0,
+          "p95": 23.0,
+          "p99": 23.0,
+          "max": 23.0
+        },
+        "tokenization": {
+          "count": 240,
+          "mean_ms": 0.205073,
+          "median_ms": 0.1905,
+          "p90_ms": 0.24947,
+          "p95_ms": 0.288345,
+          "p99_ms": 0.373508,
+          "max_ms": 0.3988
+        },
+        "encoder": {
+          "count": 240,
+          "mean_ms": 21.869835,
+          "median_ms": 21.2741,
+          "p90_ms": 25.13882,
+          "p95_ms": 25.76797,
+          "p99_ms": 27.544901,
+          "max_ms": 50.8535
+        },
+        "total": {
+          "count": 240,
+          "mean_ms": 21.753134,
+          "median_ms": 21.3524,
+          "p90_ms": 25.38161,
+          "p95_ms": 25.763505,
+          "p99_ms": 26.829047,
+          "max_ms": 28.3477
+        },
+        "by_bucket": {
+          "short": {
+            "character_rule": "<=8",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.17594,
+              "median_ms": 0.17215,
+              "p90_ms": 0.20052,
+              "p95_ms": 0.209895,
+              "p99_ms": 0.27176,
+              "max_ms": 0.3792
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 19.81091,
+              "median_ms": 20.1273,
+              "p90_ms": 21.10834,
+              "p95_ms": 21.312865,
+              "p99_ms": 22.888508,
+              "max_ms": 25.8548
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 19.371849,
+              "median_ms": 19.60045,
+              "p90_ms": 20.98226,
+              "p95_ms": 21.328775,
+              "p99_ms": 22.62305,
+              "max_ms": 23.3696
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 8.4375,
+              "median": 9.0,
+              "p90": 10.0,
+              "p95": 10.0,
+              "p99": 10.0,
+              "max": 10.0
+            }
+          },
+          "medium": {
+            "character_rule": "9..20",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.191451,
+              "median_ms": 0.18495,
+              "p90_ms": 0.21292,
+              "p95_ms": 0.22585,
+              "p99_ms": 0.306192,
+              "max_ms": 0.3103
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 21.068471,
+              "median_ms": 21.17205,
+              "p90_ms": 22.76011,
+              "p95_ms": 23.2933,
+              "p99_ms": 24.451918,
+              "max_ms": 24.7804
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 21.03967,
+              "median_ms": 21.20235,
+              "p90_ms": 23.06118,
+              "p95_ms": 23.518855,
+              "p99_ms": 25.35318,
+              "max_ms": 25.794
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 13.3125,
+              "median": 13.0,
+              "p90": 16.0,
+              "p95": 17.0,
+              "p99": 18.84,
+              "max": 22.0
+            }
+          },
+          "long": {
+            "character_rule": ">20",
+            "sample_count": 80,
+            "tokenization": {
+              "count": 80,
+              "mean_ms": 0.247829,
+              "median_ms": 0.23805,
+              "p90_ms": 0.299,
+              "p95_ms": 0.328855,
+              "p99_ms": 0.379682,
+              "max_ms": 0.3988
+            },
+            "encoder": {
+              "count": 80,
+              "mean_ms": 24.730124,
+              "median_ms": 24.55065,
+              "p90_ms": 26.22166,
+              "p95_ms": 27.165845,
+              "p99_ms": 34.244461,
+              "max_ms": 50.8535
+            },
+            "total": {
+              "count": 80,
+              "mean_ms": 24.847883,
+              "median_ms": 24.8853,
+              "p90_ms": 26.05375,
+              "p95_ms": 26.26863,
+              "p99_ms": 28.02301,
+              "max_ms": 28.3477
+            },
+            "token_length": {
+              "count": 80,
+              "mean": 23.0,
+              "median": 23.0,
+              "p90": 23.0,
+              "p95": 23.0,
+              "p99": 23.0,
+              "max": 23.0
+            }
+          }
+        },
+        "model_load_time_excluded": true
+      },
+      "joint_head": {
+        "name": "UNTRAINED_PROFILE_ONLY_JOINT_HEAD",
+        "random_initialization": true,
+        "training_performed": false,
+        "sentence_negation_head_included": true,
+        "extra_parameters": 17687,
+        "input_shape": [
+          1,
+          13,
+          768
+        ],
+        "output_shapes": {
+          "scope": [
+            1,
+            4
+          ],
+          "structure": [
+            1,
+            3
+          ],
+          "intent": [
+            1,
+            7
+          ],
+          "slot": [
+            1,
+            13,
+            7
+          ],
+          "sentence_negation": [
+            1,
+            2
+          ]
+        },
+        "tensor_shape_compatible": true,
+        "head_only_latency": {
+          "count": 240,
+          "mean_ms": 0.096091,
+          "median_ms": 0.08835,
+          "p90_ms": 0.10582,
+          "p95_ms": 0.15789,
+          "p99_ms": 0.226004,
+          "max_ms": 0.3451
+        }
+      }
+    }
+  ],
+  "TRAINING_STEPS_EXECUTED": 0
+}

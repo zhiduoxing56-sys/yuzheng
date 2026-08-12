@@ -42,7 +42,7 @@ pending_steps = []
 - `DecisionSource`（`app.models.schemas.DecisionSource`）：SAFETY_GATE, EVIDENCE_ALIGNMENT, SAFETY_SCORE, RUNTIME_CAPABILITY, VOICE_TRUST, ZONE_PERMISSION, USER_REVIEW, LEGACY_COMPATIBILITY
 - `EvidenceStatus`（`app.models.schemas.EvidenceStatus`）：VALID, SUSPICIOUS, STALE, TAMPERED, MISSING
 - `EvidenceDemandStatus`（`app.models.frontend_contract.EvidenceDemandStatus`）：RETRIEVED, MANDATORY_RECALLED, MISSING, STALE, CONFLICT, TAMPERED
-- `RetrievalOrigin`（`app.models.frontend_contract.RetrievalOrigin`）：HNSW, MANDATORY_RECALL, BOTH, NONE
+- `RetrievalOrigin`（`app.models.schemas.RetrievalOrigin`）：HNSW, MANDATORY_RECALL, BOTH, NONE
 - `SecurityClass`（`app.models.schemas.SecurityClass`）：ENTERTAINMENT, COCKPIT, DRIVING, EMERGENCY, UNCLASSIFIED
 - `ReviewAction`（`app.models.schemas.ReviewAction`）：CONFIRM, CORRECT, CANCEL
 - `Availability`（`app.models.frontend_contract.Availability`）：AVAILABLE, UNAVAILABLE, NOT_APPLICABLE
@@ -74,10 +74,10 @@ pending_steps = []
 - `EvidencePresentation`：evidence_subgraph, decision_confidence
 - `MemoryPresentation`：alpha, alpha_source, configuration_version
 - `CausalPresentation`：model_build_id, entropy, decision_confidence, insufficiency_reason
-- `EvidenceNodeDetail`：unit, timestamp, expires_at, security_class, security_rank, base_level, safety_adjustment, hnsw_max_layer, classification_source, formula_source, initial_memory_confidence, memory_initial_confidence, final_memory_confidence, canonicalization_source, prior_probability, causal_support, corrected_weight
+- `EvidenceNodeDetail`：unit, timestamp, expires_at, security_class, security_rank, base_level, safety_adjustment, hnsw_max_layer, classification_source, formula_source, initial_memory_confidence, memory_initial_confidence, final_memory_confidence, canonicalization_source
 - `ScoreResultPresentation`：semantic_clarity, evidence_support, evidence_trust, jailbreak_suppression, scene_necessity, semantic_confidence, ambiguity_penalty, semantic_ambiguity_beta, beta_source, trust_formula, trust_value_source
 - `ValidationResultPresentation`：jailbreak_risk_base, jailbreak_risk_severity
-- `DecisionResultPresentation`：decision_explanation
+- `DecisionResultPresentation`：aggregate_safety_decision, decision_explanation
 - `ReviewPresentation`：ambiguity_field, ambiguity_value, recommended_recovery, review_question, generation_metadata, user_action, corrected_text, review_result, review_turn_id
 - `AuthorizationPresentation`：token_status, expires_at
 - `ExecutionPresentation`：adapter, action, target, result, failure_reason, created_at
@@ -96,20 +96,20 @@ pending_steps = []
 
 ### evidence_retrieval
 
-- `EvidenceDemandPresentation`：demand_id, turn_id, action, target, risk_level, query_text, required_types, optional_types, priority, retrieval_scope, demand_items
-- `RetrievalSummary`：top_k, candidate_count, elapsed_ms, index_implementation, embedding_model, embedding_dimension, degraded, candidates, mandatory_recall, missing_types, index_build_id, index_config_digest, node_set_digest, layering_mode, security_layer_count, security_layers, per_layer_node_count, mapping_coverage, unclassified_types, security_layer_navigation, retrieval_visualization_path, final_top_k_node_ids, mandatory_supplemented_node_ids, internal_hnsw_trace_available, internal_hnsw_trace_reason, availability
+- `EvidenceDemandPresentation`：demand_id, turn_id, intent_demands
+- `RetrievalSummary`：top_k, candidate_count, elapsed_ms, index_implementation, embedding_model, embedding_dimension, degraded, candidates, layers, mandatory_recall_count, mandatory_recall, missing_types, index_build_id, index_config_digest, node_set_digest, layering_mode, security_layer_count, security_layers, per_layer_node_count, mapping_coverage, unclassified_types, security_layer_navigation, retrieval_visualization_path, final_top_k_node_ids, mandatory_supplemented_node_ids, internal_hnsw_trace_available, internal_hnsw_trace_reason, availability
 - `QualityMetricsPresentation`：ecr, ecs, ef, sas, eas, evidence_pair_count, conflict_pair_count, eas_weight_profile, eas_weight_source, eas_weights, evidence_alignment_route, availability
 - `EvidencePresentation`：semantic_frame, evidence_demand, evidence_subgraph, conflicts, corrected_weights, decision_confidence, quality_metrics, memory, causal
 - `MemoryPresentation`：availability, layered_graph, relation_edges, degree_statistics, propagation_steps, node_confidences, node_layers, alpha, alpha_source, configuration_version, warnings
-- `CausalPresentation`：availability, model_build_id, history_sample_count, dag_edges, parent_state_signatures, prior_components, node_weights, entropy, decision_confidence, confidence_status, insufficiency_reason
-- `EvidenceNodeDetail`：turn_id, node_id, evidence_type, layer, source, value, unit, timestamp, expires_at, freshness, consistency, availability, semantic_similarity, mandatory, quality_label, integrity_hash, metadata, incoming_edges, outgoing_edges, security_class, security_rank, base_level, safety_adjustment, hnsw_max_layer, layer_memberships, classification_source, formula_source, initial_memory_confidence, memory_initial_confidence, final_memory_confidence, canonicalization_source, merged_node_sources, field_resolution, canonicalization_warnings, incoming_propagation, causal_parents, prior_probability, causal_support, corrected_weight
+- `CausalPresentation`：availability, mode, corrected_weights_projection, model_build_id, history_sample_count, dag_edges, parent_state_signatures, prior_components, node_weights, entropy, decision_confidence, confidence_status, insufficiency_reason
+- `EvidenceNodeDetail`：turn_id, node_id, evidence_type, layer, source, value, unit, timestamp, expires_at, freshness, consistency, availability, quality_label, integrity_hash, metadata, incoming_edges, outgoing_edges, security_class, security_rank, base_level, safety_adjustment, hnsw_max_layer, layer_memberships, classification_source, formula_source, initial_memory_confidence, memory_initial_confidence, final_memory_confidence, canonicalization_source, merged_node_sources, field_resolution, canonicalization_warnings, incoming_propagation, causal_parents, causal_occurrence_weights
 
 ### decision_review
 
-- `GateResultPresentation`：blocked, overall_status, checks
+- `GateResultPresentation`：blocked, overall_status, checks, hit_rules, reasons, observed
 - `ScoreResultPresentation`：semantic_clarity, evidence_support, evidence_trust, jailbreak_suppression, scene_necessity, safety_score, semantic_confidence, ambiguity_penalty, semantic_ambiguity_beta, beta_source, validated_evidence_count, validated_trust_values, trust_formula, trust_value_source
 - `ValidationResultPresentation`：grounding_failures, conflicts, jailbreak_flag, jailbreak_risk, jailbreak_risk_base, jailbreak_risk_severity
-- `DecisionResultPresentation`：initial_decision, score_decision, final_decision, decision_sources, decision_merge_reason, safety_score, reasons, explanation, review_required, execution_allowed, decision_explanation
+- `DecisionResultPresentation`：initial_decision, score_decision, final_decision, decision_sources, decision_merge_reason, safety_score, reasons, explanation, review_required, execution_allowed, aggregate_safety_decision, intent_safety_assessments, decision_explanation
 - `ReviewPresentation`：status, original_instruction, ambiguity_field, ambiguity_value, candidate_interpretations, candidate_availability, recommended_recovery, review_question, generation_metadata, supporting_evidence, conflicting_evidence, user_action, corrected_text, review_result, review_turn_id
 - `AuthorizationPresentation`：token_issued, token_status, expires_at, consumed, execution_allowed
 - `ExecutionPresentation`：adapter, request_status, execution_status, action, target, result, failure_reason, created_at

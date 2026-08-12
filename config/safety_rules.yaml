@@ -1,12 +1,3 @@
-rules:
-  - id: MOVING_DOOR_OPEN_PROHIBITED
-    action: 打开
-    target: 车门
-    evidence_type: vehicle_speed
-    operator: gt
-    threshold: 0
-    reason: 行驶中禁止打开车门
-
 gate_rules:
   - id: SEMANTIC_MODEL_DEGRADED_HIGH_RISK
     evaluator: semantic_model_degraded
@@ -34,6 +25,10 @@ gate_rules:
     evaluator: low_light_headlight
     low_light_lux: 20
     reason: 夜间或低照度行驶中禁止关闭前照灯
+  - id: DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED
+    evaluator: dense_fog_defog
+    dense_fog_values: [DENSE_FOG, HEAVY_FOG, FOG, 浓雾, 大雾]
+    reason: 浓雾环境禁止关闭前挡风除雾
   - id: NON_DRIVER_DRIVING_CONTROL_PROHIBITED
     evaluator: non_driver_control
     reason: 非驾驶员不得执行驾驶控制动作

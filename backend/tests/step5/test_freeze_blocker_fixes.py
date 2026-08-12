@@ -16,15 +16,20 @@ from app.models.schemas import (
     EvidenceNode,
     EvidenceQualityMetrics,
     EvidenceStatus,
+    IntentEvidenceResolution,
+    IntentEvidenceDemand,
     RetrievalMetadata,
     SecurityClass,
     SemanticFrame,
+    SemanticIntent,
     TextCommandRequest,
+    TrustedRuntimeContext,
     VehicleStatePatch,
     utc_now,
 )
 from app.services.audit.repository import canonical_json
 from app.services.evidence.canonicalization import canonicalize_evidence_nodes
+from app.services.evidence.resolution import project_evidence_resolutions
 from app.services.graph.builder import EvidenceSubgraphBuilder
 from app.services.memory.service import DualMemoryService
 from app.services.presentation.assembler import PresentationAssembler
@@ -42,17 +47,15 @@ def _node(
     observed_at = utc_now()
     return EvidenceNode(
         node_id="EVI_CANONICAL_FIXED",
-        evidence_type="safety_rule",
+        evidence_type="SERVICE_BRAKE_STATE",
         layer="L3_EMERGENCY",
-        source="safety_rule_repository",
-        value={"action": "打开", "target": "车门", "rule_id": "RULE_DOOR"},
+        source="brake_state_repository",
+        value={"brake_state": "RELEASED", "emergency_braking_detected": False},
         timestamp=observed_at,
         expires_at=observed_at + timedelta(minutes=5),
         freshness=0.91,
         consistency=0.92,
         availability=0.93,
-        semantic_similarity=sas,
-        mandatory=False,
         quality_label=quality,
         integrity_hash="fixed-integrity-hash",
         metadata=metadata or {},
@@ -67,24 +70,41 @@ def _frame() -> SemanticFrame:
         turn_id="TURN_CANONICAL_FIXED",
         raw_text="打开车门",
         normalized_text="打开车门",
-        action="打开",
-        target="车门",
-        area="全车",
-        control_domain="vehicle_control",
         semantic_confidence=0.9,
         ambiguity_score=0.1,
-        risk_level="R3",
+        semantic_status="OK",
+        intents=[
+            SemanticIntent(
+                clause_index=0,
+                clause_text="打开车门",
+                intent_id="DOOR_OPEN",
+                action="打开",
+                target="车门",
+                area="全车",
+                control_domain="vehicle_control",
+                semantic_confidence=0.9,
+                ambiguity_score=0.1,
+                risk_level="R3",
+            )
+        ],
     )
 
 
 def _demand() -> EvidenceDemand:
     return EvidenceDemand(
         turn_id="TURN_CANONICAL_FIXED",
-        action="打开",
-        target="车门",
-        risk_level="R3",
-        query_text="打开 车门",
-        required_types=[],
+        intent_demands=[
+            IntentEvidenceDemand(
+                intent_id="DOOR_OPEN",
+                clause_index=0,
+                action="打开",
+                target="车门",
+                area="全车",
+                risk_level="R3",
+                query_text="打开 车门",
+                required_types=[],
+            )
+        ],
     )
 
 
@@ -116,24 +136,24 @@ def _retrieval() -> RetrievalMetadata:
     )
 
 
-def test_field_level_canonicalization_is_order_independent_and_preserves_query_sas() -> None:
+def test_field_level_canonicalization_is_order_independent_and_excludes_query_sas() -> None:
     query_node = _node(
         sas=0.668181,
         metadata={"retrieval_origin": "semantic_retrieval", "retrieval_rank": 1},
     )
     repository_node = _node(
         sas=0.0,
-        metadata={"rule_id": "RULE_DOOR", "area": "door"},
+        metadata={"entity_id": "brake", "area": "door"},
     )
     first = canonicalize_evidence_nodes(
         [
             ("HNSW_QUERY_EVALUATED", [query_node]),
-            ("SAFETY_RULE_REPOSITORY", [repository_node]),
+            ("EVIDENCE_REPOSITORY", [repository_node]),
         ]
     )
     second = canonicalize_evidence_nodes(
         [
-            ("SAFETY_RULE_REPOSITORY", [repository_node]),
+            ("EVIDENCE_REPOSITORY", [repository_node]),
             ("HNSW_QUERY_EVALUATED", [query_node]),
         ]
     )
@@ -142,11 +162,11 @@ def test_field_level_canonicalization_is_order_independent_and_preserves_query_s
         item.model_dump(mode="json") for item in second
     ]
     canonical = first[0]
-    assert canonical.semantic_similarity == pytest.approx(0.668181)
+    assert "semantic_similarity" not in canonical.model_dump()
     assert canonical.metadata["retrieval_rank"] == 1
-    assert canonical.metadata["rule_id"] == "RULE_DOOR"
-    assert canonical.field_resolution["semantic_similarity"] == "HNSW_QUERY_EVALUATED"
-    assert canonical.canonicalization_warnings
+    assert canonical.metadata["entity_id"] == "brake"
+    assert "semantic_similarity" not in canonical.field_resolution
+    assert canonical.canonicalization_warnings == []
 
 
 @pytest.mark.parametrize("status", [EvidenceStatus.MISSING, EvidenceStatus.TAMPERED])
@@ -160,7 +180,10 @@ def test_canonicalization_never_downgrades_missing_or_tampered(status: EvidenceS
         ]
     )[0]
     memory = DualMemoryService(load_yaml("memory.yaml")).propagate(
-        [canonical], _frame(), []
+        [canonical],
+        _frame(),
+        [],
+        semantic_similarity_by_node_id={canonical.node_id: 0.9},
     )
 
     assert canonical.quality_label == status
@@ -175,48 +198,54 @@ def test_graph_and_memory_use_the_same_canonical_node() -> None:
     )
     repository_node = _node(
         sas=0.0,
-        metadata={"rule_id": "RULE_DOOR", "area": "door"},
+        metadata={"entity_id": "brake", "area": "door"},
     )
     graph = EvidenceSubgraphBuilder().build(
         _frame(),
-        _demand(),
         [query_node],
-        [],
-        [],
-        [],
+        [
+            IntentEvidenceResolution(
+                clause_index=0,
+                intent_id="DOOR_OPEN",
+                candidate_node_ids=[query_node.node_id],
+            )
+        ],
         _quality(),
         _retrieval(),
         [],
-        [repository_node],
     )
     canonical = next(node for node in graph.nodes if node.node_id == query_node.node_id)
     memory = DualMemoryService(load_yaml("memory.yaml")).propagate(
         [canonical],
         _frame(),
         [],
+        semantic_similarity_by_node_id={canonical.node_id: 0.668181},
         retrieval_origins={canonical.node_id: "HNSW"},
     )
 
-    assert canonical.semantic_similarity == pytest.approx(0.668181)
+    assert "semantic_similarity" not in canonical.model_dump()
     assert memory.initial_confidences[canonical.node_id] == pytest.approx(
-        canonical.semantic_similarity
+        0.668181
     )
 
 
-def test_pipeline_persists_one_sas_across_graph_audit_presentation_and_restart(tmp_path) -> None:
+def test_pipeline_persists_sas_on_bindings_across_audit_and_restart(tmp_path) -> None:
     database = tmp_path / "canonical-restart.db"
-    pipeline = CommandPipeline(database, token_secret=TEST_SECRET)
+    pipeline = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     result = pipeline.process_text(
-        TextCommandRequest(
-            text="驻车打开车门",
+        TextCommandRequest(text="打开车门"),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
-        )
+        ),
     )
     record = pipeline.audit_repository.get_by_turn(result.turn_id)
     assert record is not None
     assert record.evidence_subgraph is not None
     assert record.memory_propagation is not None
     graph_by_id = {node.node_id: node for node in record.evidence_subgraph.nodes}
+    projection = project_evidence_resolutions(
+        record.evidence_subgraph.intent_evidence_resolutions
+    )
     normal_ids = [
         node_id
         for node_id in record.memory_propagation.candidate_node_ids
@@ -234,19 +263,24 @@ def test_pipeline_persists_one_sas_across_graph_audit_presentation_and_restart(t
         initial = record.memory_propagation.initial_confidences[node_id]
         detail = PresentationAssembler(pipeline).node_detail(record, node_id)
         assert detail is not None
-        assert graph_node.semantic_similarity == pytest.approx(initial)
-        assert presented_by_id[node_id].semantic_similarity == pytest.approx(initial)
-        assert detail.semantic_similarity == pytest.approx(initial)
+        assert "semantic_similarity" not in graph_node.model_dump()
+        assert "semantic_similarity" not in presented_by_id[node_id].model_dump()
+        assert "semantic_similarity" not in detail.model_dump()
+        assert initial == pytest.approx(
+            projection.semantic_similarity_by_node_id.get(node_id, 0.0)
+        )
         assert detail.memory_initial_confidence == pytest.approx(initial)
         assert detail.canonicalization_source == graph_node.canonicalization_source
 
-    restarted = CommandPipeline(database, token_secret=TEST_SECRET)
+    restarted = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     restored = restarted.audit_repository.get_by_turn(result.turn_id)
     assert restored is not None
-    restored_graph = {node.node_id: node for node in restored.evidence_subgraph.nodes}
+    restored_projection = project_evidence_resolutions(
+        restored.evidence_subgraph.intent_evidence_resolutions
+    )
     for node_id in normal_ids:
-        assert restored_graph[node_id].semantic_similarity == pytest.approx(
-            restored.memory_propagation.initial_confidences[node_id]
+        assert restored.memory_propagation.initial_confidences[node_id] == pytest.approx(
+            restored_projection.semantic_similarity_by_node_id.get(node_id, 0.0)
         )
 
 
@@ -297,15 +331,14 @@ def _invalidate_persisted_candidate(database, audit_id: str) -> str:
 
 
 def _persist_review_with_no_candidates(database) -> dict:
-    app = create_app(database_path=database, token_secret=TEST_SECRET)
+    app = create_app(database_path=database, token_secret=TEST_SECRET, audit_database_role="TEST")
     with TestClient(app) as client:
-        original = client.post(
-            "/api/command/text",
-            json={
-                "text": "可能播放音乐",
-                "state_overrides": {"vehicle_speed": 0, "gear_position": "P"},
-            },
-        ).json()
+        original = app.state.pipeline.process_text(
+            TextCommandRequest(text="关闭车门然后锁车门"),
+            trusted_context=TrustedRuntimeContext(
+                state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P")
+            ),
+        ).model_dump(mode="json")
     assert original["decision"]["final_decision"] == "REVIEW"
     _clear_persisted_candidates(database, original["audit"]["audit_id"])
     return original
@@ -342,7 +375,7 @@ def test_public_confirm_rejects_empty_persisted_candidates_without_business_side
     before = _database_counts(database, original["turn_id"])
     original_decision = original["decision"]["final_decision"]
 
-    restarted = create_app(database_path=database, token_secret=TEST_SECRET)
+    restarted = create_app(database_path=database, token_secret=TEST_SECRET, audit_database_role="TEST")
     with TestClient(restarted) as client:
         response = client.post(
             f"/api/turns/{original['turn_id']}/review",
@@ -373,20 +406,19 @@ def test_public_confirm_rejects_empty_persisted_candidates_without_business_side
 
 def test_invalid_persisted_candidate_is_rejected_without_child_or_token(tmp_path) -> None:
     database = tmp_path / "invalid-candidate.db"
-    app = create_app(database_path=database, token_secret=TEST_SECRET)
+    app = create_app(database_path=database, token_secret=TEST_SECRET, audit_database_role="TEST")
     with TestClient(app) as client:
-        original = client.post(
-            "/api/command/text",
-            json={
-                "text": "可能播放音乐",
-                "state_overrides": {"vehicle_speed": 0, "gear_position": "P"},
-            },
-        ).json()
+        original = app.state.pipeline.process_text(
+            TextCommandRequest(text="关闭车门然后锁车门"),
+            trusted_context=TrustedRuntimeContext(
+                state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P")
+            ),
+        ).model_dump(mode="json")
     candidate_id = _invalidate_persisted_candidate(
         database, original["audit"]["audit_id"]
     )
     before = _database_counts(database, original["turn_id"])
-    restarted = create_app(database_path=database, token_secret=TEST_SECRET)
+    restarted = create_app(database_path=database, token_secret=TEST_SECRET, audit_database_role="TEST")
     with TestClient(restarted) as client:
         response = client.post(
             f"/api/turns/{original['turn_id']}/review",
@@ -401,7 +433,7 @@ def test_empty_candidate_review_still_allows_correct_and_cancel(tmp_path) -> Non
     correct_database = tmp_path / "empty-candidate-correct.db"
     correct_original = _persist_review_with_no_candidates(correct_database)
     correct_before = _database_counts(correct_database, correct_original["turn_id"])
-    correct_app = create_app(database_path=correct_database, token_secret=TEST_SECRET)
+    correct_app = create_app(database_path=correct_database, token_secret=TEST_SECRET, audit_database_role="TEST")
     with TestClient(correct_app) as client:
         corrected = client.post(
             f"/api/turns/{correct_original['turn_id']}/review",
@@ -417,7 +449,7 @@ def test_empty_candidate_review_still_allows_correct_and_cancel(tmp_path) -> Non
     cancel_database = tmp_path / "empty-candidate-cancel.db"
     cancel_original = _persist_review_with_no_candidates(cancel_database)
     cancel_before = _database_counts(cancel_database, cancel_original["turn_id"])
-    cancel_app = create_app(database_path=cancel_database, token_secret=TEST_SECRET)
+    cancel_app = create_app(database_path=cancel_database, token_secret=TEST_SECRET, audit_database_role="TEST")
     with TestClient(cancel_app) as client:
         cancelled = client.post(
             f"/api/turns/{cancel_original['turn_id']}/review",

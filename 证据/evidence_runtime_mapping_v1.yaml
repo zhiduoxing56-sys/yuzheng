@@ -1,0 +1,310 @@
+document_status: FORMAL_RUNTIME_MAPPING
+version: evidence-runtime-mapping-v1
+catalog: evidence-type-catalog-v1
+evidence_types:
+  - canonical_type: VEHICLE_SPEED
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [vehicle_speed]
+    value_schema: {type: number, unit: km/h, nullable: true}
+    usability: {mode: VALUE_NON_NULL}
+    derivation: Direct simulator snapshot field.
+    availability: AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Raw source field remains vehicle_speed; the evidence fact name is VEHICLE_SPEED.
+  - canonical_type: GEAR_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [gear_position]
+    value_schema: {type: object, fields: {current_gear: nullable_string, selected_gear: nullable_string, change_mode: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [current_gear, selected_gear, change_mode]}
+    derivation: Aggregate the available simulator transmission field; unavailable fields remain null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Only current_gear is presently supplied.
+  - canonical_type: SERVICE_BRAKE_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [brake_state, emergency_flag]
+    value_schema: {type: object, fields: {brake_state: nullable_string, emergency_braking_detected: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [brake_state, emergency_braking_detected]}
+    derivation: Aggregate service-brake actuator state and emergency-braking indication.
+    availability: AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: No pedal-position source is currently exposed.
+  - canonical_type: PARKING_BRAKE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {engaged: nullable_boolean, auto_apply_enabled: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: STEERING_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {steering_wheel_angle: nullable_number, axle_steering_angle: nullable_number}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: ESC_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {enabled: nullable_boolean, engaged: nullable_boolean, error: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: ROAD_FRICTION_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [road_condition]
+    value_schema: {type: object, fields: {road_condition: nullable_string, lower_bound: nullable_number, most_probable: nullable_number, upper_bound: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [road_condition, lower_bound, most_probable, upper_bound]}
+    derivation: Preserve the simulator road-condition observation; unavailable friction estimates remain null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: The categorical road condition is not fabricated into a numeric coefficient.
+  - canonical_type: CRUISE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {enabled: nullable_boolean, active: nullable_boolean, speed_set: nullable_number, error: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: DOOR_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [door_state]
+    value_schema: {type: object, fields: {state: nullable_string, position: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [state, position]}
+    derivation: Aggregate the available door state; position remains null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator exposes one whole-vehicle door state.
+  - canonical_type: DOOR_LOCK_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [door_lock_state]
+    value_schema: {type: object, fields: {lock_state: nullable_string, child_lock_active: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [lock_state, child_lock_active]}
+    derivation: Aggregate the available lock state; child-lock state remains null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator exposes one whole-vehicle lock state.
+  - canonical_type: WINDOW_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [window_state]
+    value_schema: {type: object, fields: {state: nullable_string, position: nullable_number, child_lock_active: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [state, position, child_lock_active]}
+    derivation: Aggregate the available window state; unavailable fields remain null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator exposes one whole-vehicle window state.
+  - canonical_type: SUNROOF_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {position: nullable_number}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: TRUNK_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {state: nullable_string, position: nullable_number}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: TRUNK_LOCK_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {lock_state: nullable_string}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: HOOD_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {state: nullable_string, position: nullable_number}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: MIRROR_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {folded: nullable_boolean, pan: nullable_number, tilt: nullable_number}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: MIRROR_HEATING_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {heating_on: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: SEAT_POSITION_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {position: nullable_number, height: nullable_number, tilt: nullable_number, recline: nullable_number, lumbar_height: nullable_number, lumbar_support: nullable_number}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: STEERING_WHEEL_POSITION_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {extension: nullable_number, tilt: nullable_number}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: DEFROST_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {front_active: nullable_boolean, rear_active: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: WINDSHIELD_HEATING_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {heating_on: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: LIGHTING_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [headlight_state]
+    value_schema: {type: object, fields: {headlight_state: nullable_string, high_beam: nullable_boolean, fog: nullable_boolean, parking: nullable_boolean, hazard: nullable_boolean, direction_indicator: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [headlight_state, high_beam, fog, parking, hazard, direction_indicator]}
+    derivation: Aggregate the available headlight state; unavailable lamp fields remain null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator exposes only the principal headlight state.
+  - canonical_type: WIPER_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {mode: nullable_string, intensity: nullable_number, wiping: nullable_boolean, error: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: OCCUPANT_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {occupied: nullable_boolean, belted: nullable_boolean, hands_on_wheel: nullable_boolean}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable seat-occupancy, belt, or hands-on-wheel production source exists; subject role and zone belong to authorization context.
+  - canonical_type: SURROUNDING_OBJECT_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [front_obstacle_distance, rear_obstacle_distance, collision_state]
+    value_schema: {type: object, fields: {front_obstacle_distance: nullable_number, rear_obstacle_distance: nullable_number, collision_state: any, objects: nullable_array}}
+    usability: {mode: ANY_NON_NULL, fields: [front_obstacle_distance, rear_obstacle_distance, collision_state, objects]}
+    derivation: Aggregate available nearest-obstacle and collision observations into one fact.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Sensor device names are providers, never evidence types.
+  - canonical_type: LANE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {current_lane: any, left_adjacent_lane: any, right_adjacent_lane: any, boundaries: nullable_array}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: TRAFFIC_LIGHT_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {state: nullable_string, lane_relation: any}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+  - canonical_type: SPEED_LIMIT_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [speed_limit]
+    value_schema: {type: number, unit: km/h, nullable: true}
+    usability: {mode: VALUE_NON_NULL}
+    derivation: Direct simulator snapshot field.
+    availability: AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Raw source field remains speed_limit.
+  - canonical_type: FREE_SPACE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    source_fields: []
+    value_schema: {type: object, fields: {free_space_probability: nullable_number, geometry: any}}
+    usability: {mode: NEVER}
+    derivation: null
+    availability: UNAVAILABLE
+    notes: No free-space probability, geometry, or deterministic fusion result exists; raw parking interlock values remain only in RuntimeSafetyContext.
+  - canonical_type: ENVIRONMENT_CONDITIONS
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [ambient_light, weather]
+    value_schema: {type: object, fields: {ambient_illumination: any, weather: nullable_string, precipitation: any, fog: any, time_of_day: any}}
+    usability: {mode: ANY_NON_NULL, fields: [ambient_illumination, weather, precipitation, fog, time_of_day]}
+    derivation: Aggregate illumination and weather; absent standard fields remain null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Weather is preserved as observed and is not expanded into fabricated precipitation/fog values.
+  - canonical_type: AUTHORIZATION_STATE
+    runtime_mode: SIMULATED
+    provider: trusted_authorization_context
+    source_fields: [authentication_state, subject_role, subject_zone, zone_permission]
+    value_schema:
+      type: object
+      fields:
+        authentication_state: any
+        authenticated: nullable_boolean
+        subject_role: nullable_string
+        subject_zone: nullable_string
+        intent_authorizations:
+          type: array
+          items:
+            type: object
+            fields:
+              clause_index: number
+              intent_id: string
+              control_domain: string
+              permission_label: string
+              permission_score: number
+              authorized: nullable_boolean
+        authorized_for_request: nullable_boolean
+    usability: {mode: REQUIRED_NON_NULL, fields: [subject_role, subject_zone, intent_authorizations, authorized_for_request]}
+    derivation: Combine trusted authentication, backend subject identity, and per-intent zone/control permission; authentication alone never implies authorization.
+    availability: AVAILABLE_ONLY_WITH_TRUSTED_RUNTIME_CONTEXT
+    notes: Public request-declared role and zone are never authorization sources; repeated intents retain occurrence-level authorization records.
+  - canonical_type: SYSTEM_MODE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    source_fields: [vehicle_mode, safety_constraint]
+    value_schema: {type: object, fields: {vehicle_mode: nullable_string, safety_constraint: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [vehicle_mode, safety_constraint]}
+    derivation: Aggregate only simulator operating mode and protected safety-constraint state.
+    availability: AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: navigation, display, and music presentation state are excluded; safety_constraint records whether protected safety constraints are enabled.

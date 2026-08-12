@@ -14,13 +14,15 @@ def test_quality_detects_multisource_speed_conflict_and_reduces_ecs() -> None:
     repository = EvidenceRepository(config)
     nodes = repository.ingest_vehicle_state(VehicleState(vehicle_speed=80, gear_position="D"), {}, "T1")
     nodes += repository.ingest_observations(
-        [EvidenceObservationInput(evidence_type="vehicle_speed", source="wheel_speed_sensor", value=20)],
+        [EvidenceObservationInput(evidence_type="VEHICLE_SPEED", source="wheel_speed_sensor", value=20)],
         "T1",
     )
-    speed_nodes = [node.model_copy(update={"mandatory": True}) for node in nodes if node.evidence_type == "vehicle_speed"]
+    speed_nodes = [node for node in nodes if node.evidence_type == "VEHICLE_SPEED"]
 
     evaluated, metrics, conflicts = EvidenceQualityService(config).evaluate(
-        speed_nodes, ["vehicle_speed"]
+        speed_nodes,
+        ["VEHICLE_SPEED"],
+        frozenset(node.node_id for node in speed_nodes),
     )
 
     assert any(item["type"] == "VEHICLE_SPEED_SOURCE_CONFLICT" for item in conflicts)
@@ -36,7 +38,7 @@ def test_quality_marks_expired_evidence_stale_and_nulls_non_applicable_ecr() -> 
     stale = repository.ingest_observations(
         [
             EvidenceObservationInput(
-                evidence_type="vehicle_speed",
+                evidence_type="VEHICLE_SPEED",
                 source="wheel_speed_sensor",
                 value=10,
                 age_seconds=10,
@@ -44,7 +46,9 @@ def test_quality_marks_expired_evidence_stale_and_nulls_non_applicable_ecr() -> 
         ],
         "T2",
     )[0]
-    evaluated, metrics, _ = EvidenceQualityService(config).evaluate([stale], [])
+    evaluated, metrics, _ = EvidenceQualityService(config).evaluate(
+        [stale], [], frozenset()
+    )
 
     assert evaluated[0].quality_label == EvidenceStatus.STALE
     assert evaluated[0].freshness < 1.0
@@ -56,28 +60,27 @@ def test_quality_marks_expired_evidence_stale_and_nulls_non_applicable_ecr() -> 
 
 def test_sliding_window_records_support_conflict_and_uninvolved_values() -> None:
     repository = EvidenceRepository(load_yaml("evidence_quality.yaml"))
-    speed, gear = repository.from_vehicle_state(
-        VehicleState(vehicle_speed=0, gear_position="P"),
-        ["vehicle_speed", "gear_position"],
-        [],
-        {},
+    state_nodes = repository.ingest_vehicle_state(
+        VehicleState(vehicle_speed=0, gear_position="P"), {}, "T_WINDOW"
     )
+    speed = next(node for node in state_nodes if node.evidence_type == "VEHICLE_SPEED")
+    gear = next(node for node in state_nodes if node.evidence_type == "GEAR_STATE")
     window = EvidenceQualityWindow(short_length=2)
 
     first = window.update([speed], [])
     second = window.update(
         [gear],
-        [{"evidence_types": ["gear_position"], "type": "TEST_CONFLICT"}],
+        [{"evidence_types": ["GEAR_STATE"], "type": "TEST_CONFLICT"}],
     )
     third = window.update([speed], [])
 
-    assert first == {"vehicle_speed": 1}
-    assert second["vehicle_speed"] == 0
-    assert second["gear_position"] == -1
-    assert third["vehicle_speed"] == 1
-    assert third["gear_position"] == 0
+    assert first == {"VEHICLE_SPEED": 1}
+    assert second["VEHICLE_SPEED"] == 0
+    assert second["GEAR_STATE"] == -1
+    assert third["VEHICLE_SPEED"] == 1
+    assert third["GEAR_STATE"] == 0
     assert len(window.matrix()) == 2
-    assert window.short_term_availability()["vehicle_speed"] == 1.0
-    assert window.short_term_availability()["gear_position"] == 0.0
-    assert window.long_term_availability()["vehicle_speed"] == 1.0
-    assert window.long_term_availability()["gear_position"] == 0.0
+    assert window.short_term_availability()["VEHICLE_SPEED"] == 1.0
+    assert window.short_term_availability()["GEAR_STATE"] == 0.0
+    assert window.long_term_availability()["VEHICLE_SPEED"] == 1.0
+    assert window.long_term_availability()["GEAR_STATE"] == 0.0

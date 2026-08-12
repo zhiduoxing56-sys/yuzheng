@@ -126,6 +126,7 @@ def test_cancel_appends_terminal_audit_and_all_public_reads_use_effective_state(
     restarted = create_app(
         database_path=pipeline.audit_repository.database_path,
         token_secret=b"stage4-fixed-test-secret-32-bytes",
+    audit_database_role="TEST",
     )
     with TestClient(restarted) as restarted_client:
         restarted_presentation = restarted_client.get(

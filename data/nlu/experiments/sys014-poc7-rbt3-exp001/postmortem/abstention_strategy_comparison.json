@@ -1,0 +1,1426 @@
+{
+  "scope": "FROZEN_VALIDATION_ONLY",
+  "epoch5_hard_prediction_strategies": {
+    "Strategy_A_model_only": {
+      "UNSAFE_FALSE_ACCEPT_RATE": 0.034482758620689655,
+      "unsafe_false_accepts": 1,
+      "total_should_abstain": 29,
+      "per_category": {
+        "NON_CONTROL": {
+          "total_should_abstain": 2,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "UNKNOWN_CONTROL": {
+          "total_should_abstain": 1,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "AMBIGUOUS_CONTROL": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 1,
+          "false_accept_rate": 0.1111111111111111
+        },
+        "MULTI": {
+          "total_should_abstain": 17,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "AMBIGUOUS": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 1,
+          "false_accept_rate": 0.1111111111111111
+        }
+      },
+      "valid_single_count": 100,
+      "valid_single_false_reject_count": 1,
+      "valid_single_false_reject_rate": 0.01,
+      "valid_single_false_reject_sample_ids": [
+        "SYS014-POC-0781"
+      ]
+    },
+    "Strategy_B_existing_deterministic_guard": {
+      "UNSAFE_FALSE_ACCEPT_RATE": 0.0,
+      "unsafe_false_accepts": 0,
+      "total_should_abstain": 29,
+      "per_category": {
+        "NON_CONTROL": {
+          "total_should_abstain": 2,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "UNKNOWN_CONTROL": {
+          "total_should_abstain": 1,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "AMBIGUOUS_CONTROL": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "MULTI": {
+          "total_should_abstain": 17,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "AMBIGUOUS": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        }
+      },
+      "valid_single_count": 100,
+      "valid_single_false_reject_count": 68,
+      "valid_single_false_reject_rate": 0.68,
+      "valid_single_false_reject_sample_ids": [
+        "SYS014-POC-0095",
+        "SYS014-POC-0098",
+        "SYS014-POC-0099",
+        "SYS014-POC-0102",
+        "SYS014-POC-0103",
+        "SYS014-POC-0117",
+        "SYS014-POC-0131",
+        "SYS014-POC-0142",
+        "SYS014-POC-0157",
+        "SYS014-POC-0160",
+        "SYS014-POC-0166",
+        "SYS014-POC-0173",
+        "SYS014-POC-0174",
+        "SYS014-POC-0178",
+        "SYS014-POC-0180",
+        "SYS014-POC-0193",
+        "SYS014-POC-0196",
+        "SYS014-POC-0202",
+        "SYS014-POC-0205",
+        "SYS014-POC-0207",
+        "SYS014-POC-0209",
+        "SYS014-POC-0211",
+        "SYS014-POC-0213",
+        "SYS014-POC-0216",
+        "SYS014-POC-0218",
+        "SYS014-POC-0220",
+        "SYS014-POC-0254",
+        "SYS014-POC-0256",
+        "SYS014-POC-0258",
+        "SYS014-POC-0260",
+        "SYS014-POC-0262",
+        "SYS014-POC-0283",
+        "SYS014-POC-0308",
+        "SYS014-POC-0314",
+        "SYS014-POC-0320",
+        "SYS014-POC-0327",
+        "SYS014-POC-0377",
+        "SYS014-POC-0379",
+        "SYS014-POC-0380",
+        "SYS014-POC-0389",
+        "SYS014-POC-0391",
+        "SYS014-POC-0392",
+        "SYS014-POC-0401",
+        "SYS014-POC-0403",
+        "SYS014-POC-0404",
+        "SYS014-POC-0406",
+        "SYS014-POC-0465",
+        "SYS014-POC-0467",
+        "SYS014-POC-0469",
+        "SYS014-POC-0510",
+        "SYS014-POC-0511",
+        "SYS014-POC-0512",
+        "SYS014-POC-0513",
+        "SYS014-POC-0514",
+        "SYS014-POC-0515",
+        "SYS014-POC-0563",
+        "SYS014-POC-0564",
+        "SYS014-POC-0565",
+        "SYS014-POC-0566",
+        "SYS014-POC-0567",
+        "SYS014-POC-0781",
+        "SYS014-POC-0790",
+        "SYS014-POC-0813",
+        "SYS014-POC-0819",
+        "SYS014-POC-0821",
+        "SYS014-POC-0829",
+        "SYS014-POC-0832",
+        "SYS014-POC-0849"
+      ]
+    },
+    "strategy_b_definition": "Abstain when existing SemanticFrameParser reports ambiguity_score > 0 or an incomplete action/target frame."
+  },
+  "last_checkpoint_forward_only": {
+    "metadata": {
+      "LAST_CHECKPOINT_DIAGNOSTIC_ONLY": true,
+      "checkpoint_sha256_before": "bc12273c91372d7a5738a726f520a68093c5ccb9114ac406342da96dbfe02efd",
+      "checkpoint_sha256_after": "bc12273c91372d7a5738a726f520a68093c5ccb9114ac406342da96dbfe02efd",
+      "model_state_digest_before": "a1100b5e9fb3e661c8a539d6187f2b89902bf3d29373bd6e0815f22f7d9dd7b0",
+      "model_state_digest_after": "a1100b5e9fb3e661c8a539d6187f2b89902bf3d29373bd6e0815f22f7d9dd7b0",
+      "model_parameters_unchanged": true,
+      "parameter_gradients_absent": true,
+      "validation_forward_count": 129,
+      "checkpoint_promoted_to_best_or_deployment": false
+    },
+    "Strategy_A_model_only": {
+      "UNSAFE_FALSE_ACCEPT_RATE": 0.10344827586206896,
+      "unsafe_false_accepts": 3,
+      "total_should_abstain": 29,
+      "per_category": {
+        "NON_CONTROL": {
+          "total_should_abstain": 2,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "UNKNOWN_CONTROL": {
+          "total_should_abstain": 1,
+          "unsafe_false_accepts": 1,
+          "false_accept_rate": 1.0
+        },
+        "AMBIGUOUS_CONTROL": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 2,
+          "false_accept_rate": 0.2222222222222222
+        },
+        "MULTI": {
+          "total_should_abstain": 17,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "AMBIGUOUS": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 2,
+          "false_accept_rate": 0.2222222222222222
+        }
+      },
+      "valid_single_count": 100,
+      "valid_single_false_reject_count": 0,
+      "valid_single_false_reject_rate": 0.0,
+      "valid_single_false_reject_sample_ids": []
+    },
+    "Strategy_C_confidence_margin_tradeoff": [
+      {
+        "candidate": "RAW_ARGMAX",
+        "scope_and_structure_confidence_min": 0.0,
+        "scope_and_structure_margin_min": 0.0,
+        "rejects_SYS014_POC_0731": false,
+        "metrics": {
+          "UNSAFE_FALSE_ACCEPT_RATE": 0.10344827586206896,
+          "unsafe_false_accepts": 3,
+          "total_should_abstain": 29,
+          "per_category": {
+            "NON_CONTROL": {
+              "total_should_abstain": 2,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "UNKNOWN_CONTROL": {
+              "total_should_abstain": 1,
+              "unsafe_false_accepts": 1,
+              "false_accept_rate": 1.0
+            },
+            "AMBIGUOUS_CONTROL": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 2,
+              "false_accept_rate": 0.2222222222222222
+            },
+            "MULTI": {
+              "total_should_abstain": 17,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 2,
+              "false_accept_rate": 0.2222222222222222
+            }
+          },
+          "valid_single_count": 100,
+          "valid_single_false_reject_count": 0,
+          "valid_single_false_reject_rate": 0.0,
+          "valid_single_false_reject_sample_ids": []
+        }
+      },
+      {
+        "candidate": "CONF_055_MARGIN_005",
+        "scope_and_structure_confidence_min": 0.55,
+        "scope_and_structure_margin_min": 0.05,
+        "rejects_SYS014_POC_0731": false,
+        "metrics": {
+          "UNSAFE_FALSE_ACCEPT_RATE": 0.06896551724137931,
+          "unsafe_false_accepts": 2,
+          "total_should_abstain": 29,
+          "per_category": {
+            "NON_CONTROL": {
+              "total_should_abstain": 2,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "UNKNOWN_CONTROL": {
+              "total_should_abstain": 1,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS_CONTROL": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 2,
+              "false_accept_rate": 0.2222222222222222
+            },
+            "MULTI": {
+              "total_should_abstain": 17,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 2,
+              "false_accept_rate": 0.2222222222222222
+            }
+          },
+          "valid_single_count": 100,
+          "valid_single_false_reject_count": 0,
+          "valid_single_false_reject_rate": 0.0,
+          "valid_single_false_reject_sample_ids": []
+        }
+      },
+      {
+        "candidate": "CONF_065_MARGIN_010",
+        "scope_and_structure_confidence_min": 0.65,
+        "scope_and_structure_margin_min": 0.1,
+        "rejects_SYS014_POC_0731": false,
+        "metrics": {
+          "UNSAFE_FALSE_ACCEPT_RATE": 0.06896551724137931,
+          "unsafe_false_accepts": 2,
+          "total_should_abstain": 29,
+          "per_category": {
+            "NON_CONTROL": {
+              "total_should_abstain": 2,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "UNKNOWN_CONTROL": {
+              "total_should_abstain": 1,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS_CONTROL": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 2,
+              "false_accept_rate": 0.2222222222222222
+            },
+            "MULTI": {
+              "total_should_abstain": 17,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 2,
+              "false_accept_rate": 0.2222222222222222
+            }
+          },
+          "valid_single_count": 100,
+          "valid_single_false_reject_count": 0,
+          "valid_single_false_reject_rate": 0.0,
+          "valid_single_false_reject_sample_ids": []
+        }
+      },
+      {
+        "candidate": "CONF_075_MARGIN_015",
+        "scope_and_structure_confidence_min": 0.75,
+        "scope_and_structure_margin_min": 0.15,
+        "rejects_SYS014_POC_0731": false,
+        "metrics": {
+          "UNSAFE_FALSE_ACCEPT_RATE": 0.034482758620689655,
+          "unsafe_false_accepts": 1,
+          "total_should_abstain": 29,
+          "per_category": {
+            "NON_CONTROL": {
+              "total_should_abstain": 2,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "UNKNOWN_CONTROL": {
+              "total_should_abstain": 1,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS_CONTROL": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 1,
+              "false_accept_rate": 0.1111111111111111
+            },
+            "MULTI": {
+              "total_should_abstain": 17,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 1,
+              "false_accept_rate": 0.1111111111111111
+            }
+          },
+          "valid_single_count": 100,
+          "valid_single_false_reject_count": 2,
+          "valid_single_false_reject_rate": 0.02,
+          "valid_single_false_reject_sample_ids": [
+            "SYS014-POC-0216",
+            "SYS014-POC-0781"
+          ]
+        }
+      },
+      {
+        "candidate": "CONF_085_MARGIN_020",
+        "scope_and_structure_confidence_min": 0.85,
+        "scope_and_structure_margin_min": 0.2,
+        "rejects_SYS014_POC_0731": true,
+        "metrics": {
+          "UNSAFE_FALSE_ACCEPT_RATE": 0.0,
+          "unsafe_false_accepts": 0,
+          "total_should_abstain": 29,
+          "per_category": {
+            "NON_CONTROL": {
+              "total_should_abstain": 2,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "UNKNOWN_CONTROL": {
+              "total_should_abstain": 1,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS_CONTROL": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "MULTI": {
+              "total_should_abstain": 17,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            }
+          },
+          "valid_single_count": 100,
+          "valid_single_false_reject_count": 5,
+          "valid_single_false_reject_rate": 0.05,
+          "valid_single_false_reject_sample_ids": [
+            "SYS014-POC-0216",
+            "SYS014-POC-0218",
+            "SYS014-POC-0308",
+            "SYS014-POC-0320",
+            "SYS014-POC-0781"
+          ]
+        }
+      },
+      {
+        "candidate": "CONF_090_MARGIN_030",
+        "scope_and_structure_confidence_min": 0.9,
+        "scope_and_structure_margin_min": 0.3,
+        "rejects_SYS014_POC_0731": true,
+        "metrics": {
+          "UNSAFE_FALSE_ACCEPT_RATE": 0.0,
+          "unsafe_false_accepts": 0,
+          "total_should_abstain": 29,
+          "per_category": {
+            "NON_CONTROL": {
+              "total_should_abstain": 2,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "UNKNOWN_CONTROL": {
+              "total_should_abstain": 1,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS_CONTROL": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "MULTI": {
+              "total_should_abstain": 17,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            },
+            "AMBIGUOUS": {
+              "total_should_abstain": 9,
+              "unsafe_false_accepts": 0,
+              "false_accept_rate": 0.0
+            }
+          },
+          "valid_single_count": 100,
+          "valid_single_false_reject_count": 6,
+          "valid_single_false_reject_rate": 0.06,
+          "valid_single_false_reject_sample_ids": [
+            "SYS014-POC-0216",
+            "SYS014-POC-0218",
+            "SYS014-POC-0220",
+            "SYS014-POC-0308",
+            "SYS014-POC-0320",
+            "SYS014-POC-0781"
+          ]
+        }
+      }
+    ],
+    "all_ambiguous_validation_diagnostics": [
+      {
+        "sample_id": "SYS014-POC-0680",
+        "text": "关掉那个",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.9695379137992859,
+          "top2_class": "NON_CONTROL",
+          "top2_probability": 0.01373013574630022,
+          "margin": 0.9558078050613403
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.9788428544998169,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.018034227192401886,
+          "margin": 0.9608086347579956
+        },
+        "intent": {
+          "top1_class": "HEADLIGHT_OFF",
+          "top1_probability": 0.38365527987480164,
+          "top2_class": "ACCELERATE",
+          "top2_probability": 0.22283858060836792,
+          "margin": 0.16081669926643372
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9643285274505615,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.035671480000019073,
+          "margin": 0.928657054901123
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 4,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0681",
+        "text": "麻烦关掉那个",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.9883944988250732,
+          "top2_class": "NON_CONTROL",
+          "top2_probability": 0.0070116473361849785,
+          "margin": 0.9813828468322754
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.9935466647148132,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.005372499115765095,
+          "margin": 0.9881741404533386
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.417378693819046,
+          "top2_class": "HEADLIGHT_OFF",
+          "top2_probability": 0.18308217823505402,
+          "margin": 0.234296515583992
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9726482629776001,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.02735169604420662,
+          "margin": 0.945296585559845
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0682",
+        "text": "关掉那个，可以吗",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.9938036203384399,
+          "top2_class": "NON_CONTROL",
+          "top2_probability": 0.0035339919850230217,
+          "margin": 0.9902696013450623
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.9953826069831848,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.0030864314176142216,
+          "margin": 0.9922961592674255
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.3521566092967987,
+          "top2_class": "HEADLIGHT_OFF",
+          "top2_probability": 0.22141973674297333,
+          "margin": 0.13073687255382538
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9492412209510803,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.0507587306201458,
+          "margin": 0.8984825015068054
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0722",
+        "text": "副驾那边动一下",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.6441988945007324,
+          "top2_class": "IN_SCOPE_CONTROL",
+          "top2_probability": 0.2956025302410126,
+          "margin": 0.34859636425971985
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.5344445705413818,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.4582824110984802,
+          "margin": 0.07616215944290161
+        },
+        "intent": {
+          "top1_class": "DOOR_OPEN",
+          "top1_probability": 0.3139589726924896,
+          "top2_class": "BRAKE",
+          "top2_probability": 0.26946961879730225,
+          "margin": 0.04448935389518738
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9977701902389526,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.0022298034746199846,
+          "margin": 0.9955403804779053
+        },
+        "slot": {
+          "gold_spans": [
+            [
+              "AREA",
+              1,
+              3
+            ]
+          ],
+          "predicted_spans": [
+            [
+              "AREA",
+              1,
+              3
+            ]
+          ]
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 0,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0723",
+        "text": "麻烦副驾那边动一下",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.8602179288864136,
+          "top2_class": "IN_SCOPE_CONTROL",
+          "top2_probability": 0.12169786542654037,
+          "margin": 0.738520085811615
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.820834219455719,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.17545835673809052,
+          "margin": 0.6453758478164673
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.26492762565612793,
+          "top2_class": "DOOR_OPEN",
+          "top2_probability": 0.24725818634033203,
+          "margin": 0.0176694393157959
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9978119134902954,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.0021880671847611666,
+          "margin": 0.9956238269805908
+        },
+        "slot": {
+          "gold_spans": [
+            [
+              "AREA",
+              3,
+              5
+            ]
+          ],
+          "predicted_spans": [
+            [
+              "AREA",
+              3,
+              5
+            ]
+          ]
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0724",
+        "text": "副驾那边动一下，可以吗",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.9841510057449341,
+          "top2_class": "IN_SCOPE_CONTROL",
+          "top2_probability": 0.01099749282002449,
+          "margin": 0.9731535315513611
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.9815980195999146,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.015531550161540508,
+          "margin": 0.9660664796829224
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.3137364089488983,
+          "top2_class": "DOOR_OPEN",
+          "top2_probability": 0.219399556517601,
+          "margin": 0.0943368524312973
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.99080491065979,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.009195061400532722,
+          "margin": 0.9816098213195801
+        },
+        "slot": {
+          "gold_spans": [
+            [
+              "AREA",
+              1,
+              3
+            ]
+          ],
+          "predicted_spans": [
+            [
+              "AREA",
+              1,
+              3
+            ]
+          ]
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0731",
+        "text": "速度那个再弄点",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8781136870384216,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.07492448389530182,
+          "margin": 0.803189218044281
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8292996287345886,
+          "top2_class": "AMBIGUOUS",
+          "top2_probability": 0.13659216463565826,
+          "margin": 0.6927074790000916
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9623610973358154,
+          "top2_class": "WINDOW_OPEN",
+          "top2_probability": 0.011106902733445168,
+          "margin": 0.9512541890144348
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.984453022480011,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.015546998009085655,
+          "margin": 0.968906044960022
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 0,
+          "structure": 0,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0732",
+        "text": "麻烦速度那个再弄点",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8350690603256226,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.12970390915870667,
+          "margin": 0.7053651809692383
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.6820065379142761,
+          "top2_class": "AMBIGUOUS",
+          "top2_probability": 0.28238552808761597,
+          "margin": 0.39962100982666016
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9443341493606567,
+          "top2_class": "WINDOW_OPEN",
+          "top2_probability": 0.014482606202363968,
+          "margin": 0.9298515319824219
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9860839247703552,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.01391610037535429,
+          "margin": 0.9721678495407104
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 0,
+          "structure": 0,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0733",
+        "text": "速度那个再弄点，可以吗",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.9157165288925171,
+          "top2_class": "IN_SCOPE_CONTROL",
+          "top2_probability": 0.0685175433754921,
+          "margin": 0.8471989631652832
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.9342221021652222,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.05607905611395836,
+          "margin": 0.8781430721282959
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.8231472373008728,
+          "top2_class": "HEADLIGHT_OFF",
+          "top2_probability": 0.038530126214027405,
+          "margin": 0.7846171259880066
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9828855991363525,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.017114369198679924,
+          "margin": 0.9657712578773499
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 5,
+          "negation": 0
+        }
+      }
+    ],
+    "special_case_diagnostics": [
+      {
+        "sample_id": "SYS014-POC-0731",
+        "text": "速度那个再弄点",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8781136870384216,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.07492448389530182,
+          "margin": 0.803189218044281
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8292996287345886,
+          "top2_class": "AMBIGUOUS",
+          "top2_probability": 0.13659216463565826,
+          "margin": 0.6927074790000916
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9623610973358154,
+          "top2_class": "WINDOW_OPEN",
+          "top2_probability": 0.011106902733445168,
+          "margin": 0.9512541890144348
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.984453022480011,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.015546998009085655,
+          "margin": 0.968906044960022
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 0,
+          "structure": 0,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0732",
+        "text": "麻烦速度那个再弄点",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8350690603256226,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.12970390915870667,
+          "margin": 0.7053651809692383
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.6820065379142761,
+          "top2_class": "AMBIGUOUS",
+          "top2_probability": 0.28238552808761597,
+          "margin": 0.39962100982666016
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9443341493606567,
+          "top2_class": "WINDOW_OPEN",
+          "top2_probability": 0.014482606202363968,
+          "margin": 0.9298515319824219
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9860839247703552,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.01391610037535429,
+          "margin": 0.9721678495407104
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 0,
+          "structure": 0,
+          "intent": 5,
+          "negation": 0
+        }
+      },
+      {
+        "sample_id": "SYS014-POC-0733",
+        "text": "速度那个再弄点，可以吗",
+        "gold": {
+          "scope": "AMBIGUOUS_CONTROL",
+          "structure": "AMBIGUOUS",
+          "intent": null,
+          "negation": null
+        },
+        "scope": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.9157165288925171,
+          "top2_class": "IN_SCOPE_CONTROL",
+          "top2_probability": 0.0685175433754921,
+          "margin": 0.8471989631652832
+        },
+        "structure": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.9342221021652222,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.05607905611395836,
+          "margin": 0.8781430721282959
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.8231472373008728,
+          "top2_class": "HEADLIGHT_OFF",
+          "top2_probability": 0.038530126214027405,
+          "margin": 0.7846171259880066
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9828855991363525,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.017114369198679924,
+          "margin": 0.9657712578773499
+        },
+        "slot": {
+          "gold_spans": [],
+          "predicted_spans": []
+        },
+        "predicted_ids": {
+          "scope": 3,
+          "structure": 2,
+          "intent": 5,
+          "negation": 0
+        }
+      }
+    ],
+    "explicit_accelerate_boundary_probes": [
+      {
+        "text": "再快一点",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.9796957969665527,
+          "top2_class": "NON_CONTROL",
+          "top2_probability": 0.012183978222310543,
+          "margin": 0.9675118327140808
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.9619479179382324,
+          "top2_class": "MULTI",
+          "top2_probability": 0.030041512101888657,
+          "margin": 0.9319064021110535
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9649202823638916,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.014415478333830833,
+          "margin": 0.9505047798156738
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9620254635810852,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.037974510341882706,
+          "margin": 0.9240509271621704
+        },
+        "guard": {
+          "normalized_text": "再加速",
+          "configured_vague_pronoun_hits": [],
+          "vague_detected": false,
+          "vague_branch_contributed_to_ambiguity": false,
+          "parsed_action": "加速",
+          "parsed_target": "速度",
+          "semantic_confidence": 1.0,
+          "ambiguity_score": 0.0,
+          "incomplete_frame": false,
+          "actual_runtime_fail_close": false,
+          "actual_runtime_fail_close_outcome": "NOT_FORCED_BY_INCOMPLETE_FRAME",
+          "strategy_b_adapter_abstains": false
+        },
+        "features": {
+          "explicit_action_cues": [
+            "快"
+          ],
+          "vague_predicate_cues": [],
+          "vague_pronouns": [],
+          "referent_is_lexically_clear": true,
+          "diagnostic_only_not_runtime_rule": true
+        },
+        "expected_semantic_class": "ACCELERATE"
+      },
+      {
+        "text": "速度再快一点",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.9765743613243103,
+          "top2_class": "NON_CONTROL",
+          "top2_probability": 0.010462166741490364,
+          "margin": 0.9661121964454651
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8966546058654785,
+          "top2_class": "MULTI",
+          "top2_probability": 0.09304838627576828,
+          "margin": 0.8036062121391296
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.933372437953949,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.040768664330244064,
+          "margin": 0.8926037549972534
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9658830165863037,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.0341169647872448,
+          "margin": 0.9317660331726074
+        },
+        "guard": {
+          "normalized_text": "速度再加速",
+          "configured_vague_pronoun_hits": [],
+          "vague_detected": false,
+          "vague_branch_contributed_to_ambiguity": false,
+          "parsed_action": "加速",
+          "parsed_target": "速度",
+          "semantic_confidence": 1.0,
+          "ambiguity_score": 0.0,
+          "incomplete_frame": false,
+          "actual_runtime_fail_close": false,
+          "actual_runtime_fail_close_outcome": "NOT_FORCED_BY_INCOMPLETE_FRAME",
+          "strategy_b_adapter_abstains": false
+        },
+        "features": {
+          "explicit_action_cues": [
+            "快"
+          ],
+          "vague_predicate_cues": [],
+          "vague_pronouns": [],
+          "referent_is_lexically_clear": true,
+          "diagnostic_only_not_runtime_rule": true
+        },
+        "expected_semantic_class": "ACCELERATE"
+      },
+      {
+        "text": "再提点速度",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.9788249135017395,
+          "top2_class": "UNKNOWN_CONTROL",
+          "top2_probability": 0.011987736448645592,
+          "margin": 0.9668371677398682
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.9313852787017822,
+          "top2_class": "MULTI",
+          "top2_probability": 0.06370572745800018,
+          "margin": 0.8676795363426208
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9680509567260742,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.009781444445252419,
+          "margin": 0.9582695364952087
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9748349785804749,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.02516505867242813,
+          "margin": 0.9496698975563049
+        },
+        "guard": {
+          "normalized_text": "再提点速度",
+          "configured_vague_pronoun_hits": [],
+          "vague_detected": false,
+          "vague_branch_contributed_to_ambiguity": false,
+          "parsed_action": "unknown",
+          "parsed_target": "速度",
+          "semantic_confidence": 0.65,
+          "ambiguity_score": 0.45,
+          "incomplete_frame": true,
+          "actual_runtime_fail_close": true,
+          "actual_runtime_fail_close_outcome": "REVIEW",
+          "strategy_b_adapter_abstains": true
+        },
+        "features": {
+          "explicit_action_cues": [
+            "提"
+          ],
+          "vague_predicate_cues": [],
+          "vague_pronouns": [],
+          "referent_is_lexically_clear": true,
+          "diagnostic_only_not_runtime_rule": true
+        },
+        "expected_semantic_class": "ACCELERATE"
+      },
+      {
+        "text": "把速度提上去",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.901265025138855,
+          "top2_class": "UNKNOWN_CONTROL",
+          "top2_probability": 0.06222391501069069,
+          "margin": 0.8390411138534546
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.9736256003379822,
+          "top2_class": "MULTI",
+          "top2_probability": 0.017838239669799805,
+          "margin": 0.9557873606681824
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9725763201713562,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.007111971732228994,
+          "margin": 0.9654643535614014
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9843041300773621,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.015695832669734955,
+          "margin": 0.9686083197593689
+        },
+        "guard": {
+          "normalized_text": "把速度提上去",
+          "configured_vague_pronoun_hits": [],
+          "vague_detected": false,
+          "vague_branch_contributed_to_ambiguity": false,
+          "parsed_action": "unknown",
+          "parsed_target": "速度",
+          "semantic_confidence": 0.65,
+          "ambiguity_score": 0.45,
+          "incomplete_frame": true,
+          "actual_runtime_fail_close": true,
+          "actual_runtime_fail_close_outcome": "REVIEW",
+          "strategy_b_adapter_abstains": true
+        },
+        "features": {
+          "explicit_action_cues": [
+            "提"
+          ],
+          "vague_predicate_cues": [],
+          "vague_pronouns": [],
+          "referent_is_lexically_clear": true,
+          "diagnostic_only_not_runtime_rule": true
+        },
+        "expected_semantic_class": "ACCELERATE"
+      },
+      {
+        "text": "稍微加点速",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.9743583798408508,
+          "top2_class": "UNKNOWN_CONTROL",
+          "top2_probability": 0.01577627658843994,
+          "margin": 0.9585821032524109
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.9647572636604309,
+          "top2_class": "MULTI",
+          "top2_probability": 0.03025314211845398,
+          "margin": 0.9345041513442993
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9727100729942322,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.006414708681404591,
+          "margin": 0.9662953615188599
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9601905941963196,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.0398094579577446,
+          "margin": 0.9203811287879944
+        },
+        "guard": {
+          "normalized_text": "稍微加点速",
+          "configured_vague_pronoun_hits": [],
+          "vague_detected": false,
+          "vague_branch_contributed_to_ambiguity": false,
+          "parsed_action": "unknown",
+          "parsed_target": "unknown",
+          "semantic_confidence": 0.4,
+          "ambiguity_score": 0.9,
+          "incomplete_frame": true,
+          "actual_runtime_fail_close": true,
+          "actual_runtime_fail_close_outcome": "REVIEW",
+          "strategy_b_adapter_abstains": true
+        },
+        "features": {
+          "explicit_action_cues": [
+            "加"
+          ],
+          "vague_predicate_cues": [],
+          "vague_pronouns": [],
+          "referent_is_lexically_clear": true,
+          "diagnostic_only_not_runtime_rule": true
+        },
+        "expected_semantic_class": "ACCELERATE"
+      },
+      {
+        "text": "速度那个再弄点",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8781136870384216,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.07492448389530182,
+          "margin": 0.803189218044281
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8292997479438782,
+          "top2_class": "AMBIGUOUS",
+          "top2_probability": 0.13659214973449707,
+          "margin": 0.6927075982093811
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.9623610973358154,
+          "top2_class": "WINDOW_OPEN",
+          "top2_probability": 0.011106902733445168,
+          "margin": 0.9512541890144348
+        },
+        "negation": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.984453022480011,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.015546991489827633,
+          "margin": 0.968906044960022
+        },
+        "guard": {
+          "normalized_text": "速度那个再弄点",
+          "configured_vague_pronoun_hits": [
+            "那个"
+          ],
+          "vague_detected": true,
+          "vague_branch_contributed_to_ambiguity": false,
+          "parsed_action": "unknown",
+          "parsed_target": "速度",
+          "semantic_confidence": 0.65,
+          "ambiguity_score": 0.45,
+          "incomplete_frame": true,
+          "actual_runtime_fail_close": true,
+          "actual_runtime_fail_close_outcome": "REVIEW",
+          "strategy_b_adapter_abstains": true
+        },
+        "features": {
+          "explicit_action_cues": [],
+          "vague_predicate_cues": [
+            "弄"
+          ],
+          "vague_pronouns": [
+            "那个"
+          ],
+          "referent_is_lexically_clear": false,
+          "diagnostic_only_not_runtime_rule": true
+        },
+        "expected_semantic_class": "ABSTAIN_REVIEW"
+      }
+    ]
+  },
+  "threshold_policy": "DIAGNOSTIC_ONLY_NOT_SELECTED_NOT_WRITTEN_TO_RUNTIME",
+  "MODEL_ONLY_VALIDATION_UFAR": 0.034482758620689655,
+  "GUARDED_VALIDATION_UFAR": 0.0,
+  "MODEL_ONLY_AMBIGUOUS_FALSE_ACCEPT": 1,
+  "GUARDED_AMBIGUOUS_FALSE_ACCEPT": 0,
+  "GUARD_FALSE_REJECT_COUNT_ON_VALID_SINGLE": 68
+}

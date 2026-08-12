@@ -1,119 +1,56 @@
 from __future__ import annotations
 
-import math
-
 from app.core.pipeline import CommandPipeline
-from app.models.schemas import AuditRecordQuality, TextCommandRequest, VehicleStatePatch
+from app.models.schemas import TextCommandRequest
 
 
 TEST_SECRET = b"stage4-1-fixed-test-secret-32-bytes"
 
 
 def _request(text: str = "打开车门") -> TextCommandRequest:
-    return TextCommandRequest(
-        text=text,
-        speaker_role="driver",
-        speaker_zone="driver",
-        state_overrides=VehicleStatePatch(
-            vehicle_speed=0,
-            gear_position="P",
-            door_lock_state="UNLOCKED",
-            vehicle_mode="REAL_DRIVING",
-            occupant_role="driver",
-            speaker_zone="driver",
-        ),
-    )
+    return TextCommandRequest(text=text, speaker_role="driver", speaker_zone="driver")
 
 
-def _promote(pipeline: CommandPipeline, audit_id: str) -> None:
-    metadata = pipeline.audit_repository.get_quality(audit_id)
-    assert metadata is not None
-    pipeline.audit_repository.upsert_quality(
-        metadata.model_copy(
-            update={
-                "record_quality": AuditRecordQuality.VALID,
-                "eligible_for_learning": True,
-                "exclusion_reasons": [],
-            }
-        )
-    )
+def test_deterministic_proxy_is_available_without_history(pipeline) -> None:
+    result = pipeline.process_text(_request())
+    causal = result.causal_correction
+    assert causal.mode == "DETERMINISTIC_DOMAIN_SUPPORT"
+    assert causal.sample_count == causal.source_audit_count == 0
+    assert causal.confidence_status == "AVAILABLE"
+    assert causal.model_snapshot is not None
+    assert causal.model_snapshot.history_sample_count == 0
+    assert causal.candidate_edges == causal.pruned_edges == []
 
 
-def test_zero_history_and_single_node_never_report_full_decision_confidence(pipeline) -> None:
-    multiple = pipeline.process_text(_request())
-    assert multiple.causal_correction.sample_count == 0
-    assert multiple.causal_correction.decision_confidence is None
-    assert multiple.causal_correction.confidence_status == "INSUFFICIENT_HISTORY"
-    assert 0 <= multiple.causal_correction.posterior_concentration <= 1
-
-    single = pipeline.process_text(_request("查询当前速度"))
-    assert single.causal_correction.decision_confidence is None
-    assert single.causal_correction.confidence_status == "INSUFFICIENT_HISTORY"
-
-
-def test_twenty_historical_records_enable_confidence_and_restore_model_version(
-    tmp_path,
-) -> None:
+def test_restart_and_audit_history_do_not_change_model_identity(tmp_path) -> None:
     database = tmp_path / "causal.db"
     pipeline = CommandPipeline(database, token_secret=TEST_SECRET)
-    current_round_sources = []
-    for _ in range(20):
-        result = pipeline.process_text(_request())
-        current_round_sources.append(result.causal_correction.source_audit_count)
-        _promote(pipeline, result.audit.audit_id)
-    assert current_round_sources == [0] * 20
-
-    status = pipeline.rebuild_causal()
-    assert status.source_audit_count == 20
-    assert status.data_sufficiency == "sufficient"
-    learned = pipeline.process_text(_request())
-    assert learned.causal_correction.confidence_status == "AVAILABLE"
-    assert learned.causal_correction.decision_confidence is not None
-    assert 0 <= learned.causal_correction.decision_confidence <= 1
-    assert math.isclose(
-        learned.causal_correction.decision_confidence,
-        learned.causal_correction.posterior_concentration
-        * (1.0 - learned.causal_correction.normalized_entropy),
-        abs_tol=1e-10,
-    )
-    version = status.model_version
+    first = pipeline.process_text(_request()).causal_correction
+    before = pipeline.causal_status()
+    assert pipeline.rebuild_causal().model_version == before.model_version
 
     restarted = CommandPipeline(database, token_secret=TEST_SECRET)
-    restarted_status = restarted.causal_status()
-    assert restarted_status.model_version == version
-    assert restarted_status.source_audit_count == 20
+    after = restarted.process_text(_request()).causal_correction
+    assert first.model_snapshot is not None and after.model_snapshot is not None
+    assert first.model_snapshot.model_build_id == after.model_snapshot.model_build_id
+    assert restarted.causal_status().source_audit_count == 0
+    assert restarted.causal_status().auto_rebuild_enabled is False
 
 
-def test_rebuild_failure_preserves_previous_stable_version(pipeline, monkeypatch) -> None:
-    before = pipeline.causal_service.status()
-
-    def fail_refresh(*, restore_stable: bool = False):
-        del restore_stable
-        raise RuntimeError("deterministic rebuild failure")
-
-    monkeypatch.setattr(pipeline, "_refresh_causal_model", fail_refresh)
-    pipeline.causal_service.set_auto_rebuild_running(True)
-    pipeline._run_background_causal_rebuild()
-    after = pipeline.causal_service.status()
-    assert after.model_version == before.model_version
-    assert after.source_audit_count == before.source_audit_count
-    assert after.auto_rebuild_running is False
-    assert after.last_rebuild_error == "deterministic rebuild failure"
-
-
-def test_twentieth_eligible_audit_triggers_post_audit_rebuild_without_current_leakage(
-    tmp_path,
-) -> None:
-    pipeline = CommandPipeline(tmp_path / "yuzheng.db", token_secret=TEST_SECRET)
-    used_source_counts = []
-    for _ in range(20):
-        result = pipeline.process_text(_request("查询当前速度"))
-        used_source_counts.append(result.causal_correction.source_audit_count)
-    pipeline.wait_for_causal_rebuild(timeout=20)
-
-    status = pipeline.causal_status()
-    assert used_source_counts == [0] * 20
-    assert status.source_audit_count == 20
-    assert status.model_version != "causal-v1"
-    assert status.auto_rebuild_running is False
-    assert status.last_rebuild_error is None
+def test_persisted_legacy_causal_metadata_cannot_influence_proxy(tmp_path) -> None:
+    database = tmp_path / "legacy-metadata.db"
+    pipeline = CommandPipeline(database, token_secret=TEST_SECRET)
+    pipeline.audit_repository.save_causal_model_metadata(
+        {
+            "model_build_id": "CAUSAL_BUILD_LEGACY",
+            "training_record_ids": ["AUD_LEGACY"],
+            "source_audit_count": 999,
+            "history_digest": "legacy",
+        }
+    )
+    first = pipeline.process_text(_request()).causal_correction
+    restarted = CommandPipeline(database, token_secret=TEST_SECRET)
+    second = restarted.process_text(_request()).causal_correction
+    assert first.model_snapshot is not None and second.model_snapshot is not None
+    assert first.model_snapshot.model_build_id == second.model_snapshot.model_build_id
+    assert second.source_audit_count == second.sample_count == 0

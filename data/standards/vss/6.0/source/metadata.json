@@ -1,0 +1,12 @@
+{
+  "upstream_project": "COVESA/vehicle_signal_specification",
+  "source_version": "VSS 6.0",
+  "release_tag": "v6.0",
+  "release_commit": "20c609b",
+  "source_url": "https://github.com/COVESA/vehicle_signal_specification/releases/download/v6.0/vss.csv",
+  "source_artifact": "vss.csv",
+  "retrieved_at": "2026-08-07T14:44:23Z",
+  "sha256": "6E8947C75E7FF794C75382343B69083ABBDA87D32D6D1842B06E86ADC9CC95DB",
+  "file_size": 303193,
+  "license": "MPL-2.0"
+}

@@ -1,0 +1,108 @@
+{
+  "status": "PASS",
+  "pre_patch_sha256": "b6453ff4c264464bb74ceb2aaa78cfc7fea7b55eef9a1d61bb2a7c54df47edae",
+  "post_patch_sha256": "d4f3d203308a5eb9a039fee31851c110b21bafc7727f23fd6f2b83edefadad4e",
+  "yaml_semantic_changed_field_count": 1,
+  "yaml_semantic_changed_paths": [
+    "mode_mapping_contracts.HEADLIGHT_MAIN_SWITCH.restricted_aliases.ON.prohibited_canonical_mode"
+  ],
+  "formal_intents_100_percent_preserved": true,
+  "gold_absolute_speed_rule_landed": true,
+  "execution_todos_registered": true,
+  "metrics": {
+    "RUNTIME_INTENT_HEAD_COUNT": 71,
+    "FORMAL_INTENT_COUNT": 71,
+    "RUNTIME_SCOPE_COUNT": 4,
+    "ACTIVE_7_INTENT_DEPENDENCY_COUNT": 0,
+    "MANDATORY_MAPPING_RULE_COUNT": 1,
+    "EXECUTION_TODO_COUNT": 2
+  },
+  "checks": [
+    {
+      "name": "PRE_PATCH_SHA256_RECONSTRUCTED",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "ONLY_APPROVED_SEMANTIC_CHANGE",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "RUNTIME_INTENT_COUNT_71",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "FORMAL_ID_SET_EXACT",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "FORMAL_ID_ORDER_EXACT",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "FORMAL_DEFINITIONS_100_PERCENT_PRESERVED",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "RUNTIME_SCOPES_EXACT",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "KNOWN_CONTROL_BYPASS_EXACT",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "FOLLOWING_GAP_REQUIRED_ABSENT",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "ACTIVE_7_INTENT_DEPENDENCY_ZERO",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "HEADLIGHT_CANONICAL_MODE_NO_BEAM",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "DEAD_BEAM_REFERENCE_ABSENT",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "HEADLIGHT_ON_ROUTE_PRESERVED",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "LOW_HIGH_BEAM_INTENTS_INDEPENDENT",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "FORMAL_MAPPING_NOT_CREATED",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "ABSOLUTE_SPEED_MANDATORY_RULE_LANDED",
+      "status": "PASS",
+      "detail": "verified"
+    },
+    {
+      "name": "EXECUTION_TODOS_REGISTERED",
+      "status": "PASS",
+      "detail": "verified"
+    }
+  ],
+  "errors": []
+}

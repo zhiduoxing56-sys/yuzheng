@@ -1,0 +1,116 @@
+{
+  "changeset_version": "full_nlu_changeset_v1",
+  "note": "Lists every file created or modified by this Full NLU baseline stage except this self-describing changeset file.",
+  "files": [
+    {
+      "path": "docs\\plans\\2026-08-09-full-nlu-r3-data-baseline-design.md",
+      "sha256": "3ef17422fa0d6f81d6484ee7c07021222f208a28bec72e2b63e0a4468a4e488d",
+      "bytes": 3150
+    },
+    {
+      "path": "data\\nlu\\full\\schema\\full_nlu_sample_schema_v1.json",
+      "sha256": "97f74d2d7f55871808fe18b432f0f6859094483444a6f16de715467acd8b6f33",
+      "bytes": 2404
+    },
+    {
+      "path": "data\\nlu\\full\\schema\\full_nlu_schema_smoke_v1.jsonl",
+      "sha256": "79590295402c244552659960a779e0dddd4aeb96f2042c2ff01961f82e37eec2",
+      "bytes": 1724
+    },
+    {
+      "path": "data\\nlu\\full\\rules\\full_nlu_mapping_v2.yaml",
+      "sha256": "cf2eed72aa829083e0b666777799ab8052f674bb49b10637340d54882a142aa4",
+      "bytes": 2549
+    },
+    {
+      "path": "data\\nlu\\full\\rules\\known_unsupported_cognition_v1.yaml",
+      "sha256": "465543fc5bc9ed6791ffd60e52a0a632b0dbef0e6ad8e5d4816435f244d109c7",
+      "bytes": 2120
+    },
+    {
+      "path": "data\\nlu\\full\\rules\\manual_overrides_v1.json",
+      "sha256": "88b018c2d7367b1b2a3e380a8b4d5d693faa1c862ad530d2f37074ab0819b9a2",
+      "bytes": 251
+    },
+    {
+      "path": "data\\nlu\\full\\workbench\\seed_workbooks_extracted.json",
+      "sha256": "810e4f037f2b9d12ae6ba6b13edc48f5ff3ce8a65a9ce75db6c0886b0fcf8859",
+      "bytes": 67253
+    },
+    {
+      "path": "scripts\\full_nlu\\inspect_seed_workbooks.mjs",
+      "sha256": "e279811458dd121e2819ae32022d5ba570092d33cbe6b4740a25cbd591f17f28",
+      "bytes": 1520
+    },
+    {
+      "path": "scripts\\full_nlu\\validate_full_nlu_schema.py",
+      "sha256": "1e36653e863dd8079ba7e090f7854f873585d54692d4c3a18c6c4eb0ba082ffe",
+      "bytes": 9396
+    },
+    {
+      "path": "scripts\\full_nlu\\build_full_nlu_baseline.py",
+      "sha256": "9ba86b1722e2186534cc640a1e64b8050eebf327c3a9de3461baccf4d57a17a3",
+      "bytes": 66686
+    },
+    {
+      "path": "backend\\tests\\offline_nlu\\test_full_nlu_schema_v1.py",
+      "sha256": "6c52b1b3ae44284615c2efcbfabeaf3569fb33c198baf296b3d5c316fcb4f052",
+      "bytes": 3047
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\full_nlu_canonical_raw_pool_v1.jsonl",
+      "sha256": "939e8172c2b4cd82dff1ce1aa7251fc79a597e312c4d8a8081c0de0e062845a2",
+      "bytes": 11051202
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\full_nlu_mapping_report_v1.json",
+      "sha256": "560f0e51eb8a1d800b44eb6fe91cf5f2cf9d703cd7126bdf1866fcbb857573ab",
+      "bytes": 26689
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\full_nlu_mapping_report_v1.md",
+      "sha256": "798cc128b78d54bb6e11301f37ca797385f1ae55e5e9cf235e1a0bf23ac4181c",
+      "bytes": 6159
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\mac_exact_duplicates_v1.json",
+      "sha256": "961f506104b233ec199f48a110af146a63b7d56db3bfd71a79fe15eeff68c897",
+      "bytes": 925
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\mac_raw_label_slot_statistics_v1.json",
+      "sha256": "2ca10ee2d52aa42a28d5ae0cc20920ff688500f7914b7d3f2fb58ae8a2885ad7",
+      "bytes": 217467
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\mac_slu_canonical_pool_v1.jsonl",
+      "sha256": "1ec0ceae6e9d5461b925fe9502e8418ff4d313a472864f04f9746e3957b1f968",
+      "bytes": 10822601
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\safety_boundary_pool_v1.jsonl",
+      "sha256": "dcfcf79e26bb4551e0834ce17c295e9b335d210ec5fa713f31c72385c811ab52",
+      "bytes": 123234
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\sample_mapping_metadata_v1.jsonl",
+      "sha256": "7fe5e962accf6fe9779560b1700f64da3299a6f62acc882db6d04c9022325de6",
+      "bytes": 3007206
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\source_provenance_v1.jsonl",
+      "sha256": "aa7625c82e6cb733f903da844ab1b954b566fa35cfb484096498cda3e9a39139",
+      "bytes": 10359891
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\weak_seed_pool_v1.jsonl",
+      "sha256": "9778bc82e859d12ab13bff1bca2992ec4f9709d392d67e6989c79472423ec992",
+      "bytes": 105367
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\full_nlu_baseline_manifest_v1.json",
+      "sha256": "2d37ac79bba00402ca47462e5d6117cb2f74e3f3303313fe0e59f1f8952d0f70",
+      "bytes": 2769
+    }
+  ]
+}

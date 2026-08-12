@@ -1,0 +1,31 @@
+{
+  "manifest_id": "SYS-014-R3-FULL-NLU-REGISTRY-FREEZE-1",
+  "registry_file": "data/nlu/spec/intent_registry_r3.yaml",
+  "registry_version": "sys-014-semantic-hardening-r3",
+  "registry_sha256": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06",
+  "status": "FROZEN_FOR_FULL_NLU_DATASET_BUILD",
+  "unique_full_nlu_registry_authority": true,
+  "semantic_intent_count": 93,
+  "formal_user_voice_intent_count": 71,
+  "known_unsupported_control_intent_count": 22,
+  "parent_registry_file": "data/nlu/spec/intent_registry_draft.yaml",
+  "parent_registry_version": "sys-014-semantic-hardening-r2",
+  "parent_registry_sha256": "18c4e02edec1630946be6aa8613345a6e16dc246c883068c6f017f5e28e9f251",
+  "mapping_rule_file": "data/nlu/spec/mapping_rules/full_nlu_mapping_v1.yaml",
+  "mapping_rule_version": "nlu_mapping_v1",
+  "mapping_rule_sha256": "54ba55446d2961fd85f9ac329779fff658bee04b0c0de1a08d5df1c2976f15eb",
+  "runtime_support_file": "data/nlu/spec/intent_runtime_support.yaml",
+  "runtime_support_sha256": "aae671d3a7064adfd6cc12ed9e8b95908eb1f323ef125139e204fd38d2452407",
+  "runtime_support_defines_full_nlu_label_space": false,
+  "active_full_nlu_historical_poc_dependency_count": 0,
+  "audit_json": "data/nlu/spec/audits/r2_to_r3_user_voice_registry_audit.json",
+  "audit_json_sha256": "da3075fe62766864d5d44f08559ca95261bc02c008b068f7b9114422f6f8c655",
+  "audit_markdown": "data/nlu/spec/audits/r2_to_r3_user_voice_registry_audit.md",
+  "audit_markdown_sha256": "ebbed15b791e06b659cc9abfc613953dde75a0783bcd96bdadd03f526cfab140",
+  "deprecated_full_nlu_authorities": [
+    "0127af1d64b33a9e517537ccd458905fcc6af3414cc70701fc362474a4ec2739",
+    "18c4e02edec1630946be6aa8613345a6e16dc246c883068c6f017f5e28e9f251"
+  ],
+  "dataset_build_started": false,
+  "model_training_started": false
+}

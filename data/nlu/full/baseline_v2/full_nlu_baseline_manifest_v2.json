@@ -1,0 +1,161 @@
+{
+  "manifest_version": "full_nlu_baseline_manifest_v2",
+  "status": "FROZEN_CANONICAL_RAW_BASELINE_NO_SPLIT_NO_TRAINING",
+  "registry_version": "sys-014-semantic-hardening-r3",
+  "registry_sha256": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06",
+  "schema_version": "full_nlu_sample_schema_v1",
+  "schema_sha256": "97f74d2d7f55871808fe18b432f0f6859094483444a6f16de715467acd8b6f33",
+  "mapping_rule_version": "nlu_mapping_v3",
+  "mapping_rule_sha256": "a497cd887c44a15acfe9d49f9dea3bc9f718ad0f3da38e797140e85dac8da80b",
+  "manual_override_rule_version": "manual_override_v1",
+  "manual_override_sha256": "88b018c2d7367b1b2a3e380a8b4d5d693faa1c862ad530d2f37074ab0819b9a2",
+  "schema_validator_sha256": "1e36653e863dd8079ba7e090f7854f873585d54692d4c3a18c6c4eb0ba082ffe",
+  "build_script_sha256": "d3962c3a26b65e178d945e36eebb191a77d356b666ce5130f3d6b03505eca187",
+  "conversion_version": "full_nlu_baseline_v2",
+  "raw_sources_immutable_verified": true,
+  "SCHEMA_COMPLIANCE_RATE": "100.000000%",
+  "sample_counts": {
+    "mac_raw": 20542,
+    "mac_canonical": 20540,
+    "weak_seed": 162,
+    "safety_boundary": 197,
+    "combined": 20899
+  },
+  "generated_files": [
+    {
+      "path": "data\\nlu\\full\\audit_v3\\audit_v3_summary.json",
+      "sha256": "a0904f164fb106452d56e4891be04359f7071ca2cd591207bc8f96db4de4e77a",
+      "bytes": 1187
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\formal_71_positive_funnel_v3.json",
+      "sha256": "59230ef11f36481b95489627de0d54f93649d1572b363c2119d2f459f4cc37d6",
+      "bytes": 36224
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\formal_71_positive_funnel_v3.md",
+      "sha256": "471daa76e1e55c86324fdcb80b7dfb699e6a453a5cbdeca937adc22b2ed32b77",
+      "bytes": 3599
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\known_unsupported_cabin_coverage_v3.json",
+      "sha256": "dbb2b188bc383c4fe968e6f4d35c448fd7a8a7759ef7f7339408b80b0d7aaf47",
+      "bytes": 3082
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\known_unsupported_cabin_coverage_v3.md",
+      "sha256": "f410ce5b04397b95bd2da60a92cbb15b8727959a2e6061d13c51cc887beed72a",
+      "bytes": 1086
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\mac_no_usable_frame_audit_v3.jsonl",
+      "sha256": "0dd3baf8099743b9c2e50b9f1088fcda7e0597068bbe8d8280b861ef67c35cda",
+      "bytes": 1299196
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\mac_no_usable_frame_audit_v3.md",
+      "sha256": "843ad13950a420e57d0f9c06a68ae58ef6c2a606459db734b9906d4766d38e9a",
+      "bytes": 172
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\mac_no_usable_frame_summary_v3.json",
+      "sha256": "55d9399af5be1cfdbb415de67a5f23521f6ad17bda8b5db87ac4a32e034fcf46",
+      "bytes": 240
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\mac_unresolved_vehicle_semantic_patterns_v3.json",
+      "sha256": "a2c966996af3fb86fbc2d93ba7695b1f8db1f65f445552be293c1553f841a0ba",
+      "bytes": 1574130
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\mac_unresolved_vehicle_semantic_patterns_v3.md",
+      "sha256": "b0eb9ef1f605a87d28dc4bbe9c9350526d7ae98520342ec87e0f667148a42953",
+      "bytes": 452490
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\rule_occurrence_counts_v3.json",
+      "sha256": "d8130b5fc1160eb594031493af68a10b2c550cccda17a92a00c4c237121a85ea",
+      "bytes": 661
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\rule_unique_sample_counts_v3.json",
+      "sha256": "ba48b870d61ae2e64cf93f6654bddffcf2c909ce67713dbf022eabf33d28fbee",
+      "bytes": 889
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\safety_seed_unresolved_57_v3.json",
+      "sha256": "d7a269b1bd32de089e21a267d6acb475ab1e44fdecda51d5bdc6ecb4de0cb875",
+      "bytes": 27081
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\safety_seed_unresolved_57_v3.md",
+      "sha256": "e812ab8ec6e6856014842f74a0f76da4929367388fb661438180f8530d860568",
+      "bytes": 7216
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\zero_coverage_10_intents_v3.json",
+      "sha256": "f65710d5bf47acc5498d51ef605999e6d84823b17271815dcd9bb22b8641efe6",
+      "bytes": 48135
+    },
+    {
+      "path": "data\\nlu\\full\\audit_v3\\zero_coverage_10_intents_v3.md",
+      "sha256": "3043acf2dc2abe188ec0e46199f81527e607430ebb5b56f1d7ad3d73fe8b6ad4",
+      "bytes": 1237
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\baseline_v1_to_v2_changed_samples.jsonl",
+      "sha256": "03d63584b7e1d3ba0618776761d4c8383e6f592fec48c26cec390db5d25d95c1",
+      "bytes": 1689505
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\baseline_v1_to_v2_diff_report.json",
+      "sha256": "f8b68515d933dd813234a0e5923c70098fddfae198ae1b6700d28809dde6f894",
+      "bytes": 5100
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\baseline_v1_to_v2_diff_report.md",
+      "sha256": "e4252947ea5b4bdcb479c7372f79517e777b13f079589d3237a96d4337463d97",
+      "bytes": 2415
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\full_nlu_canonical_raw_pool_v2.jsonl",
+      "sha256": "6d8645adf0fd9429bb8fd6d3d75ecfdf6d65ff4c33926ea1cc27054dd5c51a51",
+      "bytes": 11283742
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\full_nlu_mapping_report_v2.json",
+      "sha256": "15a990db43637a4ac6ebf505e2fce0312664afb57fb1b020ed4d8ad7d3060ddd",
+      "bytes": 20121
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\full_nlu_mapping_report_v2.md",
+      "sha256": "5b5eac141a07fb32c7a40c0a56e360e991afe567f595fd56d2aed91f02ca70a3",
+      "bytes": 2609
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\mac_slu_canonical_pool_v2.jsonl",
+      "sha256": "e57b0ffb1caca775283bec1980819d0e79323b9ee86752e4c4ab42766117b2b4",
+      "bytes": 11055141
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\safety_boundary_pool_v2.jsonl",
+      "sha256": "afbef161a5ad5eed12529ad29c3b5341dc91a7ea2a75a13f8fd76315763cfef7",
+      "bytes": 123234
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\sample_mapping_metadata_v2.jsonl",
+      "sha256": "7d6900b1261d1b02a636d62a83755feb82189fc9717187f7c8f9e865ab40bd7e",
+      "bytes": 5080189
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\source_provenance_v2.jsonl",
+      "sha256": "a356c659b43fd25a1f25306cba67087f3224f2f5d5f583d1aa7c15baf7ecd8a0",
+      "bytes": 10359891
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v2\\weak_seed_pool_v2.jsonl",
+      "sha256": "7923403820a29d77ce580535ec6108064f26a71227493e3fc73d9fd6d20d7411",
+      "bytes": 105367
+    }
+  ]
+}

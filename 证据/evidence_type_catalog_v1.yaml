@@ -1,0 +1,315 @@
+document_status: DRAFT_FOR_REVIEW
+version: evidence-type-catalog-v1
+basis:
+  COVESA_VSS:
+    version: '6.0'
+    source_archive: vehicle_signal_specification-6.0.zip
+    role: 车辆内部状态、执行器状态与部分驾驶状态的标准化字段来源
+  ASAM_OSI:
+    version: 3.8.0
+    source_archive: open-simulation-interface-3.8.0.zip
+    role: 车辆外部环境、道路、交通参与者与感知对象的标准化字段来源
+method_note: 本目录定义的是 Vguard L1 标准化证据事实，不等同于标准原始字段。每个证据类型由一个或多个 VSS/OSI 原始字段归一化得到。标准负责证明底层事实字段具有行业来源；mandatory/recommended
+  的选择属于本项目安全工程规则，由“该事实缺失是否可能改变 PASS/BLOCK 裁决”确定。
+evidence_types:
+  VEHICLE_SPEED:
+    name_zh: 车辆速度
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Speed
+    description: 当前车辆纵向速度。
+    derived_fact: false
+  GEAR_STATE:
+    name_zh: 挡位状态
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Powertrain.Transmission.CurrentGear
+    - Vehicle.Powertrain.Transmission.SelectedGear
+    - Vehicle.Powertrain.Transmission.GearChangeMode
+    description: 当前挡位、目标挡位及换挡模式。
+    derived_fact: true
+  SERVICE_BRAKE_STATE:
+    name_zh: 行车制动状态
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Chassis.Brake.PedalPosition
+    - Vehicle.Chassis.Brake.IsDriverEmergencyBrakingDetected
+    description: 制动踏板与紧急制动检测状态。
+    derived_fact: true
+  PARKING_BRAKE_STATE:
+    name_zh: 驻车制动状态
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Chassis.ParkingBrake.IsEngaged
+    - Vehicle.Chassis.ParkingBrake.IsAutoApplyEnabled
+    description: 驻车制动是否施加及自动施加配置。
+    derived_fact: true
+  STEERING_STATE:
+    name_zh: 转向状态
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Chassis.SteeringWheel.Angle
+    - Vehicle.Chassis.Axle.SteeringAngle
+    description: 当前方向盘/车辆转向角状态。
+    derived_fact: true
+  ESC_STATE:
+    name_zh: 车身稳定系统状态
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.ADAS.ESC.IsEnabled
+    - Vehicle.ADAS.ESC.IsEngaged
+    - Vehicle.ADAS.ESC.IsError
+    description: ESC 启用、介入及故障状态。
+    derived_fact: true
+  ROAD_FRICTION_STATE:
+    name_zh: 道路附着状态
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.ADAS.ESC.RoadFriction.LowerBound
+    - Vehicle.ADAS.ESC.RoadFriction.MostProbable
+    - Vehicle.ADAS.ESC.RoadFriction.UpperBound
+    description: ESC 估计的道路附着/摩擦水平。
+    derived_fact: true
+  CRUISE_STATE:
+    name_zh: 巡航系统状态
+    category: vehicle_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.ADAS.CruiseControl.IsEnabled
+    - Vehicle.ADAS.CruiseControl.IsActive
+    - Vehicle.ADAS.CruiseControl.SpeedSet
+    - Vehicle.ADAS.CruiseControl.IsError
+    description: 巡航启用、工作、设定速度及故障状态。
+    derived_fact: true
+  DOOR_STATE:
+    name_zh: 车门开闭与开度状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Cabin.Door.IsOpen
+    - Vehicle.Cabin.Door.Position
+    description: 目标车门当前开闭与开度。
+    derived_fact: true
+  DOOR_LOCK_STATE:
+    name_zh: 车门锁状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Cabin.Door.IsLocked
+    - Vehicle.Cabin.Door.IsChildLockActive
+    description: 目标车门锁定与儿童锁状态。
+    derived_fact: true
+  WINDOW_STATE:
+    name_zh: 车窗开闭与开度状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Cabin.Door.Window.IsOpen
+    - Vehicle.Cabin.Door.Window.Position
+    - Vehicle.Cabin.IsWindowChildLockEngaged
+    description: 目标车窗当前开闭、开度及车窗儿童锁状态。
+    derived_fact: true
+  SUNROOF_STATE:
+    name_zh: 天窗状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Cabin.Sunroof.Position
+    description: 天窗当前开度/翘起位置。
+    derived_fact: false
+  TRUNK_STATE:
+    name_zh: 行李厢开闭与开度状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Trunk.IsOpen
+    - Vehicle.Body.Trunk.Position
+    description: 行李厢当前开闭与开度。
+    derived_fact: true
+  TRUNK_LOCK_STATE:
+    name_zh: 行李厢锁状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Trunk.IsLocked
+    description: 行李厢当前锁定状态。
+    derived_fact: false
+  HOOD_STATE:
+    name_zh: 前舱盖状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Hood.IsOpen
+    - Vehicle.Body.Hood.Position
+    description: 前舱盖当前开闭与位置。
+    derived_fact: true
+  MIRROR_STATE:
+    name_zh: 外后视镜位置状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Mirrors.IsFolded
+    - Vehicle.Body.Mirrors.Pan
+    - Vehicle.Body.Mirrors.Tilt
+    description: 外后视镜折叠、水平和垂直角度状态。
+    derived_fact: true
+  MIRROR_HEATING_STATE:
+    name_zh: 外后视镜加热状态
+    category: body_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Mirrors.IsHeatingOn
+    description: 外后视镜加热开关状态。
+    derived_fact: false
+  SEAT_POSITION_STATE:
+    name_zh: 座椅位置状态
+    category: cabin_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Cabin.Seat.Position
+    - Vehicle.Cabin.Seat.Height
+    - Vehicle.Cabin.Seat.Tilt
+    - Vehicle.Cabin.Seat.Backrest.Recline
+    - Vehicle.Cabin.Seat.Backrest.Lumbar.Height
+    - Vehicle.Cabin.Seat.Backrest.Lumbar.Support
+    description: 座椅前后、高度、整体倾角、靠背及腰托位置状态。
+    derived_fact: true
+  STEERING_WHEEL_POSITION_STATE:
+    name_zh: 方向盘调节位置状态
+    category: cabin_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Chassis.SteeringWheel.Extension
+    - Vehicle.Chassis.SteeringWheel.Tilt
+    description: 方向盘伸缩与倾斜位置。
+    derived_fact: true
+  DEFROST_STATE:
+    name_zh: 风挡除霜除雾状态
+    category: visibility_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Cabin.HVAC.IsFrontDefrosterActive
+    - Vehicle.Cabin.HVAC.IsRearDefrosterActive
+    description: 前/后风挡除霜除雾功能状态。
+    derived_fact: true
+  WINDSHIELD_HEATING_STATE:
+    name_zh: 风挡加热状态
+    category: visibility_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Windshield.IsHeatingOn
+    description: 风挡加热开关状态。
+    derived_fact: false
+  LIGHTING_STATE:
+    name_zh: 车辆外部灯光状态
+    category: visibility_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Lights.LightSwitch
+    - Vehicle.Body.Lights.IsHighBeamSwitchOn
+    - Vehicle.Body.Lights.Beam.IsOn
+    - Vehicle.Body.Lights.Fog.IsOn
+    - Vehicle.Body.Lights.Parking.IsOn
+    - Vehicle.Body.Lights.Hazard.IsSignaling
+    - Vehicle.Body.Lights.DirectionIndicator.IsSignaling
+    description: 主灯、远光、雾灯、驻车灯、危险警示灯与转向灯等外部灯光状态。
+    derived_fact: true
+  WIPER_STATE:
+    name_zh: 雨刮状态
+    category: visibility_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Body.Windshield.Wiping.Mode
+    - Vehicle.Body.Windshield.Wiping.Intensity
+    - Vehicle.Body.Windshield.Wiping.System.IsWiping
+    - Vehicle.Body.Windshield.Wiping.System.IsWiperError
+    description: 雨刮模式、灵敏度/强度、运动及故障状态。
+    derived_fact: true
+  OCCUPANT_STATE:
+    name_zh: 乘员与驾驶员状态
+    category: occupant_state
+    authority: COVESA_VSS_6_0
+    standard_mappings:
+    - Vehicle.Cabin.Seat.IsOccupied
+    - Vehicle.Cabin.Seat.IsBelted
+    - Vehicle.Driver.IsHandsOnWheel
+    description: 乘员占座、安全带以及驾驶员手握方向盘等状态。
+    derived_fact: true
+  SURROUNDING_OBJECT_STATE:
+    name_zh: 周边目标状态
+    category: environment_state
+    authority: ASAM_OSI_3_8_0
+    standard_mappings:
+    - osi_object.proto:MovingObject.base.position/type/base.velocity
+    - osi_object.proto:StationaryObject.base.position/classification
+    - osi_sensordata.proto:SensorData.moving_object/stationary_object
+    description: 由周边运动/静止目标的位置、类别和相对运动归一化得到的最近前方、侧后方及周围障碍事实。
+    derived_fact: true
+  LANE_STATE:
+    name_zh: 车道与车道边界状态
+    category: environment_state
+    authority: ASAM_OSI_3_8_0
+    standard_mappings:
+    - osi_lane.proto:Lane.classification/left_adjacent_lane_id/right_adjacent_lane_id
+    - osi_lane.proto:LaneBoundary
+    - osi_sensordata.proto:SensorData.lane/lane_boundary
+    description: 当前车道、相邻车道及车道边界事实。
+    derived_fact: true
+  TRAFFIC_LIGHT_STATE:
+    name_zh: 交通信号灯状态
+    category: environment_state
+    authority: ASAM_OSI_3_8_0
+    standard_mappings:
+    - osi_trafficlight.proto:TrafficLight.classification
+    - osi_sensordata.proto:SensorData.traffic_light
+    description: 与当前道路/车道相关的交通信号灯状态。
+    derived_fact: true
+  SPEED_LIMIT_STATE:
+    name_zh: 道路限速状态
+    category: environment_state
+    authority: ASAM_OSI_3_8_0
+    standard_mappings:
+    - osi_trafficsign.proto:TrafficSign.Classification.Type.TYPE_SPEED_LIMIT_BEGIN
+    - osi_trafficsign.proto:TrafficSign.Classification.Type.TYPE_SPEED_LIMIT_ZONE_BEGIN
+    description: 从交通标志/道路信息归一化得到的当前道路限速。
+    derived_fact: true
+  FREE_SPACE_STATE:
+    name_zh: 可通行/泊车自由空间状态
+    category: environment_state
+    authority: ASAM_OSI_3_8_0
+    standard_mappings:
+    - osi_featuredata.proto:free_space_probability
+    description: 环境感知提供的自由空间/可通行区域概率或几何信息。
+    derived_fact: true
+  ENVIRONMENT_CONDITIONS:
+    name_zh: 外部环境条件
+    category: environment_state
+    authority: ASAM_OSI_3_8_0
+    standard_mappings:
+    - osi_environment.proto:EnvironmentalConditions.ambient_illumination
+    - osi_environment.proto:EnvironmentalConditions.time_of_day
+    - osi_environment.proto:EnvironmentalConditions.precipitation
+    - osi_environment.proto:EnvironmentalConditions.fog
+    description: 环境照度、昼夜、降水和雾等外部环境条件。
+    derived_fact: true
+  AUTHORIZATION_STATE:
+    name_zh: 授权与权限状态
+    category: security_context
+    authority: PROJECT_DEFINED
+    standard_mappings: []
+    description: 当前请求主体/座位/控制域是否具备相应车控授权。
+    derived_fact: false
+  SYSTEM_MODE:
+    name_zh: 系统运行模式
+    category: security_context
+    authority: PROJECT_DEFINED
+    standard_mappings: []
+    description: 当前系统是否真实处于正常、测试、调试、模拟等运行模式。
+    derived_fact: false

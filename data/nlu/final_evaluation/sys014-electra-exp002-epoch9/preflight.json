@@ -1,0 +1,163 @@
+{
+  "stage": "SYS-014_STAGE_4D-A",
+  "PREFLIGHT": "PASS",
+  "performed_at": "2026-08-09T00:53:25+08:00",
+  "output_directory": "D:\\语证\\data\\nlu\\final_evaluation\\sys014-electra-exp002-epoch9",
+  "output_directory_absent_before_preflight": true,
+  "LOCKED_TEST_OPENED": "NO",
+  "test_records_loaded": 0,
+  "test_text_sent_to_model": 0,
+  "safety_gold_records_loaded": 0,
+  "LOCKED_MODEL_ID": "hfl/chinese-electra-180g-small-discriminator",
+  "LOCKED_MODEL_REVISION": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+  "LOCKED_EXPERIMENT": "sys014-poc7-electra-exp002",
+  "LOCKED_EPOCH": 9,
+  "LOCKED_CHECKPOINT_SHA256": "dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68",
+  "checkpoint": {
+    "path": "D:\\语证\\data\\nlu\\experiments\\sys014-poc7-electra-exp002\\checkpoints\\best\\model_state.pt",
+    "manifest_path": "D:\\语证\\data\\nlu\\experiments\\sys014-poc7-electra-exp002\\checkpoints\\best\\checkpoint_manifest.json",
+    "expected_sha256": "dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68",
+    "actual_sha256": "dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68",
+    "sha256_match": true,
+    "state_dict_strict_load": true,
+    "checkpoint_kind": "ELIGIBLE_BEST"
+  },
+  "model_config": {
+    "path": "D:\\语证\\data\\nlu\\experiments\\sys014-poc7-electra-exp002\\checkpoints\\best\\model_config.json",
+    "expected_fields": {
+      "model_id": "hfl/chinese-electra-180g-small-discriminator",
+      "backbone_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+      "hidden_size": 256,
+      "sentence_representation": "FIRST_TOKEN",
+      "slot_representation": "FULL_LAST_HIDDEN_STATE"
+    },
+    "matches_locked_checkpoint": true
+  },
+  "tokenizer": {
+    "model_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "snapshot_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--chinese-electra-180g-small-discriminator\\snapshots\\826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "tokenizer_fast_expected": true,
+    "verified_files": [
+      {
+        "file": "added_tokens.json",
+        "expected_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "actual_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "pass": true
+      },
+      {
+        "file": "special_tokens_map.json",
+        "expected_sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3",
+        "actual_sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3",
+        "pass": true
+      },
+      {
+        "file": "tokenizer.json",
+        "expected_sha256": "53ff61207898738bbdc000f38abebef01041c8d23b6270c11855fc692d0a3ad6",
+        "actual_sha256": "53ff61207898738bbdc000f38abebef01041c8d23b6270c11855fc692d0a3ad6",
+        "pass": true
+      },
+      {
+        "file": "tokenizer_config.json",
+        "expected_sha256": "61785aeaba176fba6d6489f27dccfd2ddee6aee2af0e590451cab7d8b57e0874",
+        "actual_sha256": "61785aeaba176fba6d6489f27dccfd2ddee6aee2af0e590451cab7d8b57e0874",
+        "pass": true
+      },
+      {
+        "file": "vocab.txt",
+        "expected_sha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c",
+        "actual_sha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c",
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
+  "model_provenance": {
+    "model_id": "hfl/chinese-electra-180g-small-discriminator",
+    "revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "local_cache_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--chinese-electra-180g-small-discriminator\\snapshots\\826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "tokenizer_fast": true,
+    "hidden_size": 256,
+    "pretrained_parameter_count": 12280576,
+    "weight_sha256": "45c0a4519ee767bd58ddd3573b9ceebb81a2c0fb65919a8b7513b57ee52009b3",
+    "loading_info": {
+      "missing_keys": [],
+      "unexpected_keys": [
+        "discriminator_predictions.dense.bias",
+        "discriminator_predictions.dense.weight",
+        "discriminator_predictions.dense_prediction.bias",
+        "discriminator_predictions.dense_prediction.weight"
+      ],
+      "mismatched_keys": [],
+      "error_msgs": []
+    },
+    "stage4a_cpu_p95_total_ms": 14.78464
+  },
+  "dataset": {
+    "manifest_path": "D:\\语证\\data\\nlu\\poc\\frozen\\sys014-poc7-v2\\dataset_manifest.json",
+    "expected_manifest_sha256": "122621c0ce5e7a6fbaadbbe97cb3e7e86a32812ee1c69fe5ee27c45d94ac8d42",
+    "actual_manifest_sha256": "122621c0ce5e7a6fbaadbbe97cb3e7e86a32812ee1c69fe5ee27c45d94ac8d42",
+    "manifest_sha256_match": true,
+    "test_path": "D:\\语证\\data\\nlu\\poc\\frozen\\sys014-poc7-v2\\test.jsonl",
+    "expected_test_sha256": "813465b8b3667a74c99c519bab85baf1e38e09388979a77ce95d7cb7b99e9d29",
+    "actual_test_sha256": "813465b8b3667a74c99c519bab85baf1e38e09388979a77ce95d7cb7b99e9d29",
+    "test_sha256_match": true,
+    "immutable": true
+  },
+  "test_provenance_checks": {
+    "experiment_config_test_used_for_model_selection_false": true,
+    "experiment_manifest_test_evaluation_false": true,
+    "experiment_preflight_test_records_loaded_zero": true,
+    "training_summary_test_evaluation_false": true,
+    "checkpoint_manifest_test_evaluation_false": true,
+    "stage4c_decision_test_evaluation_no": true
+  },
+  "test_never_used_for_training_or_checkpoint_selection": true,
+  "runtime_history_checks": {
+    "experiment_manifest_runtime_modified_false": true,
+    "training_summary_runtime_modified_false": true
+  },
+  "runtime_source_snapshot_before": {
+    "root": "D:\\语证\\backend\\app",
+    "file_count": 78,
+    "sha256": "af221d9c69cb78d85d4a8adf3cfcf01ccb1d963af89bb18aa58d0d7afa000f8d"
+  },
+  "model_parameters": {
+    "requires_grad_parameter_tensor_count": 0,
+    "gradient_tensor_count": 0,
+    "state_dict_digest_before_test": "f796dc8081b32071b7604288b21021cf5a0efdae86bc1527ec3887c52362e8aa",
+    "no_gradient": true
+  },
+  "frozen_metric_implementation": {
+    "paths": [
+      "scripts/nlu_training/metrics.py",
+      "scripts/nlu_training/stage4c_exp002.py",
+      "scripts/nlu_training/labels.py",
+      "scripts/nlu_training/projection.py"
+    ],
+    "sha256": {
+      "scripts/nlu_training/metrics.py": "664350d77b4fa1650f372a065c2899f7fa3e8072b60deecc371f22c7a11521ea",
+      "scripts/nlu_training/stage4c_exp002.py": "803b9ca22ec406782dad61aeab9d9ec5c36c7b41df4ec79192906a2639a80184",
+      "scripts/nlu_training/labels.py": "648e7d54eab490a4f82dabffb883b7d58066f320396384c2203d9f4fabec2a5d",
+      "scripts/nlu_training/projection.py": "9bf6e45efd8afeb68e54c0517b1fdce569b3894c962e8cf3baaf8d2eb7517521"
+    },
+    "label_mapping_matches_checkpoint": true,
+    "max_length": 32,
+    "raw_executable_definition": "pred_scope=IN_SCOPE_CONTROL AND pred_structure=SINGLE AND pred_intent in frozen 7 intents",
+    "safety_gates": {
+      "ufar_max": 0.05,
+      "multi_false_accept_rate_max": 0.0,
+      "ambiguous_false_accept_rate_max": 0.0
+    }
+  },
+  "MODEL_PARAMETERS_CHANGED": "NO",
+  "TRAINING_STEPS_EXECUTED_THIS_STAGE": 0,
+  "BACKWARD_EXECUTED": "NO",
+  "OPTIMIZER_STEP_EXECUTED": "NO",
+  "SCHEDULER_STEP_EXECUTED": "NO",
+  "TEST_EVALUATION_EXECUTED": "NO",
+  "SAFETY_GOLD_EVALUATION_EXECUTED": "NO",
+  "python_executable": "D:\\software\\anaconda\\envs\\yuzheng311\\python.exe",
+  "torch_version": "2.13.0+cpu",
+  "transformers_version": "5.14.1",
+  "device": "CPU"
+}

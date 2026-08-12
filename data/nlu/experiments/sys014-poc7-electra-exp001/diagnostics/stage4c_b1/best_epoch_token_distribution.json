@@ -1,0 +1,30 @@
+{
+  "gold_label_distribution": {
+    "O": 804,
+    "B-AREA": 52,
+    "I-AREA": 76,
+    "B-VALUE": 19,
+    "I-VALUE": 21,
+    "B-NEGATION": 24,
+    "I-NEGATION": 21
+  },
+  "predicted_label_distribution": {
+    "O": 921,
+    "B-AREA": 40,
+    "I-AREA": 45,
+    "B-VALUE": 2,
+    "I-VALUE": 0,
+    "B-NEGATION": 6,
+    "I-NEGATION": 3
+  },
+  "PREDICTED_O_RATE": 0.9056047197640118,
+  "gold_AREA_token_count": 128,
+  "predicted_AREA_token_count": 85,
+  "gold_VALUE_token_count": 40,
+  "predicted_VALUE_token_count": 2,
+  "gold_NEGATION_token_count": 45,
+  "predicted_NEGATION_token_count": 9,
+  "SLOT_O_CLASS_COLLAPSE": false,
+  "collapse_definition": "predicted_non_o=0 OR PREDICTED_O_RATE>=0.98",
+  "raw_bio_continuity_error_count": 11
+}

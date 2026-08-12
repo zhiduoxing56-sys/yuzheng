@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 import pytest
+from pydantic import ValidationError
 
 from app.core.config import load_yaml
 from app.models.schemas import (
@@ -11,9 +12,11 @@ from app.models.schemas import (
     MemoryRelationType,
     SecurityClass,
     SemanticFrame,
+    SemanticIntent,
     utc_now,
 )
 from app.services.memory.service import DualMemoryService
+from app.services.evidence.catalog import CANONICAL_EVIDENCE_TYPES
 
 
 LAYER_NAME = {
@@ -36,13 +39,23 @@ def _frame() -> SemanticFrame:
         turn_id="TURN_MEMORY",
         raw_text="test",
         normalized_text="test",
-        action="change_lane",
-        target="left_lane",
-        area="left",
-        control_domain="vehicle_control",
         semantic_confidence=0.9,
         ambiguity_score=0.1,
-        risk_level="R3",
+        semantic_status="OK",
+        intents=[
+            SemanticIntent(
+                clause_index=0,
+                clause_text="test",
+                intent_id="LANE_CHANGE",
+                action="change_lane",
+                target="left_lane",
+                area="left",
+                control_domain="vehicle_control",
+                semantic_confidence=0.9,
+                ambiguity_score=0.1,
+                risk_level="R3",
+            )
+        ],
     )
 
 
@@ -70,11 +83,9 @@ def _node(
         freshness=1.0,
         consistency=1.0,
         availability=0.0 if quality == EvidenceStatus.MISSING else 1.0,
-        semantic_similarity=sas,
-        mandatory=quality in {EvidenceStatus.MISSING, EvidenceStatus.TAMPERED},
         quality_label=quality,
         integrity_hash=f"hash-{node_id}",
-        metadata=metadata or {},
+        metadata={**(metadata or {}), "test_semantic_similarity": sas},
         security_class=security_class,
         security_rank=rank,
         security_classification_source=(
@@ -87,25 +98,32 @@ def _service() -> DualMemoryService:
     return DualMemoryService(load_yaml("memory.yaml"))
 
 
+def _similarities(nodes: list[EvidenceNode]) -> dict[str, float]:
+    return {
+        node.node_id: float(node.metadata["test_semantic_similarity"])
+        for node in nodes
+    }
+
+
 def test_four_relation_types_are_evidence_backed_and_auditable() -> None:
     observed_at = utc_now()
     nodes = [
         _node(
             "RADAR",
-            "side_rear_mmwave_radar",
+            "SURROUNDING_OBJECT_STATE",
             SecurityClass.DRIVING,
             timestamp=observed_at,
             metadata={"area": "left_rear"},
         ),
         _node(
             "CAMERA",
-            "side_camera",
+            "LANE_STATE",
             SecurityClass.DRIVING,
             timestamp=observed_at + timedelta(milliseconds=20),
             metadata={"area": "left_rear"},
         ),
     ]
-    result = _service().propagate(nodes, _frame(), [], retrieval_origins={"RADAR": "HNSW", "CAMERA": "MANDATORY_RECALL"})
+    result = _service().propagate(nodes, _frame(), [], semantic_similarity_by_node_id=_similarities(nodes), retrieval_origins={"RADAR": "HNSW", "CAMERA": "MANDATORY_RECALL"})
 
     assert len(result.relation_edges) == 1
     edge = result.relation_edges[0]
@@ -125,20 +143,21 @@ def test_four_relation_types_are_evidence_backed_and_auditable() -> None:
 
 def test_no_real_relation_evidence_means_no_edge() -> None:
     nodes = [
-        _node("A", "unknown_a", SecurityClass.DRIVING, timestamp=None),
-        _node("B", "unknown_b", SecurityClass.COCKPIT, timestamp=None),
+        _node("A", "PARKING_BRAKE_STATE", SecurityClass.DRIVING, timestamp=None),
+        _node("B", "MIRROR_STATE", SecurityClass.COCKPIT, timestamp=None),
     ]
-    result = _service().propagate(nodes, _frame(), [])
+    result = _service().propagate(nodes, _frame(), [], semantic_similarity_by_node_id=_similarities(nodes))
     assert result.relation_edges == []
     assert result.propagation_steps == []
 
 
 def test_sparse_pruning_is_deterministic_and_average_degree_is_bounded() -> None:
     observed_at = utc_now()
+    evidence_types = sorted(CANONICAL_EVIDENCE_TYPES)[:20]
     nodes = [
         _node(
             f"N{index:02d}",
-            f"type_{index:02d}",
+            evidence_types[index],
             SecurityClass.DRIVING,
             timestamp=observed_at,
             metadata={"area": "same"},
@@ -146,8 +165,8 @@ def test_sparse_pruning_is_deterministic_and_average_degree_is_bounded() -> None
         for index in range(20)
     ]
     service = _service()
-    first = service.propagate(nodes, _frame(), [])
-    second = service.propagate(list(reversed(nodes)), _frame(), [])
+    first = service.propagate(nodes, _frame(), [], semantic_similarity_by_node_id=_similarities(nodes))
+    second = service.propagate(list(reversed(nodes)), _frame(), [], semantic_similarity_by_node_id=_similarities(nodes))
 
     assert first.degree_statistics.candidate_edge_count == 190
     assert first.degree_statistics.retained_edge_count == 160
@@ -163,13 +182,13 @@ def test_sparse_pruning_is_deterministic_and_average_degree_is_bounded() -> None
 def test_confidence_propagates_only_through_adjacent_descending_layers() -> None:
     observed_at = utc_now()
     nodes = [
-        _node("G3A", "emergency_a", SecurityClass.EMERGENCY, sas=0.8, timestamp=observed_at),
-        _node("G3B", "emergency_b", SecurityClass.EMERGENCY, sas=0.4, timestamp=observed_at),
-        _node("G2", "driving", SecurityClass.DRIVING, sas=0.2, timestamp=observed_at),
-        _node("G1", "cockpit", SecurityClass.COCKPIT, sas=0.1, timestamp=observed_at),
-        _node("G0", "entertainment", SecurityClass.ENTERTAINMENT, sas=0.05, timestamp=observed_at),
+        _node("G3A", "SERVICE_BRAKE_STATE", SecurityClass.EMERGENCY, sas=0.8, timestamp=observed_at),
+        _node("G3B", "ESC_STATE", SecurityClass.EMERGENCY, sas=0.4, timestamp=observed_at),
+        _node("G2", "VEHICLE_SPEED", SecurityClass.DRIVING, sas=0.2, timestamp=observed_at),
+        _node("G1", "DOOR_STATE", SecurityClass.COCKPIT, sas=0.1, timestamp=observed_at),
+        _node("G0", "SUNROOF_STATE", SecurityClass.ENTERTAINMENT, sas=0.05, timestamp=observed_at),
     ]
-    result = _service().propagate(nodes, _frame(), [])
+    result = _service().propagate(nodes, _frame(), [], semantic_similarity_by_node_id=_similarities(nodes))
 
     assert result.initial_confidences == {
         "G0": 0.05,
@@ -200,10 +219,10 @@ def test_confidence_propagates_only_through_adjacent_descending_layers() -> None
 def test_missing_and_tampered_remain_zero_and_cannot_propagate(quality: EvidenceStatus) -> None:
     observed_at = utc_now()
     nodes = [
-        _node("BAD", "safety_rule", SecurityClass.EMERGENCY, sas=0.99, quality=quality, timestamp=observed_at),
-        _node("LOW", "display_state", SecurityClass.ENTERTAINMENT, sas=0.2, timestamp=observed_at),
+        _node("BAD", "SERVICE_BRAKE_STATE", SecurityClass.EMERGENCY, sas=0.99, quality=quality, timestamp=observed_at),
+        _node("LOW", "SYSTEM_MODE", SecurityClass.ENTERTAINMENT, sas=0.2, timestamp=observed_at),
     ]
-    result = _service().propagate(nodes, _frame(), [])
+    result = _service().propagate(nodes, _frame(), [], semantic_similarity_by_node_id=_similarities(nodes))
     layer = next(item for item in result.node_layers if item.node_id == "BAD")
     assert layer.propagation_eligible is False
     assert result.initial_confidences["BAD"] == 0
@@ -211,15 +230,13 @@ def test_missing_and_tampered_remain_zero_and_cannot_propagate(quality: Evidence
     assert all(step.parent_node_id != "BAD" for step in result.propagation_steps)
 
 
-def test_unclassified_is_retained_but_never_assigned_to_g0_or_propagated() -> None:
+def test_non_catalog_evidence_cannot_enter_memory() -> None:
     observed_at = utc_now()
-    node = _node("UNKNOWN", "unknown_sensor", SecurityClass.UNCLASSIFIED, sas=0.9, timestamp=observed_at)
-    result = _service().propagate([node], _frame(), [])
-    layer = result.node_layers[0]
-    assert layer.security_class == SecurityClass.UNCLASSIFIED
-    assert layer.security_rank is None
-    assert layer.memory_layer is None
-    assert result.layered_memory_graph["layers"]["UNCLASSIFIED"] == ["UNKNOWN"]
-    assert result.layered_memory_graph["layers"]["G0"] == []
-    assert result.propagation_steps == []
-    assert result.warnings == ["UNCLASSIFIED_EVIDENCE_TYPE:unknown_sensor:KEEP_UNCLASSIFIED_WITH_WARNING"]
+    with pytest.raises(ValidationError):
+        _node(
+            "UNKNOWN",
+            "unknown_sensor",
+            SecurityClass.UNCLASSIFIED,
+            sas=0.9,
+            timestamp=observed_at,
+        )

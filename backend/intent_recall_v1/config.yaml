@@ -1,0 +1,27 @@
+model:
+  name: BAAI/bge-base-zh-v1.5
+  dimension: 768
+  batch_size: 64
+  local_files_only: true
+
+retrieval:
+  anchor_pool_size: 240
+  channel_target_top_k: 40
+  max_debug_anchors_per_target: 3
+  rrf_k: 60
+  default_final_top_n: 8
+  allowed_final_top_n: [8, 12]
+
+security:
+  target: 安全注入
+  min_query_characters_for_lexical_signal: 4
+  per_channel_anchor_top_k: 5
+  thresholds:
+    semantic: 0.65
+    literal: 0.82
+    pinyin: 0.82
+
+paths:
+  anchor_file: ../../挂靠/intent_anchor_set_v1.yaml
+  intent_cards_file: ../../挂靠/intent_cards_v1.yaml
+  cache_dir: ../../tmp/intent_recall_v1

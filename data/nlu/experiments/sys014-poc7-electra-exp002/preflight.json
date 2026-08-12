@@ -1,0 +1,386 @@
+{
+  "PREFLIGHT": "PASS",
+  "experiment_absent": true,
+  "model_provenance": {
+    "model_id": "hfl/chinese-electra-180g-small-discriminator",
+    "revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "local_cache_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--chinese-electra-180g-small-discriminator\\snapshots\\826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "tokenizer_fast": true,
+    "hidden_size": 256,
+    "pretrained_parameter_count": 12280576,
+    "weight_sha256": "45c0a4519ee767bd58ddd3573b9ceebb81a2c0fb65919a8b7513b57ee52009b3",
+    "loading_info": {
+      "missing_keys": [],
+      "unexpected_keys": [
+        "discriminator_predictions.dense.bias",
+        "discriminator_predictions.dense.weight",
+        "discriminator_predictions.dense_prediction.bias",
+        "discriminator_predictions.dense_prediction.weight"
+      ],
+      "mismatched_keys": [],
+      "error_msgs": []
+    },
+    "stage4a_cpu_p95_total_ms": 14.78464
+  },
+  "dataset_hash_verification": {
+    "dataset_manifest_sha256": "122621c0ce5e7a6fbaadbbe97cb3e7e86a32812ee1c69fe5ee27c45d94ac8d42",
+    "verified_file_count": 14,
+    "verified_files": [
+      {
+        "file": "README.md",
+        "sha256": "c6b84ba8b920d199fec1ac92169f31f20b0817c583f93c3a8ff80b1439a704a0"
+      },
+      {
+        "file": "data/nlu/poc/candidate_pool.jsonl",
+        "sha256": "5facede3e3e1d83178d5e4da23c69af949bc5d49bbfda4444ab02fb804560ea9"
+      },
+      {
+        "file": "data/nlu/poc/safety_gold_candidates.jsonl",
+        "sha256": "d9d9b597d888ec24c8fec52631b3dd9dabd4b48013a768ef8ff037ffbee77565"
+      },
+      {
+        "file": "data/nlu/spec/annotation_guidelines.md",
+        "sha256": "20dba043fae4bb54629a4547b8c6c93eb10ca2750b81f0e28cc7104989c1350c"
+      },
+      {
+        "file": "data/nlu/spec/annotation_schema.json",
+        "sha256": "5a67db9562df24aa6ad309b15dd4dda19821f6eecfee37cf652ff97df0146650"
+      },
+      {
+        "file": "data/nlu/spec/intent_registry_draft.yaml",
+        "sha256": "e28bed95c2e1456c6ca53c4a7f37814c992998158fd84fd7ae682669f8769fad"
+      },
+      {
+        "file": "leakage_audit.md",
+        "sha256": "a2710a5844c809caf4da523c1360298e89e2b83f79d465db2bdb5972918243e7"
+      },
+      {
+        "file": "safety_gold.jsonl",
+        "sha256": "87d667321e94c36ce89ce4ceb604fb34205f22d2611838454c3c61ee7416f48c"
+      },
+      {
+        "file": "split_group_balance_diagnosis.md",
+        "sha256": "98b5c38f5bcaecbe20c8e225a9d70418e1cd551b49cd9bf07b44b169fba4b1f4"
+      },
+      {
+        "file": "split_report.md",
+        "sha256": "7a8dc8e5319f4bb37a7ff87b909c772cd80b89a03a903cc7f9bebad1f4983f2d"
+      },
+      {
+        "file": "test.jsonl",
+        "sha256": "813465b8b3667a74c99c519bab85baf1e38e09388979a77ce95d7cb7b99e9d29"
+      },
+      {
+        "file": "train.jsonl",
+        "sha256": "dadfee10cd5356c136311d828a22bdb88d37f09853d00c464d6d686c3b44feee"
+      },
+      {
+        "file": "v1_to_v2_split_diff.md",
+        "sha256": "3b6ae35d38cae182ca61f2300a03d2af2a4c1b746944bbbe118d5f9c516e9aba"
+      },
+      {
+        "file": "validation.jsonl",
+        "sha256": "3edc527eea43d6e075bc2d633b7a601450fdecbc1e0ecac665fd5bd0a4becf9a"
+      }
+    ],
+    "failures": [],
+    "DATASET_HASH_VERIFIED": true
+  },
+  "TOKEN_PROJECTION_FAILURES": 0,
+  "weight_source": {
+    "source_file": "D:\\语证\\data\\nlu\\experiments\\sys014-poc7-electra-exp001\\diagnostics\\stage4c_b1\\stage4c_b1_diagnosis.json",
+    "source_sha256": "8405f441de1ead750a047625027ce262056dfea300ad3825dcf0a75a106c4206",
+    "policy": "SQRT_INVERSE_FREQ_CAP_3"
+  },
+  "SLOT_CLASS_WEIGHT_VECTOR": {
+    "O": 0.19794488,
+    "B-AREA": 0.8355972,
+    "I-AREA": 0.71646876,
+    "B-VALUE": 1.34863894,
+    "I-VALUE": 1.30130344,
+    "B-NEGATION": 1.39229546,
+    "I-NEGATION": 1.20775131
+  },
+  "recomputed_slot_class_weight_vector": {
+    "O": 0.19794488,
+    "B-AREA": 0.8355972,
+    "I-AREA": 0.71646876,
+    "B-VALUE": 1.34863894,
+    "I-VALUE": 1.30130344,
+    "B-NEGATION": 1.39229546,
+    "I-NEGATION": 1.20775131
+  },
+  "slot_weight_vector_matches_b1_and_train_distribution": true,
+  "config_diff": {
+    "exp001": {
+      "model_id": "hfl/chinese-electra-180g-small-discriminator",
+      "model_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+      "dataset_version": "sys014-poc7-v2",
+      "registry_version": "sys-014-stage2.1-draft-2",
+      "seed": 14031,
+      "selected_max_length": 32,
+      "actual_batch_size": 16,
+      "optimizer_name": "AdamW",
+      "optimizer_parameter_group_count": 1,
+      "baseline_learning_rate": 2e-05,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.1,
+      "gradient_clip_norm": 1.0,
+      "baseline_epochs": 10,
+      "early_stopping_patience": 3,
+      "loss_weights": {
+        "scope": 1.0,
+        "structure": 1.0,
+        "intent": 1.0,
+        "slot": 1.0,
+        "negation": 1.0
+      },
+      "scope_class_weight_policy": "SQRT_INVERSE_FREQ",
+      "structure_class_weight_policy": "SQRT_INVERSE_FREQ",
+      "intent_class_weight_policy": "NONE",
+      "slot_class_weight_policy": "NONE",
+      "slot_class_weight_vector": null,
+      "negation_class_weight_policy": "SQRT_INVERSE_FREQ",
+      "class_weight_cap": 3.0,
+      "quality_score_weights": {
+        "intent_macro_f1": 0.3,
+        "scope_macro_f1": 0.2,
+        "structure_macro_f1": 0.2,
+        "slot_span_f1": 0.2,
+        "negation_f1": 0.1
+      },
+      "safety_gates": {
+        "ufar_max": 0.05,
+        "multi_false_accept_rate_max": 0.0,
+        "ambiguous_false_accept_rate_max": 0.0
+      },
+      "label_mapping": {
+        "IGNORE_INDEX": -100,
+        "scope": {
+          "IN_SCOPE_CONTROL": 0,
+          "NON_CONTROL": 1,
+          "UNKNOWN_CONTROL": 2,
+          "AMBIGUOUS_CONTROL": 3
+        },
+        "structure": {
+          "SINGLE": 0,
+          "MULTI": 1,
+          "AMBIGUOUS": 2
+        },
+        "intent": {
+          "DOOR_OPEN": 0,
+          "DOOR_CLOSE": 1,
+          "WINDOW_OPEN": 2,
+          "WINDOW_SET_POSITION": 3,
+          "HEADLIGHT_OFF": 4,
+          "ACCELERATE": 5,
+          "BRAKE": 6
+        },
+        "slot_bio": {
+          "O": 0,
+          "B-AREA": 1,
+          "I-AREA": 2,
+          "B-VALUE": 3,
+          "I-VALUE": 4,
+          "B-NEGATION": 5,
+          "I-NEGATION": 6
+        },
+        "sentence_negation": {
+          "NOT_NEGATED": 0,
+          "NEGATED": 1
+        },
+        "intent_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND intent!=null",
+        "negation_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND negated is boolean"
+      }
+    },
+    "exp002": {
+      "model_id": "hfl/chinese-electra-180g-small-discriminator",
+      "model_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+      "dataset_version": "sys014-poc7-v2",
+      "registry_version": "sys-014-stage2.1-draft-2",
+      "seed": 14031,
+      "selected_max_length": 32,
+      "actual_batch_size": 16,
+      "optimizer_name": "AdamW",
+      "optimizer_parameter_group_count": 1,
+      "baseline_learning_rate": 2e-05,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.1,
+      "gradient_clip_norm": 1.0,
+      "baseline_epochs": 10,
+      "early_stopping_patience": 3,
+      "loss_weights": {
+        "scope": 1.0,
+        "structure": 1.0,
+        "intent": 1.0,
+        "slot": 1.0,
+        "negation": 1.0
+      },
+      "scope_class_weight_policy": "SQRT_INVERSE_FREQ",
+      "structure_class_weight_policy": "SQRT_INVERSE_FREQ",
+      "intent_class_weight_policy": "NONE",
+      "slot_class_weight_policy": "SQRT_INVERSE_FREQ_CAP_3",
+      "slot_class_weight_vector": {
+        "O": 0.19794488,
+        "B-AREA": 0.8355972,
+        "I-AREA": 0.71646876,
+        "B-VALUE": 1.34863894,
+        "I-VALUE": 1.30130344,
+        "B-NEGATION": 1.39229546,
+        "I-NEGATION": 1.20775131
+      },
+      "negation_class_weight_policy": "SQRT_INVERSE_FREQ",
+      "class_weight_cap": 3.0,
+      "quality_score_weights": {
+        "intent_macro_f1": 0.3,
+        "scope_macro_f1": 0.2,
+        "structure_macro_f1": 0.2,
+        "slot_span_f1": 0.2,
+        "negation_f1": 0.1
+      },
+      "safety_gates": {
+        "ufar_max": 0.05,
+        "multi_false_accept_rate_max": 0.0,
+        "ambiguous_false_accept_rate_max": 0.0
+      },
+      "label_mapping": {
+        "IGNORE_INDEX": -100,
+        "scope": {
+          "IN_SCOPE_CONTROL": 0,
+          "NON_CONTROL": 1,
+          "UNKNOWN_CONTROL": 2,
+          "AMBIGUOUS_CONTROL": 3
+        },
+        "structure": {
+          "SINGLE": 0,
+          "MULTI": 1,
+          "AMBIGUOUS": 2
+        },
+        "intent": {
+          "DOOR_OPEN": 0,
+          "DOOR_CLOSE": 1,
+          "WINDOW_OPEN": 2,
+          "WINDOW_SET_POSITION": 3,
+          "HEADLIGHT_OFF": 4,
+          "ACCELERATE": 5,
+          "BRAKE": 6
+        },
+        "slot_bio": {
+          "O": 0,
+          "B-AREA": 1,
+          "I-AREA": 2,
+          "B-VALUE": 3,
+          "I-VALUE": 4,
+          "B-NEGATION": 5,
+          "I-NEGATION": 6
+        },
+        "sentence_negation": {
+          "NOT_NEGATED": 0,
+          "NEGATED": 1
+        },
+        "intent_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND intent!=null",
+        "negation_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND negated is boolean"
+      }
+    },
+    "differences": [
+      {
+        "field": "slot_class_weight_policy",
+        "exp001": "NONE",
+        "exp002": "SQRT_INVERSE_FREQ_CAP_3"
+      },
+      {
+        "field": "slot_class_weight_vector",
+        "exp001": null,
+        "exp002": {
+          "O": 0.19794488,
+          "B-AREA": 0.8355972,
+          "I-AREA": 0.71646876,
+          "B-VALUE": 1.34863894,
+          "I-VALUE": 1.30130344,
+          "B-NEGATION": 1.39229546,
+          "I-NEGATION": 1.20775131
+        }
+      }
+    ],
+    "allowed_difference_fields": [
+      "slot_class_weight_policy",
+      "slot_class_weight_vector"
+    ],
+    "unexpected_differences": [],
+    "ISOLATED_VARIABLE_CHECK_PASS": true
+  },
+  "ISOLATED_VARIABLE_CHECK_PASS": true,
+  "slot_weight_wiring_test": {
+    "SLOT_WEIGHT_WIRED_TO_LOSS": true,
+    "actual_multitask_slot_loss": 2.453000068664551,
+    "expected_weighted_cross_entropy": 2.453000068664551,
+    "unweighted_cross_entropy": 1.8288532495498657,
+    "per_token_weighted_loss_contributions": {
+      "O": 0.05173901468515396,
+      "B_VALUE": 3.834486961364746,
+      "I_VALUE": 3.0996413230895996
+    },
+    "slot_weight_tensor": [
+      0.19794487953186035,
+      0.8355972170829773,
+      0.7164687514305115,
+      1.348638892173767,
+      1.3013033866882324,
+      1.392295479774475,
+      1.2077512741088867
+    ]
+  },
+  "SLOT_WEIGHT_WIRED_TO_LOSS": true,
+  "fresh_initialization": {
+    "from_original_pretrained_electra": true,
+    "from_electra_exp001_checkpoint": false,
+    "from_rbt3_checkpoint": false,
+    "fresh_differs_from_exp001_trained_checkpoint": true,
+    "initial_backbone_hashes": {
+      "embeddings.word_embeddings.weight": "cefc84f05fbe9e9a650beac576c4487c45dc2047dd88e148a0b33f5d8bafce5b",
+      "encoder.layer.1.attention.self.value.bias": "32b21c28e3428d5533e701cf8e703265eda6113499629321a43ab7db15a53267",
+      "encoder.layer.3.attention.self.key.weight": "5e856aee6153e950b9b9d0d844ff6562c219119a44b824c5fbe355b22802fa04",
+      "encoder.layer.4.output.LayerNorm.weight": "c60f4aa41f482cd81132baf0b3689e2c5b3cce25731f34685da2e308c7a2b9b9",
+      "encoder.layer.6.intermediate.dense.weight": "ddc0b34ab4baaaac016e16ec95a51541fa8c1d82df4fbc8ac674767daf0b91f2",
+      "encoder.layer.8.attention.output.dense.weight": "1cc55a74a5b44d22b3620c9cc96b7853db14e9ddeafdf37d7fac44d29bf03ea0",
+      "encoder.layer.10.attention.self.key.bias": "7ad9ab19b213d8216cd8e60130700f5659d4116d4458202d521fbff1f14e9559",
+      "encoder.layer.11.output.LayerNorm.bias": "c92546491a508d99ce5c8223e8ecea28e0254b38f0f233e03b13a101efde21a5"
+    },
+    "initial_joint_head_hashes": {
+      "scope_head": {
+        "weight": "fc84e05f5aa7a3b48eb4409aee01fdd597887ae4f0a593eb42b3a604cce3eee7",
+        "bias": "549bc8e18b9524731af60e86d66e5dbf8f48194bcd6bb72667be3fd4de463d85"
+      },
+      "structure_head": {
+        "weight": "b5a0b88e2a7d9e4c76c1b2d9f1c5fdad1f927479bfa4b4b5aff3813af105bd72",
+        "bias": "c3870894572ac0da20972ac66fd37494d2bd074e3cafa2b072f23187b3f02bdd"
+      },
+      "intent_head": {
+        "weight": "c526957872272020dadc982108a0350d43ec2c839a9b1db7b2de808fd1346a8d",
+        "bias": "7e6b6141cf363bbea94bbcf3040db65c774f55f28b943c7d63a6f23ccdc2d6c0"
+      },
+      "slot_head": {
+        "weight": "6ff2721743acbeb22ff14a5b814bb2b6dd5d0859f1fad0d44e693a3931e970d3",
+        "bias": "be3d0e6e40c3b067dc6ec67345a65cce9fa13671f918029460a013404e9a2acc"
+      },
+      "negation_head": {
+        "weight": "804208c83f9eae5bf3b7ce9240fcfa44d755c214bd41936cec5604e745c5469a",
+        "bias": "f42e309228774ad163b08d77f536d56220b7cdd9426817df0e7e9c56cc80bd1b"
+      }
+    }
+  },
+  "optimizer_group_count": 1,
+  "optimizer_group_complete_coverage": true,
+  "scheduler_base_lrs": [
+    2e-05
+  ],
+  "model_parameters_unchanged_after_forward_loss": true,
+  "gradients_created": false,
+  "TRAINING_STEPS_EXECUTED": 0,
+  "BACKWARD_PREFLIGHT_EXECUTED": false,
+  "test_records_loaded": 0,
+  "safety_gold_records_loaded": 0,
+  "TEST_EVALUATION_EXECUTED": false,
+  "SAFETY_GOLD_EVALUATION_EXECUTED": false,
+  "python_executable": "D:\\software\\anaconda\\envs\\yuzheng311\\python.exe"
+}

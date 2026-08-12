@@ -8,32 +8,39 @@ def test_stage2_evidence_and_index_apis_return_runtime_data(api_client) -> None:
     client, _ = api_client
     command = client.post(
         "/api/command/text",
-        json={"text": "打开车门", "state_overrides": {"vehicle_speed": 0, "gear_position": "P"}},
+        json={"text": "打开车门"},
     )
     body = command.json()
     turn_id = body["turn_id"]
 
     assert command.status_code == 200
-    assert len(body["query_vector"]) == 768
-    assert body["evidence_demand"]["vectorization_metadata"]["model_name"] == "BAAI/bge-base-zh-v1.5"
-    assert body["evidence_demand"]["vectorization_metadata"]["real_model_inference"] is True
+    assert "query_vector" not in body
+    vectorization = body["evidence_demand"]["intent_demands"][0][
+        "vectorization_metadata"
+    ]
+    assert vectorization["model_name"] == "BAAI/bge-base-zh-v1.5"
+    assert vectorization["real_model_inference"] is True
     assert body["retrieval_metadata"]["implementation"] == "hnswlib"
     assert body["retrieval_metadata"]["degraded"] is False
     assert body["retrieval_metadata"]["candidate_count"] == len(body["candidate_evidence"])
     assert body["evidence_subgraph"]["turn_id"] == turn_id
     assert body["quality_metrics"]["ecr"] == 1.0
+    assert all(
+        resolution["missing_required_types"] == []
+        for resolution in body["evidence_subgraph"]["intent_evidence_resolutions"]
+    )
 
     current = client.get("/api/evidence/current")
     graph = client.get(f"/api/evidence/turn/{turn_id}")
     status = client.get("/api/index/status")
-    rebuild = client.post("/api/index/rebuild", json={"exclude_types": ["vehicle_speed"]})
+    rebuild = client.post("/api/index/rebuild", json={"exclude_types": ["VEHICLE_SPEED"]})
 
     assert current.status_code == 200
     assert current.json()["node_count"] == len(current.json()["nodes"])
     assert graph.status_code == 200
     assert graph.json()["nodes"] and graph.json()["edges"]
     assert status.json()["dimension"] == 768
-    assert rebuild.json()["excluded_types"] == ["vehicle_speed"]
+    assert rebuild.json()["excluded_types"] == ["VEHICLE_SPEED"]
     assert rebuild.json()["node_count"] < status.json()["node_count"]
     assert client.get("/api/evidence/turn/NOT_FOUND").status_code == 404
 

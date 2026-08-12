@@ -51,10 +51,10 @@ class ReviewService:
         return int(self.config.get("max_review_attempts", 3))
 
     def root_for_turn(self, turn_id: str) -> str:
-        audit = self.pipeline.audit_repository.get_by_turn(turn_id)
-        if audit is None:
+        root_turn_id = self.pipeline.audit_repository.root_turn_id_for_turn(turn_id)
+        if root_turn_id is None:
             raise ReviewWorkflowError(f"未找到轮次: {turn_id}")
-        return audit.root_turn_id or audit.turn_id
+        return root_turn_id
 
     def _root_audits(self, root_turn_id: str):
         audits = self.pipeline.audit_repository.records_for_root(root_turn_id)
@@ -66,15 +66,17 @@ class ReviewService:
 
     def status(self, turn_id: str) -> TurnWorkflowStatus:
         root_turn_id = self.root_for_turn(turn_id)
-        audits = self._root_audits(root_turn_id)
-        latest = audits[-1]
+        latest = self.pipeline.audit_repository.latest_turn_summary_for_root(root_turn_id)
+        if latest is None:
+            raise ReviewWorkflowError(f"未找到轮次: {turn_id}")
+        latest_turn_id, latest_decision_value = latest
+        latest_decision = DecisionLabel(latest_decision_value)
         events = self.pipeline.workflow_repository.events(root_turn_id)
         attempts = sum(event.event_type in REVIEW_ACTION_EVENTS for event in events)
         terminal_event = next(
             (event for event in reversed(events) if event.event_type in TERMINAL_EVENTS), None
         )
         token = self.pipeline.workflow_repository.latest_token_for_root(root_turn_id)
-        latest_decision = latest.final_decision.final_decision
         if terminal_event is not None:
             status = {
                 WorkflowEventType.REVIEW_CANCELLED: "CANCELLED",
@@ -84,18 +86,17 @@ class ReviewService:
             latest_decision = (
                 DecisionLabel.BLOCK
                 if terminal_event.event_type == WorkflowEventType.REVIEW_CANCELLED
-                else latest.final_decision.final_decision
+                else latest_decision
             )
-        elif latest.final_decision.final_decision == DecisionLabel.REVIEW:
+        elif latest_decision == DecisionLabel.REVIEW:
             status = "REVIEW_REQUIRED"
         elif token is not None and token.status == AuthorizationTokenStatus.ISSUED:
             status = "AUTHORIZED"
         else:
-            status = latest.final_decision.final_decision.value
-            latest_decision = latest.final_decision.final_decision
+            status = latest_decision.value
         return TurnWorkflowStatus(
             root_turn_id=root_turn_id,
-            current_turn_id=latest.turn_id,
+            current_turn_id=latest_turn_id,
             status=status,
             review_attempts=attempts,
             max_review_attempts=self.max_attempts,
@@ -266,6 +267,18 @@ class ReviewService:
         frame = latest.semantic_frame
         selected_candidate = None
         if request.action == ReviewAction.CONFIRM:
+            if len(frame.intents) > 1:
+                return self._reject_confirm(
+                    root_turn_id=root,
+                    latest=latest,
+                    next_attempt=next_attempt,
+                    reason=(
+                        "原轮次检测到多个独立车控意图，CONFIRM 不能自动选择其中一个动作；"
+                        "请使用 CORRECT 提供新的单一指令或使用 CANCEL 终止"
+                    ),
+                    rejection_code="NO_PERSISTED_REVIEW_CANDIDATES",
+                    rejection_status_code=409,
+                )
             persisted_candidates = list(latest.candidate_interpretations)
             if not persisted_candidates:
                 return self._reject_confirm(
@@ -326,14 +339,14 @@ class ReviewService:
         if request.action == ReviewAction.CONFIRM and (
             (
                 selected_candidate is None
-                and (frame.action == "unknown" or frame.target == "unknown")
+                and (frame.semantic_status != "OK" or not frame.intents)
             )
             or has_unresolved_conflict
         ):
             reason = (
                 "语义动作或目标仍不完整，CONFIRM 不能补全含义，请使用 CORRECT"
                 if selected_candidate is None
-                and (frame.action == "unknown" or frame.target == "unknown")
+                and (frame.semantic_status != "OK" or not frame.intents)
                 else "证据或权限冲突仍存在，CONFIRM 不能删除冲突"
             )
             return self._reject_confirm(
@@ -407,11 +420,7 @@ class ReviewService:
             ),
             spectrum_analysis=latest.spectrum_analysis,
             audio_input_metadata=latest.audio_input_metadata,
-            zone_source=(
-                str(latest.audio_input_metadata.get("zone_source", "review_preserved"))
-                if latest.input_trust_result.audio_source != "text_api"
-                else None
-            ),
+            trusted_context=self.pipeline.trusted_context_from_audit(latest),
         )
         self.pipeline.workflow_repository.append_event(
             root_turn_id=root,

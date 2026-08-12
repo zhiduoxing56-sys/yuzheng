@@ -26,6 +26,7 @@ from app.models.schemas import (
     CausalNodeWeight,
     CausalPriorComponents,
     RecoveryRecommendation,
+    RetrievalOrigin,
     ReviewCandidateInterpretation,
     InterpreterGenerationMetadata,
     RetrievalVisualizationPath,
@@ -51,13 +52,6 @@ class EvidenceDemandStatus(str, Enum):
     STALE = "STALE"
     CONFLICT = "CONFLICT"
     TAMPERED = "TAMPERED"
-
-
-class RetrievalOrigin(str, Enum):
-    HNSW = "HNSW"
-    MANDATORY_RECALL = "MANDATORY_RECALL"
-    BOTH = "BOTH"
-    NONE = "NONE"
 
 
 class Availability(str, Enum):
@@ -183,14 +177,16 @@ class EvidenceDemandItem(StrictModel):
     status: EvidenceDemandStatus
     node_ids: list[str] = Field(default_factory=list)
     retrieval_origin: RetrievalOrigin
+    semantic_similarity: float | None = Field(default=None, ge=0, le=1)
     reason: str
 
 
-class EvidenceDemandPresentation(StrictModel):
-    demand_id: str
-    turn_id: str
+class IntentEvidenceDemandPresentation(StrictModel):
+    intent_id: str
+    clause_index: int = Field(ge=0)
     action: str
     target: str
+    area: str
     risk_level: str
     query_text: str
     required_types: list[str] = Field(default_factory=list)
@@ -198,6 +194,12 @@ class EvidenceDemandPresentation(StrictModel):
     priority: int
     retrieval_scope: str
     demand_items: list[EvidenceDemandItem] = Field(default_factory=list)
+
+
+class EvidenceDemandPresentation(StrictModel):
+    demand_id: str
+    turn_id: str
+    intent_demands: list[IntentEvidenceDemandPresentation] = Field(default_factory=list)
 
 
 class RetrievalCandidate(StrictModel):
@@ -208,12 +210,27 @@ class RetrievalCandidate(StrictModel):
     quality_label: str
     source: str
     timestamp: datetime | None
-    mandatory: bool
     retrieval_origin: RetrievalOrigin
     security_class: SecurityClass | None = None
     security_rank: int | None = Field(default=None, ge=0, le=3)
     hnsw_max_layer: int | None = Field(default=None, ge=0)
     layer_memberships: list[int] = Field(default_factory=list)
+
+
+class RetrievalLayerNode(StrictModel):
+    node_id: str
+    display_name: str
+    evidence_type: str
+    sas: float = Field(ge=0, le=1)
+    rank: int = Field(ge=1)
+    matched_intents: list[str] = Field(default_factory=list)
+
+
+class RetrievalLayer(StrictModel):
+    layer: int = Field(ge=0)
+    layer_name: str
+    hit_count: int = Field(ge=0)
+    nodes: list[RetrievalLayerNode] = Field(default_factory=list)
 
 
 class RetrievalSummary(StrictModel):
@@ -225,6 +242,8 @@ class RetrievalSummary(StrictModel):
     embedding_dimension: int | None = Field(default=None, gt=0)
     degraded: bool | None = None
     candidates: list[RetrievalCandidate] = Field(default_factory=list)
+    layers: list[RetrievalLayer] = Field(default_factory=list)
+    mandatory_recall_count: int = Field(default=0, ge=0)
     mandatory_recall: list[dict[str, Any]] = Field(default_factory=list)
     missing_types: list[str] = Field(default_factory=list)
     index_build_id: str | None = None
@@ -292,6 +311,8 @@ class MemoryPresentation(StrictModel):
 
 class CausalPresentation(StrictModel):
     availability: str = "LEGACY_NOT_RECORDED"
+    mode: str = "HISTORICAL_LEGACY"
+    corrected_weights_projection: str = "LEGACY_AUTHORITATIVE"
     model_build_id: str | None = None
     history_sample_count: int = Field(default=0, ge=0)
     dag_edges: list[CausalEdge] = Field(default_factory=list)
@@ -318,6 +339,9 @@ class GateResultPresentation(StrictModel):
     blocked: bool
     overall_status: Literal["PASSED", "BLOCKED"]
     checks: list[GateCheckPresentation] = Field(default_factory=list)
+    hit_rules: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+    observed: dict[str, Any] = Field(default_factory=dict)
 
 
 class ScoreResultPresentation(StrictModel):
@@ -335,6 +359,21 @@ class ScoreResultPresentation(StrictModel):
     validated_trust_values: list[dict[str, Any]] = Field(default_factory=list)
     trust_formula: str | None = None
     trust_value_source: str | None = None
+
+
+class IntentSafetyAssessmentPresentation(StrictModel):
+    clause_index: int = Field(ge=0)
+    intent_id: str
+    quality: QualityMetricsPresentation
+    gate: GateResultPresentation
+    score: ScoreResultPresentation
+    safety_score: float = Field(ge=0, le=1)
+    score_decision: DecisionLabel
+    final_safety_decision: DecisionLabel
+    decision_sources: list[DecisionSource] = Field(default_factory=list)
+    decision_merge_reason: str
+    reason_codes: list[str] = Field(default_factory=list)
+    explanations: list[str] = Field(default_factory=list)
 
 
 class ValidationResultPresentation(StrictModel):
@@ -357,6 +396,10 @@ class DecisionResultPresentation(StrictModel):
     explanation: str
     review_required: bool
     execution_allowed: bool
+    aggregate_safety_decision: DecisionLabel | None = None
+    intent_safety_assessments: list[IntentSafetyAssessmentPresentation] = Field(
+        default_factory=list
+    )
     decision_explanation: DecisionExplanation | None = None
 
 
@@ -428,6 +471,35 @@ class TurnPresentationResponse(StrictModel):
     audit: TurnAuditPresentation
 
 
+class MandatoryRecallEvidencePresentation(StrictModel):
+    evidence_type: str
+    node_id: str
+    display_name: str
+
+
+class RecallAuditRecentItem(StrictModel):
+    turn_id: str
+    created_at: datetime
+    instruction: str
+    mandatory_recall_evidence: list[MandatoryRecallEvidencePresentation] = Field(
+        default_factory=list
+    )
+    ai_audit_available: bool
+
+
+class RecallAuditRecentResponse(StrictModel):
+    items: list[RecallAuditRecentItem] = Field(default_factory=list)
+
+
+class RecallAIAuditResponse(StrictModel):
+    turn_id: str
+    attention_required: bool | None = None
+    audit_comment: str
+    potential_missing_evidence: list[str] = Field(default_factory=list)
+    cached: bool
+    status: str
+
+
 class EvidenceNodeDetail(StrictModel):
     turn_id: str
     node_id: str
@@ -441,8 +513,6 @@ class EvidenceNodeDetail(StrictModel):
     freshness: float = Field(ge=0, le=1)
     consistency: float = Field(ge=0, le=1)
     availability: float = Field(ge=0, le=1)
-    semantic_similarity: float = Field(ge=0, le=1)
-    mandatory: bool
     quality_label: str
     integrity_hash: str
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -465,9 +535,7 @@ class EvidenceNodeDetail(StrictModel):
     canonicalization_warnings: list[str] = Field(default_factory=list)
     incoming_propagation: list[MemoryPropagationStep] = Field(default_factory=list)
     causal_parents: list[str] = Field(default_factory=list)
-    prior_probability: float | None = Field(default=None, ge=0, le=1)
-    causal_support: float | None = Field(default=None, ge=0, le=1)
-    corrected_weight: float | None = Field(default=None, ge=0, le=1)
+    causal_occurrence_weights: list[CausalNodeWeight] = Field(default_factory=list)
 
 
 class ReviewSubmission(StrictModel):

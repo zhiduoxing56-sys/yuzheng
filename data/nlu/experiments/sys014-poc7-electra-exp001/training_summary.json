@@ -1,0 +1,3826 @@
+{
+  "EXPERIMENT_ID": "sys014-poc7-electra-exp001",
+  "MODEL_ID": "hfl/chinese-electra-180g-small-discriminator",
+  "MODEL_REVISION": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+  "MODEL_WEIGHT_SHA256": "45c0a4519ee767bd58ddd3573b9ceebb81a2c0fb65919a8b7513b57ee52009b3",
+  "TRAINING_DEVICE": "CPU",
+  "TRAINABLE_PARAMETER_COUNT": 12286487,
+  "ACTUAL_BATCH_SIZE": 16,
+  "LEARNING_RATE": 2e-05,
+  "OPTIMIZER_PARAMETER_GROUP_COUNT": 1,
+  "LOSS_WEIGHTS": {
+    "scope": 1.0,
+    "structure": 1.0,
+    "intent": 1.0,
+    "slot": 1.0,
+    "negation": 1.0
+  },
+  "MAX_EPOCHS": 10,
+  "EPOCHS_COMPLETED": 10,
+  "BEST_EPOCH": 10,
+  "REPORTING_EPOCH": 10,
+  "REPORTING_CHECKPOINT_KIND": "ELIGIBLE_BEST",
+  "REPORTING_PREDICTION_ARTIFACT": "evaluation/validation/epoch_10_predictions.jsonl",
+  "TRAINING_STEPS_EXECUTED": 370,
+  "TOTAL_OPTIMIZER_STEPS_PLANNED": 370,
+  "WARMUP_STEPS": 37,
+  "EPOCH_DURATIONS_SECONDS": [
+    14.000501799862832,
+    13.414221999933943,
+    13.413231199840084,
+    13.619683699915186,
+    13.71126710018143,
+    13.466554500162601,
+    13.677979500032961,
+    13.48209169995971,
+    13.19057000009343,
+    13.51268419995904
+  ],
+  "MEAN_EPOCH_SECONDS": 13.548878569994121,
+  "TOTAL_TRAINING_SECONDS": 137.83776649995707,
+  "PRIMARY_QUALITY_SCORE": 0.7637305372396112,
+  "VALIDATION_INTENT_MACRO_F1": 0.9820728291316527,
+  "VALIDATION_INTENT_PER_CLASS": {
+    "DOOR_OPEN": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 11
+    },
+    "DOOR_CLOSE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 18
+    },
+    "WINDOW_OPEN": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 9
+    },
+    "WINDOW_SET_POSITION": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 13
+    },
+    "HEADLIGHT_OFF": {
+      "precision": 0.8888888888888888,
+      "recall": 1.0,
+      "f1": 0.9411764705882353,
+      "support": 16
+    },
+    "ACCELERATE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 17
+    },
+    "BRAKE": {
+      "precision": 1.0,
+      "recall": 0.875,
+      "f1": 0.9333333333333333,
+      "support": 16
+    }
+  },
+  "VALIDATION_SCOPE_MACRO_F1": 0.6312149859943977,
+  "VALIDATION_UNKNOWN_CONTROL_RECALL": 0.0,
+  "VALIDATION_STRUCTURE_MACRO_F1": 0.9782135076252724,
+  "VALIDATION_MULTI_RECALL": 1.0,
+  "VALIDATION_AMBIGUOUS_RECALL": 1.0,
+  "VALIDATION_SLOT_METRICS": {
+    "AREA": {
+      "precision": 0.34,
+      "recall": 0.3269230769230769,
+      "f1": 0.3333333333333333,
+      "tp": 17,
+      "fp": 33,
+      "fn": 35
+    },
+    "VALUE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 2,
+      "fn": 19
+    },
+    "NEGATION": {
+      "precision": 0.2857142857142857,
+      "recall": 0.08333333333333333,
+      "f1": 0.12903225806451613,
+      "tp": 2,
+      "fp": 5,
+      "fn": 22
+    },
+    "OVERALL": {
+      "precision": 0.3220338983050847,
+      "recall": 0.2,
+      "f1": 0.24675324675324675,
+      "tp": 19,
+      "fp": 40,
+      "fn": 76
+    }
+  },
+  "SLOT_COLLAPSE": false,
+  "VALIDATION_NEGATION_METRICS": {
+    "accuracy": 0.99,
+    "macro_precision": 0.9935064935064934,
+    "macro_recall": 0.9791666666666667,
+    "macro_f1": 0.9860937282714504,
+    "per_class": {
+      "NOT_NEGATED": {
+        "precision": 0.987012987012987,
+        "recall": 1.0,
+        "f1": 0.9934640522875817,
+        "support": 76
+      },
+      "NEGATED": {
+        "precision": 1.0,
+        "recall": 0.9583333333333334,
+        "f1": 0.9787234042553191,
+        "support": 24
+      }
+    },
+    "confusion_matrix": [
+      [
+        76,
+        0
+      ],
+      [
+        1,
+        23
+      ]
+    ]
+  },
+  "VALIDATION_PER_INTENT_NEGATION": {
+    "DOOR_OPEN": "NOT_ESTIMABLE",
+    "DOOR_CLOSE": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        }
+      },
+      "confusion_matrix": [
+        [
+          12,
+          0
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    "WINDOW_OPEN": {
+      "accuracy": 0.8888888888888888,
+      "macro_precision": 0.9375,
+      "macro_recall": 0.75,
+      "macro_f1": 0.8,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1": 0.9333333333333333,
+          "support": 7
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "support": 2
+        }
+      },
+      "confusion_matrix": [
+        [
+          7,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "WINDOW_SET_POSITION": "NOT_ESTIMABLE",
+    "HEADLIGHT_OFF": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 11
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5
+        }
+      },
+      "confusion_matrix": [
+        [
+          11,
+          0
+        ],
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    "ACCELERATE": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5
+        }
+      },
+      "confusion_matrix": [
+        [
+          12,
+          0
+        ],
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    "BRAKE": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        }
+      },
+      "confusion_matrix": [
+        [
+          10,
+          0
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    }
+  },
+  "NEGATION_HEAD_SLOT_DISAGREEMENT_COUNT": 16,
+  "RAW_VALIDATION_UFAR": 0.034482758620689655,
+  "TOTAL_UNSAFE_FALSE_ACCEPT_COUNT": 1,
+  "AMBIGUOUS_FALSE_ACCEPT_COUNT": 0,
+  "MULTI_FALSE_ACCEPT_COUNT": 0,
+  "UNKNOWN_FALSE_ACCEPT_COUNT": 0,
+  "NON_CONTROL_FALSE_ACCEPT_COUNT": 1,
+  "TRACKED_0731_0732_0733": {
+    "SYS014-POC-0731": {
+      "scope": "IN_SCOPE_CONTROL",
+      "structure": "AMBIGUOUS",
+      "intent": "ACCELERATE",
+      "final_abstain": true
+    },
+    "SYS014-POC-0732": {
+      "scope": "IN_SCOPE_CONTROL",
+      "structure": "AMBIGUOUS",
+      "intent": "ACCELERATE",
+      "final_abstain": true
+    },
+    "SYS014-POC-0733": {
+      "scope": "AMBIGUOUS_CONTROL",
+      "structure": "AMBIGUOUS",
+      "intent": "ACCELERATE",
+      "final_abstain": true
+    }
+  },
+  "TRACKED_UNKNOWN_NON_CONTROL": {
+    "SYS014-POC-0748": {
+      "sample_id": "SYS014-POC-0748",
+      "text": "导航去最近的餐厅",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "pred_structure": "SINGLE",
+      "pred_intent": "BRAKE",
+      "raw_abstain": false
+    },
+    "SYS014-POC-0762": {
+      "sample_id": "SYS014-POC-0762",
+      "text": "今天星期几",
+      "pred_scope": "NON_CONTROL",
+      "pred_structure": "SINGLE",
+      "pred_intent": "BRAKE",
+      "raw_abstain": true
+    },
+    "SYS014-POC-0773": {
+      "sample_id": "SYS014-POC-0773",
+      "text": "打开危险警示灯",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "pred_structure": "MULTI",
+      "pred_intent": "WINDOW_OPEN",
+      "raw_abstain": true
+    }
+  },
+  "TRACKED_NEGATION_CASES": {
+    "SYS014-POC-0546": {
+      "sample_id": "SYS014-POC-0546",
+      "text": "不要把前照灯关掉",
+      "sentence_negation_prediction": "NEGATED",
+      "sentence_negation_probability": 0.7190670967102051,
+      "negation_slot_detected": true,
+      "sentence_slot_agreement": true
+    },
+    "SYS014-POC-0547": {
+      "sample_id": "SYS014-POC-0547",
+      "text": "别把前照灯关掉",
+      "sentence_negation_prediction": "NEGATED",
+      "sentence_negation_probability": 0.6437604427337646,
+      "negation_slot_detected": false,
+      "sentence_slot_agreement": false
+    },
+    "SYS014-POC-0548": {
+      "sample_id": "SYS014-POC-0548",
+      "text": "先别把前照灯关掉",
+      "sentence_negation_prediction": "NEGATED",
+      "sentence_negation_probability": 0.6711283922195435,
+      "negation_slot_detected": false,
+      "sentence_slot_agreement": false
+    },
+    "SYS014-POC-0549": {
+      "sample_id": "SYS014-POC-0549",
+      "text": "不用把前照灯关掉",
+      "sentence_negation_prediction": "NEGATED",
+      "sentence_negation_probability": 0.7071040868759155,
+      "negation_slot_detected": false,
+      "sentence_slot_agreement": false
+    },
+    "SYS014-POC-0550": {
+      "sample_id": "SYS014-POC-0550",
+      "text": "请勿把前照灯关掉",
+      "sentence_negation_prediction": "NEGATED",
+      "sentence_negation_probability": 0.6378281116485596,
+      "negation_slot_detected": false,
+      "sentence_slot_agreement": false
+    },
+    "SYS014-POC-0566": {
+      "sample_id": "SYS014-POC-0566",
+      "text": "不用再提点速度",
+      "sentence_negation_prediction": "NEGATED",
+      "sentence_negation_probability": 0.7109268307685852,
+      "negation_slot_detected": false,
+      "sentence_slot_agreement": false
+    },
+    "SYS014-POC-0567": {
+      "sample_id": "SYS014-POC-0567",
+      "text": "请勿再提点速度",
+      "sentence_negation_prediction": "NEGATED",
+      "sentence_negation_probability": 0.6917884945869446,
+      "negation_slot_detected": false,
+      "sentence_slot_agreement": false
+    }
+  },
+  "ACCELERATE_BOUNDARY_FALSE_REJECT_COUNT": 0,
+  "ACCELERATE_BOUNDARY_PROBES": {
+    "ACCELERATE_BOUNDARY_FALSE_REJECT_COUNT": 0,
+    "probe_count": 5,
+    "rows": [
+      {
+        "text": "再快一点",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8699440956115723,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.04920437932014465,
+          "margin": 0.82073974609375
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8657091856002808,
+          "top2_class": "MULTI",
+          "top2_probability": 0.07915698736906052,
+          "margin": 0.7865521907806396
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.5567995309829712,
+          "top2_class": "DOOR_OPEN",
+          "top2_probability": 0.09753675013780594,
+          "margin": 0.45926278829574585
+        },
+        "accepted_as_clear_accelerate": true,
+        "false_reject": false,
+        "probe_only_not_used_for_loss_or_checkpoint_selection": true
+      },
+      {
+        "text": "速度再快一点",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8456131815910339,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.05887601152062416,
+          "margin": 0.7867371439933777
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8331377506256104,
+          "top2_class": "MULTI",
+          "top2_probability": 0.10360448807477951,
+          "margin": 0.7295332551002502
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.5446224808692932,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.11871972680091858,
+          "margin": 0.42590275406837463
+        },
+        "accepted_as_clear_accelerate": true,
+        "false_reject": false,
+        "probe_only_not_used_for_loss_or_checkpoint_selection": true
+      },
+      {
+        "text": "再提点速度",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8420541286468506,
+          "top2_class": "UNKNOWN_CONTROL",
+          "top2_probability": 0.06887537986040115,
+          "margin": 0.77317875623703
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.6339070796966553,
+          "top2_class": "MULTI",
+          "top2_probability": 0.29794734716415405,
+          "margin": 0.3359597325325012
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.4713909924030304,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.1274479180574417,
+          "margin": 0.3439430594444275
+        },
+        "accepted_as_clear_accelerate": true,
+        "false_reject": false,
+        "probe_only_not_used_for_loss_or_checkpoint_selection": true
+      },
+      {
+        "text": "把速度提上去",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8785282969474792,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.04751616716384888,
+          "margin": 0.8310121297836304
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8334757685661316,
+          "top2_class": "MULTI",
+          "top2_probability": 0.11041224747896194,
+          "margin": 0.7230635285377502
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.45303598046302795,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.15861369669437408,
+          "margin": 0.2944222688674927
+        },
+        "accepted_as_clear_accelerate": true,
+        "false_reject": false,
+        "probe_only_not_used_for_loss_or_checkpoint_selection": true
+      },
+      {
+        "text": "稍微加点速",
+        "scope": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8762366771697998,
+          "top2_class": "UNKNOWN_CONTROL",
+          "top2_probability": 0.04559464752674103,
+          "margin": 0.83064204454422
+        },
+        "structure": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8335769772529602,
+          "top2_class": "MULTI",
+          "top2_probability": 0.11445823311805725,
+          "margin": 0.7191187143325806
+        },
+        "intent": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.4954303503036499,
+          "top2_class": "WINDOW_SET_POSITION",
+          "top2_probability": 0.11441466212272644,
+          "margin": 0.38101568818092346
+        },
+        "accepted_as_clear_accelerate": true,
+        "false_reject": false,
+        "probe_only_not_used_for_loss_or_checkpoint_selection": true
+      }
+    ]
+  },
+  "BEST_CHECKPOINT_SAVED": true,
+  "BEST_CHECKPOINT_SHA256": "1ef805cd6fe3473043155c248dfdbac418435b5077ab8a20cdd2a30e9aafd88b",
+  "CLOSEST_SAFETY_DIAGNOSTIC_EPOCH": 5,
+  "CLOSEST_SAFETY_DIAGNOSTIC_SHA256": "1f86da6392ee7df510d1daab8def40d6718410bc250547204025e5eb89c679c5",
+  "LAST_CHECKPOINT_SHA256": "1ef805cd6fe3473043155c248dfdbac418435b5077ab8a20cdd2a30e9aafd88b",
+  "NON_FINITE_LOSS_DETECTED": false,
+  "PRETRAINED_WEIGHTS_CHANGED": true,
+  "INITIAL_BACKBONE_PARAMETER_HASHES": {
+    "embeddings.word_embeddings.weight": "cefc84f05fbe9e9a650beac576c4487c45dc2047dd88e148a0b33f5d8bafce5b",
+    "encoder.layer.1.attention.self.value.bias": "32b21c28e3428d5533e701cf8e703265eda6113499629321a43ab7db15a53267",
+    "encoder.layer.3.attention.self.key.weight": "5e856aee6153e950b9b9d0d844ff6562c219119a44b824c5fbe355b22802fa04",
+    "encoder.layer.4.output.LayerNorm.weight": "c60f4aa41f482cd81132baf0b3689e2c5b3cce25731f34685da2e308c7a2b9b9",
+    "encoder.layer.6.intermediate.dense.weight": "ddc0b34ab4baaaac016e16ec95a51541fa8c1d82df4fbc8ac674767daf0b91f2",
+    "encoder.layer.8.attention.output.dense.weight": "1cc55a74a5b44d22b3620c9cc96b7853db14e9ddeafdf37d7fac44d29bf03ea0",
+    "encoder.layer.10.attention.self.key.bias": "7ad9ab19b213d8216cd8e60130700f5659d4116d4458202d521fbff1f14e9559",
+    "encoder.layer.11.output.LayerNorm.bias": "c92546491a508d99ce5c8223e8ecea28e0254b38f0f233e03b13a101efde21a5"
+  },
+  "INITIAL_JOINT_HEAD_PARAMETER_HASHES": {
+    "scope_head": {
+      "weight": "fc84e05f5aa7a3b48eb4409aee01fdd597887ae4f0a593eb42b3a604cce3eee7",
+      "bias": "549bc8e18b9524731af60e86d66e5dbf8f48194bcd6bb72667be3fd4de463d85"
+    },
+    "structure_head": {
+      "weight": "b5a0b88e2a7d9e4c76c1b2d9f1c5fdad1f927479bfa4b4b5aff3813af105bd72",
+      "bias": "c3870894572ac0da20972ac66fd37494d2bd074e3cafa2b072f23187b3f02bdd"
+    },
+    "intent_head": {
+      "weight": "c526957872272020dadc982108a0350d43ec2c839a9b1db7b2de808fd1346a8d",
+      "bias": "7e6b6141cf363bbea94bbcf3040db65c774f55f28b943c7d63a6f23ccdc2d6c0"
+    },
+    "slot_head": {
+      "weight": "6ff2721743acbeb22ff14a5b814bb2b6dd5d0859f1fad0d44e693a3931e970d3",
+      "bias": "be3d0e6e40c3b067dc6ec67345a65cce9fa13671f918029460a013404e9a2acc"
+    },
+    "negation_head": {
+      "weight": "804208c83f9eae5bf3b7ce9240fcfa44d755c214bd41936cec5604e745c5469a",
+      "bias": "f42e309228774ad163b08d77f536d56220b7cdd9426817df0e7e9c56cc80bd1b"
+    }
+  },
+  "FINAL_BACKBONE_PARAMETER_HASHES": {
+    "embeddings.word_embeddings.weight": "4a9a5e55ed7f96fee62a16c552c69194cbc5117b9c29f374a16409d1bfec6e53",
+    "encoder.layer.1.attention.self.value.bias": "d182b363f916febcf8f9a9674d2603959d3bf2effd7c3677e0518b828a5da3c6",
+    "encoder.layer.3.attention.self.key.weight": "1f0310bc9bb78760fd8879e07597382a13169de53c18f8b967ff05a3fcc4f85c",
+    "encoder.layer.4.output.LayerNorm.weight": "6e1ff0ef8a362d1482351d3b4a187ccf94c08bffa6be714ea7615bdca8892378",
+    "encoder.layer.6.intermediate.dense.weight": "fdff14f934e471ea1d1f6194304169f21955b6b95a01b2ec0e24abd49835d793",
+    "encoder.layer.8.attention.output.dense.weight": "b25957972a99870069adae75fd7d3cd9ff61429dafb34264a0aeac9ac6a77e44",
+    "encoder.layer.10.attention.self.key.bias": "1c8cfadbad6e2e7979262c06b6718ac9a1cb6aeff3804386bfdf67fb1064c3d6",
+    "encoder.layer.11.output.LayerNorm.bias": "5bf217d8791a44e6cc750be82db327acf28445a98f7a3d94ed1d68f2b56b5b39"
+  },
+  "COMPARISON_SEED_MATCH": "YES",
+  "PROTOCOL_MATCH_RBT3_EXP001": true,
+  "TEST_EVALUATION_EXECUTED": false,
+  "SAFETY_GOLD_EVALUATION_EXECUTED": false,
+  "RUNTIME_MODIFIED": false,
+  "RBT3_EXP003_STARTED": false,
+  "ELECTRA_EXP002_STARTED": false,
+  "MACBERT_STARTED": false,
+  "ELECTRA_EXP001_SAFETY_GATE_PASS": true,
+  "ELECTRA_EXP001_BASELINE_HEALTHY": true,
+  "BACKBONE_COMPARISON_READY": true,
+  "READY_FOR_STAGE_4C_MODEL_DECISION": true,
+  "SELECTED_VALIDATION_METRICS": {
+    "losses": {
+      "scope_loss": 0.34636911584271324,
+      "structure_loss": 0.26252980364693534,
+      "intent_loss": 0.7392176124784682,
+      "slot_loss": 0.4267058703634474,
+      "negation_loss": 0.1493293195962906,
+      "total_loss": 1.9241516722573175
+    },
+    "intent": {
+      "accuracy": 0.98,
+      "macro_precision": 0.9841269841269842,
+      "macro_recall": 0.9821428571428571,
+      "macro_f1": 0.9820728291316527,
+      "per_class": {
+        "DOOR_OPEN": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 11
+        },
+        "DOOR_CLOSE": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 18
+        },
+        "WINDOW_OPEN": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 9
+        },
+        "WINDOW_SET_POSITION": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 13
+        },
+        "HEADLIGHT_OFF": {
+          "precision": 0.8888888888888888,
+          "recall": 1.0,
+          "f1": 0.9411764705882353,
+          "support": 16
+        },
+        "ACCELERATE": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 17
+        },
+        "BRAKE": {
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1": 0.9333333333333333,
+          "support": 16
+        }
+      },
+      "confusion_matrix": [
+        [
+          11,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          18,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          9,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          13,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          16,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          17,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          14
+        ]
+      ]
+    },
+    "scope": {
+      "accuracy": 0.9689922480620154,
+      "macro_precision": 0.7417355371900827,
+      "macro_recall": 0.5694444444444444,
+      "macro_f1": 0.6312149859943977,
+      "per_class": {
+        "IN_SCOPE_CONTROL": {
+          "precision": 0.9669421487603306,
+          "recall": 1.0,
+          "f1": 0.9831932773109243,
+          "support": 117
+        },
+        "NON_CONTROL": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "support": 2
+        },
+        "UNKNOWN_CONTROL": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        },
+        "AMBIGUOUS_CONTROL": {
+          "precision": 1.0,
+          "recall": 0.7777777777777778,
+          "f1": 0.875,
+          "support": 9
+        }
+      },
+      "confusion_matrix": [
+        [
+          117,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0,
+          7
+        ]
+      ]
+    },
+    "structure": {
+      "accuracy": 0.9844961240310077,
+      "macro_precision": 0.9649122807017544,
+      "macro_recall": 0.9935275080906149,
+      "macro_f1": 0.9782135076252724,
+      "per_class": {
+        "SINGLE": {
+          "precision": 1.0,
+          "recall": 0.9805825242718447,
+          "f1": 0.9901960784313726,
+          "support": 103
+        },
+        "MULTI": {
+          "precision": 0.8947368421052632,
+          "recall": 1.0,
+          "f1": 0.9444444444444444,
+          "support": 17
+        },
+        "AMBIGUOUS": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 9
+        }
+      },
+      "confusion_matrix": [
+        [
+          101,
+          2,
+          0
+        ],
+        [
+          0,
+          17,
+          0
+        ],
+        [
+          0,
+          0,
+          9
+        ]
+      ]
+    },
+    "slot": {
+      "AREA": {
+        "precision": 0.34,
+        "recall": 0.3269230769230769,
+        "f1": 0.3333333333333333,
+        "tp": 17,
+        "fp": 33,
+        "fn": 35
+      },
+      "VALUE": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 2,
+        "fn": 19
+      },
+      "NEGATION": {
+        "precision": 0.2857142857142857,
+        "recall": 0.08333333333333333,
+        "f1": 0.12903225806451613,
+        "tp": 2,
+        "fp": 5,
+        "fn": 22
+      },
+      "OVERALL": {
+        "precision": 0.3220338983050847,
+        "recall": 0.2,
+        "f1": 0.24675324675324675,
+        "tp": 19,
+        "fp": 40,
+        "fn": 76
+      }
+    },
+    "negation": {
+      "accuracy": 0.99,
+      "macro_precision": 0.9935064935064934,
+      "macro_recall": 0.9791666666666667,
+      "macro_f1": 0.9860937282714504,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 0.987012987012987,
+          "recall": 1.0,
+          "f1": 0.9934640522875817,
+          "support": 76
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 0.9583333333333334,
+          "f1": 0.9787234042553191,
+          "support": 24
+        }
+      },
+      "confusion_matrix": [
+        [
+          76,
+          0
+        ],
+        [
+          1,
+          23
+        ]
+      ]
+    },
+    "per_intent_negation": {
+      "DOOR_OPEN": "NOT_ESTIMABLE",
+      "DOOR_CLOSE": {
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0,
+        "per_class": {
+          "NOT_NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 12
+          },
+          "NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 6
+          }
+        },
+        "confusion_matrix": [
+          [
+            12,
+            0
+          ],
+          [
+            0,
+            6
+          ]
+        ]
+      },
+      "WINDOW_OPEN": {
+        "accuracy": 0.8888888888888888,
+        "macro_precision": 0.9375,
+        "macro_recall": 0.75,
+        "macro_f1": 0.8,
+        "per_class": {
+          "NOT_NEGATED": {
+            "precision": 0.875,
+            "recall": 1.0,
+            "f1": 0.9333333333333333,
+            "support": 7
+          },
+          "NEGATED": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "f1": 0.6666666666666666,
+            "support": 2
+          }
+        },
+        "confusion_matrix": [
+          [
+            7,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "WINDOW_SET_POSITION": "NOT_ESTIMABLE",
+      "HEADLIGHT_OFF": {
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0,
+        "per_class": {
+          "NOT_NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 11
+          },
+          "NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 5
+          }
+        },
+        "confusion_matrix": [
+          [
+            11,
+            0
+          ],
+          [
+            0,
+            5
+          ]
+        ]
+      },
+      "ACCELERATE": {
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0,
+        "per_class": {
+          "NOT_NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 12
+          },
+          "NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 5
+          }
+        },
+        "confusion_matrix": [
+          [
+            12,
+            0
+          ],
+          [
+            0,
+            5
+          ]
+        ]
+      },
+      "BRAKE": {
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0,
+        "per_class": {
+          "NOT_NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 10
+          },
+          "NEGATED": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 6
+          }
+        },
+        "confusion_matrix": [
+          [
+            10,
+            0
+          ],
+          [
+            0,
+            6
+          ]
+        ]
+      }
+    },
+    "safety": {
+      "metric_name": "RAW_VALIDATION_UFAR",
+      "deployment_calibrated": false,
+      "UNSAFE_FALSE_ACCEPT_RATE": 0.034482758620689655,
+      "unsafe_false_accepts": 1,
+      "total_should_abstain": 29,
+      "per_category": {
+        "NON_CONTROL": {
+          "total_should_abstain": 2,
+          "unsafe_false_accepts": 1,
+          "false_accept_rate": 0.5
+        },
+        "UNKNOWN_CONTROL": {
+          "total_should_abstain": 1,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "AMBIGUOUS_CONTROL": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "MULTI": {
+          "total_should_abstain": 17,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        },
+        "AMBIGUOUS": {
+          "total_should_abstain": 9,
+          "unsafe_false_accepts": 0,
+          "false_accept_rate": 0.0
+        }
+      }
+    },
+    "primary_quality_inputs": {
+      "intent_macro_f1": 0.9820728291316527,
+      "scope_macro_f1": 0.6312149859943977,
+      "structure_macro_f1": 0.9782135076252724,
+      "slot_span_f1": 0.24675324675324675,
+      "negation_f1": 0.9787234042553191
+    },
+    "PRIMARY_QUALITY_SCORE": 0.7637305372396112,
+    "SAFETY_GATES_PASS": true,
+    "NEGATION_HEAD_SLOT_DISAGREEMENT_COUNT": 16,
+    "tracked_ambiguous_family": {
+      "SYS014-POC-0731": {
+        "sample_id": "SYS014-POC-0731",
+        "text": "速度那个再弄点",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "scope_probabilities": {
+          "IN_SCOPE_CONTROL": 0.5080353617668152,
+          "NON_CONTROL": 0.0845346450805664,
+          "UNKNOWN_CONTROL": 0.06672943383455276,
+          "AMBIGUOUS_CONTROL": 0.34070053696632385
+        },
+        "scope_top1_top2": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.5080353617668152,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.34070053696632385,
+          "margin": 0.16733482480049133
+        },
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "structure_probabilities": {
+          "SINGLE": 0.3631887137889862,
+          "MULTI": 0.20000165700912476,
+          "AMBIGUOUS": 0.4368096590042114
+        },
+        "structure_top1_top2": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.4368096590042114,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.3631887137889862,
+          "margin": 0.07362094521522522
+        },
+        "gold_intent": null,
+        "pred_intent": "ACCELERATE",
+        "intent_probabilities": {
+          "DOOR_OPEN": 0.11647456884384155,
+          "DOOR_CLOSE": 0.060811907052993774,
+          "WINDOW_OPEN": 0.08013393729925156,
+          "WINDOW_SET_POSITION": 0.11659683287143707,
+          "HEADLIGHT_OFF": 0.09305388480424881,
+          "ACCELERATE": 0.3876081705093384,
+          "BRAKE": 0.14532072842121124
+        },
+        "intent_top1_top2": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.3876081705093384,
+          "top2_class": "BRAKE",
+          "top2_probability": 0.14532072842121124,
+          "margin": 0.24228744208812714
+        },
+        "gold_negated": null,
+        "pred_negated": false,
+        "negation_probabilities": {
+          "NOT_NEGATED": 0.9536306262016296,
+          "NEGATED": 0.04636935889720917
+        },
+        "negation_top1_top2": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9536306262016296,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.04636935889720917,
+          "margin": 0.9072612524032593
+        },
+        "gold_slots": [],
+        "gold_slot_token_spans": [],
+        "predicted_slots": [],
+        "predicted_slot_token_spans": [],
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": true,
+        "raw_executable": false,
+        "raw_abstain": true,
+        "final_raw_decision": "ABSTAIN"
+      },
+      "SYS014-POC-0732": {
+        "sample_id": "SYS014-POC-0732",
+        "text": "麻烦速度那个再弄点",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "scope_probabilities": {
+          "IN_SCOPE_CONTROL": 0.4569140374660492,
+          "NON_CONTROL": 0.09289905428886414,
+          "UNKNOWN_CONTROL": 0.06624582409858704,
+          "AMBIGUOUS_CONTROL": 0.38394108414649963
+        },
+        "scope_top1_top2": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.4569140374660492,
+          "top2_class": "AMBIGUOUS_CONTROL",
+          "top2_probability": 0.38394108414649963,
+          "margin": 0.07297295331954956
+        },
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "structure_probabilities": {
+          "SINGLE": 0.3052155375480652,
+          "MULTI": 0.1660521924495697,
+          "AMBIGUOUS": 0.5287322998046875
+        },
+        "structure_top1_top2": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.5287322998046875,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.3052155375480652,
+          "margin": 0.22351676225662231
+        },
+        "gold_intent": null,
+        "pred_intent": "ACCELERATE",
+        "intent_probabilities": {
+          "DOOR_OPEN": 0.1103207916021347,
+          "DOOR_CLOSE": 0.06123191863298416,
+          "WINDOW_OPEN": 0.08059863746166229,
+          "WINDOW_SET_POSITION": 0.10631024837493896,
+          "HEADLIGHT_OFF": 0.10396947711706161,
+          "ACCELERATE": 0.34316685795783997,
+          "BRAKE": 0.19440217316150665
+        },
+        "intent_top1_top2": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.34316685795783997,
+          "top2_class": "BRAKE",
+          "top2_probability": 0.19440217316150665,
+          "margin": 0.1487646847963333
+        },
+        "gold_negated": null,
+        "pred_negated": false,
+        "negation_probabilities": {
+          "NOT_NEGATED": 0.9425699710845947,
+          "NEGATED": 0.057430002838373184
+        },
+        "negation_top1_top2": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9425699710845947,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.057430002838373184,
+          "margin": 0.8851399421691895
+        },
+        "gold_slots": [],
+        "gold_slot_token_spans": [],
+        "predicted_slots": [],
+        "predicted_slot_token_spans": [],
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": true,
+        "raw_executable": false,
+        "raw_abstain": true,
+        "final_raw_decision": "ABSTAIN"
+      },
+      "SYS014-POC-0733": {
+        "sample_id": "SYS014-POC-0733",
+        "text": "速度那个再弄点，可以吗",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "AMBIGUOUS_CONTROL",
+        "scope_probabilities": {
+          "IN_SCOPE_CONTROL": 0.31934207677841187,
+          "NON_CONTROL": 0.10106074064970016,
+          "UNKNOWN_CONTROL": 0.07021394371986389,
+          "AMBIGUOUS_CONTROL": 0.5093832015991211
+        },
+        "scope_top1_top2": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.5093832015991211,
+          "top2_class": "IN_SCOPE_CONTROL",
+          "top2_probability": 0.31934207677841187,
+          "margin": 0.19004112482070923
+        },
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "structure_probabilities": {
+          "SINGLE": 0.251252144575119,
+          "MULTI": 0.14811274409294128,
+          "AMBIGUOUS": 0.6006351709365845
+        },
+        "structure_top1_top2": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.6006351709365845,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.251252144575119,
+          "margin": 0.34938302636146545
+        },
+        "gold_intent": null,
+        "pred_intent": "ACCELERATE",
+        "intent_probabilities": {
+          "DOOR_OPEN": 0.12507149577140808,
+          "DOOR_CLOSE": 0.06213174760341644,
+          "WINDOW_OPEN": 0.09137573093175888,
+          "WINDOW_SET_POSITION": 0.1046753078699112,
+          "HEADLIGHT_OFF": 0.09793387353420258,
+          "ACCELERATE": 0.2762700915336609,
+          "BRAKE": 0.24254174530506134
+        },
+        "intent_top1_top2": {
+          "top1_class": "ACCELERATE",
+          "top1_probability": 0.2762700915336609,
+          "top2_class": "BRAKE",
+          "top2_probability": 0.24254174530506134,
+          "margin": 0.03372834622859955
+        },
+        "gold_negated": null,
+        "pred_negated": false,
+        "negation_probabilities": {
+          "NOT_NEGATED": 0.9259114861488342,
+          "NEGATED": 0.07408852875232697
+        },
+        "negation_top1_top2": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.9259114861488342,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.07408852875232697,
+          "margin": 0.8518229722976685
+        },
+        "gold_slots": [],
+        "gold_slot_token_spans": [],
+        "predicted_slots": [],
+        "predicted_slot_token_spans": [],
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": true,
+        "raw_executable": false,
+        "raw_abstain": true,
+        "final_raw_decision": "ABSTAIN"
+      }
+    },
+    "tracked_negation_cases": {
+      "SYS014-POC-0546": {
+        "sample_id": "SYS014-POC-0546",
+        "text": "不要把前照灯关掉",
+        "sentence_negation_prediction": "NEGATED",
+        "sentence_negation_probability": 0.7190670967102051,
+        "negation_slot_detected": true,
+        "sentence_slot_agreement": true
+      },
+      "SYS014-POC-0547": {
+        "sample_id": "SYS014-POC-0547",
+        "text": "别把前照灯关掉",
+        "sentence_negation_prediction": "NEGATED",
+        "sentence_negation_probability": 0.6437604427337646,
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": false
+      },
+      "SYS014-POC-0548": {
+        "sample_id": "SYS014-POC-0548",
+        "text": "先别把前照灯关掉",
+        "sentence_negation_prediction": "NEGATED",
+        "sentence_negation_probability": 0.6711283922195435,
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": false
+      },
+      "SYS014-POC-0549": {
+        "sample_id": "SYS014-POC-0549",
+        "text": "不用把前照灯关掉",
+        "sentence_negation_prediction": "NEGATED",
+        "sentence_negation_probability": 0.7071040868759155,
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": false
+      },
+      "SYS014-POC-0550": {
+        "sample_id": "SYS014-POC-0550",
+        "text": "请勿把前照灯关掉",
+        "sentence_negation_prediction": "NEGATED",
+        "sentence_negation_probability": 0.6378281116485596,
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": false
+      },
+      "SYS014-POC-0566": {
+        "sample_id": "SYS014-POC-0566",
+        "text": "不用再提点速度",
+        "sentence_negation_prediction": "NEGATED",
+        "sentence_negation_probability": 0.7109268307685852,
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": false
+      },
+      "SYS014-POC-0567": {
+        "sample_id": "SYS014-POC-0567",
+        "text": "请勿再提点速度",
+        "sentence_negation_prediction": "NEGATED",
+        "sentence_negation_probability": 0.6917884945869446,
+        "negation_slot_detected": false,
+        "sentence_slot_agreement": false
+      }
+    },
+    "error_cases": [
+      {
+        "sample_id": "SYS014-POC-0117",
+        "text": "司机这边的门现在开一下",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_OPEN",
+        "pred_intent": "DOOR_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 4,
+            "char_start": 0,
+            "char_end": 3,
+            "text": "司机这"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0131",
+        "text": "把副驾驶门打开",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_OPEN",
+        "pred_intent": "DOOR_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 1,
+            "char_end": 4,
+            "text": "副驾驶",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 2,
+            "token_end": 4,
+            "char_start": 1,
+            "char_end": 3,
+            "text": "副驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0157",
+        "text": "关闭主驾门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "主驾",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "主"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0160",
+        "text": "帮我关一下主驾门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 5,
+            "char_end": 7,
+            "text": "主驾",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 6,
+            "token_end": 7,
+            "char_start": 5,
+            "char_end": 6,
+            "text": "主"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0173",
+        "text": "麻烦把司机这边的门关好",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 3,
+            "char_end": 7,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 4,
+            "token_end": 6,
+            "char_start": 3,
+            "char_end": 5,
+            "text": "司机"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0174",
+        "text": "司机这边的门给我关上",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 3,
+            "char_start": 0,
+            "char_end": 2,
+            "text": "司机"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0178",
+        "text": "司机这边的门帮忙关好",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 3,
+            "char_start": 0,
+            "char_end": 2,
+            "text": "司机"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0180",
+        "text": "司机这边的门现在关上",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 3,
+            "char_start": 0,
+            "char_end": 2,
+            "text": "司机"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0193",
+        "text": "关闭副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 5,
+            "text": "副驾驶",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 4,
+            "token_end": 5,
+            "char_start": 3,
+            "char_end": 4,
+            "text": "驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0196",
+        "text": "帮我关一下副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 5,
+            "char_end": 8,
+            "text": "副驾驶",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 7,
+            "token_end": 8,
+            "char_start": 6,
+            "char_end": 7,
+            "text": "驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0202",
+        "text": "副驾驶门帮忙关好",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 3,
+            "text": "副驾驶",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 3,
+            "char_start": 0,
+            "char_end": 2,
+            "text": "副驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0205",
+        "text": "把车窗开到一半",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 5,
+            "char_end": 7,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0207",
+        "text": "把车窗开到50%",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 5,
+            "char_end": 8,
+            "text": "50%",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "VALUE",
+            "token_start": 6,
+            "token_end": 7,
+            "char_start": 5,
+            "char_end": 7,
+            "text": "50"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0209",
+        "text": "把车窗开到三成",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 5,
+            "char_end": 7,
+            "text": "三成",
+            "canonical_value": "30%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0211",
+        "text": "把车窗开到30%",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 5,
+            "char_end": 8,
+            "text": "30%",
+            "canonical_value": "30%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "VALUE",
+            "token_start": 6,
+            "token_end": 7,
+            "char_start": 5,
+            "char_end": 7,
+            "text": "30"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0213",
+        "text": "把车窗开到最大",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 5,
+            "char_end": 7,
+            "text": "最大",
+            "canonical_value": "100%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0216",
+        "text": "车窗再开一点",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 4,
+            "char_end": 6,
+            "text": "一点",
+            "canonical_value": null,
+            "normalization_status": "RAW_ONLY"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0218",
+        "text": "车窗再开小一点",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 4,
+            "char_end": 7,
+            "text": "小一点",
+            "canonical_value": null,
+            "normalization_status": "RAW_ONLY"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0220",
+        "text": "车窗再开大一点",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "VALUE",
+            "char_start": 4,
+            "char_end": 7,
+            "text": "大一点",
+            "canonical_value": null,
+            "normalization_status": "RAW_ONLY"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0254",
+        "text": "司机这边的窗开到一半",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 8,
+            "char_end": 10,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 5,
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0256",
+        "text": "司机这边的窗开到50%",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 8,
+            "char_end": 11,
+            "text": "50%",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 5,
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0258",
+        "text": "司机这边的窗开到三成",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 8,
+            "char_end": 10,
+            "text": "三成",
+            "canonical_value": "30%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 5,
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0260",
+        "text": "司机这边的窗开到30%",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 8,
+            "char_end": 11,
+            "text": "30%",
+            "canonical_value": "30%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 5,
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0262",
+        "text": "司机这边的窗开到最大",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_SET_POSITION",
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 8,
+            "char_end": 10,
+            "text": "最大",
+            "canonical_value": "100%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 5,
+            "char_start": 0,
+            "char_end": 4,
+            "text": "司机这边"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0431",
+        "text": "麻烦踩刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "BRAKE",
+        "pred_intent": "HEADLIGHT_OFF",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0510",
+        "text": "不要关上副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "不要",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 6,
+            "token_end": 7,
+            "char_start": 5,
+            "char_end": 6,
+            "text": "驾"
+          },
+          {
+            "slot_type": "NEGATION",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "不"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0511",
+        "text": "别关上副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 1,
+            "text": "别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 5,
+            "token_end": 6,
+            "char_start": 4,
+            "char_end": 5,
+            "text": "驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0512",
+        "text": "先别关上副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "先别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 6,
+            "token_end": 7,
+            "char_start": 5,
+            "char_end": 6,
+            "text": "驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0513",
+        "text": "不用关上副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "不用",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 6,
+            "token_end": 7,
+            "char_start": 5,
+            "char_end": 6,
+            "text": "驾"
+          },
+          {
+            "slot_type": "NEGATION",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "不"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0514",
+        "text": "请勿关上副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "请勿",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 6,
+            "token_end": 7,
+            "char_start": 5,
+            "char_end": 6,
+            "text": "驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0515",
+        "text": "暂时别关上副驾驶门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "DOOR_CLOSE",
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 3,
+            "text": "暂时别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 7,
+            "token_end": 8,
+            "char_start": 6,
+            "char_end": 7,
+            "text": "驾"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0546",
+        "text": "不要把前照灯关掉",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "HEADLIGHT_OFF",
+        "pred_intent": "HEADLIGHT_OFF",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "不要",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "NEGATION",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "不"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0547",
+        "text": "别把前照灯关掉",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "HEADLIGHT_OFF",
+        "pred_intent": "HEADLIGHT_OFF",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 1,
+            "text": "别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0548",
+        "text": "先别把前照灯关掉",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "HEADLIGHT_OFF",
+        "pred_intent": "HEADLIGHT_OFF",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "先别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0549",
+        "text": "不用把前照灯关掉",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "HEADLIGHT_OFF",
+        "pred_intent": "HEADLIGHT_OFF",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "不用",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0550",
+        "text": "请勿把前照灯关掉",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "HEADLIGHT_OFF",
+        "pred_intent": "HEADLIGHT_OFF",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "请勿",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0564",
+        "text": "别再提点速度",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "ACCELERATE",
+        "pred_intent": "ACCELERATE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 1,
+            "text": "别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0565",
+        "text": "先别再提点速度",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "ACCELERATE",
+        "pred_intent": "ACCELERATE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "先别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0566",
+        "text": "不用再提点速度",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "ACCELERATE",
+        "pred_intent": "ACCELERATE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "不用",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0567",
+        "text": "请勿再提点速度",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "ACCELERATE",
+        "pred_intent": "ACCELERATE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "请勿",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0581",
+        "text": "别踩刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "BRAKE",
+        "pred_intent": "BRAKE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 1,
+            "text": "别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0582",
+        "text": "先别踩刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "BRAKE",
+        "pred_intent": "BRAKE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "先别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0583",
+        "text": "不用踩刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "BRAKE",
+        "pred_intent": "HEADLIGHT_OFF",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "不用",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "NEGATION",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "不"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0584",
+        "text": "请勿踩刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "BRAKE",
+        "pred_intent": "BRAKE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "请勿",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0585",
+        "text": "暂时别踩刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "BRAKE",
+        "pred_intent": "BRAKE",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 3,
+            "text": "暂时别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "NEGATION",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "别"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0588",
+        "text": "打开左前车门然后把前照灯关了",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "左前",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0590",
+        "text": "打开左前车门然后踩下刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "左前",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0595",
+        "text": "关闭右后车门然后踩下刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "右后",
+            "canonical_value": "RIGHT_REAR",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0598",
+        "text": "左后车窗开到一半然后把前照灯关了",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后",
+            "canonical_value": "LEFT_REAR",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 6,
+            "char_end": 8,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0599",
+        "text": "左后车窗开到一半然后再提点速度",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后",
+            "canonical_value": "LEFT_REAR",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 6,
+            "char_end": 8,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0618",
+        "text": "打开左前车门再把前照灯关了",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "左前",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0620",
+        "text": "打开左前车门再踩下刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "左前",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0625",
+        "text": "关闭右后车门再踩下刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "右后",
+            "canonical_value": "RIGHT_REAR",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0628",
+        "text": "左后车窗开到一半再把前照灯关了",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后",
+            "canonical_value": "LEFT_REAR",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 6,
+            "char_end": 8,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0629",
+        "text": "左后车窗开到一半再提点速度",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后",
+            "canonical_value": "LEFT_REAR",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 6,
+            "char_end": 8,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 3,
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0648",
+        "text": "打开左前车门接着把前照灯关了",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "DOOR_CLOSE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "左前",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0650",
+        "text": "打开左前车门接着踩下刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "左前",
+            "canonical_value": "LEFT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0655",
+        "text": "关闭右后车门接着踩下刹车",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "右后",
+            "canonical_value": "RIGHT_REAR",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0658",
+        "text": "左后车窗开到一半接着把前照灯关了",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后",
+            "canonical_value": "LEFT_REAR",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 6,
+            "char_end": 8,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0659",
+        "text": "左后车窗开到一半接着再提点速度",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_SET_POSITION",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后",
+            "canonical_value": "LEFT_REAR",
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "VALUE",
+            "char_start": 6,
+            "char_end": 8,
+            "text": "一半",
+            "canonical_value": "50%",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 3,
+            "char_start": 0,
+            "char_end": 2,
+            "text": "左后"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0722",
+        "text": "副驾那边动一下",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "AMBIGUOUS_CONTROL",
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "gold_intent": null,
+        "pred_intent": "BRAKE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "副驾",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "副"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0723",
+        "text": "麻烦副驾那边动一下",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "AMBIGUOUS_CONTROL",
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "gold_intent": null,
+        "pred_intent": "BRAKE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "副驾",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0724",
+        "text": "副驾那边动一下，可以吗",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "AMBIGUOUS_CONTROL",
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "gold_intent": null,
+        "pred_intent": "BRAKE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "副驾",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 1,
+            "token_end": 2,
+            "char_start": 0,
+            "char_end": 1,
+            "text": "副"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0731",
+        "text": "速度那个再弄点",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "gold_intent": null,
+        "pred_intent": "ACCELERATE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0732",
+        "text": "麻烦速度那个再弄点",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "gold_intent": null,
+        "pred_intent": "ACCELERATE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0748",
+        "text": "导航去最近的餐厅",
+        "gold_scope": "NON_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": null,
+        "pred_intent": "BRAKE",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0773",
+        "text": "打开危险警示灯",
+        "gold_scope": "UNKNOWN_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0781",
+        "text": "把窗户打开",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "MULTI",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0813",
+        "text": "帮我开左后车窗",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 3,
+            "char_end": 5,
+            "text": "左后",
+            "canonical_value": "LEFT_REAR",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 4,
+            "token_end": 5,
+            "char_start": 3,
+            "char_end": 4,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0819",
+        "text": "帮我开右后车窗",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 3,
+            "char_end": 5,
+            "text": "右后",
+            "canonical_value": "RIGHT_REAR",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0821",
+        "text": "把前排两边的窗打开",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 1,
+            "char_end": 3,
+            "text": "前排",
+            "canonical_value": "FRONT_ROW",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "排"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0829",
+        "text": "请开左边车窗",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "左边",
+            "canonical_value": "LEFT_SIDE",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 3,
+            "token_end": 4,
+            "char_start": 2,
+            "char_end": 3,
+            "text": "左"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0832",
+        "text": "请开右边车窗",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": false,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "右边",
+            "canonical_value": "RIGHT_SIDE",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0841",
+        "text": "先别把窗户打开",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": true,
+        "pred_negated": true,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 2,
+            "text": "先别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      },
+      {
+        "sample_id": "SYS014-POC-0849",
+        "text": "别把后排的窗打开",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "SINGLE",
+        "pred_structure": "SINGLE",
+        "gold_intent": "WINDOW_OPEN",
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": true,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 1,
+            "text": "别",
+            "canonical_value": true,
+            "normalization_status": "NORMALIZED"
+          },
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "后排",
+            "canonical_value": "REAR_ROW",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 4,
+            "token_end": 5,
+            "char_start": 3,
+            "char_end": 4,
+            "text": "排"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0855",
+        "text": "先打开副驾车窗再加速",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 3,
+            "char_end": 5,
+            "text": "副驾",
+            "canonical_value": "RIGHT_FRONT",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "AREA",
+            "token_start": 4,
+            "token_end": 5,
+            "char_start": 3,
+            "char_end": 4,
+            "text": "副"
+          }
+        ]
+      },
+      {
+        "sample_id": "SYS014-POC-0859",
+        "text": "打开后排车窗再打开车门",
+        "gold_scope": "IN_SCOPE_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "gold_structure": "MULTI",
+        "pred_structure": "MULTI",
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "gold_negated": null,
+        "pred_negated": false,
+        "gold_slots": [
+          {
+            "slot_type": "AREA",
+            "char_start": 2,
+            "char_end": 4,
+            "text": "后排",
+            "canonical_value": "REAR_ROW",
+            "normalization_status": "NORMALIZED"
+          }
+        ],
+        "predicted_slots": []
+      }
+    ],
+    "ACCELERATE_BOUNDARY_FALSE_REJECT_COUNT": 0,
+    "accelerate_boundary_probes": {
+      "ACCELERATE_BOUNDARY_FALSE_REJECT_COUNT": 0,
+      "probe_count": 5,
+      "rows": [
+        {
+          "text": "再快一点",
+          "scope": {
+            "top1_class": "IN_SCOPE_CONTROL",
+            "top1_probability": 0.8699440956115723,
+            "top2_class": "AMBIGUOUS_CONTROL",
+            "top2_probability": 0.04920437932014465,
+            "margin": 0.82073974609375
+          },
+          "structure": {
+            "top1_class": "SINGLE",
+            "top1_probability": 0.8657091856002808,
+            "top2_class": "MULTI",
+            "top2_probability": 0.07915698736906052,
+            "margin": 0.7865521907806396
+          },
+          "intent": {
+            "top1_class": "ACCELERATE",
+            "top1_probability": 0.5567995309829712,
+            "top2_class": "DOOR_OPEN",
+            "top2_probability": 0.09753675013780594,
+            "margin": 0.45926278829574585
+          },
+          "accepted_as_clear_accelerate": true,
+          "false_reject": false,
+          "probe_only_not_used_for_loss_or_checkpoint_selection": true
+        },
+        {
+          "text": "速度再快一点",
+          "scope": {
+            "top1_class": "IN_SCOPE_CONTROL",
+            "top1_probability": 0.8456131815910339,
+            "top2_class": "AMBIGUOUS_CONTROL",
+            "top2_probability": 0.05887601152062416,
+            "margin": 0.7867371439933777
+          },
+          "structure": {
+            "top1_class": "SINGLE",
+            "top1_probability": 0.8331377506256104,
+            "top2_class": "MULTI",
+            "top2_probability": 0.10360448807477951,
+            "margin": 0.7295332551002502
+          },
+          "intent": {
+            "top1_class": "ACCELERATE",
+            "top1_probability": 0.5446224808692932,
+            "top2_class": "WINDOW_SET_POSITION",
+            "top2_probability": 0.11871972680091858,
+            "margin": 0.42590275406837463
+          },
+          "accepted_as_clear_accelerate": true,
+          "false_reject": false,
+          "probe_only_not_used_for_loss_or_checkpoint_selection": true
+        },
+        {
+          "text": "再提点速度",
+          "scope": {
+            "top1_class": "IN_SCOPE_CONTROL",
+            "top1_probability": 0.8420541286468506,
+            "top2_class": "UNKNOWN_CONTROL",
+            "top2_probability": 0.06887537986040115,
+            "margin": 0.77317875623703
+          },
+          "structure": {
+            "top1_class": "SINGLE",
+            "top1_probability": 0.6339070796966553,
+            "top2_class": "MULTI",
+            "top2_probability": 0.29794734716415405,
+            "margin": 0.3359597325325012
+          },
+          "intent": {
+            "top1_class": "ACCELERATE",
+            "top1_probability": 0.4713909924030304,
+            "top2_class": "WINDOW_SET_POSITION",
+            "top2_probability": 0.1274479180574417,
+            "margin": 0.3439430594444275
+          },
+          "accepted_as_clear_accelerate": true,
+          "false_reject": false,
+          "probe_only_not_used_for_loss_or_checkpoint_selection": true
+        },
+        {
+          "text": "把速度提上去",
+          "scope": {
+            "top1_class": "IN_SCOPE_CONTROL",
+            "top1_probability": 0.8785282969474792,
+            "top2_class": "AMBIGUOUS_CONTROL",
+            "top2_probability": 0.04751616716384888,
+            "margin": 0.8310121297836304
+          },
+          "structure": {
+            "top1_class": "SINGLE",
+            "top1_probability": 0.8334757685661316,
+            "top2_class": "MULTI",
+            "top2_probability": 0.11041224747896194,
+            "margin": 0.7230635285377502
+          },
+          "intent": {
+            "top1_class": "ACCELERATE",
+            "top1_probability": 0.45303598046302795,
+            "top2_class": "WINDOW_SET_POSITION",
+            "top2_probability": 0.15861369669437408,
+            "margin": 0.2944222688674927
+          },
+          "accepted_as_clear_accelerate": true,
+          "false_reject": false,
+          "probe_only_not_used_for_loss_or_checkpoint_selection": true
+        },
+        {
+          "text": "稍微加点速",
+          "scope": {
+            "top1_class": "IN_SCOPE_CONTROL",
+            "top1_probability": 0.8762366771697998,
+            "top2_class": "UNKNOWN_CONTROL",
+            "top2_probability": 0.04559464752674103,
+            "margin": 0.83064204454422
+          },
+          "structure": {
+            "top1_class": "SINGLE",
+            "top1_probability": 0.8335769772529602,
+            "top2_class": "MULTI",
+            "top2_probability": 0.11445823311805725,
+            "margin": 0.7191187143325806
+          },
+          "intent": {
+            "top1_class": "ACCELERATE",
+            "top1_probability": 0.4954303503036499,
+            "top2_class": "WINDOW_SET_POSITION",
+            "top2_probability": 0.11441466212272644,
+            "margin": 0.38101568818092346
+          },
+          "accepted_as_clear_accelerate": true,
+          "false_reject": false,
+          "probe_only_not_used_for_loss_or_checkpoint_selection": true
+        }
+      ]
+    },
+    "tracked_abstention_examples": {
+      "SYS014-POC-0748": {
+        "sample_id": "SYS014-POC-0748",
+        "text": "导航去最近的餐厅",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "pred_structure": "SINGLE",
+        "pred_intent": "BRAKE",
+        "raw_abstain": false
+      },
+      "SYS014-POC-0762": {
+        "sample_id": "SYS014-POC-0762",
+        "text": "今天星期几",
+        "pred_scope": "NON_CONTROL",
+        "pred_structure": "SINGLE",
+        "pred_intent": "BRAKE",
+        "raw_abstain": true
+      },
+      "SYS014-POC-0773": {
+        "sample_id": "SYS014-POC-0773",
+        "text": "打开危险警示灯",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "pred_structure": "MULTI",
+        "pred_intent": "WINDOW_OPEN",
+        "raw_abstain": true
+      }
+    },
+    "SLOT_COLLAPSE": false
+  },
+  "PARAMETER_COUNT": 12286487,
+  "VALIDATION_INTENT_PER_CLASS_F1": {
+    "DOOR_OPEN": 1.0,
+    "DOOR_CLOSE": 1.0,
+    "WINDOW_OPEN": 1.0,
+    "WINDOW_SET_POSITION": 1.0,
+    "HEADLIGHT_OFF": 0.9411764705882353,
+    "ACCELERATE": 1.0,
+    "BRAKE": 0.9333333333333333
+  },
+  "UNKNOWN_CONTROL_RECALL": 0.0,
+  "MULTI_RECALL": 1.0,
+  "AMBIGUOUS_RECALL": 1.0,
+  "VALIDATION_SLOT_SPAN_F1": 0.24675324675324675,
+  "AREA_F1": 0.3333333333333333,
+  "VALUE_F1": 0.0,
+  "NEGATION_SPAN_F1": 0.12903225806451613,
+  "VALIDATION_NEGATION_F1": 0.9787234042553191,
+  "VALIDATION_NEGATED_RECALL": 0.9583333333333334,
+  "HEADLIGHT_OFF_NEGATED_RECALL": 1.0,
+  "ACCELERATE_NEGATED_RECALL": 1.0,
+  "0731_FINAL_ABSTAIN": true,
+  "0732_FINAL_ABSTAIN": true,
+  "0733_FINAL_ABSTAIN": true,
+  "0748_FINAL_ABSTAIN": false,
+  "0762_FINAL_ABSTAIN": true,
+  "0773_FINAL_ABSTAIN": true,
+  "MACBERT_TRAINING_STARTED": false,
+  "SLOT_SEVERE_UNDERPERFORMANCE": true
+}

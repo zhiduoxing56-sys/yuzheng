@@ -1,0 +1,40 @@
+[
+  {
+    "raw_text": "空调调到十八度风量调到三挡对着人吹",
+    "occurrence_count": 2,
+    "cross_split": true,
+    "occurrences": [
+      {
+        "source_file": "train_set.jsonl",
+        "source_split": "train",
+        "source_line": 4953,
+        "source_id": "6104"
+      },
+      {
+        "source_file": "test_set.jsonl",
+        "source_split": "test",
+        "source_line": 226,
+        "source_id": "226"
+      }
+    ]
+  },
+  {
+    "raw_text": "打开车窗后切换白天模式",
+    "occurrence_count": 2,
+    "cross_split": true,
+    "occurrences": [
+      {
+        "source_file": "dev_set.jsonl",
+        "source_split": "dev",
+        "source_line": 627,
+        "source_id": "19778"
+      },
+      {
+        "source_file": "test_set.jsonl",
+        "source_split": "test",
+        "source_line": 251,
+        "source_id": "251"
+      }
+    ]
+  }
+]

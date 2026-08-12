@@ -1,0 +1,207 @@
+{
+  "dataset_version": "sys014-poc7-v2",
+  "token_length_distribution": {
+    "train": {
+      "count": 587,
+      "p50": 10.0,
+      "p90": 13.0,
+      "p95": 15.0,
+      "p99": 17.0,
+      "max": 17
+    },
+    "validation": {
+      "count": 129,
+      "p50": 9.0,
+      "p90": 13.2,
+      "p95": 15.6,
+      "p99": 17.72,
+      "max": 18
+    },
+    "test": {
+      "count": 133,
+      "p50": 9.0,
+      "p90": 15.0,
+      "p95": 15.0,
+      "p99": 22.68,
+      "max": 23
+    },
+    "all": {
+      "count": 849,
+      "p50": 9.0,
+      "p90": 13.0,
+      "p95": 15.0,
+      "p99": 17.0,
+      "max": 23
+    }
+  },
+  "MAX_TOKEN_LENGTH": 23,
+  "SELECTED_MAX_LENGTH": 32,
+  "truncation_policy": "NO_FROZEN_TEXT_TRUNCATED",
+  "splits": {
+    "train": {
+      "record_count": 587,
+      "slot_token_labels": {
+        "B-AREA": 211,
+        "B-NEGATION": 76,
+        "B-VALUE": 81,
+        "I-AREA": 287,
+        "I-NEGATION": 101,
+        "I-VALUE": 87,
+        "O": 3760
+      }
+    },
+    "validation": {
+      "record_count": 129,
+      "slot_token_labels": {
+        "B-AREA": 52,
+        "B-NEGATION": 24,
+        "B-VALUE": 19,
+        "I-AREA": 76,
+        "I-NEGATION": 21,
+        "I-VALUE": 21,
+        "O": 804
+      }
+    },
+    "test": {
+      "record_count": 133,
+      "slot_token_labels": {
+        "B-AREA": 29,
+        "B-NEGATION": 30,
+        "B-VALUE": 16,
+        "I-AREA": 52,
+        "I-NEGATION": 32,
+        "I-VALUE": 26,
+        "O": 847
+      }
+    }
+  },
+  "train": {
+    "sample_count": 587,
+    "scope": {
+      "AMBIGUOUS_CONTROL": 48,
+      "IN_SCOPE_CONTROL": 498,
+      "NON_CONTROL": 17,
+      "UNKNOWN_CONTROL": 24
+    },
+    "structure": {
+      "AMBIGUOUS": 48,
+      "MULTI": 76,
+      "SINGLE": 463
+    },
+    "intent_eligible_only": {
+      "ACCELERATE": 67,
+      "BRAKE": 59,
+      "DOOR_CLOSE": 64,
+      "DOOR_OPEN": 55,
+      "HEADLIGHT_OFF": 65,
+      "WINDOW_OPEN": 52,
+      "WINDOW_SET_POSITION": 60
+    },
+    "negation_eligible_only": {
+      "NEGATED": 75,
+      "NOT_NEGATED": 347
+    },
+    "slot_token_labels": {
+      "B-AREA": 211,
+      "B-NEGATION": 76,
+      "B-VALUE": 81,
+      "I-AREA": 287,
+      "I-NEGATION": 101,
+      "I-VALUE": 87,
+      "O": 3760
+    },
+    "class_weight_candidates": {
+      "scope": {
+        "NONE": null,
+        "INVERSE_FREQ": [
+          0.0651263,
+          1.90781755,
+          1.35137076,
+          0.67568538
+        ],
+        "SQRT_INVERSE_FREQ": [
+          0.28191556,
+          1.52584094,
+          1.28418651,
+          0.90805699
+        ]
+      },
+      "structure": {
+        "NONE": null,
+        "INVERSE_FREQ": [
+          0.17923354,
+          1.0919096,
+          1.72885686
+        ],
+        "SQRT_INVERSE_FREQ": [
+          0.45634364,
+          1.12635606,
+          1.4173003
+        ]
+      },
+      "intent": {
+        "NONE": null,
+        "INVERSE_FREQ": [
+          1.08814153,
+          0.93512162,
+          1.15091892,
+          0.99746307,
+          0.92073514,
+          0.89325051,
+          1.01436922
+        ],
+        "SQRT_INVERSE_FREQ": [
+          1.0441061,
+          0.96791226,
+          1.07380224,
+          0.99965549,
+          0.96043793,
+          0.94599443,
+          1.00809155
+        ]
+      },
+      "slot": {
+        "NONE": null,
+        "INVERSE_FREQ": [
+          0.03361175,
+          0.59895821,
+          0.44034907,
+          1.56024916,
+          1.45264577,
+          1.66289713,
+          1.25128893
+        ],
+        "SQRT_INVERSE_FREQ": [
+          0.19794488,
+          0.8355972,
+          0.71646876,
+          1.34863894,
+          1.30130344,
+          1.39229546,
+          1.20775131
+        ]
+      },
+      "negation": {
+        "NONE": null,
+        "INVERSE_FREQ": [
+          0.35545024,
+          1.64454976
+        ],
+        "SQRT_INVERSE_FREQ": [
+          0.63472543,
+          1.36527457
+        ]
+      }
+    },
+    "recommended_class_weight_policy": {
+      "scope": "SQRT_INVERSE_FREQ",
+      "structure": "SQRT_INVERSE_FREQ",
+      "intent": "NONE",
+      "slot": "NONE",
+      "negation": "SQRT_INVERSE_FREQ",
+      "cap": 3.0,
+      "NO_INTENT_CLASS_WEIGHT_REQUIRED": true,
+      "rationale": "Protect minority abstention/structure/negation classes without inverse-frequency extremes; intent is already near-balanced and slot uses span-level evaluation."
+    }
+  }
+}

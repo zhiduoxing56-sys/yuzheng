@@ -1,0 +1,96 @@
+mapping_rule_version: nlu_mapping_v1
+target_registry_version: sys-014-semantic-hardening-r3
+status: FROZEN_FOR_FULL_NLU_DATASET_BUILD
+scope: DATA_MAPPING_ONLY_NOT_RUNTIME_EXECUTION
+
+light_semantics:
+  main_headlight_position_mode:
+    lexical_forms:
+      - 示宽灯
+      - 位置灯
+    canonical_intent_id: HEADLIGHT_SET_MODE
+    canonical_mode: POSITION
+  independent_parking_light:
+    lexical_forms:
+      - 驻车灯
+      - 停车灯
+    canonical_target: PARKING_LIGHT
+    allowed_intent_ids:
+      - PARKING_LIGHT_ON
+      - PARKING_LIGHT_OFF
+    action_must_be_explicit_or_uniquely_resolved: true
+  broad_light_object_ambiguity:
+    lexical_forms:
+      - 车灯
+      - 灯光
+      - 灯
+    examples:
+      - 把灯关了
+      - 关闭车灯
+      - 打开灯光
+    structure_status: 歧义
+    intent_list_policy: EMPTY_UNLESS_PARTIAL_SEMANTICS_ARE_UNIQUE
+    prohibited_automatic_intent_ids:
+      - HEADLIGHT_SET_MODE
+      - LOW_BEAM_ON
+      - LOW_BEAM_OFF
+      - HIGH_BEAM_ON
+      - HIGH_BEAM_OFF
+      - FOG_LIGHT_ON
+      - FOG_LIGHT_OFF
+      - PARKING_LIGHT_ON
+      - PARKING_LIGHT_OFF
+
+steering_wheel_semantics:
+  STEERING_WHEEL_SET_EXTENSION:
+    conditional_slot_contract: VALUE_OR_DIRECTION
+    allowed_directions:
+      - EXTEND
+      - RETRACT
+    lexical_direction_examples:
+      EXTEND:
+        - 往外
+        - 伸出
+      RETRACT:
+        - 往里
+        - 收回
+        - 缩回
+    missing_value_and_direction: INCOMPLETE
+    default_numeric_value_prohibited: true
+  STEERING_WHEEL_SET_TILT:
+    conditional_slot_contract: VALUE_OR_DIRECTION
+    allowed_directions:
+      - UP
+      - DOWN
+    lexical_direction_examples:
+      UP:
+        - 抬高
+        - 向上
+      DOWN:
+        - 往下
+        - 向下
+    missing_value_and_direction: INCOMPLETE
+    default_numeric_value_prohibited: true
+
+gear_semantics:
+  canonical_intent_id: GEAR_SET
+  canonical_modes:
+    - P
+    - N
+    - D
+    - R
+    - FORWARD_GEAR_N
+    - REVERSE_GEAR_N
+  physical_mapping_authority: VehicleCapabilityMapping
+  vehicle_specific_validation_required: true
+  prohibited_generic_mappings:
+    - R -> -1
+    - R -> REVERSE_GEAR_1
+
+prohibitions:
+  unknown_to_nearest_formal_intent: true
+  non_control_to_vehicle_capability: true
+  ambiguous_forced_resolution: true
+  incomplete_slot_invention: true
+  historical_poc_label_space: true
+

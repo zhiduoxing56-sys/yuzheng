@@ -1,0 +1,38 @@
+{
+  "IGNORE_INDEX": -100,
+  "scope": {
+    "IN_SCOPE_CONTROL": 0,
+    "NON_CONTROL": 1,
+    "UNKNOWN_CONTROL": 2,
+    "AMBIGUOUS_CONTROL": 3
+  },
+  "structure": {
+    "SINGLE": 0,
+    "MULTI": 1,
+    "AMBIGUOUS": 2
+  },
+  "intent": {
+    "DOOR_OPEN": 0,
+    "DOOR_CLOSE": 1,
+    "WINDOW_OPEN": 2,
+    "WINDOW_SET_POSITION": 3,
+    "HEADLIGHT_OFF": 4,
+    "ACCELERATE": 5,
+    "BRAKE": 6
+  },
+  "slot_bio": {
+    "O": 0,
+    "B-AREA": 1,
+    "I-AREA": 2,
+    "B-VALUE": 3,
+    "I-VALUE": 4,
+    "B-NEGATION": 5,
+    "I-NEGATION": 6
+  },
+  "sentence_negation": {
+    "NOT_NEGATED": 0,
+    "NEGATED": 1
+  },
+  "intent_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND intent!=null",
+  "negation_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND negated is boolean"
+}

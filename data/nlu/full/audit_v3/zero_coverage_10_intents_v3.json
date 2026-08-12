@@ -1,0 +1,1766 @@
+[
+  {
+    "canonical_intent_id": "MIRROR_HEATING_OFF",
+    "公开原始候选数量": 5,
+    "canonical候选数量": 5,
+    "示例": [
+      {
+        "原始文本": "那关闭车灯关闭空调关闭后视镜加热",
+        "source_file": "train_set.jsonl",
+        "source_row": 314,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "车灯"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "空调"
+              }
+            ]
+          },
+          "意图3": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "对象功能",
+                "value": "加热"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "打开座椅通风关闭后视镜加热",
+        "source_file": "train_set.jsonl",
+        "source_row": 1587,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "对象",
+                "value": "座椅"
+              },
+              {
+                "name": "对象功能",
+                "value": "通风"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "对象功能",
+                "value": "加热"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "关闭后视镜加热打开空调",
+        "source_file": "train_set.jsonl",
+        "source_row": 4550,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "对象功能",
+                "value": "加热"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "对象",
+                "value": "空调"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "关闭外后视镜加热关闭方向盘加热",
+        "source_file": "train_set.jsonl",
+        "source_row": 10199,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "外后视镜"
+              },
+              {
+                "name": "对象功能",
+                "value": "加热"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "方向盘"
+              },
+              {
+                "name": "对象功能",
+                "value": "加热"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "关闭前除雾关闭后视镜加热",
+        "source_file": "dev_set.jsonl",
+        "source_row": 154,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "位置",
+                "value": "前"
+              },
+              {
+                "name": "对象功能",
+                "value": "除雾"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "对象功能",
+                "value": "加热"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 5,
+    "不能恢复时缺失内容": {},
+    "baseline_v2正式完整正样本": 0,
+    "恢复结论": "已恢复合同完整候选，但因多意图/语气/复核约束仍不进入正式正样本"
+  },
+  {
+    "canonical_intent_id": "SEAT_TILT_SET_ANGLE",
+    "公开原始候选数量": 2,
+    "canonical候选数量": 2,
+    "示例": [
+      {
+        "原始文本": "坐垫倾斜角度调到最低",
+        "source_file": "train_set.jsonl",
+        "source_row": 9198,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "坐垫"
+              },
+              {
+                "name": "调节内容",
+                "value": "倾斜角度"
+              },
+              {
+                "name": "操作",
+                "value": "调"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "到"
+              },
+              {
+                "name": "value",
+                "value": "最低"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA"
+        ]
+      },
+      {
+        "原始文本": "坐垫倾斜角度调到最高",
+        "source_file": "train_set.jsonl",
+        "source_row": 17073,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "坐垫"
+              },
+              {
+                "name": "调节内容",
+                "value": "倾斜角度"
+              },
+              {
+                "name": "操作",
+                "value": "调"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "到"
+              },
+              {
+                "name": "value",
+                "value": "最高"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA"
+        ]
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 0,
+    "不能恢复时缺失内容": {
+      "AREA": 2
+    },
+    "baseline_v2正式完整正样本": 0,
+    "恢复结论": "仅发现缺槽或无法唯一确定的候选，保持零覆盖"
+  },
+  {
+    "canonical_intent_id": "MIRROR_SET_ANGLE",
+    "公开原始候选数量": 20,
+    "canonical候选数量": 20,
+    "示例": [
+      {
+        "原始文本": "后视镜调节为副驾驶侧",
+        "source_file": "train_set.jsonl",
+        "source_row": 318,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "操作",
+                "value": "调节为"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "模式",
+                "value": "副驾驶侧"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "流媒体后视镜调整到一点二倍",
+        "source_file": "train_set.jsonl",
+        "source_row": 492,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "车机模块",
+                "value": "流媒体"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "操作",
+                "value": "调整"
+              },
+              {
+                "name": "value",
+                "value": "调整到一点二"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "到"
+              },
+              {
+                "value": "缩放比例",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA",
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "右后视镜向里",
+        "source_file": "train_set.jsonl",
+        "source_row": 574,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "右"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "value",
+                "value": "里"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "方向",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA",
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "主驾驶方外后视镜向内调节",
+        "source_file": "train_set.jsonl",
+        "source_row": 588,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "主驾驶方"
+              },
+              {
+                "name": "对象",
+                "value": "外后视镜"
+              },
+              {
+                "name": "value",
+                "value": "内"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "方向",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "我想调节后视镜",
+        "source_file": "train_set.jsonl",
+        "source_row": 802,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "调节"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA",
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "打开后视镜前调节后视镜页面",
+        "source_file": "train_set.jsonl",
+        "source_row": 2771,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "操作",
+                "value": "调节"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA",
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "打开后视镜调节界面",
+        "source_file": "train_set.jsonl",
+        "source_row": 3139,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "页面",
+                "value": "调节界面"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA",
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "两个后视镜往右调节百分之十",
+        "source_file": "train_set.jsonl",
+        "source_row": 3178,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "两个"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              },
+              {
+                "name": "value",
+                "value": "右"
+              },
+              {
+                "name": "方向偏移量",
+                "value": "百分之十"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "方向",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "AREA",
+          "DIRECTION"
+        ]
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 0,
+    "不能恢复时缺失内容": {
+      "DIRECTION": 20,
+      "AREA": 17
+    },
+    "baseline_v2正式完整正样本": 0,
+    "恢复结论": "仅发现缺槽或无法唯一确定的候选，保持零覆盖"
+  },
+  {
+    "canonical_intent_id": "SUNROOF_SET_TILT",
+    "公开原始候选数量": 3,
+    "canonical候选数量": 3,
+    "示例": [
+      {
+        "原始文本": "打开遮光板天窗翘起",
+        "source_file": "train_set.jsonl",
+        "source_row": 929,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "对象",
+                "value": "遮光板"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "天窗"
+              },
+              {
+                "name": "操作",
+                "value": "翘起"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "开前排车窗天窗翘起",
+        "source_file": "train_set.jsonl",
+        "source_row": 8793,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "开"
+              },
+              {
+                "name": "位置",
+                "value": "前排"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "天窗"
+              },
+              {
+                "name": "操作",
+                "value": "翘起"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "天窗后翘",
+        "source_file": "train_set.jsonl",
+        "source_row": 17899,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "天窗"
+              },
+              {
+                "name": "操作",
+                "value": "后翘"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 3,
+    "不能恢复时缺失内容": {},
+    "baseline_v2正式完整正样本": 1,
+    "恢复结论": "已恢复可进入正式正样本的可靠完整样本"
+  },
+  {
+    "canonical_intent_id": "CRUISE_SET_SPEED",
+    "公开原始候选数量": 13,
+    "canonical候选数量": 13,
+    "示例": [
+      {
+        "原始文本": "设置limiter的速度为80",
+        "source_file": "train_set.jsonl",
+        "source_row": 1468,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "设置"
+              },
+              {
+                "name": "子功能",
+                "value": "LIMITER"
+              },
+              {
+                "name": "调节内容",
+                "value": "速度"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "80"
+              },
+              {
+                "value": "智慧巡航",
+                "name": "功能"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "定速巡航速度调为最大",
+        "source_file": "train_set.jsonl",
+        "source_row": 3323,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "功能",
+                "value": "定速巡航"
+              },
+              {
+                "name": "调节内容",
+                "value": "速度"
+              },
+              {
+                "name": "操作",
+                "value": "调"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "最大"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "设置驾驶辅助距离为2档",
+        "source_file": "train_set.jsonl",
+        "source_row": 5283,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "设置"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "2档"
+              },
+              {
+                "value": "智慧巡航",
+                "name": "功能"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "限速报警偏差设定为30千米每秒",
+        "source_file": "train_set.jsonl",
+        "source_row": 6215,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "子功能",
+                "value": "限速报警偏差"
+              },
+              {
+                "name": "操作",
+                "value": "设定为"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "30千米每秒"
+              },
+              {
+                "value": "智慧巡航",
+                "name": "功能"
+              },
+              {
+                "value": "车速",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "设置自适应巡航辅助速度为80",
+        "source_file": "train_set.jsonl",
+        "source_row": 6721,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "设置"
+              },
+              {
+                "name": "功能",
+                "value": "自适应巡航辅助"
+              },
+              {
+                "name": "调节内容",
+                "value": "速度"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "80"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "设置自适应巡航车距为2档",
+        "source_file": "train_set.jsonl",
+        "source_row": 6915,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "设置"
+              },
+              {
+                "name": "功能",
+                "value": "自适应巡航"
+              },
+              {
+                "name": "调节内容",
+                "value": "车距"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "2档"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "减慢车速限制器",
+        "source_file": "train_set.jsonl",
+        "source_row": 7259,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "value",
+                "value": "减慢"
+              },
+              {
+                "name": "调节内容",
+                "value": "车速"
+              },
+              {
+                "name": "子功能",
+                "value": "车速限制器"
+              },
+              {
+                "value": "智慧巡航",
+                "name": "功能"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "自适应巡航辅助速度调到最小",
+        "source_file": "train_set.jsonl",
+        "source_row": 7363,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "功能",
+                "value": "自适应巡航辅助"
+              },
+              {
+                "name": "调节内容",
+                "value": "速度"
+              },
+              {
+                "name": "操作",
+                "value": "调"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "到"
+              },
+              {
+                "name": "value",
+                "value": "最小"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 4,
+    "不能恢复时缺失内容": {
+      "VALUE": 9
+    },
+    "baseline_v2正式完整正样本": 1,
+    "恢复结论": "已恢复可进入正式正样本的可靠完整样本"
+  },
+  {
+    "canonical_intent_id": "CRUISE_SET_GAP",
+    "公开原始候选数量": 4,
+    "canonical候选数量": 4,
+    "示例": [
+      {
+        "原始文本": "自适应巡航辅助距离太大了",
+        "source_file": "train_set.jsonl",
+        "source_row": 3772,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "功能",
+                "value": "自适应巡航辅助"
+              },
+              {
+                "name": "调节内容",
+                "value": "距离"
+              },
+              {
+                "name": "value",
+                "value": "太大了"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "驾驶辅助距离调到最小",
+        "source_file": "train_set.jsonl",
+        "source_row": 3796,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "子功能",
+                "value": "驾驶辅助"
+              },
+              {
+                "name": "调节内容",
+                "value": "距离"
+              },
+              {
+                "name": "操作",
+                "value": "调"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "到"
+              },
+              {
+                "name": "value",
+                "value": "最小"
+              },
+              {
+                "value": "智慧巡航",
+                "name": "功能"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "自适应巡航距离太长了",
+        "source_file": "train_set.jsonl",
+        "source_row": 12582,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "功能",
+                "value": "自适应巡航"
+              },
+              {
+                "name": "调节内容",
+                "value": "距离"
+              },
+              {
+                "name": "value",
+                "value": "太长了"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "自适应巡航距离设置为最大",
+        "source_file": "test_set.jsonl",
+        "source_row": 18,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "功能",
+                "value": "自适应巡航"
+              },
+              {
+                "name": "调节内容",
+                "value": "距离"
+              },
+              {
+                "name": "操作",
+                "value": "设置"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "最大"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 4,
+    "不能恢复时缺失内容": {},
+    "baseline_v2正式完整正样本": 4,
+    "恢复结论": "已恢复可进入正式正样本的可靠完整样本"
+  },
+  {
+    "canonical_intent_id": "TURN_INDICATOR_ON",
+    "公开原始候选数量": 3,
+    "canonical候选数量": 3,
+    "示例": [
+      {
+        "原始文本": "让左转向灯处于开启状态",
+        "source_file": "train_set.jsonl",
+        "source_row": 8025,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "转向灯"
+              },
+              {
+                "name": "车外灯类型",
+                "value": "转向灯"
+              },
+              {
+                "name": "操作",
+                "value": "开启"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "打开转向灯变道辅助",
+        "source_file": "train_set.jsonl",
+        "source_row": 8577,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "功能",
+                "value": "转向灯变道辅助"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "DIRECTION"
+        ]
+      },
+      {
+        "原始文本": "我需要使用左边的转向灯",
+        "source_file": "train_set.jsonl",
+        "source_row": 10105,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "使用"
+              },
+              {
+                "name": "对象",
+                "value": "转向灯"
+              },
+              {
+                "name": "车外灯类型",
+                "value": "转向灯"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "DIRECTION"
+        ]
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 0,
+    "不能恢复时缺失内容": {
+      "DIRECTION": 3
+    },
+    "baseline_v2正式完整正样本": 0,
+    "恢复结论": "仅发现缺槽或无法唯一确定的候选，保持零覆盖"
+  },
+  {
+    "canonical_intent_id": "WIPER_SET_SENSITIVITY",
+    "公开原始候选数量": 3,
+    "canonical候选数量": 3,
+    "示例": [
+      {
+        "原始文本": "减小自动雨刮灵敏度",
+        "source_file": "train_set.jsonl",
+        "source_row": 3985,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "value",
+                "value": "减小"
+              },
+              {
+                "name": "模式",
+                "value": "自动"
+              },
+              {
+                "name": "对象",
+                "value": "雨刮"
+              },
+              {
+                "name": "调节内容",
+                "value": "灵敏度"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "后雨刮器切换低速挡",
+        "source_file": "train_set.jsonl",
+        "source_row": 7682,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "后"
+              },
+              {
+                "name": "对象",
+                "value": "雨刮器"
+              },
+              {
+                "name": "操作",
+                "value": "切换"
+              },
+              {
+                "name": "value",
+                "value": "低速挡"
+              },
+              {
+                "value": "灵敏度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": false,
+        "缺失槽位": [
+          "VALUE"
+        ]
+      },
+      {
+        "原始文本": "雨刮灵敏度调为三",
+        "source_file": "train_set.jsonl",
+        "source_row": 12854,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "对象",
+                "value": "雨刮"
+              },
+              {
+                "name": "调节内容",
+                "value": "灵敏度"
+              },
+              {
+                "name": "操作",
+                "value": "调为"
+              },
+              {
+                "name": "操作_concrete",
+                "value": "为"
+              },
+              {
+                "name": "value",
+                "value": "三"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 1,
+    "不能恢复时缺失内容": {
+      "VALUE": 2
+    },
+    "baseline_v2正式完整正样本": 1,
+    "恢复结论": "已恢复可进入正式正样本的可靠完整样本"
+  },
+  {
+    "canonical_intent_id": "PARKING_BRAKE_AUTO_APPLY_ENABLE",
+    "公开原始候选数量": 5,
+    "canonical候选数量": 5,
+    "示例": [
+      {
+        "原始文本": "打开自动驻车调节HUD",
+        "source_file": "train_set.jsonl",
+        "source_row": 1188,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "提供信息",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "模式",
+                "value": "自动驻车"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车机控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "调节"
+              },
+              {
+                "name": "对象",
+                "value": "HUD"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "自动驻车制动启动",
+        "source_file": "train_set.jsonl",
+        "source_row": 12918,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "提供信息",
+                "name": "intent"
+              },
+              {
+                "name": "模式",
+                "value": "自动驻车制动"
+              },
+              {
+                "name": "操作",
+                "value": "启动"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "开启自动驻车打开后视镜",
+        "source_file": "train_set.jsonl",
+        "source_row": 13189,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "提供信息",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "开启"
+              },
+              {
+                "name": "模式",
+                "value": "自动驻车"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "对象",
+                "value": "后视镜"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "打开自动驻车和陡坡缓降",
+        "source_file": "train_set.jsonl",
+        "source_row": 16585,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "提供信息",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "模式",
+                "value": "自动驻车"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "帮我把驻车功能换成自动的",
+        "source_file": "test_set.jsonl",
+        "source_row": 576,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "提供信息",
+                "name": "intent"
+              },
+              {
+                "value": "打开",
+                "name": "操作"
+              },
+              {
+                "value": "自动驻车",
+                "name": "模式"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 5,
+    "不能恢复时缺失内容": {},
+    "baseline_v2正式完整正样本": 3,
+    "恢复结论": "已恢复可进入正式正样本的可靠完整样本"
+  },
+  {
+    "canonical_intent_id": "PARKING_BRAKE_AUTO_APPLY_DISABLE",
+    "公开原始候选数量": 2,
+    "canonical候选数量": 2,
+    "示例": [
+      {
+        "原始文本": "给我关起来自动的驻车功能",
+        "source_file": "train_set.jsonl",
+        "source_row": 4061,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "提供信息",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关"
+              },
+              {
+                "value": "自动驻车",
+                "name": "模式"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      },
+      {
+        "原始文本": "自动驻车制动关闭",
+        "source_file": "test_set.jsonl",
+        "source_row": 1102,
+        "MAC原始semantics": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "提供信息",
+                "name": "intent"
+              },
+              {
+                "name": "模式",
+                "value": "自动驻车制动"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          }
+        },
+        "v3合同完整": true,
+        "缺失槽位": []
+      }
+    ],
+    "v1未映射原因": "结构字段路由缺失或整句其他子意图污染；v1 正式完整正样本为 0",
+    "依据R3可唯一恢复的合同完整候选": 2,
+    "不能恢复时缺失内容": {},
+    "baseline_v2正式完整正样本": 2,
+    "恢复结论": "已恢复可进入正式正样本的可靠完整样本"
+  }
+]

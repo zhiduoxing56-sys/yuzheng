@@ -1,0 +1,274 @@
+{
+  "sentence_negation_f1": 0.8372093023255814,
+  "negated_recall": 0.75,
+  "sentence_negation_false_negative_count": 6,
+  "TEST_SENTENCE_NEGATION_FN_WITH_CORRECT_SLOT_SIGNAL": 6,
+  "false_negatives": [
+    {
+      "sample_id": "SYS014-POC-0528",
+      "text": "不要把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "sentence_negation_probabilities": {
+        "NOT_NEGATED": 0.6197802424430847,
+        "NEGATED": 0.38021978735923767
+      },
+      "sentence_negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.6197802424430847,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.38021978735923767,
+        "margin": 0.23956045508384705
+      },
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要"
+        }
+      ],
+      "correct_slot_signal": true,
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_00",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0529",
+      "text": "别把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "sentence_negation_probabilities": {
+        "NOT_NEGATED": 0.6994606852531433,
+        "NEGATED": 0.30053937435150146
+      },
+      "sentence_negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.6994606852531433,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.30053937435150146,
+        "margin": 0.39892131090164185
+      },
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 1,
+          "text": "别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "别"
+        }
+      ],
+      "correct_slot_signal": true,
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_00",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0530",
+      "text": "先别把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "sentence_negation_probabilities": {
+        "NOT_NEGATED": 0.647983193397522,
+        "NEGATED": 0.352016806602478
+      },
+      "sentence_negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.647983193397522,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.352016806602478,
+        "margin": 0.29596638679504395
+      },
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "先别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "先别"
+        }
+      ],
+      "correct_slot_signal": true,
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_00",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0531",
+      "text": "不用把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "sentence_negation_probabilities": {
+        "NOT_NEGATED": 0.6161738634109497,
+        "NEGATED": 0.3838261663913727
+      },
+      "sentence_negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.6161738634109497,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.3838261663913727,
+        "margin": 0.23234769701957703
+      },
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不用",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不用"
+        }
+      ],
+      "correct_slot_signal": true,
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_01",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0532",
+      "text": "请勿把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "sentence_negation_probabilities": {
+        "NOT_NEGATED": 0.6634442806243896,
+        "NEGATED": 0.33655568957328796
+      },
+      "sentence_negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.6634442806243896,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.33655568957328796,
+        "margin": 0.3268885910511017
+      },
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "请勿",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "请勿"
+        }
+      ],
+      "correct_slot_signal": true,
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_01",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0533",
+      "text": "暂时别把副驾驶车窗再开小一点",
+      "intent": "WINDOW_SET_POSITION",
+      "sentence_negation_probabilities": {
+        "NOT_NEGATED": 0.5861043334007263,
+        "NEGATED": 0.4138956367969513
+      },
+      "sentence_negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.5861043334007263,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.4138956367969513,
+        "margin": 0.17220869660377502
+      },
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 3,
+          "text": "暂时别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 4,
+          "char_start": 0,
+          "char_end": 3,
+          "text": "暂时别"
+        }
+      ],
+      "correct_slot_signal": true,
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_01",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    }
+  ],
+  "concentration": {
+    "intent_counts": {
+      "WINDOW_SET_POSITION": 6
+    },
+    "paraphrase_family_counts": {
+      "PF_WINDOW_SET_POSITION_NEG_01_00": 3,
+      "PF_WINDOW_SET_POSITION_NEG_01_01": 3
+    },
+    "split_group_counts": {
+      "SGRP-83E6AC73E1E746B9": 6
+    }
+  },
+  "root_cause": "All six FNs are WINDOW_SET_POSITION relative-adjustment commands in two closely related paraphrase families and one held-out split group. The Slot head finds the NEGATION span correctly in 6/6, but the sentence head remains below the NEGATED decision boundary. This is a concentrated family/template and cross-head objective-consistency failure, not broad negation-lexicon failure.",
+  "or_fusion_designed_or_executed": false
+}

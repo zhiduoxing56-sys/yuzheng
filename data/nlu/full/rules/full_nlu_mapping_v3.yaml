@@ -1,0 +1,326 @@
+mapping_rule_version: nlu_mapping_v3
+target_registry_version: sys-014-semantic-hardening-r3
+target_registry_sha256: c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06
+status: FROZEN_FOR_BASELINE_V2_BUILD
+scope: DETERMINISTIC_MAC_SEMANTIC_COVERAGE_ONLY
+parent_mapping_rule:
+  path: data/nlu/full/rules/full_nlu_mapping_v2.yaml
+  version: nlu_mapping_v2
+  sha256: cf2eed72aa829083e0b666777799ab8052f674bb49b10637340d54882a142aa4
+immutable_inputs:
+  registry: data/nlu/spec/intent_registry_r3.yaml
+  schema: data/nlu/full/schema/full_nlu_sample_schema_v1.json
+prohibitions:
+  nearest_neighbor_intent_selection: true
+  broad_light_resolution: true
+  missing_slot_invention: true
+  multi_intent_collapse: true
+  ordinary_cabin_to_formal_scope: true
+
+operation_classes:
+  'ON': [打开, 开启, 启用, 启动, 使用, 开, 开开]
+  'OFF': [关闭, 关掉, 关上, 关了, 关, 停用, 禁用, 停止]
+  ADJUST: [调, 调节, 调整, 设置, 调为, 调到, 增大, 减小, 提高, 降低, 切换, 选择, 移, 移动, 滑, 滑动]
+  OPEN: [打开, 开启, 开, 降下, 摇下]
+  CLOSE: [关闭, 关掉, 关上, 升起]
+
+rules:
+  - rule_id: V3-FRAME-001
+    source_semantic_pattern: 当前 MAC 子意图 frame 内结构字段可独立组成 v2 可解析语义
+    target_semantics: 仅使用当前 frame 调用冻结 v2 确定性映射
+    applies_to: MAC-SLU 车载控制 frame
+    exclusions: [空 frame, 宽泛车灯或灯光, 当前 frame 无动作且无唯一合同]
+    reason_added: 修复整句其他子意图污染当前 frame 的对象和动作选择
+    corresponding_sample_count: 1961
+    human_audit_status: 待人工签署
+
+  - rule_id: V3-CABIN-001
+    source_semantic_pattern: 对象或车内灯类型=阅读灯，操作属于 ON/OFF
+    target_semantics: KNOWN::READING_LIGHT::STATE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [无明确 ON/OFF 操作]
+    reason_added: 阅读灯是明确座舱控制但不在七十一项正式执行范围
+    corresponding_sample_count: 39
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-002
+    source_semantic_pattern: 对象或车内灯类型=车内灯/舱内灯/顶灯，操作属于 ON/OFF
+    target_semantics: KNOWN::CABIN_LIGHT::STATE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [阅读灯, 氛围灯, 宽泛灯/灯光]
+    reason_added: 恢复普通车内灯认知层
+    corresponding_sample_count: 14
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-003
+    source_semantic_pattern: 对象=空调且操作属于 ON/OFF
+    target_semantics: KNOWN::HVAC::STATE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [只有设置页面导航而无控制动作]
+    reason_added: 空调启停可由对象和操作唯一确定
+    corresponding_sample_count: 943
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-004
+    source_semantic_pattern: 调节内容=温度，操作属于 ADJUST
+    target_semantics: KNOWN::HVAC::TEMPERATURE
+    applies_to: MAC-SLU 车载控制 frame
+    exclusions: [座椅加热温度, 非车辆天气温度查询, 无调节动作]
+    reason_added: MAC 常省略空调对象但温度字段已唯一表达座舱温控
+    corresponding_sample_count: 638
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-005
+    source_semantic_pattern: 调节内容=风量/风速/风力/风，操作属于 ADJUST
+    target_semantics: KNOWN::HVAC::FAN_SPEED
+    applies_to: MAC-SLU 车载控制 frame
+    exclusions: [座椅通风等级, 无调节动作]
+    reason_added: 风量字段可唯一证明 HVAC 风机控制
+    corresponding_sample_count: 558
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-006
+    source_semantic_pattern: 调节内容=风向且操作属于 ADJUST/ON/OFF
+    target_semantics: KNOWN::HVAC::AIR_DIRECTION
+    applies_to: MAC-SLU 车载控制 frame
+    exclusions: [座椅或屏幕方向, 无 HVAC 风向语义]
+    reason_added: 恢复吹脸/吹脚/吹窗等明确风向控制
+    corresponding_sample_count: 165
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-007
+    source_semantic_pattern: 调节内容=模式且模式属于 HVAC 模式词表
+    target_semantics: KNOWN::HVAC::MODE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [驾驶模式, 驻车舒享, 影音模式, 设置页面]
+    reason_added: 仅恢复 AC/内外循环/制冷/制热等明确 HVAC 模式
+    corresponding_sample_count: 303
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-008
+    source_semantic_pattern: 对象=座椅且对象功能=加热
+    target_semantics: KNOWN::SEAT_HEATING::STATE_OR_LEVEL
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [只有座椅温度且不能证明加热]
+    reason_added: 座椅加热是明确座舱控制
+    corresponding_sample_count: 183
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-009
+    source_semantic_pattern: 对象=座椅且对象功能=通风
+    target_semantics: KNOWN::SEAT_VENTILATION::STATE_OR_LEVEL
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [普通车窗通风, 仅出现通风但无座椅证据]
+    reason_added: 座椅通风是明确座舱控制
+    corresponding_sample_count: 551
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-010
+    source_semantic_pattern: 对象=座椅或对象功能=按摩且操作明确
+    target_semantics: KNOWN::SEAT_MASSAGE::STATE_OR_LEVEL
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [无动作的按摩设置页面]
+    reason_added: 座椅按摩是明确座舱控制
+    corresponding_sample_count: 407
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-011
+    source_semantic_pattern: 对象或车内灯类型=氛围灯且操作明确
+    target_semantics: KNOWN::AMBIENT_LIGHT::STATE_OR_ATTRIBUTE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [宽泛灯光]
+    reason_added: 氛围灯是明确座舱控制
+    corresponding_sample_count: 126
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-012
+    source_semantic_pattern: 对象=遮阳帘/遮阳幕且操作明确
+    target_semantics: KNOWN::SUNSHADE::OPENING
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [天窗本体]
+    reason_added: 遮阳帘是明确座舱控制
+    corresponding_sample_count: 178
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-013
+    source_semantic_pattern: 对象=屏幕/显示屏/HUD且操作或亮度字段明确
+    target_semantics: KNOWN::DISPLAY::STATE_OR_BRIGHTNESS
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [单纯打开应用或页面, 无屏幕控制动作]
+    reason_added: 显示开关和亮度是明确座舱控制
+    corresponding_sample_count: 180
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-014
+    source_semantic_pattern: 对象=香氛/香薰/芳香且操作明确
+    target_semantics: KNOWN::FRAGRANCE::STATE_OR_LEVEL
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [无控制动作]
+    reason_added: 香氛是明确座舱控制
+    corresponding_sample_count: 61
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-015
+    source_semantic_pattern: 对象=方向盘且对象功能=加热
+    target_semantics: KNOWN::STEERING_WHEEL_HEATING::STATE_OR_LEVEL
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [方向盘位置调节]
+    reason_added: 方向盘加热是明确座舱控制
+    corresponding_sample_count: 52
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-016
+    source_semantic_pattern: 对象=天窗/天幕且调节内容=透光度/透明度
+    target_semantics: KNOWN::ROOF_GLASS::TRANSPARENCY
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [天窗打开/关闭/翘起]
+    reason_added: 透光度是明确座舱玻璃属性，但不是 R3 天窗开闭合同
+    corresponding_sample_count: 46
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-017
+    source_semantic_pattern: 对象=屏幕/娱乐屏且调节内容=方向并有移动动作
+    target_semantics: KNOWN::DISPLAY::POSITION
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [屏幕页面导航, 无方向语义]
+    reason_added: 屏幕物理移动是明确座舱控制
+    corresponding_sample_count: 158
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-018
+    source_semantic_pattern: 对象=扶手/扶手台且调节内容=方向并有移动动作
+    target_semantics: KNOWN::ARMREST::POSITION
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [无移动动作]
+    reason_added: 扶手位置是明确座舱控制
+    corresponding_sample_count: 118
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-019
+    source_semantic_pattern: 功能/对象明确为蓝牙/热点/WIFI且操作属于 ON/OFF
+    target_semantics: KNOWN::CONNECTIVITY::STATE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [播放蓝牙音乐, 仅打开设置页面]
+    reason_added: 连接开关语义明确且属于座舱认知能力
+    corresponding_sample_count: 60
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-020
+    source_semantic_pattern: 功能/对象明确为无线充电且操作属于 ON/OFF
+    target_semantics: KNOWN::WIRELESS_CHARGING::STATE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [充电站信息查询]
+    reason_added: 无线充电开关是明确座舱控制
+    corresponding_sample_count: 13
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-021
+    source_semantic_pattern: 调节内容=模式且模式属于明确车辆驾驶/能源/驻车舒享模式白名单
+    target_semantics: KNOWN::VEHICLE_MODE::MODE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [HVAC模式, 影音模式, 设置页面, 无模式枚举]
+    reason_added: 结构化枚举可证明车辆模式，但不属于七十一项正式执行范围
+    corresponding_sample_count: 167
+    human_audit_status: 待人工签署
+  - rule_id: V3-CABIN-022
+    source_semantic_pattern: 功能/对象功能明确为低速提示音/低速报警且操作属于 ON/OFF
+    target_semantics: KNOWN::EXTERIOR_ALERT_SOUND::STATE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [普通媒体音量]
+    reason_added: 低速外部提示声是明确车辆能力
+    corresponding_sample_count: 40
+    human_audit_status: 待人工签署
+
+  - rule_id: V3-FORMAL-001
+    source_semantic_pattern: 对象=后视镜/外后视镜，对象功能=加热，操作属于 ON/OFF
+    target_semantics: MIRROR_HEATING_ON_OR_OFF
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [后视镜角度或折叠]
+    reason_added: 修复多意图整句污染导致的镜面加热漏映射
+    corresponding_sample_count: 37
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-002
+    source_semantic_pattern: 对象=座椅/坐垫且调节内容明确为整体倾角
+    target_semantics: SEAT_TILT_SET_ANGLE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [仅高度、靠背角度或前后位置]
+    reason_added: 区分座椅整体倾角与高度/靠背
+    corresponding_sample_count: 2
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-003
+    source_semantic_pattern: 对象=后视镜/外后视镜且调节内容=方向/角度
+    target_semantics: MIRROR_SET_ANGLE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [折叠, 加热, 调节锁]
+    reason_added: MAC 用方向字段表达镜面角度
+    corresponding_sample_count: 4
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-004
+    source_semantic_pattern: 对象=天窗且操作=翘起/后翘/下收
+    target_semantics: SUNROOF_SET_TILT
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [普通打开/关闭, 透光度]
+    reason_added: 恢复天窗 tilt 方向动作
+    corresponding_sample_count: 3
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-005
+    source_semantic_pattern: 功能属于巡航词表且调节内容=速度
+    target_semantics: CRUISE_SET_SPEED
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [限速器而非巡航, value 缺失或仅相对方向无法满足速度合同]
+    reason_added: MAC 巡航语义主要位于功能而非对象字段
+    corresponding_sample_count: 6
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-006
+    source_semantic_pattern: 功能属于巡航词表且调节内容=距离/跟车距离
+    target_semantics: CRUISE_SET_GAP
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [非巡航驾驶辅助距离, value/mode 无法规范化]
+    reason_added: 恢复巡航跟车距离功能字段
+    corresponding_sample_count: 4
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-007
+    source_semantic_pattern: 对象或车外灯类型=转向灯且操作属于 ON/OFF
+    target_semantics: TURN_INDICATOR_ON_OR_OFF
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [预览/设置页面, ON 缺 LEFT/RIGHT]
+    reason_added: 恢复明确方向的转向灯开启样本，缺方向继续缺槽
+    corresponding_sample_count: 7
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-008
+    source_semantic_pattern: 对象=雨刮/雨刮器且调节内容=灵敏度
+    target_semantics: WIPER_SET_SENSITIVITY
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [value 无法规范化, 实际表达雨刮速度模式]
+    reason_added: 恢复雨刮灵敏度结构字段
+    corresponding_sample_count: 2
+    human_audit_status: 待人工签署
+  - rule_id: V3-FORMAL-009
+    source_semantic_pattern: 模式=自动驻车/自动驻车制动且操作属于 ON/OFF
+    target_semantics: PARKING_BRAKE_AUTO_APPLY_ENABLE_OR_DISABLE
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [自动泊车, 普通驻车制动施加/释放]
+    reason_added: 区分自动驻车制动策略与自动泊车
+    corresponding_sample_count: 7
+    human_audit_status: 待人工签署
+
+  - rule_id: V3-NOFRAME-001
+    source_semantic_pattern: 无 usable frame，文本同时含具体正式对象与明确动作
+    target_semantics: R3 formal intent via exact object-action contract
+    applies_to: MAC-SLU 无 frame 样本
+    exclusions: [宽泛灯光, 指代对象, 缺必需槽, 多候选对象]
+    reason_added: 只恢复高精度显式车控文本
+    corresponding_sample_count: 13
+    human_audit_status: 待人工签署
+  - rule_id: V3-NOFRAME-002
+    source_semantic_pattern: 无 usable frame，文本同时含普通座舱具体对象与明确动作
+    target_semantics: KNOWN_UNSUPPORTED_CONTROL
+    applies_to: MAC-SLU 无 frame 样本
+    exclusions: [只有对象名, 设置页面导航, 动作不明确]
+    reason_added: 无 frame 不等于非车辆控制
+    corresponding_sample_count: 63
+    human_audit_status: 待人工签署
+  - rule_id: V3-NOFRAME-003
+    source_semantic_pattern: 无 usable frame，文本含明确非控制域标记且不含任何具体控制对象动作对
+    target_semantics: NON_CONTROL
+    applies_to: MAC-SLU 无 frame 样本
+    exclusions: [控制与非控制混合, 具体车辆控制证据]
+    reason_added: 对明确音乐/地图/天气/电话/影视/信息查询解除不必要 review
+    corresponding_sample_count: 1407
+    human_audit_status: 待人工签署
+  - rule_id: V3-NOFRAME-004
+    source_semantic_pattern: 无 usable frame，空白、极短指代或明显截断垃圾输入
+    target_semantics: UNKNOWN_REVIEW_GARBAGE
+    applies_to: MAC-SLU 无 frame 样本
+    exclusions: [存在具体对象动作对]
+    reason_added: 将残缺垃圾与真正无法判断分开审计，不降低安全门
+    corresponding_sample_count: 28
+    human_audit_status: 待人工签署
+  - rule_id: V3-NONCONTROL-001
+    source_semantic_pattern: 车载控制 frame 的调节内容明确为媒体音量/声音，或功能明确为电量/续航/胎压等信息查询
+    target_semantics: NON_CONTROL
+    applies_to: MAC-SLU 结构化 frame
+    exclusions: [同一 frame 存在明确车辆物理控制对象]
+    reason_added: 媒体控制和信息查询不产生车辆执行动作，不应长期保留为未知
+    corresponding_sample_count: 573
+    human_audit_status: 待人工签署

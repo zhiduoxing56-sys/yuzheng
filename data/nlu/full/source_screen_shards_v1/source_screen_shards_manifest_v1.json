@@ -1,0 +1,84 @@
+{
+  "source_file": "D:\\语证\\data\\nlu\\full\\baseline_v2\\full_nlu_canonical_raw_pool_v2.jsonl",
+  "source_sha256": "6d8645adf0fd9429bb8fd6d3d75ecfdf6d65ff4c33926ea1cc27054dd5c51a51",
+  "total_samples": 20899,
+  "shards": [
+    {
+      "file": "source_screen_input_shard_01.jsonl",
+      "start_screen_index": 1,
+      "end_screen_index": 2000,
+      "sample_count": 2000,
+      "sha256": "b76f9e0cf2906864f17d9c732fd2aedbdfbef221e48a65e80595d432b52271a6"
+    },
+    {
+      "file": "source_screen_input_shard_02.jsonl",
+      "start_screen_index": 2001,
+      "end_screen_index": 4000,
+      "sample_count": 2000,
+      "sha256": "d4679d51b12cc48c5f029dea05d401122a61105f382d8ce72e687ca5aeff79b6"
+    },
+    {
+      "file": "source_screen_input_shard_03.jsonl",
+      "start_screen_index": 4001,
+      "end_screen_index": 6000,
+      "sample_count": 2000,
+      "sha256": "720792424f9c63d51181154fea4fa1f98d50fa94cc95afbf180094c2dca78e0f"
+    },
+    {
+      "file": "source_screen_input_shard_04.jsonl",
+      "start_screen_index": 6001,
+      "end_screen_index": 8000,
+      "sample_count": 2000,
+      "sha256": "90231b647ca77eb57a11f63e089da5edcbccee423b37294a927cf12cd778397c"
+    },
+    {
+      "file": "source_screen_input_shard_05.jsonl",
+      "start_screen_index": 8001,
+      "end_screen_index": 10000,
+      "sample_count": 2000,
+      "sha256": "dc9febbeb177dca344509050251ddb5736987046a63f499da5e6771d929992a4"
+    },
+    {
+      "file": "source_screen_input_shard_06.jsonl",
+      "start_screen_index": 10001,
+      "end_screen_index": 12000,
+      "sample_count": 2000,
+      "sha256": "8584c97eded99041a67bd104fcc92766368904550c28421e931937bd31b07b05"
+    },
+    {
+      "file": "source_screen_input_shard_07.jsonl",
+      "start_screen_index": 12001,
+      "end_screen_index": 14000,
+      "sample_count": 2000,
+      "sha256": "e7b392d121604c77e24e8a27f8c4f50f6be18e57d30444e62bfe3c318ae95bc6"
+    },
+    {
+      "file": "source_screen_input_shard_08.jsonl",
+      "start_screen_index": 14001,
+      "end_screen_index": 16000,
+      "sample_count": 2000,
+      "sha256": "0cf69bcb7b628927be018f9e900c5fa06940af4389f33784efa944f158f3ec4a"
+    },
+    {
+      "file": "source_screen_input_shard_09.jsonl",
+      "start_screen_index": 16001,
+      "end_screen_index": 18000,
+      "sample_count": 2000,
+      "sha256": "3c0332e7c51ace75ae9e24f602152b6474354454c9bf4c9e67cafc7b565431c9"
+    },
+    {
+      "file": "source_screen_input_shard_10.jsonl",
+      "start_screen_index": 18001,
+      "end_screen_index": 20000,
+      "sample_count": 2000,
+      "sha256": "645a9f173f62f62e833c62b162877b1974df5ce3aeea7c0a69f1301a54c8c236"
+    },
+    {
+      "file": "source_screen_input_shard_11.jsonl",
+      "start_screen_index": 20001,
+      "end_screen_index": 20899,
+      "sample_count": 899,
+      "sha256": "5d9bf72b2c080a0eb6dcdc09abffea910bfd20de00dadad897416d2979f8846e"
+    }
+  ]
+}

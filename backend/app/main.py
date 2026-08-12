@@ -13,12 +13,17 @@ from fastapi.responses import JSONResponse
 from app.api.routes import build_router, build_websocket_router
 from app.api.errors import ContractError
 from app.core.pipeline import CommandPipeline
+from app.core.performance import CommandPerformanceMiddleware
 from app.core.redaction import SensitiveDataRedactor, install_sensitive_logging_filter
 from app.models.frontend_contract import ErrorCode, ErrorResponse
+from app.models.schemas import AuditDatabaseRole
 
 
 def create_app(
-    database_path: Path | None = None, *, token_secret: bytes | None = None
+    database_path: Path | None = None,
+    *,
+    token_secret: bytes | None = None,
+    audit_database_role: AuditDatabaseRole = AuditDatabaseRole.PRODUCTION,
 ) -> FastAPI:
     install_sensitive_logging_filter()
     application = FastAPI(
@@ -32,7 +37,12 @@ def create_app(
         allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"],
     )
-    pipeline = CommandPipeline(database_path=database_path, token_secret=token_secret)
+    application.add_middleware(CommandPerformanceMiddleware)
+    pipeline = CommandPipeline(
+        database_path=database_path,
+        token_secret=token_secret,
+        audit_database_role=audit_database_role,
+    )
     application.state.pipeline = pipeline
 
     def is_contract_path(path: str) -> bool:

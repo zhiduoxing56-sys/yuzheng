@@ -1,0 +1,794 @@
+{
+  "DISTINCT_USER_CONTROL_OBJECT_COUNT": 35,
+  "objects": [
+    {
+      "user_target_object": "ABS",
+      "capabilities": [
+        {
+          "approved_capability_id": "ADAS_ABS_ENABLE",
+          "function_family": "ADAS安全/辅助功能开关",
+          "chinese_capability_name": "ABS启用状态控制",
+          "user_operations": [
+            "ENABLE",
+            "DISABLE"
+          ],
+          "expected_intents": [
+            "ABS_ENABLE",
+            "ABS_DISABLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "EBA",
+      "capabilities": [
+        {
+          "approved_capability_id": "ADAS_EBA_ENABLE",
+          "function_family": "ADAS安全/辅助功能开关",
+          "chinese_capability_name": "紧急制动辅助系统启用控制",
+          "user_operations": [
+            "ENABLE",
+            "DISABLE"
+          ],
+          "expected_intents": [
+            "EBA_ENABLE",
+            "EBA_DISABLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "EBD",
+      "capabilities": [
+        {
+          "approved_capability_id": "ADAS_EBD_ENABLE",
+          "function_family": "ADAS安全/辅助功能开关",
+          "chinese_capability_name": "电子制动力分配系统启用控制",
+          "user_operations": [
+            "ENABLE",
+            "DISABLE"
+          ],
+          "expected_intents": [
+            "EBD_ENABLE",
+            "EBD_DISABLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "ESC",
+      "capabilities": [
+        {
+          "approved_capability_id": "ADAS_ESC_ENABLE",
+          "function_family": "ADAS安全/辅助功能开关",
+          "chinese_capability_name": "车身电子稳定系统启用控制",
+          "user_operations": [
+            "ENABLE",
+            "DISABLE"
+          ],
+          "expected_intents": [
+            "ESC_ENABLE",
+            "ESC_DISABLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "TCS",
+      "capabilities": [
+        {
+          "approved_capability_id": "ADAS_TCS_ENABLE",
+          "function_family": "ADAS安全/辅助功能开关",
+          "chinese_capability_name": "牵引力控制系统启用控制",
+          "user_operations": [
+            "ENABLE",
+            "DISABLE"
+          ],
+          "expected_intents": [
+            "TCS_ENABLE",
+            "TCS_DISABLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "主灯开关",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_MAIN_LIGHT_MODE",
+          "function_family": "车外灯光",
+          "chinese_capability_name": "主灯光模式控制",
+          "user_operations": [
+            "SET_MODE"
+          ],
+          "expected_intents": [
+            "HEADLIGHT_SET_MODE"
+          ],
+          "status": "OVER_EXPANDED"
+        }
+      ]
+    },
+    {
+      "user_target_object": "低速挡",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_LOW_RANGE",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "低速四驱/低速挡控制",
+          "user_operations": [
+            "ENABLE",
+            "DISABLE"
+          ],
+          "expected_intents": [
+            "LOW_RANGE_ENABLE",
+            "LOW_RANGE_DISABLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "前后轴扭矩分配",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_TORQUE_DISTRIBUTION",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "前后轴扭矩分配控制",
+          "user_operations": [
+            "SET_DISTRIBUTION"
+          ],
+          "expected_intents": [
+            "TORQUE_DISTRIBUTION_SET"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "前舱盖",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_HOOD",
+          "function_family": "前舱盖",
+          "chinese_capability_name": "前舱盖开合控制",
+          "user_operations": [
+            "OPEN",
+            "CLOSE",
+            "SET_POSITION"
+          ],
+          "expected_intents": [
+            "HOOD_OPEN",
+            "HOOD_CLOSE",
+            "HOOD_SET_POSITION"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "危险警示灯",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_HAZARD_LIGHT",
+          "function_family": "车外灯光",
+          "chinese_capability_name": "危险警示灯控制",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "HAZARD_LIGHT_ON",
+            "HAZARD_LIGHT_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "变速箱性能模式",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_PERFORMANCE_MODE",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "变速箱性能模式选择",
+          "user_operations": [
+            "SET_MODE"
+          ],
+          "expected_intents": [
+            "TRANSMISSION_PERFORMANCE_MODE_SET"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "喇叭",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_HORN",
+          "function_family": "喇叭",
+          "chinese_capability_name": "喇叭控制",
+          "user_operations": [
+            "ACTIVATE",
+            "DEACTIVATE"
+          ],
+          "expected_intents": [
+            "HORN_ACTIVATE",
+            "HORN_DEACTIVATE"
+          ],
+          "status": "MISSING"
+        }
+      ]
+    },
+    {
+      "user_target_object": "外后视镜",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_MIRROR_HEATING",
+          "function_family": "外后视镜",
+          "chinese_capability_name": "外后视镜加热",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "MIRROR_HEATING_ON",
+            "MIRROR_HEATING_OFF"
+          ],
+          "status": "COMPLETE"
+        },
+        {
+          "approved_capability_id": "BODY_MIRROR_ADJUSTMENT_LOCK",
+          "function_family": "外后视镜",
+          "chinese_capability_name": "外后视镜调节锁定",
+          "user_operations": [
+            "LOCK",
+            "UNLOCK"
+          ],
+          "expected_intents": [
+            "MIRROR_ADJUSTMENT_LOCK",
+            "MIRROR_ADJUSTMENT_UNLOCK"
+          ],
+          "status": "COMPLETE"
+        },
+        {
+          "approved_capability_id": "BODY_MIRROR_FOLD",
+          "function_family": "外后视镜",
+          "chinese_capability_name": "外后视镜折叠",
+          "user_operations": [
+            "FOLD",
+            "UNFOLD"
+          ],
+          "expected_intents": [
+            "MIRROR_FOLD",
+            "MIRROR_UNFOLD"
+          ],
+          "status": "COMPLETE"
+        },
+        {
+          "approved_capability_id": "BODY_MIRROR_ADJUSTMENT",
+          "function_family": "外后视镜",
+          "chinese_capability_name": "外后视镜角度调节",
+          "user_operations": [
+            "SET_ANGLE"
+          ],
+          "expected_intents": [
+            "MIRROR_SET_ANGLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "天窗",
+      "capabilities": [
+        {
+          "approved_capability_id": "CABIN_SUNROOF",
+          "function_family": "天窗与天窗遮阳帘",
+          "chinese_capability_name": "天窗开合控制",
+          "user_operations": [
+            "OPEN",
+            "CLOSE",
+            "SET_TILT"
+          ],
+          "expected_intents": [
+            "SUNROOF_OPEN",
+            "SUNROOF_CLOSE",
+            "SUNROOF_SET_TILT"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "巡航系统",
+      "capabilities": [
+        {
+          "approved_capability_id": "ADAS_CRUISE_CONTROL",
+          "function_family": "巡航与跟车",
+          "chinese_capability_name": "巡航控制",
+          "user_operations": [
+            "ENABLE",
+            "DISABLE",
+            "SET_SPEED",
+            "SET_GAP"
+          ],
+          "expected_intents": [
+            "CRUISE_ENABLE",
+            "CRUISE_DISABLE",
+            "CRUISE_SET_SPEED",
+            "CRUISE_SET_GAP"
+          ],
+          "status": "SEMANTIC_MISMATCH"
+        }
+      ]
+    },
+    {
+      "user_target_object": "差速锁",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_DIFF_LOCK",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "差速锁控制",
+          "user_operations": [
+            "LOCK",
+            "UNLOCK",
+            "SET_ENGAGEMENT"
+          ],
+          "expected_intents": [
+            "DIFFERENTIAL_LOCK",
+            "DIFFERENTIAL_UNLOCK",
+            "DIFFERENTIAL_SET_ENGAGEMENT"
+          ],
+          "status": "MISSING"
+        }
+      ]
+    },
+    {
+      "user_target_object": "座椅",
+      "capabilities": [
+        {
+          "approved_capability_id": "SEAT_LONGITUDINAL_POSITION",
+          "function_family": "座椅",
+          "chinese_capability_name": "座椅前后位置调节",
+          "user_operations": [
+            "SET_POSITION"
+          ],
+          "expected_intents": [
+            "SEAT_LONGITUDINAL_SET_POSITION"
+          ],
+          "status": "SEMANTIC_MISMATCH"
+        },
+        {
+          "approved_capability_id": "SEAT_TILT",
+          "function_family": "座椅",
+          "chinese_capability_name": "座椅整体倾角调节",
+          "user_operations": [
+            "SET_ANGLE"
+          ],
+          "expected_intents": [
+            "SEAT_TILT_SET_ANGLE"
+          ],
+          "status": "SEMANTIC_MISMATCH"
+        },
+        {
+          "approved_capability_id": "SEAT_BACKREST_RECLINE",
+          "function_family": "座椅",
+          "chinese_capability_name": "座椅靠背角度调节",
+          "user_operations": [
+            "SET_ANGLE"
+          ],
+          "expected_intents": [
+            "SEAT_BACKREST_SET_ANGLE"
+          ],
+          "status": "SEMANTIC_MISMATCH"
+        },
+        {
+          "approved_capability_id": "SEAT_HEIGHT",
+          "function_family": "座椅",
+          "chinese_capability_name": "座椅高度调节",
+          "user_operations": [
+            "SET_POSITION"
+          ],
+          "expected_intents": [
+            "SEAT_HEIGHT_SET_POSITION"
+          ],
+          "status": "SEMANTIC_MISMATCH"
+        },
+        {
+          "approved_capability_id": "SEAT_LUMBAR_SUPPORT",
+          "function_family": "座椅",
+          "chinese_capability_name": "腰托调节",
+          "user_operations": [
+            "SET_HEIGHT",
+            "SET_SUPPORT"
+          ],
+          "expected_intents": [
+            "SEAT_LUMBAR_SET_HEIGHT",
+            "SEAT_LUMBAR_SET_SUPPORT"
+          ],
+          "status": "SEMANTIC_MISMATCH"
+        }
+      ]
+    },
+    {
+      "user_target_object": "挡位",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_GEAR_SELECTION",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "挡位选择",
+          "user_operations": [
+            "SET_GEAR"
+          ],
+          "expected_intents": [
+            "GEAR_SET"
+          ],
+          "status": "SEMANTIC_MISMATCH"
+        }
+      ]
+    },
+    {
+      "user_target_object": "换挡模式",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_GEAR_CHANGE_MODE",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "自动/手动换挡模式",
+          "user_operations": [
+            "SET_MODE"
+          ],
+          "expected_intents": [
+            "GEAR_CHANGE_MODE_SET"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "方向盘",
+      "capabilities": [
+        {
+          "approved_capability_id": "CHASSIS_STEERING_WHEEL_POSITION",
+          "function_family": "方向盘舒适/位置",
+          "chinese_capability_name": "方向盘位置调节",
+          "user_operations": [
+            "SET_EXTENSION",
+            "SET_TILT"
+          ],
+          "expected_intents": [
+            "STEERING_WHEEL_SET_EXTENSION",
+            "STEERING_WHEEL_SET_TILT"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "电驱动力结合机构",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_ELECTRICAL_POWERTRAIN_ENGAGEMENT",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "电驱动力结合控制",
+          "user_operations": [
+            "ENGAGE",
+            "DISENGAGE"
+          ],
+          "expected_intents": [
+            "ELECTRIC_POWERTRAIN_ENGAGE",
+            "ELECTRIC_POWERTRAIN_DISENGAGE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "离合器",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_CLUTCH",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "离合器结合度控制",
+          "user_operations": [
+            "SET_ENGAGEMENT"
+          ],
+          "expected_intents": [
+            "CLUTCH_SET_ENGAGEMENT"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "行李厢",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_TRUNK_OPENING",
+          "function_family": "前/后行李厢",
+          "chinese_capability_name": "行李厢开合控制",
+          "user_operations": [
+            "OPEN",
+            "CLOSE",
+            "SET_POSITION"
+          ],
+          "expected_intents": [
+            "TRUNK_OPEN",
+            "TRUNK_CLOSE",
+            "TRUNK_SET_POSITION"
+          ],
+          "status": "COMPLETE"
+        },
+        {
+          "approved_capability_id": "BODY_TRUNK_LOCK",
+          "function_family": "前/后行李厢",
+          "chinese_capability_name": "行李厢锁控制",
+          "user_operations": [
+            "LOCK",
+            "UNLOCK"
+          ],
+          "expected_intents": [
+            "TRUNK_LOCK",
+            "TRUNK_UNLOCK"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "车窗",
+      "capabilities": [
+        {
+          "approved_capability_id": "CABIN_WINDOW",
+          "function_family": "车窗",
+          "chinese_capability_name": "车窗开合与开度控制",
+          "user_operations": [
+            "OPEN",
+            "CLOSE",
+            "SET_POSITION"
+          ],
+          "expected_intents": [
+            "WINDOW_OPEN",
+            "WINDOW_CLOSE",
+            "WINDOW_SET_POSITION"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "车门",
+      "capabilities": [
+        {
+          "approved_capability_id": "CABIN_DOOR_OPENING",
+          "function_family": "车门",
+          "chinese_capability_name": "车门开合控制",
+          "user_operations": [
+            "OPEN",
+            "CLOSE",
+            "SET_POSITION"
+          ],
+          "expected_intents": [
+            "DOOR_OPEN",
+            "DOOR_CLOSE",
+            "DOOR_SET_POSITION"
+          ],
+          "status": "COMPLETE"
+        },
+        {
+          "approved_capability_id": "CABIN_DOOR_LOCK",
+          "function_family": "车门",
+          "chinese_capability_name": "车门锁控制",
+          "user_operations": [
+            "LOCK",
+            "UNLOCK"
+          ],
+          "expected_intents": [
+            "DOOR_LOCK",
+            "DOOR_UNLOCK"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "转向灯",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_TURN_INDICATOR",
+          "function_family": "车外灯光",
+          "chinese_capability_name": "转向灯控制",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "TURN_INDICATOR_ON",
+            "TURN_INDICATOR_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "近光灯",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_LOW_BEAM",
+          "function_family": "车外灯光",
+          "chinese_capability_name": "近光灯控制",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "LOW_BEAM_ON",
+            "LOW_BEAM_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "远光灯",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_HIGH_BEAM",
+          "function_family": "车外灯光",
+          "chinese_capability_name": "远光灯控制",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "HIGH_BEAM_ON",
+            "HIGH_BEAM_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "除霜除雾系统",
+      "capabilities": [
+        {
+          "approved_capability_id": "CABIN_HVAC_DEFROST",
+          "function_family": "空调与热管理",
+          "chinese_capability_name": "前/后除霜除雾控制",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "DEFROST_ON",
+            "DEFROST_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "雨刮",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_WIPER_USER_CONTROL",
+          "function_family": "风挡与雨刮",
+          "chinese_capability_name": "雨刮模式与灵敏度控制",
+          "user_operations": [
+            "SET_MODE",
+            "SET_SENSITIVITY"
+          ],
+          "expected_intents": [
+            "WIPER_SET_MODE",
+            "WIPER_SET_SENSITIVITY"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "雾灯",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_FOG_LIGHT",
+          "function_family": "车外灯光",
+          "chinese_capability_name": "雾灯控制",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "FOG_LIGHT_ON",
+            "FOG_LIGHT_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "风挡玻璃",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_WINDSHIELD_HEATING",
+          "function_family": "风挡与雨刮",
+          "chinese_capability_name": "前/后风挡加热",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "WINDSHIELD_HEATING_ON",
+            "WINDSHIELD_HEATING_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "驻车制动",
+      "capabilities": [
+        {
+          "approved_capability_id": "CHASSIS_PARKING_BRAKE",
+          "function_family": "驻车制动",
+          "chinese_capability_name": "驻车制动控制",
+          "user_operations": [
+            "APPLY",
+            "RELEASE",
+            "AUTO_APPLY_ENABLE",
+            "AUTO_APPLY_DISABLE"
+          ],
+          "expected_intents": [
+            "PARKING_BRAKE_APPLY",
+            "PARKING_BRAKE_RELEASE",
+            "PARKING_BRAKE_AUTO_APPLY_ENABLE",
+            "PARKING_BRAKE_AUTO_APPLY_DISABLE"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "驻车灯",
+      "capabilities": [
+        {
+          "approved_capability_id": "BODY_PARKING_LIGHT",
+          "function_family": "车外灯光",
+          "chinese_capability_name": "驻车灯控制",
+          "user_operations": [
+            "ON",
+            "OFF"
+          ],
+          "expected_intents": [
+            "PARKING_LIGHT_ON",
+            "PARKING_LIGHT_OFF"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "user_target_object": "驻车锁",
+      "capabilities": [
+        {
+          "approved_capability_id": "TRANSMISSION_PARK_LOCK",
+          "function_family": "变速箱与传动",
+          "chinese_capability_name": "驻车锁控制",
+          "user_operations": [
+            "LOCK",
+            "UNLOCK"
+          ],
+          "expected_intents": [
+            "PARK_LOCK",
+            "PARK_UNLOCK"
+          ],
+          "status": "COMPLETE"
+        }
+      ]
+    }
+  ]
+}

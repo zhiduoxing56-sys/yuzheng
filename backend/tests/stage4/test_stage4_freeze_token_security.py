@@ -12,9 +12,12 @@ import pytest
 from app.core.config import load_yaml
 from app.core.pipeline import CommandPipeline
 from app.models.schemas import (
+    AuditDatabaseRole,
     AuthorizationTokenStatus,
     SemanticFrame,
+    SemanticIntent,
     TextCommandRequest,
+    TrustedRuntimeContext,
     VehicleState,
     VehicleStatePatch,
     WorkflowEventType,
@@ -35,8 +38,12 @@ def _pass_command(pipeline: CommandPipeline, text: str = "打开车门", **state
     return pipeline.process_text(
         TextCommandRequest(
             text=text,
+        ),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(**({"vehicle_speed": 0, "gear_position": "P"} | state)),
-        )
+            subject_role="driver", subject_zone="driver",
+            subject_source="stage4_test", zone_source="stage4_test",
+        ),
     )
 
 
@@ -45,13 +52,22 @@ def _frame(turn_id: str = "TURN_KEY") -> SemanticFrame:
         turn_id=turn_id,
         raw_text="打开车门",
         normalized_text="打开车门",
-        action="打开",
-        target="车门",
-        area="unknown",
-        control_domain="cabin",
         semantic_confidence=1,
         ambiguity_score=0,
-        risk_level="HIGH",
+        semantic_status="OK",
+        intents=[
+            SemanticIntent(
+                clause_index=0,
+                clause_text="打开车门",
+                intent_id="DOOR_OPEN",
+                action="打开",
+                target="车门",
+                control_domain="cabin",
+                semantic_confidence=1,
+                ambiguity_score=0,
+                risk_level="HIGH",
+            )
+        ],
     )
 
 
@@ -73,10 +89,10 @@ def _issue_direct(service: AuthorizationTokenService, turn_id: str = "TURN_KEY")
 
 def test_token_expired(tmp_path: Path) -> None:
     database = tmp_path / "expired.db"
-    pipeline = CommandPipeline(database, token_secret=TEST_SECRET)
+    pipeline = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     pipeline.authorization_service.ttl_seconds = -1
     command = _pass_command(pipeline)
-    restarted = CommandPipeline(database, token_secret=TEST_SECRET)
+    restarted = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     assert restarted.workflow_repository.latest_token_for_root(command.turn_id).status == AuthorizationTokenStatus.EXPIRED
     with pytest.raises(AuthorizationTokenError, match="EXPIRED"):
         restarted.execution_service.execute(command.turn_id, command.decision.authorization_token)
@@ -85,7 +101,7 @@ def test_token_expired(tmp_path: Path) -> None:
 
 
 def test_token_tampered(tmp_path: Path) -> None:
-    pipeline = CommandPipeline(tmp_path / "tampered.db", token_secret=TEST_SECRET)
+    pipeline = CommandPipeline(tmp_path / "tampered.db", token_secret=TEST_SECRET, audit_database_role="TEST")
     command = _pass_command(pipeline)
     token = command.decision.authorization_token
     tampered = token[:-1] + ("A" if token[-1] != "A" else "B")
@@ -96,7 +112,7 @@ def test_token_tampered(tmp_path: Path) -> None:
 
 
 def test_token_reused(tmp_path: Path) -> None:
-    pipeline = CommandPipeline(tmp_path / "reused.db", token_secret=TEST_SECRET)
+    pipeline = CommandPipeline(tmp_path / "reused.db", token_secret=TEST_SECRET, audit_database_role="TEST")
     command = _pass_command(pipeline)
     token = command.decision.authorization_token
     assert pipeline.execution_service.execute(command.turn_id, token).accepted is True
@@ -107,12 +123,12 @@ def test_token_reused(tmp_path: Path) -> None:
 
 def test_token_cross_restart(tmp_path: Path) -> None:
     database = tmp_path / "restart.db"
-    first = CommandPipeline(database, token_secret=TEST_SECRET)
+    first = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     command = _pass_command(first)
     token = command.decision.authorization_token
     assert first.workflow_repository.latest_token_for_root(command.turn_id).status == AuthorizationTokenStatus.ISSUED
     del first
-    restarted = CommandPipeline(database, token_secret=TEST_SECRET)
+    restarted = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     assert restarted.workflow_repository.latest_token_for_root(command.turn_id).status == AuthorizationTokenStatus.ISSUED
     executed = restarted.execution_service.execute(command.turn_id, token)
     assert executed.accepted is True
@@ -123,10 +139,10 @@ def test_token_cross_restart(tmp_path: Path) -> None:
 
 def test_token_cross_restart_rejects_changed_physical_state_not_signature(tmp_path: Path) -> None:
     database = tmp_path / "restart-changed.db"
-    first = CommandPipeline(database, token_secret=TEST_SECRET)
+    first = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     command = _pass_command(first, door_state="OPEN")
     token = command.decision.authorization_token
-    restarted = CommandPipeline(database, token_secret=TEST_SECRET)
+    restarted = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     result = restarted.execution_service.execute(command.turn_id, token)
     assert result.accepted is False
     assert result.token_status == AuthorizationTokenStatus.REJECTED
@@ -155,7 +171,9 @@ def test_token_key_missing_with_and_without_issued_tokens(tmp_path: Path) -> Non
     assert repository.count_tokens(AuthorizationTokenStatus.ISSUED) == 0
     assert WorkflowEventType.TOKEN_REVOKED in {event.event_type for event in repository.events("TURN_KEY")}
     assert repository.verify_chain("TURN_KEY").valid is True
-    assert AuditRepository(repository.database_path).verify_chain() is True
+    assert AuditRepository(
+        repository.database_path, database_role=AuditDatabaseRole.TEST
+    ).verify_chain() is True
 
 
 @pytest.mark.parametrize("invalid_key", [b"", b"short", b"B" * 31, b"B" * 33])
@@ -223,7 +241,7 @@ def test_token_key_rotated(source: str, tmp_path: Path, monkeypatch: pytest.Monk
 def test_token_multi_process_consumption(tmp_path: Path) -> None:
     assert Path(sys.executable).resolve() == Path(r"D:\software\anaconda\envs\yuzheng311\python.exe").resolve()
     database = tmp_path / "multiprocess.db"
-    pipeline = CommandPipeline(database, token_secret=TEST_SECRET)
+    pipeline = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     command = _pass_command(pipeline)
     token = command.decision.authorization_token
     start_path = tmp_path / "start.signal"
@@ -236,8 +254,8 @@ def test_token_multi_process_consumption(tmp_path: Path) -> None:
             "secret": base64.b64encode(TEST_SECRET).decode("ascii"),
             "authorization_token": token,
             "turn_id": command.turn_id,
-            "action": command.semantic_frame.action,
-            "target": command.semantic_frame.target,
+            "action": command.semantic_frame.intents[0].action,
+            "target": command.semantic_frame.intents[0].target,
             "ready_path": str(ready_path),
             "start_path": str(start_path),
         }

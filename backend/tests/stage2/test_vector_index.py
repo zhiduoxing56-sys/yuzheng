@@ -47,12 +47,10 @@ def test_configured_bge_performs_real_768_dimensional_normalized_inference(
 def test_configured_index_uses_real_hnswlib(real_bge_embedder) -> None:
     index = HNSWIndexService(load_yaml("index.yaml"), real_bge_embedder)
     repository = EvidenceRepository(load_yaml("evidence_quality.yaml"))
-    nodes = repository.from_vehicle_state(
-        VehicleState(vehicle_speed=30, gear_position="D"),
-        ["vehicle_speed", "gear_position"],
-        [],
-        {},
+    state_nodes = repository.ingest_vehicle_state(
+        VehicleState(vehicle_speed=30, gear_position="D"), {}, "T_INDEX"
     )
+    nodes = [node for node in state_nodes if node.evidence_type in {"VEHICLE_SPEED", "GEAR_STATE"}]
     status = index.build(nodes)
     query, _ = real_bge_embedder.encode("当前车辆速度")
     results, metadata = index.search(query, top_k=2)
@@ -115,12 +113,10 @@ def test_index_build_search_empty_fallback_and_status(monkeypatch) -> None:
     assert empty_metadata.candidate_count == 0
 
     repository = EvidenceRepository(load_yaml("evidence_quality.yaml"))
-    nodes = repository.from_vehicle_state(
-        VehicleState(vehicle_speed=30, gear_position="D"),
-        ["vehicle_speed", "gear_position"],
-        [],
-        {},
+    state_nodes = repository.ingest_vehicle_state(
+        VehicleState(vehicle_speed=30, gear_position="D"), {}, "T_FALLBACK_INDEX"
     )
+    nodes = [node for node in state_nodes if node.evidence_type in {"VEHICLE_SPEED", "GEAR_STATE"}]
     status = index.build(nodes)
     results, metadata = index.search(query, top_k=2)
 

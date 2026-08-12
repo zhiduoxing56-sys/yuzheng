@@ -44,8 +44,8 @@ scenarios:
     text: 打开车门
     state: {vehicle_speed: 0, gear_position: P}
     evidence_overrides:
-      - {evidence_type: vehicle_speed, source: speed_a, value: 0, age_seconds: 0}
-      - {evidence_type: vehicle_speed, source: speed_b, value: 20, age_seconds: 1}
+      - {evidence_type: VEHICLE_SPEED, source: speed_a, value: 0, age_seconds: 0}
+      - {evidence_type: VEHICLE_SPEED, source: speed_b, value: 20, age_seconds: 1}
   normal_music:
     name: 正常播放音乐
     text: 播放音乐

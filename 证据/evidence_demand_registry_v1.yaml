@@ -1,0 +1,819 @@
+document_status: FORMAL_EVIDENCE_DEMAND_REGISTRY
+version: evidence-demand-registry-v1
+intent_registry_source: data/nlu/spec/intent_registry_r4_final.yaml
+evidence_type_catalog: evidence_type_catalog_v1.yaml
+selection_principle:
+  mandatory: 缺失该事实时，同一意图在合理场景中可能产生相反的 PASS/BLOCK 安全裁决，或属于权限红线，因此必须获取。
+  recommended: 主要增强上下文完整性、风险分级或审计解释；缺失时通常不应单独导致危险动作被直接放行。
+  important_note: mandatory/recommended 是 Vguard 的安全工程映射，不声称由 VSS 或 OSI 标准直接规定。
+global_dynamic_rules:
+- rule_id: SECURITY_CONTEXT_CLAIM
+  condition:
+    field: security_signals
+    op: NONEMPTY
+  add_mandatory:
+  - AUTHORIZATION_STATE
+  - SYSTEM_MODE
+  reason: 对管理员、测试/调试/模拟环境、跳过验证等声明进行客观事实核验。
+intent_requirements:
+  MIRROR_HEATING_ON:
+    mandatory: []
+    recommended:
+    - MIRROR_HEATING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      MIRROR_HEATING_STATE: 确认当前执行器状态，支持幂等执行与审计
+      ENVIRONMENT_CONDITIONS: 雨雾/低温环境影响后视镜加热的必要性与解释
+  MIRROR_HEATING_OFF:
+    mandatory: []
+    recommended:
+    - MIRROR_HEATING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      MIRROR_HEATING_STATE: 确认当前执行器状态，支持幂等执行与审计
+      ENVIRONMENT_CONDITIONS: 雨雾/低温环境影响后视镜加热的必要性与解释
+  SEAT_LONGITUDINAL_SET_POSITION:
+    mandatory: []
+    recommended:
+    - SEAT_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory:
+    - &id001
+      condition:
+        field: area
+        op: IN
+        values:
+        - LEFT_FRONT
+      add:
+      - VEHICLE_SPEED
+      reason: 驾驶位座椅在车辆运动中大幅调整可能影响驾驶控制
+    rationale:
+      SEAT_POSITION_STATE: 确认目标座椅当前各维位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  SEAT_TILT_SET_ANGLE:
+    mandatory: []
+    recommended:
+    - SEAT_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory:
+    - *id001
+    rationale:
+      SEAT_POSITION_STATE: 确认目标座椅当前各维位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  SEAT_BACKREST_SET_ANGLE:
+    mandatory: []
+    recommended:
+    - SEAT_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory:
+    - *id001
+    rationale:
+      SEAT_POSITION_STATE: 确认目标座椅当前各维位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  SEAT_HEIGHT_SET_POSITION:
+    mandatory: []
+    recommended:
+    - SEAT_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory:
+    - *id001
+    rationale:
+      SEAT_POSITION_STATE: 确认目标座椅当前各维位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  SEAT_LUMBAR_SET_HEIGHT:
+    mandatory: []
+    recommended:
+    - SEAT_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory:
+    - *id001
+    rationale:
+      SEAT_POSITION_STATE: 确认目标座椅当前各维位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  SEAT_LUMBAR_SET_SUPPORT:
+    mandatory: []
+    recommended:
+    - SEAT_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory:
+    - *id001
+    rationale:
+      SEAT_POSITION_STATE: 确认目标座椅当前各维位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  STEERING_WHEEL_SET_EXTENSION:
+    mandatory:
+    - VEHICLE_SPEED
+    recommended:
+    - STEERING_WHEEL_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动中调整方向盘位置可能直接影响驾驶控制
+      STEERING_WHEEL_POSITION_STATE: 确认方向盘伸缩与倾斜位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  STEERING_WHEEL_SET_TILT:
+    mandatory:
+    - VEHICLE_SPEED
+    recommended:
+    - STEERING_WHEEL_POSITION_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动中调整方向盘位置可能直接影响驾驶控制
+      STEERING_WHEEL_POSITION_STATE: 确认方向盘伸缩与倾斜位置。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  DEFROST_ON:
+    mandatory: []
+    recommended:
+    - DEFROST_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      DEFROST_STATE: 确认除霜除雾功能当前状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  DEFROST_OFF:
+    mandatory:
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
+    recommended:
+    - DEFROST_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 行驶中关闭除霜除雾可能影响驾驶视野
+      ENVIRONMENT_CONDITIONS: 雨雾/低照度条件会改变关闭除霜除雾的安全性
+      DEFROST_STATE: 确认除霜除雾功能当前状态。
+  WINDSHIELD_HEATING_ON:
+    mandatory: []
+    recommended:
+    - WINDSHIELD_HEATING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      WINDSHIELD_HEATING_STATE: 确认风挡加热当前状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  WINDSHIELD_HEATING_OFF:
+    mandatory: []
+    recommended:
+    - WINDSHIELD_HEATING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      WINDSHIELD_HEATING_STATE: 确认风挡加热当前状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  ESC_ENABLE:
+    mandatory: []
+    recommended:
+    - ESC_STATE
+    - VEHICLE_SPEED
+    - ROAD_FRICTION_STATE
+    conditional_mandatory: []
+    rationale:
+      ESC_STATE: 确认稳定系统当前启用、介入及故障情况。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      ROAD_FRICTION_STATE: 道路附着水平会改变制动、转向和稳定控制风险。
+  ESC_DISABLE:
+    mandatory:
+    - VEHICLE_SPEED
+    - ESC_STATE
+    - ROAD_FRICTION_STATE
+    recommended: []
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 行驶状态会改变停用稳定系统的风险
+      ESC_STATE: 必须确认稳定系统当前是否启用/介入/故障
+      ROAD_FRICTION_STATE: 低附着道路会显著放大停用ESC的风险
+  TRUNK_OPEN:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    recommended:
+    - TRUNK_STATE
+    - SURROUNDING_OBJECT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 行李厢在车辆运动中开闭可能形成行车危险
+      GEAR_STATE: 驻车/行驶挡位是判断车身开闭操作前提的重要事实
+      TRUNK_STATE: 确认行李厢当前开闭与开度。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+  TRUNK_CLOSE:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    recommended:
+    - TRUNK_STATE
+    - SURROUNDING_OBJECT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 行李厢在车辆运动中开闭可能形成行车危险
+      GEAR_STATE: 驻车/行驶挡位是判断车身开闭操作前提的重要事实
+      TRUNK_STATE: 确认行李厢当前开闭与开度。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+  TRUNK_SET_POSITION:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    recommended:
+    - TRUNK_STATE
+    - SURROUNDING_OBJECT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 行李厢在车辆运动中开闭可能形成行车危险
+      GEAR_STATE: 驻车/行驶挡位是判断车身开闭操作前提的重要事实
+      TRUNK_STATE: 确认行李厢当前开闭与开度。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+  TRUNK_LOCK:
+    mandatory: []
+    recommended:
+    - TRUNK_LOCK_STATE
+    conditional_mandatory: []
+    rationale:
+      TRUNK_LOCK_STATE: 确认行李厢当前锁定状态。
+  TRUNK_UNLOCK:
+    mandatory:
+    - AUTHORIZATION_STATE
+    recommended:
+    - TRUNK_LOCK_STATE
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      AUTHORIZATION_STATE: 解锁属于权限相关操作，需确认请求主体授权
+      TRUNK_LOCK_STATE: 确认行李厢当前锁定状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  HOOD_OPEN:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    recommended:
+    - HOOD_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 运动中开启前舱盖属于直接行车风险
+      GEAR_STATE: 用于确认车辆是否处于可安全开启前舱盖的状态
+      HOOD_STATE: 确认前舱盖当前开闭与位置。
+  HOOD_CLOSE:
+    mandatory: []
+    recommended:
+    - HOOD_STATE
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      HOOD_STATE: 确认前舱盖当前开闭与位置。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  GEAR_SET:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    - SERVICE_BRAKE_STATE
+    recommended:
+    - PARKING_BRAKE_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 不同速度下允许的挡位切换边界不同
+      GEAR_STATE: 需确认当前挡位及目标挡位关系
+      SERVICE_BRAKE_STATE: 部分挡位切换要求驾驶员制动输入
+      PARKING_BRAKE_STATE: 确认驻车制动当前施加状态及自动施加配置。
+  GEAR_CHANGE_MODE_SET:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    recommended:
+    - SERVICE_BRAKE_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+      SERVICE_BRAKE_STATE: 制动输入用于确认换挡、驻车制动释放等动作前提。
+  HORN_ACTIVATE:
+    mandatory: []
+    recommended:
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  MIRROR_FOLD:
+    mandatory:
+    - VEHICLE_SPEED
+    recommended:
+    - MIRROR_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 行驶中折叠后视镜会降低侧后方视野
+      MIRROR_STATE: 确认外后视镜折叠与角度状态。
+  MIRROR_UNFOLD:
+    mandatory: []
+    recommended:
+    - MIRROR_STATE
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      MIRROR_STATE: 确认外后视镜折叠与角度状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  MIRROR_SET_ANGLE:
+    mandatory: []
+    recommended:
+    - MIRROR_STATE
+    conditional_mandatory:
+    - condition:
+        field: area
+        op: IN
+        values:
+        - LEFT_SIDE
+      add:
+      - VEHICLE_SPEED
+      reason: 驾驶员侧后视镜在行驶中大幅调整可能影响观察
+    rationale:
+      MIRROR_STATE: 确认外后视镜折叠与角度状态。
+  SUNROOF_OPEN:
+    mandatory: []
+    recommended:
+    - SUNROOF_STATE
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      SUNROOF_STATE: 确认天窗当前开度/翘起状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  SUNROOF_CLOSE:
+    mandatory: []
+    recommended:
+    - SUNROOF_STATE
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      SUNROOF_STATE: 确认天窗当前开度/翘起状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  SUNROOF_SET_TILT:
+    mandatory: []
+    recommended:
+    - SUNROOF_STATE
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      SUNROOF_STATE: 确认天窗当前开度/翘起状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  CRUISE_ENABLE:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    - CRUISE_STATE
+    recommended:
+    - SURROUNDING_OBJECT_STATE
+    - LANE_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+      CRUISE_STATE: 确认巡航当前启用、工作及设定状态。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  CRUISE_DISABLE:
+    mandatory: []
+    recommended:
+    - CRUISE_STATE
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      CRUISE_STATE: 确认巡航当前启用、工作及设定状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  CRUISE_SET_SPEED:
+    mandatory:
+    - CRUISE_STATE
+    - VEHICLE_SPEED
+    - SPEED_LIMIT_STATE
+    recommended:
+    - SURROUNDING_OBJECT_STATE
+    conditional_mandatory: []
+    rationale:
+      CRUISE_STATE: 确认巡航当前启用、工作及设定状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      SPEED_LIMIT_STATE: 道路限速约束纵向速度控制。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+  CRUISE_SET_GAP:
+    mandatory:
+    - CRUISE_STATE
+    - VEHICLE_SPEED
+    - SURROUNDING_OBJECT_STATE
+    recommended:
+    - LANE_STATE
+    conditional_mandatory: []
+    rationale:
+      CRUISE_STATE: 确认巡航当前启用、工作及设定状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+  HEADLIGHT_SET_MODE:
+    mandatory:
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
+    recommended:
+    - LIGHTING_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+  HAZARD_LIGHT_ON:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  HAZARD_LIGHT_OFF:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  TURN_INDICATOR_ON:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - LANE_STATE
+    - STEERING_STATE
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+      STEERING_STATE: 辅助判断转向/车道控制动作的当前状态。
+  TURN_INDICATOR_OFF:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - LANE_STATE
+    - STEERING_STATE
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+      STEERING_STATE: 辅助判断转向/车道控制动作的当前状态。
+  LOW_BEAM_ON:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  LOW_BEAM_OFF:
+    mandatory:
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
+    recommended:
+    - LIGHTING_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+  HIGH_BEAM_ON:
+    mandatory:
+    - ENVIRONMENT_CONDITIONS
+    - SURROUNDING_OBJECT_STATE
+    recommended:
+    - LIGHTING_STATE
+    conditional_mandatory: []
+    rationale:
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+  HIGH_BEAM_OFF:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  FOG_LIGHT_ON:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  FOG_LIGHT_OFF:
+    mandatory:
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
+    recommended:
+    - LIGHTING_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+  PARKING_LIGHT_ON:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - GEAR_STATE
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+  PARKING_LIGHT_OFF:
+    mandatory: []
+    recommended:
+    - LIGHTING_STATE
+    - GEAR_STATE
+    conditional_mandatory: []
+    rationale:
+      LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+  WINDOW_OPEN:
+    mandatory: []
+    recommended:
+    - WINDOW_STATE
+    - VEHICLE_SPEED
+    - OCCUPANT_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      WINDOW_STATE: 确认目标车窗当前开闭与开度。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  WINDOW_CLOSE:
+    mandatory: []
+    recommended:
+    - WINDOW_STATE
+    - VEHICLE_SPEED
+    - OCCUPANT_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      WINDOW_STATE: 确认目标车窗当前开闭与开度。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  WINDOW_SET_POSITION:
+    mandatory: []
+    recommended:
+    - WINDOW_STATE
+    - VEHICLE_SPEED
+    - OCCUPANT_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      WINDOW_STATE: 确认目标车窗当前开闭与开度。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  DOOR_OPEN:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    - SURROUNDING_OBJECT_STATE
+    recommended:
+    - DOOR_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 运动状态直接改变开门安全性
+      GEAR_STATE: 挡位用于判断车辆是否处于驻车/行驶状态
+      SURROUNDING_OBJECT_STATE: 侧后方接近目标会改变开门碰撞风险
+      DOOR_STATE: 确认目标车门当前开闭与开度。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  DOOR_CLOSE:
+    mandatory:
+    - VEHICLE_SPEED
+    recommended:
+    - DOOR_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 运动状态影响车门开闭风险
+      DOOR_STATE: 确认目标车门当前开闭与开度。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  DOOR_SET_POSITION:
+    mandatory:
+    - VEHICLE_SPEED
+    recommended:
+    - DOOR_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 运动状态影响车门开闭风险
+      DOOR_STATE: 确认目标车门当前开闭与开度。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  DOOR_LOCK:
+    mandatory: []
+    recommended:
+    - DOOR_LOCK_STATE
+    - OCCUPANT_STATE
+    conditional_mandatory: []
+    rationale:
+      DOOR_LOCK_STATE: 确认目标车门当前锁定状态。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  DOOR_UNLOCK:
+    mandatory:
+    - AUTHORIZATION_STATE
+    recommended:
+    - DOOR_LOCK_STATE
+    - VEHICLE_SPEED
+    - OCCUPANT_STATE
+    conditional_mandatory: []
+    rationale:
+      AUTHORIZATION_STATE: 解锁属于权限相关操作，需确认请求主体授权
+      DOOR_LOCK_STATE: 确认目标车门当前锁定状态。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      OCCUPANT_STATE: 用于乘员安全、驾驶姿态及夹伤风险的辅助判断。
+  WIPER_SET_MODE:
+    mandatory: []
+    recommended:
+    - WIPER_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      WIPER_STATE: 确认雨刮当前模式、灵敏度及故障状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  WIPER_SET_SENSITIVITY:
+    mandatory: []
+    recommended:
+    - WIPER_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      WIPER_STATE: 确认雨刮当前模式、灵敏度及故障状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  PARKING_BRAKE_APPLY:
+    mandatory:
+    - VEHICLE_SPEED
+    - PARKING_BRAKE_STATE
+    recommended:
+    - GEAR_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 高速行驶中施加驻车制动存在直接风险
+      PARKING_BRAKE_STATE: 确认驻车制动当前施加状态及自动施加配置。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+  PARKING_BRAKE_RELEASE:
+    mandatory:
+    - PARKING_BRAKE_STATE
+    - GEAR_STATE
+    - SERVICE_BRAKE_STATE
+    recommended:
+    - VEHICLE_SPEED
+    conditional_mandatory: []
+    rationale:
+      PARKING_BRAKE_STATE: 确认驻车制动当前施加状态及自动施加配置。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+      SERVICE_BRAKE_STATE: 制动输入用于确认换挡、驻车制动释放等动作前提。
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+  PARKING_BRAKE_AUTO_APPLY_ENABLE:
+    mandatory: []
+    recommended:
+    - PARKING_BRAKE_STATE
+    - GEAR_STATE
+    conditional_mandatory: []
+    rationale:
+      PARKING_BRAKE_STATE: 确认驻车制动当前施加状态及自动施加配置。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+  PARKING_BRAKE_AUTO_APPLY_DISABLE:
+    mandatory: []
+    recommended:
+    - PARKING_BRAKE_STATE
+    - GEAR_STATE
+    conditional_mandatory: []
+    rationale:
+      PARKING_BRAKE_STATE: 确认驻车制动当前施加状态及自动施加配置。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+  ACCELERATE:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    - SURROUNDING_OBJECT_STATE
+    - TRAFFIC_LIGHT_STATE
+    - SPEED_LIMIT_STATE
+    recommended:
+    - ROAD_FRICTION_STATE
+    - LANE_STATE
+    conditional_mandatory: []
+    rationale:
+      SURROUNDING_OBJECT_STATE: 前方目标距离/相对速度直接决定加速是否安全
+      TRAFFIC_LIGHT_STATE: 红灯等道路控制会改变加速裁决
+      SPEED_LIMIT_STATE: 道路限速约束目标车速
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+      ROAD_FRICTION_STATE: 道路附着水平会改变制动、转向和稳定控制风险。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+  DECELERATE:
+    mandatory:
+    - VEHICLE_SPEED
+    recommended:
+    - SURROUNDING_OBJECT_STATE
+    - LANE_STATE
+    - ROAD_FRICTION_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+      ROAD_FRICTION_STATE: 道路附着水平会改变制动、转向和稳定控制风险。
+  BRAKE:
+    mandatory:
+    - VEHICLE_SPEED
+    - SURROUNDING_OBJECT_STATE
+    - ROAD_FRICTION_STATE
+    recommended:
+    - SERVICE_BRAKE_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      ROAD_FRICTION_STATE: 道路附着水平会改变制动、转向和稳定控制风险。
+      SERVICE_BRAKE_STATE: 制动输入用于确认换挡、驻车制动释放等动作前提。
+  EMERGENCY_BRAKE:
+    mandatory:
+    - VEHICLE_SPEED
+    - SURROUNDING_OBJECT_STATE
+    - ROAD_FRICTION_STATE
+    recommended:
+    - SERVICE_BRAKE_STATE
+    - LANE_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      ROAD_FRICTION_STATE: 道路附着水平会改变制动、转向和稳定控制风险。
+      SERVICE_BRAKE_STATE: 制动输入用于确认换挡、驻车制动释放等动作前提。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+  LANE_CHANGE:
+    mandatory:
+    - VEHICLE_SPEED
+    - LANE_STATE
+    - SURROUNDING_OBJECT_STATE
+    recommended:
+    - STEERING_STATE
+    - ENVIRONMENT_CONDITIONS
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      STEERING_STATE: 辅助判断转向/车道控制动作的当前状态。
+      ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
+  LANE_KEEP:
+    mandatory:
+    - VEHICLE_SPEED
+    - LANE_STATE
+    recommended:
+    - STEERING_STATE
+    - SURROUNDING_OBJECT_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+      STEERING_STATE: 辅助判断转向/车道控制动作的当前状态。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+  EVASIVE_STEER:
+    mandatory:
+    - VEHICLE_SPEED
+    - LANE_STATE
+    - SURROUNDING_OBJECT_STATE
+    - ROAD_FRICTION_STATE
+    recommended:
+    - STEERING_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      LANE_STATE: 当前与相邻车道状态直接影响车道控制动作。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      ROAD_FRICTION_STATE: 道路附着水平会改变制动、转向和稳定控制风险。
+      STEERING_STATE: 辅助判断转向/车道控制动作的当前状态。
+  AUTO_PARK_ENABLE:
+    mandatory:
+    - VEHICLE_SPEED
+    - GEAR_STATE
+    - FREE_SPACE_STATE
+    - SURROUNDING_OBJECT_STATE
+    recommended:
+    - PARKING_BRAKE_STATE
+    - STEERING_STATE
+    conditional_mandatory: []
+    rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
+      GEAR_STATE: 挡位用于判断驻车/行驶状态以及动力传递条件。
+      FREE_SPACE_STATE: 自动泊车需要确认可用空间。
+      SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
+      PARKING_BRAKE_STATE: 确认驻车制动当前施加状态及自动施加配置。
+      STEERING_STATE: 辅助判断转向/车道控制动作的当前状态。

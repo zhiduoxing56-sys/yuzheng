@@ -1,0 +1,48 @@
+{
+  "train_token_distribution": {
+    "O": 3760,
+    "B-AREA": 211,
+    "I-AREA": 287,
+    "B-VALUE": 81,
+    "I-VALUE": 87,
+    "B-NEGATION": 76,
+    "I-NEGATION": 101
+  },
+  "O_token_count": 3760,
+  "non_O_token_count": 843,
+  "O_to_non_O_ratio": 4.460260972716489,
+  "entity_token_support": {
+    "AREA": 498,
+    "VALUE": 168,
+    "NEGATION": 177
+  },
+  "A_NONE": {
+    "O": 1.0,
+    "B-AREA": 1.0,
+    "I-AREA": 1.0,
+    "B-VALUE": 1.0,
+    "I-VALUE": 1.0,
+    "B-NEGATION": 1.0,
+    "I-NEGATION": 1.0
+  },
+  "B_SQRT_INVERSE_FREQ_CAP_3": {
+    "O": 0.19794488,
+    "B-AREA": 0.8355972,
+    "I-AREA": 0.71646876,
+    "B-VALUE": 1.34863894,
+    "I-VALUE": 1.30130344,
+    "B-NEGATION": 1.39229546,
+    "I-NEGATION": 1.20775131
+  },
+  "C_INVERSE_FREQ_CAP_3": {
+    "O": 0.03361175,
+    "B-AREA": 0.59895821,
+    "I-AREA": 0.44034907,
+    "B-VALUE": 1.56024916,
+    "I-VALUE": 1.45264577,
+    "B-NEGATION": 1.66289713,
+    "I-NEGATION": 1.25128893
+  },
+  "RECOMMENDED_SLOT_WEIGHT_POLICY": "SQRT_INVERSE_FREQ_CAP_3",
+  "recommendation_reason": "It is the simplest frozen-loss-compatible change, reduces O dominance, and gives VALUE/NEGATION moderate relative emphasis without any weight exceeding 3.0."
+}

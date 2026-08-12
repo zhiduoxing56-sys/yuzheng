@@ -75,6 +75,8 @@ class WorkflowRepository:
                 );
                 CREATE INDEX IF NOT EXISTS idx_token_turn_status
                     ON authorization_tokens(turn_id, status);
+                CREATE INDEX IF NOT EXISTS idx_token_root_created
+                    ON authorization_tokens(root_turn_id, created_at);
                 CREATE TABLE IF NOT EXISTS vehicle_execution_events (
                     execution_id TEXT PRIMARY KEY,
                     root_turn_id TEXT NOT NULL,
@@ -86,6 +88,8 @@ class WorkflowRepository:
                 );
                 CREATE INDEX IF NOT EXISTS idx_execution_root
                     ON vehicle_execution_events(root_turn_id, created_at);
+                CREATE INDEX IF NOT EXISTS idx_workflow_related_turn
+                    ON turn_workflow_events(related_turn_id);
                 CREATE TABLE IF NOT EXISTS authorization_key_state (
                     singleton_id INTEGER PRIMARY KEY CHECK(singleton_id = 1),
                     key_id TEXT NOT NULL,
@@ -480,6 +484,109 @@ class WorkflowRepository:
                 (root_turn_id,),
             ).fetchall()
         return [VehicleExecutionResult.model_validate_json(row["result_json"]) for row in rows]
+
+    def latest_execution_statuses(
+        self, root_turn_ids: list[str]
+    ) -> dict[str, str]:
+        roots = tuple(dict.fromkeys(root_turn_ids))
+        if not roots:
+            return {}
+        placeholders = ",".join("?" for _ in roots)
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT root_turn_id, status FROM vehicle_execution_events "
+                f"WHERE root_turn_id IN ({placeholders}) "
+                "ORDER BY root_turn_id, created_at, rowid",
+                roots,
+            ).fetchall()
+        statuses: dict[str, str] = {}
+        for row in rows:
+            statuses[str(row["root_turn_id"])] = str(row["status"])
+        return statuses
+
+    def compact_statuses(self, root_turn_ids: list[str]) -> dict[str, dict[str, str]]:
+        roots = tuple(dict.fromkeys(root_turn_ids))
+        if not roots:
+            return {}
+        placeholders = ",".join("?" for _ in roots)
+        result = {
+            root: {
+                "review_status": "NOT_REQUIRED",
+                "authorization_status": "NOT_ISSUED",
+                "execution_status": "NOT_EXECUTED",
+            }
+            for root in roots
+        }
+        with self._connect() as connection:
+            event_rows = connection.execute(
+                "SELECT root_turn_id, event_type FROM turn_workflow_events "
+                f"WHERE root_turn_id IN ({placeholders}) "
+                "ORDER BY root_turn_id, sequence_no",
+                roots,
+            ).fetchall()
+            token_rows = connection.execute(
+                "SELECT root_turn_id, status FROM authorization_tokens "
+                f"WHERE root_turn_id IN ({placeholders}) "
+                "ORDER BY root_turn_id, created_at, rowid",
+                roots,
+            ).fetchall()
+            execution_rows = connection.execute(
+                "SELECT root_turn_id, status FROM vehicle_execution_events "
+                f"WHERE root_turn_id IN ({placeholders}) "
+                "ORDER BY root_turn_id, created_at, rowid",
+                roots,
+            ).fetchall()
+        for row in event_rows:
+            root = str(row["root_turn_id"])
+            event_type = str(row["event_type"])
+            if event_type == WorkflowEventType.REVIEW_REQUESTED.value:
+                result[root]["review_status"] = "REVIEW_REQUIRED"
+            elif event_type in {
+                WorkflowEventType.REVIEW_CONFIRMED.value,
+                WorkflowEventType.REVIEW_CORRECTED.value,
+            }:
+                result[root]["review_status"] = "COMPLETED"
+            elif event_type == WorkflowEventType.REVIEW_CANCELLED.value:
+                result[root]["review_status"] = "CANCELLED"
+        for row in token_rows:
+            result[str(row["root_turn_id"])]["authorization_status"] = str(row["status"])
+        for row in execution_rows:
+            result[str(row["root_turn_id"])]["execution_status"] = str(row["status"])
+        return result
+
+    def compact_events(self, root_turn_id: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT event_id, related_turn_id, parent_turn_id, event_type, "
+                "created_at, json_extract(payload_json, '$.duration_ms') AS duration_ms, "
+                "json_extract(payload_json, '$.reason') AS reason "
+                "FROM turn_workflow_events WHERE root_turn_id = ? ORDER BY sequence_no",
+                (root_turn_id,),
+            ).fetchall()
+        items: list[dict[str, Any]] = []
+        for row in rows:
+            stage = str(row["event_type"])
+            failed = any(
+                marker in stage
+                for marker in ("FAILED", "REJECTED", "REVOKED", "EXPIRED", "CANCELLED")
+            )
+            items.append(
+                {
+                    "event_id": str(row["event_id"]),
+                    "turn_id": str(row["related_turn_id"] or root_turn_id),
+                    "parent_turn_id": (
+                        str(row["parent_turn_id"]) if row["parent_turn_id"] else None
+                    ),
+                    "stage": stage,
+                    "status": "FAILED" if failed else "COMPLETED",
+                    "timestamp": str(row["created_at"]),
+                    "duration_ms": (
+                        float(row["duration_ms"]) if row["duration_ms"] is not None else None
+                    ),
+                    "summary": str(row["reason"] or stage),
+                }
+            )
+        return items
 
     def health(self) -> str:
         with self._connect() as connection:

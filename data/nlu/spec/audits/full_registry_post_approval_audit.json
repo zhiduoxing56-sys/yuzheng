@@ -1,0 +1,1835 @@
+{
+  "audit_id": "SYS-014-FULL-REGISTRY-POST-HUMAN-APPROVAL",
+  "audit_status": "PASS",
+  "timestamp": "2026-08-09T09:17:53+08:00",
+  "human_decision_source": "data/nlu/spec/review/full_registry_change_review.json",
+  "summary": {
+    "HUMAN_DECISIONS_APPLIED": "YES",
+    "FRR_APPROVE_COUNT": 9,
+    "FRR_REJECT_COUNT": 2,
+    "FRR_MODIFY_COUNT": 1,
+    "OLD_INTENT_COUNT": 95,
+    "NEW_INTENT_COUNT": 93,
+    "OLD_VSS_INTENT_COUNT": 87,
+    "NEW_VSS_INTENT_COUNT": 85,
+    "FINAL_PROJECT_NATIVE_INTENT_COUNT": 8,
+    "FINAL_APPROVED_VSS_CAPABILITY_COUNT": 44,
+    "REMOVED_INTENTS": [
+      "HEADLIGHT_ON",
+      "HEADLIGHT_OFF"
+    ],
+    "ADDED_INTENTS": [],
+    "CONTRACT_CHANGED_INTENTS": [
+      "SEAT_LONGITUDINAL_SET_POSITION",
+      "SEAT_TILT_SET_ANGLE",
+      "SEAT_BACKREST_SET_ANGLE",
+      "SEAT_HEIGHT_SET_POSITION",
+      "SEAT_LUMBAR_SET_HEIGHT",
+      "SEAT_LUMBAR_SET_SUPPORT",
+      "GEAR_SET",
+      "CRUISE_SET_GAP",
+      "HEADLIGHT_SET_MODE",
+      "WIPER_SET_SENSITIVITY"
+    ],
+    "CONSISTENCY_LINKAGE_REPAIRS": [
+      "WIPER_SET_SENSITIVITY: mode_contract=WIPER"
+    ],
+    "NEW_REGISTRY_SHA256": "0127af1d64b33a9e517537ccd458905fcc6af3414cc70701fc362474a4ec2739",
+    "LEGACY_REFERENCE_COUNT": 8330,
+    "LEGACY_REFERENCE_FILE_COUNT": 182,
+    "UNRESOLVED_BLOCKER_COUNT": 0,
+    "REGISTRY_CONSISTENCY_PASS": "YES",
+    "RUNTIME_LOADING_ALLOWED": "NO",
+    "DATASET_GENERATED": "NO",
+    "MODEL_TRAINING_EXECUTED": "NO",
+    "RUNTIME_MODIFIED": "NO",
+    "SAFETY_GOLD_OPENED": "NO",
+    "FULL_REGISTRY_READY_FOR_DATASET_DESIGN": "YES"
+  },
+  "registry": {
+    "path": "data/nlu/spec/intent_registry_draft.yaml",
+    "registry_version": "sys-014-stage2.1-draft-3",
+    "document_status": "DRAFT_OFFLINE_NOT_RUNTIME",
+    "runtime_loading_allowed": false,
+    "sha256": "0127af1d64b33a9e517537ccd458905fcc6af3414cc70701fc362474a4ec2739"
+  },
+  "human_decisions": {
+    "FRR-001": "REJECT",
+    "FRR-002": "REJECT",
+    "FRR-003": "APPROVE",
+    "FRR-004": "APPROVE",
+    "FRR-005": "APPROVE",
+    "FRR-006": "APPROVE",
+    "FRR-007": "APPROVE",
+    "FRR-008": "APPROVE",
+    "FRR-009": "APPROVE",
+    "FRR-010": "MODIFY",
+    "FRR-011": "APPROVE",
+    "FRR-012": "APPROVE"
+  },
+  "consistency_linkage_repairs": [
+    {
+      "intent_id": "WIPER_SET_SENSITIVITY",
+      "change": "Linked existing optional MODE slot to existing WIPER mode contract.",
+      "semantic_expansion": false,
+      "intent_count_change": 0
+    }
+  ],
+  "consistency_checks": [
+    {
+      "check_id": 1,
+      "name": "intent_id unique",
+      "status": "PASS",
+      "evidence": {
+        "count": 93
+      }
+    },
+    {
+      "check_id": 2,
+      "name": "total Intent = 93",
+      "status": "PASS",
+      "evidence": {
+        "actual": 93
+      }
+    },
+    {
+      "check_id": 3,
+      "name": "VSS-derived Intent = 85",
+      "status": "PASS",
+      "evidence": {
+        "actual": 85
+      }
+    },
+    {
+      "check_id": 4,
+      "name": "Project-native Intent = 8",
+      "status": "PASS",
+      "evidence": {
+        "actual": 8
+      }
+    },
+    {
+      "check_id": 5,
+      "name": "Approved VSS capability = 44",
+      "status": "PASS",
+      "evidence": {
+        "audit": 44,
+        "registry": 44
+      }
+    },
+    {
+      "check_id": 6,
+      "name": "User objects remain based on approved-44 audit",
+      "status": "PASS",
+      "evidence": {
+        "DISTINCT_USER_CONTROL_OBJECT_COUNT": 35,
+        "source": "approved44_intent_expansion_audit.json"
+      }
+    },
+    {
+      "check_id": 7,
+      "name": "All VSS-derived Intents trace to HUMAN_APPROVED capability",
+      "status": "PASS",
+      "evidence": {
+        "failures": []
+      }
+    },
+    {
+      "check_id": 8,
+      "name": "No HUMAN_REJECTED source Intent",
+      "status": "PASS",
+      "evidence": {
+        "basis": "Every VSS capability id is in the approved-44 set and authority is HUMAN_APPROVED_VSS/BOTH"
+      }
+    },
+    {
+      "check_id": 9,
+      "name": "HEADLIGHT_ON absent from active intents",
+      "status": "PASS",
+      "evidence": {
+        "active": false
+      }
+    },
+    {
+      "check_id": 10,
+      "name": "HEADLIGHT_OFF absent from active intents",
+      "status": "PASS",
+      "evidence": {
+        "active": false,
+        "historical_poc_metadata_preserved": true
+      }
+    },
+    {
+      "check_id": 11,
+      "name": "HEADLIGHT_SET_MODE contains full five-value MODE",
+      "status": "PASS",
+      "evidence": {
+        "actual": [
+          "OFF",
+          "POSITION",
+          "DAYTIME_RUNNING_LIGHTS",
+          "AUTO",
+          "BEAM"
+        ]
+      }
+    },
+    {
+      "check_id": 12,
+      "name": "LOW/HIGH/FOG beam intents remain independent",
+      "status": "PASS",
+      "evidence": {
+        "required": [
+          "LOW_BEAM_ON",
+          "LOW_BEAM_OFF",
+          "HIGH_BEAM_ON",
+          "HIGH_BEAM_OFF",
+          "FOG_LIGHT_ON",
+          "FOG_LIGHT_OFF"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "check_id": 13,
+      "name": "GEAR_SET does not hardcode R -> REVERSE_GEAR_1",
+      "status": "PASS",
+      "evidence": {
+        "mapping": {
+          "canonical_modes": [
+            "P",
+            "N",
+            "D",
+            "FORWARD_GEAR_N",
+            "REVERSE_GEAR_N"
+          ],
+          "lexical_aliases": {
+            "R": "VEHICLE_SPECIFIC_REVERSE_GEAR",
+            "倒挡": "VEHICLE_SPECIFIC_REVERSE_GEAR"
+          },
+          "vss_code_rules": {
+            "P": 126,
+            "N": 0,
+            "D": 127,
+            "FORWARD_GEAR_N": "POSITIVE_INTEGER_N",
+            "REVERSE_GEAR_N": "NEGATIVE_INTEGER_N"
+          },
+          "physical_mapping_authority": "VehicleCapabilityMapping",
+          "vehicle_specific_validation_required": true,
+          "prohibited_generic_mapping": "R -> REVERSE_GEAR_1"
+        }
+      }
+    },
+    {
+      "check_id": 14,
+      "name": "Five seat review items / six seat intents match approval",
+      "status": "PASS",
+      "evidence": {
+        "checked_intents": [
+          "SEAT_LONGITUDINAL_SET_POSITION",
+          "SEAT_TILT_SET_ANGLE",
+          "SEAT_BACKREST_SET_ANGLE",
+          "SEAT_HEIGHT_SET_POSITION",
+          "SEAT_LUMBAR_SET_HEIGHT",
+          "SEAT_LUMBAR_SET_SUPPORT"
+        ],
+        "failures": []
+      }
+    },
+    {
+      "check_id": 15,
+      "name": "CRUISE_SET_GAP matches VALUE XOR MODE",
+      "status": "PASS",
+      "evidence": {
+        "actual": {
+          "intent_id": "CRUISE_SET_GAP",
+          "chinese_name": "设置巡航跟车距离",
+          "capability_family": "ADAS_CRUISE_CONTROL",
+          "canonical_action": "设置",
+          "canonical_target": "巡航跟车距离",
+          "control_domain": "驾驶控制",
+          "risk_level": "R3",
+          "risk_tags": [
+            "巡航控制",
+            "跟车安全"
+          ],
+          "allowed_areas": [],
+          "value_contract": "FOLLOWING_GAP_VALUE_OPTIONAL",
+          "mode_contract": "CRUISE_GAP_LEVEL",
+          "conditional_slot_contract": "VALUE_XOR_MODE",
+          "required_slots": [],
+          "optional_slots": [
+            "VALUE",
+            "MODE",
+            "NEGATION"
+          ],
+          "scope_status": "IN_SCOPE",
+          "capability_origin": "VSS_AND_PROJECT",
+          "vss_capability_ids": [
+            "ADAS_CRUISE_CONTROL"
+          ],
+          "vss_relation": "DIRECT",
+          "scope_authority": "BOTH",
+          "current_semantic_support": "NONE",
+          "current_evidence_support": "NONE",
+          "current_authorization_support": "NONE",
+          "current_execution_support": "NONE"
+        }
+      }
+    },
+    {
+      "check_id": 16,
+      "name": "Required/optional/conditional slots have no contradiction",
+      "status": "PASS",
+      "evidence": {
+        "failures": []
+      }
+    },
+    {
+      "check_id": 17,
+      "name": "DIRECTION/MODE contracts are expressible by later Full NLU schema",
+      "status": "PASS",
+      "evidence": {
+        "slot_types": [
+          "AREA",
+          "VALUE",
+          "DIRECTION",
+          "MODE",
+          "NEGATION"
+        ],
+        "direction_contracts": {
+          "SEAT_FORWARD_BACKWARD": [
+            "FORWARD",
+            "BACKWARD"
+          ],
+          "SEAT_UP_DOWN": [
+            "UP",
+            "DOWN"
+          ],
+          "LUMBAR_SUPPORT_MORE_LESS": [
+            "MORE",
+            "LESS"
+          ]
+        },
+        "conditional_slot_contracts": {
+          "VALUE_OR_DIRECTION": {
+            "rule": "AT_LEAST_ONE_OF",
+            "slots": [
+              "VALUE",
+              "DIRECTION"
+            ],
+            "same_text_span_policy": "DISALLOW_SHARED_SPAN"
+          },
+          "VALUE_XOR_MODE": {
+            "rule": "XOR",
+            "slots": [
+              "VALUE",
+              "MODE"
+            ],
+            "jointly_present_exception": "ALLOW_ONLY_IF_DETERMINISTICALLY_CONSISTENT"
+          }
+        },
+        "mode_mapping_contracts": [
+          "GEAR_VEHICLE_SPECIFIC",
+          "HEADLIGHT_MAIN_SWITCH"
+        ]
+      }
+    }
+  ],
+  "LEGACY_REFERENCE_AUDIT": {
+    "audit_name": "LEGACY_REFERENCE_AUDIT",
+    "definition": "Textual HEADLIGHT_ON/HEADLIGHT_OFF occurrences outside the current human review records, this post-approval audit, and the semantic freeze manifest. Count is occurrence-based, not file-based.",
+    "scope": "Repository UTF-8 text artifacts including protected historical PoC data, predictions, manifests, code, tests, configs, docs, and historical audits.",
+    "excluded_current_records": [
+      "data/nlu/spec/audits/full_registry_post_approval_audit.json",
+      "data/nlu/spec/audits/full_registry_post_approval_audit.md",
+      "data/nlu/spec/frozen/full_registry_semantic_freeze_manifest.json",
+      "data/nlu/spec/review/full_registry_change_review.csv",
+      "data/nlu/spec/review/full_registry_change_review.json",
+      "data/nlu/spec/review/full_registry_change_review.md"
+    ],
+    "LEGACY_REFERENCE_COUNT": 8330,
+    "LEGACY_REFERENCE_FILE_COUNT": 182,
+    "token_counts": {
+      "HEADLIGHT_ON": 14,
+      "HEADLIGHT_OFF": 8316
+    },
+    "classification_file_counts": {
+      "HISTORICAL_AUDIT_REFERENCE": 3,
+      "LEGACY_CODE_REFERENCE": 10,
+      "LEGACY_CONFIG_REFERENCE": 1,
+      "LEGACY_DATA_OR_MANIFEST_REFERENCE": 98,
+      "LEGACY_DOC_REFERENCE": 12,
+      "LEGACY_TEST_REFERENCE": 5,
+      "PROTECTED_HISTORICAL_ARTIFACT": 52,
+      "REGISTRY_HISTORICAL_POC_METADATA": 1
+    },
+    "references": [
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_02_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 283,
+        "total_occurrences": 283,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_03_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 258,
+        "total_occurrences": 258,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_02_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 258,
+        "total_occurrences": 258,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/metrics_by_epoch.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 251,
+        "total_occurrences": 251,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_05_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 230,
+        "total_occurrences": 230,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_04_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 227,
+        "total_occurrences": 227,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_09_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 227,
+        "total_occurrences": 227,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_08_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 226,
+        "total_occurrences": 226,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_10_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 225,
+        "total_occurrences": 225,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_07_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 222,
+        "total_occurrences": 222,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_06_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 221,
+        "total_occurrences": 221,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_06_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 219,
+        "total_occurrences": 219,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_05_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 218,
+        "total_occurrences": 218,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_07_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 216,
+        "total_occurrences": 216,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_03_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 215,
+        "total_occurrences": 215,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_09_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 214,
+        "total_occurrences": 214,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_10_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 212,
+        "total_occurrences": 212,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_08_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 208,
+        "total_occurrences": 208,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/test/predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 206,
+        "total_occurrences": 206,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_04_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 203,
+        "total_occurrences": 203,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_05_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 197,
+        "total_occurrences": 197,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_06_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 193,
+        "total_occurrences": 193,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_07_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 192,
+        "total_occurrences": 192,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_08_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 192,
+        "total_occurrences": 192,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_09_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 192,
+        "total_occurrences": 192,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_10_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 192,
+        "total_occurrences": 192,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_04_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 191,
+        "total_occurrences": 191,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/metrics_by_epoch.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 186,
+        "total_occurrences": 186,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_03_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 185,
+        "total_occurrences": 185,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_02_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 180,
+        "total_occurrences": 180,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/candidate_pool.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 179,
+        "total_occurrences": 179,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/metrics_by_epoch.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 167,
+        "total_occurrences": 167,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_01_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 154,
+        "total_occurrences": 154,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_01_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 150,
+        "total_occurrences": 150,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/epoch_01_predictions.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 145,
+        "total_occurrences": 145,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v2/train.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 134,
+        "total_occurrences": 134,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v1/train.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 117,
+        "total_occurrences": 117,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/review_queue.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 93,
+        "total_occurrences": 93,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/postmortem/unknown_false_accept_analysis.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 87,
+        "total_occurrences": 87,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v1/validation.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 57,
+        "total_occurrences": 57,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/postmortem/multi_failure_analysis.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 48,
+        "total_occurrences": 48,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/training_log.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 35,
+        "total_occurrences": 35,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v2/validation.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 33,
+        "total_occurrences": 33,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/training_summary.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 21,
+        "total_occurrences": 21,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/training_summary.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 21,
+        "total_occurrences": 21,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp001/metrics_by_epoch.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 20,
+        "total_occurrences": 20,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/reporting_metrics.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 20,
+        "total_occurrences": 20,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/reporting_metrics.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 17,
+        "total_occurrences": 17,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/error_cases.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 14,
+        "total_occurrences": 14,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v2/dataset_manifest.json",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 14,
+        "total_occurrences": 14,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/spec/audits/approved44_intent_expansion_audit.json",
+        "classification": "HISTORICAL_AUDIT_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 6,
+        "HEADLIGHT_OFF_occurrences": 8,
+        "total_occurrences": 14,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/error_cases.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 12,
+        "total_occurrences": 12,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp001/postmortem/negation_case_analysis.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 12,
+        "total_occurrences": 12,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v1/safety_gold.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 12,
+        "total_occurrences": 12,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v2/safety_gold.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 12,
+        "total_occurrences": 12,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v2/test.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 12,
+        "total_occurrences": 12,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/safety_gold_candidates.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 12,
+        "total_occurrences": 12,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/spec/audits/approved44_intent_expansion_audit.md",
+        "classification": "HISTORICAL_AUDIT_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 5,
+        "HEADLIGHT_OFF_occurrences": 6,
+        "total_occurrences": 11,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/test/error_cases.jsonl",
+        "classification": "LEGACY_TEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 10,
+        "total_occurrences": 10,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/step1-alignment/real_scenario_results.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 10,
+        "total_occurrences": 10,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/training_summary.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 7,
+        "total_occurrences": 7,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/reporting_metrics.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 6,
+        "total_occurrences": 6,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp001/postmortem/safety_error_trajectory.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 6,
+        "total_occurrences": 6,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/apply_sys014_stage3b1.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 6,
+        "total_occurrences": 6,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp001/postmortem/abstention_strategy_comparison.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 5,
+        "total_occurrences": 5,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v1/test.jsonl",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 5,
+        "total_occurrences": 5,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/spec/audits/approved44_intent_expansion_audit.csv",
+        "classification": "HISTORICAL_AUDIT_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 2,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 5,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_exp002.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 5,
+        "total_occurrences": 5,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v1/dataset_manifest.json",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 4,
+        "total_occurrences": 4,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_correct_child/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 4,
+        "total_occurrences": 4,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/postmortem/split_distribution_audit.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v2/split_group_balance_diagnosis.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v2/split_report.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/human_review_applied_report.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "docs/plans/2026-08-08-sys-014-nlu-label-design.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 1,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_a1_postmortem.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/ambiguous_open-command.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/comfort_ac_on-command.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/door_open_moving-command.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/door_open_stationary-command.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/non_control_greeting-command.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_ambiguous/review_correct_response.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 3,
+        "total_occurrences": 3,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/training_log.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/exp001_vs_exp002_config_diff.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/manifest.json",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/preflight.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp001/best_validation_metrics.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp001/evaluation/validation/metrics.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/test/metrics.json",
+        "classification": "LEGACY_TEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp001.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp002.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/ambiguous_open-presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/comfort_ac_on-presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/door_open_moving-presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/door_open_stationary-presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "test-results/raw/20260804T232248Z/non_control_greeting-presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/01_query_speed/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/01_query_speed/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/01_query_speed/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/01_query_speed/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/02_play_music/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/02_play_music/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/02_play_music/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/02_play_music/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/03_parked_open_door/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/03_parked_open_door/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/03_parked_open_door/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/03_parked_open_door/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/04_moving_open_door/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/04_moving_open_door/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/04_moving_open_door/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/04_moving_open_door/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/05_bypass_open_door/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/05_bypass_open_door/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/05_bypass_open_door/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/05_bypass_open_door/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/06_change_lane_left/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/06_change_lane_left/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/06_change_lane_left/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/06_change_lane_left/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_ambiguous/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_ambiguous/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_ambiguous/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_ambiguous/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_confirm_child/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_confirm_child/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_confirm_child/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_confirm_child/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_correct_child/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_correct_child/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/07_review_correct_child/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/08_real_wav/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/08_real_wav/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/08_real_wav/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/08_real_wav/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/09_review_cancel_source/audit_detail.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/09_review_cancel_source/presentation.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/09_review_cancel_source/presentation_after_cancel.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/09_review_cancel_source/presentation_second.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/full-software-audit/live-api/09_review_cancel_source/timeline.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 2,
+        "total_occurrences": 2,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "SYSTEM_CORRECTNESS_BASELINE_AUDIT.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "backend/tests/stage3/test_stage3_scenarios.py",
+        "classification": "LEGACY_TEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "config/safety_rules.yaml",
+        "classification": "LEGACY_CONFIG_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/checkpoints/best/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/checkpoints/closest_safety_diagnostic/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/checkpoints/last/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp001/diagnostics/stage4c_b1/stage4c_b1_diagnosis.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/best/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/closest_exp002_diagnostic/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/closest_safety_diagnostic/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/last/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/error_cases.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-electra-exp002/training_log.jsonl",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp001/checkpoints/last/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/checkpoints/closest_safety_diagnostic/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/checkpoints/last/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/experiments/sys014-poc7-rbt3-exp002/exp001_vs_exp002.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/postmortem/split_distribution_audit.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/final_evaluation/sys014-electra-exp002-epoch9/postmortem/stage4d_a1_postmortem.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/coverage_report.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v1/README.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/frozen/sys014-poc7-v1/split_report.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/poc/stage3b1_semantic_cleanup_report.md",
+        "classification": "PROTECTED_HISTORICAL_ARTIFACT",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/spec/intent_registry_draft.yaml",
+        "classification": "REGISTRY_HISTORICAL_POC_METADATA",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/training_design/dry_run_report.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/training_design/label_mapping.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "data/nlu/training_design/train_distribution.json",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "docs/阶段三验收说明.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "docs/阶段四验收说明.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/freeze_sys014_poc7_v2.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/nlu_training/labels.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/nlu_training/stage4d_a1_postmortem.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "scripts/validate_nlu_dataset.py",
+        "classification": "LEGACY_CODE_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_final/backend/tests/stage3/test_stage3_scenarios.py",
+        "classification": "LEGACY_TEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_final/config/safety_rules.yaml",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_final/docs/阶段三验收说明.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_final/docs/阶段四验收说明.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_scan/backend/tests/stage3/test_stage3_scenarios.py",
+        "classification": "LEGACY_TEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_scan/config/safety_rules.yaml",
+        "classification": "LEGACY_DATA_OR_MANIFEST_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_scan/docs/阶段三验收说明.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      },
+      {
+        "path": "tmp/stage4_1_package_scan/docs/阶段四验收说明.md",
+        "classification": "LEGACY_DOC_REFERENCE",
+        "HEADLIGHT_ON_occurrences": 0,
+        "HEADLIGHT_OFF_occurrences": 1,
+        "total_occurrences": 1,
+        "modified_in_this_stage": false
+      }
+    ],
+    "action": "AUDIT_ONLY_NO_LEGACY_REWRITE"
+  },
+  "unresolved_blockers": [],
+  "prohibited_actions_confirmation": {
+    "full_intent_training_data_generated": false,
+    "model_training_executed": false,
+    "validator_implemented": false,
+    "runtime_connected_or_modified": false,
+    "http_contract_modified": false,
+    "safety_gold_opened": false
+  }
+}

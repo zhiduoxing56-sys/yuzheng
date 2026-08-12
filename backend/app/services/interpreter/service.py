@@ -13,6 +13,7 @@ from app.models.schemas import (
     DecisionExplanation,
     DecisionLabel,
     DecisionResult,
+    EvidenceDemand,
     EvidenceCitation,
     EvidenceNode,
     EvidenceStatus,
@@ -23,8 +24,9 @@ from app.models.schemas import (
     SafetyGateResult,
     SemanticFrame,
 )
-from app.services.evidence.demand import EvidenceDemandService
-from app.services.semantic.parser import SemanticFrameParser
+
+
+MULTIPLE_CONTROL_INTENTS = "MULTIPLE_CONTROL_INTENTS"
 
 
 SYSTEM_PROMPT = (
@@ -85,14 +87,10 @@ class InterpreterService:
     def __init__(
         self,
         config: dict[str, Any],
-        parser: SemanticFrameParser,
-        demand_service: EvidenceDemandService,
         *,
         provider: InterpreterProvider | None = None,
     ) -> None:
         self.config = config
-        self.parser = parser
-        self.demand_service = demand_service
         self.enabled = bool(config.get("enabled", True))
         self.maximum_candidates = int(config.get("maximum_candidates", 3))
         self.maximum_input_characters = int(config.get("maximum_input_characters", 6000))
@@ -129,70 +127,6 @@ class InterpreterService:
             timeout=timeout,
         )
 
-    @staticmethod
-    def _canonical_text(action: str, target: str, parser: SemanticFrameParser) -> str:
-        for rule in parser.config.get("explicit_command_patterns", []):
-            if str(rule.get("action")) == action and str(rule.get("target")) == target:
-                patterns = rule.get("patterns", [])
-                if patterns:
-                    return str(patterns[0])
-        return f"{action}{target}"
-
-    def _allowed_pairs(self) -> list[tuple[str, str]]:
-        pairs: set[tuple[str, str]] = set()
-        for rule in self.parser.config.get("explicit_command_patterns", []):
-            pairs.add((str(rule.get("action")), str(rule.get("target"))))
-        for key in self.parser.config.get("risk_profiles", {}):
-            if key != "default" and "|" in key:
-                action, target = key.split("|", 1)
-                pairs.add((action, target))
-        return sorted(pair for pair in pairs if "unknown" not in pair)
-
-    def _validate_candidate(
-        self,
-        *,
-        turn_id: str,
-        canonical_text: str,
-        source: str,
-        why_possible: str,
-        supporting_ids: list[str],
-        conflicting_ids: list[str],
-        permitted_pairs: set[tuple[str, str]],
-    ) -> ReviewCandidateInterpretation | None:
-        parsed = self.parser.parse(turn_id, canonical_text)
-        parsed, demand = self.demand_service.build(parsed)
-        if parsed.action == "unknown" or parsed.target == "unknown":
-            return None
-        allowed = (parsed.action, parsed.target) in permitted_pairs
-        if not allowed:
-            return None
-        if demand.action != parsed.action or demand.target != parsed.target:
-            return None
-        candidate_id = "CAND_" + _digest(
-            {
-                "turn_id": turn_id,
-                "canonical_text": parsed.normalized_text,
-                "action": parsed.action,
-                "target": parsed.target,
-                "source": source,
-            }
-        )[:20]
-        return ReviewCandidateInterpretation(
-            candidate_id=candidate_id,
-            turn_id=turn_id,
-            canonical_text=canonical_text,
-            action=parsed.action,
-            target=parsed.target,
-            parameters={"area": parsed.area} if parsed.area != "unknown" else {},
-            control_domain=parsed.control_domain,
-            risk_level=parsed.risk_level,
-            why_possible=why_possible,
-            supporting_evidence_ids=supporting_ids,
-            conflicting_evidence_ids=conflicting_ids,
-            source=source,
-            validation_status="VALID",
-        )
-
     def build_candidates(
         self,
         frame: SemanticFrame,
@@ -201,39 +135,37 @@ class InterpreterService:
         conflicting_ids: list[str],
         provider_candidate_texts: list[str] | None = None,
     ) -> list[ReviewCandidateInterpretation]:
-        proposed: list[tuple[str, str, str]] = []
-        permitted_pairs = set(self._allowed_pairs())
-        if frame.action != "unknown" and frame.target != "unknown":
-            permitted_pairs.add((frame.action, frame.target))
-            proposed.append(
-                (
-                    self._canonical_text(frame.action, frame.target, self.parser),
-                    "SEMANTIC_FRAME",
-                    "当前解析器已得到完整且受支持的动作—目标组合",
+        del provider_candidate_texts  # 禁止为解释候选再次运行语义分类。
+        candidates: list[ReviewCandidateInterpretation] = []
+        for intent in frame.intents:
+            candidate_id = "CAND_" + _digest(
+                {
+                    "turn_id": frame.turn_id,
+                    "clause_index": intent.clause_index,
+                    "intent_id": intent.intent_id,
+                }
+            )[:20]
+            candidates.append(
+                ReviewCandidateInterpretation(
+                    candidate_id=candidate_id,
+                    turn_id=frame.turn_id,
+                    canonical_text=intent.clause_text,
+                    action=intent.action,
+                    target=intent.target,
+                    parameters={
+                        key: value
+                        for key, value in {"area": intent.area, "value": intent.value}.items()
+                        if value is not None and value != "unknown"
+                    },
+                    control_domain=intent.control_domain,
+                    risk_level=intent.risk_level,
+                    why_possible="冻结语义编排器已在当前子句中解析出该正式意图",
+                    supporting_evidence_ids=supporting_ids,
+                    conflicting_evidence_ids=conflicting_ids,
+                    source="SEMANTIC_FRAME",
+                    validation_status="VALID",
                 )
             )
-        for text in provider_candidate_texts or []:
-            proposed.append((str(text), "LLM_VALIDATED", "模型提出并经本地规则重新验证"))
-
-        candidates: list[ReviewCandidateInterpretation] = []
-        seen: set[tuple[str, str]] = set()
-        for canonical_text, source, reason in proposed:
-            candidate = self._validate_candidate(
-                turn_id=frame.turn_id,
-                canonical_text=canonical_text,
-                source=source,
-                why_possible=reason,
-                supporting_ids=supporting_ids,
-                conflicting_ids=conflicting_ids,
-                permitted_pairs=permitted_pairs,
-            )
-            if candidate is None:
-                continue
-            key = (candidate.action, candidate.target)
-            if key in seen:
-                continue
-            seen.add(key)
-            candidates.append(candidate)
             if len(candidates) >= self.maximum_candidates:
                 break
         return candidates
@@ -245,8 +177,18 @@ class InterpreterService:
         conflicting_ids: list[str],
         candidate_count: int,
         generation_mode: str,
+        *,
+        multiple_control_intents: bool = False,
     ) -> RecoveryRecommendation | None:
-        if frame.action == "unknown" or frame.target == "unknown":
+        if multiple_control_intents:
+            return RecoveryRecommendation(
+                recovery_code="REPHRASE_COMMAND",
+                message="检测到多个独立车控意图，请改为一个单独指令后重新提交。",
+                required_user_input="提供一个明确的单一动作与对象",
+                source="DETERMINISTIC_SAFETY_RULE",
+                generation_mode=generation_mode,
+            )
+        if not frame.intents:
             return RecoveryRecommendation(
                 recovery_code="SUPPLY_ACTION_TARGET",
                 message="请明确要执行的动作和控制对象。",
@@ -289,10 +231,14 @@ class InterpreterService:
         candidates: list[ReviewCandidateInterpretation],
         causal: CausalCorrectionResult,
         decision: DecisionResult,
+        *,
+        multiple_control_intents: bool = False,
     ) -> str | None:
         if decision.final_decision != DecisionLabel.REVIEW:
             return None
-        if frame.action == "unknown" or frame.target == "unknown":
+        if multiple_control_intents:
+            return "检测到多个独立车控意图，请明确纠正为一个单独指令。"
+        if not frame.intents:
             return decision.review_question or "请明确要执行的动作和控制对象。"
         if len(candidates) > 1:
             return "存在多个合法解释，请选择要确认的候选指令。"
@@ -344,6 +290,7 @@ class InterpreterService:
         self,
         *,
         frame: SemanticFrame,
+        demand: EvidenceDemand,
         evidence: list[EvidenceNode],
         missing_types: list[str],
         gate: SafetyGateResult,
@@ -368,26 +315,36 @@ class InterpreterService:
             }
         )
         normalized_text = frame.normalized_text
+        multiple_control_intents = (
+            len(frame.intents) > 1
+            or "MULTI_INTENT_INCOMPLETE" in frame.review_reasons
+        )
+        multi_intent_diagnostic = (
+            {
+                "reason_code": MULTIPLE_CONTROL_INTENTS,
+                "detected_intent_count": len(frame.intents),
+                "unresolved_clause_count": len(frame.unresolved_clauses),
+            }
+            if multiple_control_intents
+            else None
+        )
         input_truncated = len(normalized_text) > self.maximum_input_characters
         normalized_text = normalized_text[: self.maximum_input_characters]
         payload = {
             "normalized_text": normalized_text,
-            "semantic_frame": {
-                "action": frame.action,
-                "target": frame.target,
-                "area": frame.area,
-                "control_domain": frame.control_domain,
-                "risk_level": frame.risk_level,
-                "semantic_confidence": frame.semantic_confidence,
-                "ambiguity_score": frame.ambiguity_score,
-            },
-            "required_types": frame.required_evidence_types,
+            "semantic_frame": frame.model_dump(mode="json"),
+            "intent_demands": [
+                item.model_dump(mode="json") for item in demand.intent_demands
+            ],
             "missing_types": missing_types,
             "gate_checks": [check.model_dump(mode="json") for check in gate.checks],
             "score_decision": decision.score_decision.value,
             "final_decision": decision.final_decision.value,
             "decision_sources": decision_sources,
             "decision_merge_reason": decision_merge_reason,
+            "semantic_diagnostics": (
+                [MULTIPLE_CONTROL_INTENTS] if multiple_control_intents else []
+            ),
             "supporting_node_ids": supporting_ids,
             "conflicting_node_ids": conflicting_ids,
             "memory_summary": {
@@ -437,10 +394,21 @@ class InterpreterService:
         )
         generation_mode = "LLM_INTERPRETER" if provider_output else "DETERMINISTIC_FALLBACK"
         recovery = self._recovery(
-            frame, missing_types, conflicting_ids, len(candidates), generation_mode
+            frame,
+            missing_types,
+            conflicting_ids,
+            len(candidates),
+            generation_mode,
+            multiple_control_intents=multiple_control_intents,
         )
         review_question = self._review_question(
-            frame, missing_types, conflicting_ids, candidates, causal, decision
+            frame,
+            missing_types,
+            conflicting_ids,
+            candidates,
+            causal,
+            decision,
+            multiple_control_intents=multiple_control_intents,
         )
         hard_gate_reasons = list(gate.reasons) if gate.blocked else []
         citations = [
@@ -458,13 +426,19 @@ class InterpreterService:
             decision_basis=(
                 [str(value) for value in provider_output.get("decision_basis", [])]
                 if provider_output
-                else [decision_merge_reason, *decision.explanations]
+                else [
+                    *([MULTIPLE_CONTROL_INTENTS] if multiple_control_intents else []),
+                    decision_merge_reason,
+                    *decision.explanations,
+                ]
             ),
             hard_gate_reasons=hard_gate_reasons,
             evidence_alignment_summary=(
                 str(provider_output.get("evidence_alignment_summary"))
                 if provider_output
-                else f"required={len(frame.required_evidence_types)}, missing={len(missing_types)}"
+                else "required="
+                f"{sum(len(item.required_types) for item in demand.intent_demands)}, "
+                f"missing={len(missing_types)}"
             ),
             score_summary=(
                 str(provider_output.get("score_summary"))
@@ -483,7 +457,18 @@ class InterpreterService:
                 else (recovery.message if recovery else "无需额外恢复步骤。")
             ),
             evidence_citations=citations,
-            reason_code_citations=list(decision.reason_codes),
+            reason_code_citations=list(
+                dict.fromkeys(
+                    [
+                        *decision.reason_codes,
+                        *(
+                            [MULTIPLE_CONTROL_INTENTS]
+                            if multiple_control_intents
+                            else []
+                        ),
+                    ]
+                )
+            ),
             generation_mode=generation_mode,
             provider=(self.provider.name if provider_output and self.provider else None),
             model=(self.provider.model if provider_output and self.provider else None),
@@ -517,5 +502,9 @@ class InterpreterService:
                 "valid_node_references": True,
                 "forbidden_control_fields_present": False,
                 "candidate_count": len(candidates),
+                "semantic_reason_codes": (
+                    [MULTIPLE_CONTROL_INTENTS] if multiple_control_intents else []
+                ),
+                "multi_intent_diagnostic": multi_intent_diagnostic,
             },
         )

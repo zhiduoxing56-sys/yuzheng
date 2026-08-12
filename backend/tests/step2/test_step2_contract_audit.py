@@ -13,6 +13,7 @@ from app.models.schemas import (
     ReviewOutcomeRecord,
     TextCommandRequest,
     EvidenceObservationInput,
+    TrustedRuntimeContext,
 )
 from app.services.index.hnsw import HNSWIndexService
 from app.services.presentation.assembler import PresentationAssembler
@@ -61,7 +62,7 @@ STEP2_METADATA_FIELDS = {
 def test_pipeline_persists_real_layer_trace_and_emits_bounded_websocket_summary(pipeline) -> None:
     events = []
     result = pipeline.process_text(
-        TextCommandRequest(text="查询当前速度", session_id="step2-contract"),
+        TextCommandRequest(text="打开车门", session_id="step2-contract"),
         event_sink=events.append,
     )
     metadata = result.retrieval_metadata
@@ -109,7 +110,7 @@ def test_pipeline_persists_real_layer_trace_and_emits_bounded_websocket_summary(
 
 def test_presentation_and_node_detail_use_persisted_trace_without_requery(api_client, monkeypatch) -> None:
     client, pipeline = api_client
-    command = client.post("/api/command/text", json={"text": "查询当前速度"})
+    command = client.post("/api/command/text", json={"text": "打开车门"})
     assert command.status_code == 200
     body = command.json()
     turn_id = body["turn_id"]
@@ -147,11 +148,11 @@ def test_presentation_and_node_detail_use_persisted_trace_without_requery(api_cl
 def test_persisted_trace_replays_after_pipeline_restart(tmp_path: Path, monkeypatch) -> None:
     database = tmp_path / "step2-restart.db"
     secret = b"step2-restart-fixed-secret-32byte"
-    first_pipeline = CommandPipeline(database_path=database, token_secret=secret)
-    result = first_pipeline.process_text(TextCommandRequest(text="查询当前速度"))
+    first_pipeline = CommandPipeline(database_path=database, token_secret=secret, audit_database_role="TEST")
+    result = first_pipeline.process_text(TextCommandRequest(text="打开车门"))
     original = result.retrieval_metadata.model_dump(mode="json")
 
-    restarted = CommandPipeline(database_path=database, token_secret=secret)
+    restarted = CommandPipeline(database_path=database, token_secret=secret, audit_database_role="TEST")
     record = restarted.audit_repository.get_by_turn(result.turn_id)
     assert record is not None
 
@@ -171,7 +172,7 @@ def test_persisted_trace_replays_after_pipeline_restart(tmp_path: Path, monkeypa
 
 
 def test_legacy_metadata_is_not_fabricated_as_current_layer_trace(pipeline) -> None:
-    result = pipeline.process_text(TextCommandRequest(text="查询当前速度"))
+    result = pipeline.process_text(TextCommandRequest(text="打开车门"))
     payload = result.retrieval_metadata.model_dump(mode="json", exclude=STEP2_METADATA_FIELDS)
     legacy = RetrievalMetadata.model_validate(payload)
     record = result.audit.model_copy(update={"retrieval_metadata": legacy})
@@ -199,8 +200,8 @@ def test_exact_cosine_degradation_has_no_fake_layer_navigation(monkeypatch) -> N
     from app.services.evidence.repository import EvidenceRepository
 
     repository = EvidenceRepository(load_yaml("evidence_quality.yaml"))
-    nodes = repository.from_vehicle_state(
-        VehicleState(vehicle_speed=10), ["vehicle_speed"], [], {}
+    nodes = repository.ingest_vehicle_state(
+        VehicleState(vehicle_speed=10), {}, "step2-degradation"
     )
     service.build(nodes)
     query, _ = service.embedder.encode("current speed")
@@ -220,7 +221,7 @@ def test_review_outcome_schema_does_not_duplicate_hnsw_trace() -> None:
 
 
 def test_tampering_persisted_layer_trace_breaks_audit_chain(pipeline) -> None:
-    result = pipeline.process_text(TextCommandRequest(text="查询当前速度"))
+    result = pipeline.process_text(TextCommandRequest(text="打开车门"))
     assert pipeline.audit_repository.verify_chain() is True
 
     with sqlite3.connect(pipeline.audit_repository.database_path) as connection:
@@ -277,44 +278,55 @@ def test_mandatory_recall_stays_after_base_top_k_and_never_masquerades_as_hnsw(p
     metadata = result.retrieval_metadata
     mandatory_ids = {
         record.recalled_node_id
-        for record in result.mandatory_recall_records
+        for resolution in result.evidence_subgraph.intent_evidence_resolutions
+        for record in resolution.mandatory_recall_records
         if record.recalled_node_id is not None
     }
 
-    assert set(result.evidence_subgraph.missing_types) == {
-        "side_rear_mmwave_radar",
-        "side_camera",
-    }
-    assert mandatory_ids == set(metadata.mandatory_supplemented_node_ids)
-    assert mandatory_ids.isdisjoint(metadata.final_top_k_node_ids)
+    assert {
+        evidence_type
+        for resolution in result.evidence_subgraph.intent_evidence_resolutions
+        for evidence_type in resolution.missing_required_types
+    } == {"LANE_STATE"}
+    supplemented_ids = set(metadata.mandatory_supplemented_node_ids)
+    assert supplemented_ids <= mandatory_ids
+    assert mandatory_ids == supplemented_ids | (
+        mandatory_ids & set(metadata.final_top_k_node_ids)
+    )
+    assert supplemented_ids.isdisjoint(metadata.final_top_k_node_ids)
     assert all(
         edge.source == "MANDATORY_RECALL_SERVICE"
         for edge in metadata.retrieval_visualization_path
-        if edge.to_node_id in mandatory_ids
+        if edge.to_node_id in supplemented_ids
     )
     assert result.safety_gate.mandatory_evidence_missing is True
     assert result.decision.final_decision.value == "BLOCK"
     assert result.decision.authorization_token is None
 
     complete = pipeline.process_text(
-        TextCommandRequest(
-            text="向左变道",
+        TextCommandRequest(text="向左变道"),
+        trusted_context=TrustedRuntimeContext(
             evidence_overrides=[
                 EvidenceObservationInput(
-                    evidence_type="side_rear_mmwave_radar",
+                    evidence_type="SURROUNDING_OBJECT_STATE",
                     source="simulated_test_source",
                     value={"clear": True},
                 ),
                 EvidenceObservationInput(
-                    evidence_type="side_camera",
+                    evidence_type="LANE_STATE",
                     source="simulated_test_source",
                     value={"clear": True},
                 ),
             ],
-        )
+        ),
     )
-    assert complete.evidence_subgraph.missing_types == []
-    assert set(complete.evidence_demand.required_types) == {
-        "side_rear_mmwave_radar",
-        "side_camera",
+    assert {
+        evidence_type
+        for resolution in complete.evidence_subgraph.intent_evidence_resolutions
+        for evidence_type in resolution.missing_required_types
+    } == {"LANE_STATE", "SURROUNDING_OBJECT_STATE"}
+    assert set(complete.evidence_demand.intent_demands[0].required_types) == {
+        "VEHICLE_SPEED",
+        "SURROUNDING_OBJECT_STATE",
+        "LANE_STATE",
     }

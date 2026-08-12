@@ -1,0 +1,238 @@
+{
+  "status": "PASS",
+  "registry_version": "sys-014-semantic-hardening-r4-simplified-candidate",
+  "semantic_freeze_status": "DRAFT_PENDING_FINAL_SCOPE_REVIEW",
+  "hashes": {
+    "r3": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06",
+    "core": "8726c6f782f2a57ddfd4c3b1557497349d912d3d06acd97c73983650fd9fc827",
+    "full": "393de4203c2cb93b0162724b336cb29a2cc67fba1c73b1cbc1fe62bb642f4f21",
+    "final_parent": "55bbb90780a969cb249f73833d7d34d9e464d99c65e1a6352ead15aa34db4440",
+    "simplified": "4eb697a9cc9daf48d1292e34b5ca37936de114028e71cfcf495e773335e6406f",
+    "archive": "584165b608730658081df9ceb3ab3fdd6b9d45c58f3b79085a966e79258920ed"
+  },
+  "metrics": {
+    "FORMAL_EXECUTABLE_INTENT_COUNT": 71,
+    "REMOVED_KNOWN_UNSUPPORTED_INTENT_COUNT": 91,
+    "ARCHIVED_KNOWN_CONTROL_REFERENCE_COUNT": 91,
+    "RUNTIME_INTENT_HEAD_COUNT": 71,
+    "RUNTIME_SCOPE_COUNT": 4,
+    "RUNTIME_CAPABILITY_FAMILY_COUNT": 37,
+    "UNRESOLVED_FORMAL_REFERENCE_COUNT": 0,
+    "FORMAL_SEMANTIC_COLLISION_COUNT": 0,
+    "FORMAL_SLOT_INTERSECTION_COUNT": 0,
+    "INVALID_MODE_ENUM_COUNT": 0,
+    "DETAILED_KNOWN_ID_LEAK_COUNT": 0
+  },
+  "required_outcomes": {
+    "formal_executable_completely_unchanged": true,
+    "known_unsupported_removed_count": 91,
+    "archive_count": 91,
+    "all_known_unsupported_removed_from_runtime_intent_head": true,
+    "known_control_bypass_scope_present": true,
+    "non_control_unknown_ood_distinct": true,
+    "mixed_formal_bypass_multi_intent_allowed": true
+  },
+  "checks": [
+    {
+      "name": "R3_SHA256_FROZEN",
+      "status": "PASS",
+      "detail": "expected c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06, got c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06"
+    },
+    {
+      "name": "CORE_SHA256_FROZEN",
+      "status": "PASS",
+      "detail": "expected 8726c6f782f2a57ddfd4c3b1557497349d912d3d06acd97c73983650fd9fc827, got 8726c6f782f2a57ddfd4c3b1557497349d912d3d06acd97c73983650fd9fc827"
+    },
+    {
+      "name": "FULL_SHA256_FROZEN",
+      "status": "PASS",
+      "detail": "expected 393de4203c2cb93b0162724b336cb29a2cc67fba1c73b1cbc1fe62bb642f4f21, got 393de4203c2cb93b0162724b336cb29a2cc67fba1c73b1cbc1fe62bb642f4f21"
+    },
+    {
+      "name": "FINAL_PARENT_SHA256_FROZEN",
+      "status": "PASS",
+      "detail": "expected 55bbb90780a969cb249f73833d7d34d9e464d99c65e1a6352ead15aa34db4440, got 55bbb90780a969cb249f73833d7d34d9e464d99c65e1a6352ead15aa34db4440"
+    },
+    {
+      "name": "SIMPLIFIED_VERSION",
+      "status": "PASS",
+      "detail": "registry version mismatch"
+    },
+    {
+      "name": "SIMPLIFIED_STATUS",
+      "status": "PASS",
+      "detail": "registry status mismatch"
+    },
+    {
+      "name": "FORMAL_COUNT_71",
+      "status": "PASS",
+      "detail": "runtime Intent head has 71 items"
+    },
+    {
+      "name": "FORMAL_DEFINITIONS_EXACT",
+      "status": "PASS",
+      "detail": "FORMAL definitions or order changed"
+    },
+    {
+      "name": "FORMAL_PROJECTION_EXACT",
+      "status": "PASS",
+      "detail": "formal projection changed"
+    },
+    {
+      "name": "RUNTIME_INTENT_IDS_UNIQUE",
+      "status": "PASS",
+      "detail": "duplicate runtime Intent IDs"
+    },
+    {
+      "name": "NO_KNOWN_STATUS_IN_INTENT_HEAD",
+      "status": "PASS",
+      "detail": "detailed KNOWN status remains in runtime Intent head"
+    },
+    {
+      "name": "OLD_KNOWN_PROJECTION_REMOVED",
+      "status": "PASS",
+      "detail": "old detailed KNOWN projection remains"
+    },
+    {
+      "name": "NO_DETAILED_KNOWN_IDS_IN_RUNTIME_REGISTRY",
+      "status": "PASS",
+      "detail": "detailed KNOWN IDs leaked: []"
+    },
+    {
+      "name": "ARCHIVE_COUNT_91",
+      "status": "PASS",
+      "detail": "archive count mismatch"
+    },
+    {
+      "name": "ARCHIVE_IDS_ORDER",
+      "status": "PASS",
+      "detail": "archive ID order mismatch"
+    },
+    {
+      "name": "ARCHIVE_DEFINITIONS_EXACT",
+      "status": "PASS",
+      "detail": "archived definitions are not exact source copies"
+    },
+    {
+      "name": "ARCHIVE_NOT_RUNTIME_OR_LABEL_SPACE",
+      "status": "PASS",
+      "detail": "archive usage policy is unsafe"
+    },
+    {
+      "name": "ARCHIVE_LINK_AND_HASH",
+      "status": "PASS",
+      "detail": "archive link/hash/count mismatch"
+    },
+    {
+      "name": "FOUR_RUNTIME_SCOPES",
+      "status": "PASS",
+      "detail": "runtime scopes must be ['FORMAL_EXECUTABLE', 'KNOWN_CONTROL_BYPASS', 'NON_CONTROL', 'UNKNOWN_OOD']"
+    },
+    {
+      "name": "SCOPE_CONTRACT_KEYS",
+      "status": "PASS",
+      "detail": "scope contract keys/order mismatch"
+    },
+    {
+      "name": "BYPASS_NO_DETAILED_SEMANTICS_REQUIRED",
+      "status": "PASS",
+      "detail": "bypass still requires detailed semantic fields/completeness"
+    },
+    {
+      "name": "BYPASS_ROUTE",
+      "status": "PASS",
+      "detail": "bypass route mismatch"
+    },
+    {
+      "name": "FORMAL_ONLY_COMPLETENESS",
+      "status": "PASS",
+      "detail": "formal completeness applies outside FORMAL"
+    },
+    {
+      "name": "NON_CONTROL_UNKNOWN_OOD_DISTINCT",
+      "status": "PASS",
+      "detail": "NON_CONTROL and UNKNOWN_OOD collapsed"
+    },
+    {
+      "name": "MIXED_MULTI_INTENT_SCHEMA",
+      "status": "PASS",
+      "detail": "formal+bypass ordered multi-intent schema missing"
+    },
+    {
+      "name": "GOLD_POLICY_NO_REMAP_OR_DETAILED_LABEL",
+      "status": "PASS",
+      "detail": "Gold policy violates scope simplification"
+    },
+    {
+      "name": "NO_DATA_OR_TRAINING_MUTATION",
+      "status": "PASS",
+      "detail": "forbidden data/training/taxonomy operation recorded"
+    },
+    {
+      "name": "P0_GUIDANCE_SECTIONS_FROZEN",
+      "status": "PASS",
+      "detail": "P0 guidance changed: []"
+    },
+    {
+      "name": "TRUNK_HOOD_FRUNK_BOUNDARY_PRESERVED",
+      "status": "PASS",
+      "detail": "trunk/hood/frunk lexical boundary changed or FRUNK not bypassed"
+    },
+    {
+      "name": "ANNOTATION_GUIDANCE_VERSION_SYNC",
+      "status": "PASS",
+      "detail": "annotation guidance version mismatch"
+    },
+    {
+      "name": "FORMAL_FAMILY_COVERAGE",
+      "status": "PASS",
+      "detail": "formal family coverage is not one-to-one"
+    },
+    {
+      "name": "FORMAL_CONTRACT_REFERENCES",
+      "status": "PASS",
+      "detail": "unresolved formal references: []"
+    },
+    {
+      "name": "FORMAL_SLOT_DISJOINT",
+      "status": "PASS",
+      "detail": "required/optional overlap: []"
+    },
+    {
+      "name": "FORMAL_SEMANTIC_KEYS_UNIQUE",
+      "status": "PASS",
+      "detail": "formal semantic collisions: {}"
+    },
+    {
+      "name": "MODE_VALUES_ALL_STRINGS",
+      "status": "PASS",
+      "detail": "invalid MODE values: []"
+    },
+    {
+      "name": "CONTINUOUS_CONTRACT_REFS",
+      "status": "PASS",
+      "detail": "continuous contract list references pruned contracts"
+    },
+    {
+      "name": "FORMAL_ONTOLOGY_ACTIONS",
+      "status": "PASS",
+      "detail": "action ontology not formal-only"
+    },
+    {
+      "name": "FORMAL_ONTOLOGY_TARGETS",
+      "status": "PASS",
+      "detail": "target ontology not formal-only"
+    },
+    {
+      "name": "FORMAL_ONTOLOGY_ATTRIBUTES",
+      "status": "PASS",
+      "detail": "attribute ontology not formal-only"
+    },
+    {
+      "name": "SIMPLIFIED_STATISTICS",
+      "status": "PASS",
+      "detail": "statistics mismatch: {'intent_count': 71, 'semantic_intent_count': 71, 'runtime_intent_head_count': 71, 'formal_user_voice_intent_count': 71, 'known_unsupported_control_intent_count': 0, 'known_control_bypass_scope_count': 1, 'runtime_scope_count': 4, 'archived_known_control_reference_count': 91, 'capability_family_count': 37, 'project_native_family_count': 5, 'vss_family_count': 32, 'project_native_intent_count': 8, 'vss_derived_intent_count': 63, 'legacy_test_only_intent_count': 0, 'out_of_scope_family_count': 0, 'pending_scope_intent_count': 0}"
+    }
+  ],
+  "errors": []
+}

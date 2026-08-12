@@ -1,0 +1,94 @@
+{
+  "stage": "SYS-014_STAGE_4D-A",
+  "status": "COMPLETE",
+  "started_at": "2026-08-09T00:53:25+08:00",
+  "finished_at": "2026-08-09T00:53:26+08:00",
+  "LOCKED_TEST_OPENED": "YES",
+  "locked_test_opened_is_irreversible": true,
+  "test_dataset_passes_planned": 1,
+  "test_dataset_passes_completed": 1,
+  "LOCKED_MODEL_ID": "hfl/chinese-electra-180g-small-discriminator",
+  "LOCKED_MODEL_REVISION": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+  "LOCKED_EXPERIMENT": "sys014-poc7-electra-exp002",
+  "LOCKED_EPOCH": 9,
+  "LOCKED_CHECKPOINT_SHA256": "dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68",
+  "TEST_EVALUATION_EXECUTED": "YES",
+  "SAFETY_GOLD_EVALUATION_EXECUTED": "NO",
+  "TRAINING_STEPS_EXECUTED_THIS_STAGE": 0,
+  "BACKWARD_EXECUTED": "NO",
+  "OPTIMIZER_STEP_EXECUTED": "NO",
+  "SCHEDULER_STEP_EXECUTED": "NO",
+  "RUNTIME_MODIFIED_THIS_STAGE": "NO",
+  "test_forward_batch_count": 9,
+  "test_sample_count": 133,
+  "MODEL_PARAMETERS_CHANGED": "NO",
+  "runtime_source_snapshot_before": {
+    "root": "D:\\语证\\backend\\app",
+    "file_count": 78,
+    "sha256": "af221d9c69cb78d85d4a8adf3cfcf01ccb1d963af89bb18aa58d0d7afa000f8d"
+  },
+  "runtime_source_snapshot_after": {
+    "root": "D:\\语证\\backend\\app",
+    "file_count": 78,
+    "sha256": "af221d9c69cb78d85d4a8adf3cfcf01ccb1d963af89bb18aa58d0d7afa000f8d"
+  },
+  "runtime_source_unchanged": true,
+  "TEST_FROZEN_SAFETY_GATE_PASS": "NO",
+  "GENERALIZATION_DEGRADATION_WARNING": "YES",
+  "STAGE_4D_A_LOCKED_TEST_COMPLETE": "YES",
+  "READY_FOR_STAGE_4D_B_SAFETY_GOLD": "YES",
+  "source_artifacts": {
+    "checkpoint_manifest": "D:\\语证\\data\\nlu\\experiments\\sys014-poc7-electra-exp002\\checkpoints\\best\\checkpoint_manifest.json",
+    "checkpoint_state": "D:\\语证\\data\\nlu\\experiments\\sys014-poc7-electra-exp002\\checkpoints\\best\\model_state.pt",
+    "dataset_manifest": "D:\\语证\\data\\nlu\\poc\\frozen\\sys014-poc7-v2\\dataset_manifest.json",
+    "locked_test": "D:\\语证\\data\\nlu\\poc\\frozen\\sys014-poc7-v2\\test.jsonl",
+    "stage4c_final_decision": "D:\\语证\\data\\nlu\\model_selection\\stage4c_final\\model_selection_decision.json"
+  },
+  "output_artifacts": [
+    {
+      "path": "preflight.json",
+      "sha256": "62a1af29bbd38492b4c2790e96a0a076cbebdf559e387fe6efcbae42d9ce19f8",
+      "bytes": 7605
+    },
+    {
+      "path": "test\\metrics.json",
+      "sha256": "ccab21a651ce82db32912ec5e2a7ef7f41b73f692861d87a7847fbf0289ce319",
+      "bytes": 26292
+    },
+    {
+      "path": "test\\predictions.jsonl",
+      "sha256": "fe54c1088b32deb8d66e0c78e3f8c9f2c51753a3145b2384187b392e2310c39c",
+      "bytes": 396728
+    },
+    {
+      "path": "test\\error_cases.jsonl",
+      "sha256": "96f884e5d74258c0143fd63f0303ca3cef773314dbe983b23975a5aaced3fd34",
+      "bytes": 45563
+    },
+    {
+      "path": "test\\safety_metrics.json",
+      "sha256": "3e29506a5ebf5e9e3c2c676c58e84929f48814f99bdf5d72726e6bc58acdb7c8",
+      "bytes": 1145
+    },
+    {
+      "path": "test\\generalization_gap.json",
+      "sha256": "bf58da00931652179d3bd6ab7abf5b0816b10395ab72991c963f6125a89e165f",
+      "bytes": 2608
+    },
+    {
+      "path": "test\\generalization_gap.md",
+      "sha256": "b9ed4e627e02b4d0e6a2436fef28f805a048d68fb5b52fb099026e662233f736",
+      "bytes": 940
+    },
+    {
+      "path": "test_evaluation_summary.json",
+      "sha256": "fe60ac5afde5706be2112b017e2e16446d1b17374c66dc43f7f11b8c6658ceab",
+      "bytes": 2642
+    },
+    {
+      "path": "test_evaluation_summary.md",
+      "sha256": "e6c66438d65fa7e7f8658dea11974af4c22889d9b74007811c0e680323ef4768",
+      "bytes": 3512
+    }
+  ]
+}

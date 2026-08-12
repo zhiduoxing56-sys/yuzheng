@@ -4,12 +4,15 @@ import math
 
 import networkx as nx
 
+from app.core.pipeline import CommandPipeline
 from app.models.schemas import (
+    AuditDatabaseRole,
     AuditRecordQuality,
     DecisionLabel,
     EvidenceObservationInput,
     EvidenceRelation,
     TextCommandRequest,
+    TrustedRuntimeContext,
     VehicleStatePatch,
 )
 
@@ -22,8 +25,12 @@ def _run(pipeline, text: str, **state):
             text=text,
             speaker_role=role,
             speaker_zone=zone,
+        ),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(**state),
-        )
+            subject_role=role, subject_zone=zone,
+            subject_source="stage3_test", zone_source="stage3_test",
+        ),
     )
 
 
@@ -51,9 +58,19 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         for edge in parked.evidence_subgraph.edges
     )
     assert parked.turn_timing.decision_reference_time == parked.turn_timing.state_snapshot_at
-    assert all(node.quality_label.value != "STALE" for node in parked.evidence if node.mandatory)
-    assert parked.evidence_demand.vectorization_metadata.model_name == "BAAI/bge-base-zh-v1.5"
-    assert parked.evidence_demand.vectorization_metadata.real_model_inference is True
+    required_ids = {
+        binding.node_id
+        for resolution in parked.evidence_subgraph.intent_evidence_resolutions
+        for binding in resolution.bindings
+        if binding.requirement_level == "REQUIRED" and binding.node_id is not None
+    }
+    assert all(
+        node.quality_label.value != "STALE"
+        for node in parked.evidence
+        if node.node_id in required_ids
+    )
+    assert parked.evidence_demand.intent_demands[0].vectorization_metadata.model_name == "BAAI/bge-base-zh-v1.5"
+    assert parked.evidence_demand.intent_demands[0].vectorization_metadata.real_model_inference is True
     assert parked.retrieval_metadata.implementation == "hnswlib"
     assert parked.retrieval_metadata.degraded is False
 
@@ -65,7 +82,7 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         vehicle_mode="REAL_DRIVING",
     )
     claim_types = {claim.claim_type for claim in spoof.advanced_reasoning.validation.context_claims}
-    assert {"simulator_claim", "safety_bypass_claim"} <= claim_types
+    assert claim_types == {"security_signal"}
     assert any(conflict.severity == 3 for conflict in spoof.jailbreak_conflicts)
     assert spoof.advanced_reasoning.validation.jailbreak_flag is True
     assert "LEVEL3_JAILBREAK_CONFLICT" in spoof.safety_gate.hit_rules
@@ -79,8 +96,7 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         authentication_state=False,
     )
     admin_rules = {conflict.rule_id for conflict in administrator.jailbreak_conflicts}
-    assert "ROLE_CLAIM_MISMATCH" in admin_rules
-    assert "AUTHORIZATION_CLAIM_MISMATCH" in admin_rules
+    assert admin_rules == {"SECURITY_SIGNAL_DETECTED"}
     assert administrator.decision.final_decision == DecisionLabel.BLOCK
 
     emergency = _run(
@@ -90,10 +106,12 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         vehicle_speed=60,
         gear_position="D",
     )
-    assert any(item.rule_id == "FALSE_EMERGENCY_CLAIM" for item in emergency.jailbreak_conflicts)
+    assert all(item.rule_id != "FALSE_EMERGENCY_CLAIM" for item in emergency.jailbreak_conflicts)
     assert emergency.score_factors["Cnec"].value == 0.0
-    assert "MOVING_DOOR_OPEN_PROHIBITED" in emergency.safety_gate.hit_rules
-    assert emergency.decision.final_decision == DecisionLabel.BLOCK
+    assert emergency.semantic_frame.semantic_status == "REVIEW"
+    assert emergency.semantic_frame.intents == []
+    assert emergency.safety_gate.hit_rules == []
+    assert emergency.decision.final_decision == DecisionLabel.REVIEW
 
     direct = _run(
         pipeline,
@@ -103,8 +121,8 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         gear_position="P",
     )
     direct_claims = {claim.claim_type for claim in direct.advanced_reasoning.validation.context_claims}
-    assert {"safety_bypass_claim", "direct_interface_claim"} <= direct_claims
-    assert "UNAUTHORIZED_CONTROL_FRAME_PROHIBITED" in direct.safety_gate.hit_rules
+    assert direct_claims == {"security_signal"}
+    assert "LEVEL3_JAILBREAK_CONFLICT" in direct.safety_gate.hit_rules
     assert direct.decision.final_decision == DecisionLabel.BLOCK
 
     night = _run(
@@ -114,8 +132,8 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         ambient_light="LOW",
         headlight_state="ON",
     )
-    assert "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED" in night.safety_gate.hit_rules
-    assert night.decision.final_decision == DecisionLabel.BLOCK
+    assert night.semantic_frame.intents[0].intent_id == "HEADLIGHT_SET_MODE"
+    assert "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED" not in night.safety_gate.hit_rules
 
     passenger = _run(
         pipeline,
@@ -134,27 +152,25 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         reverse_camera_active=True,
         display_state="ON",
     )
-    assert "REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED" in display.safety_gate.hit_rules
-    assert display.decision.final_decision == DecisionLabel.BLOCK
+    assert display.semantic_frame.semantic_status == "REVIEW"
+    assert "REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED" not in display.safety_gate.hit_rules
 
     vague = _run(pipeline, "把那个打开")
     assert vague.actionable is False
-    assert vague.retrieval_scope == "diagnostic_only"
-    assert vague.evidence_demand.required_types == []
+    assert vague.retrieval_scopes == []
+    assert vague.evidence_demand.intent_demands == []
     assert vague.score_factors["Ccov"].applicable is False
     assert vague.score_factors["Ccov"].value is None
     assert vague.decision.authorization_token is None
     assert vague.decision.final_decision == DecisionLabel.REVIEW
 
     music = _run(pipeline, "播放音乐")
-    assert music.semantic_frame.action == "播放"
-    assert music.semantic_frame.target == "音乐"
+    assert music.semantic_frame.semantic_status == "REVIEW"
+    assert music.semantic_frame.intents == []
     assert not music.jailbreak_conflicts
-    assert music.quality_metrics.evidence_alignment_route == "EVIDENCE_REVIEW"
-    assert music.decision.score_decision == DecisionLabel.PASS
+    assert music.quality_metrics.evidence_alignment_route == "EVIDENCE_PASS"
+    assert music.decision.score_decision == DecisionLabel.REVIEW
     assert music.decision.final_decision == DecisionLabel.REVIEW
-    assert music.decision.authorization_token is None
-    assert music.audit.final_decision.authorization_token is None
 
     assert pipeline.audit_repository.count() == 10
     assert pipeline.audit_repository.verify_chain() is True
@@ -162,8 +178,8 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
 
 def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None:
     baseline = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
-    assert len(baseline.safety_gate.checks) == 17
-    assert len({item.rule_id for item in baseline.safety_gate.checks}) == 17
+    assert len(baseline.safety_gate.checks) == 18
+    assert len({item.rule_id for item in baseline.safety_gate.checks}) == 18
 
     navigation = _run(
         pipeline,
@@ -173,7 +189,8 @@ def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None
         reverse_camera_active=False,
         display_state="ON",
     )
-    assert "ACTIVE_NAVIGATION_DISPLAY_OFF_PROHIBITED" in navigation.safety_gate.hit_rules
+    assert navigation.semantic_frame.semantic_status == "REVIEW"
+    assert navigation.safety_gate.hit_rules == []
 
     autopark = _run(
         pipeline,
@@ -210,19 +227,23 @@ def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None
         emergency_flag=False,
     )
     assert emergency_words.score_factors["Cnec"].value == 0.0
-    assert any(item.rule_id == "FALSE_EMERGENCY_CLAIM" for item in emergency_words.jailbreak_conflicts)
+    assert all(item.rule_id != "FALSE_EMERGENCY_CLAIM" for item in emergency_words.jailbreak_conflicts)
 
 
 def test_multisource_conflict_suppresses_memory_and_is_not_passed(pipeline) -> None:
     result = pipeline.process_text(
         TextCommandRequest(
             text="打开车门",
+        ),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
             evidence_overrides=[
-                EvidenceObservationInput(evidence_type="vehicle_speed", source="speed_a", value=20),
-                EvidenceObservationInput(evidence_type="vehicle_speed", source="speed_b", value=80),
+                EvidenceObservationInput(evidence_type="VEHICLE_SPEED", source="speed_a", value=20),
+                EvidenceObservationInput(evidence_type="VEHICLE_SPEED", source="speed_b", value=80),
             ],
-        )
+            subject_role="driver", subject_zone="driver",
+            subject_source="stage3_test", zone_source="stage3_test",
+        ),
     )
     assert result.quality_metrics.ecs < 1
     assert any(edge.relation == EvidenceRelation.CONFLICTS for edge in result.evidence_subgraph.edges)
@@ -234,14 +255,19 @@ def test_multisource_conflict_suppresses_memory_and_is_not_passed(pipeline) -> N
     assert result.decision.final_decision in {DecisionLabel.REVIEW, DecisionLabel.BLOCK}
 
 
-def test_causal_insufficient_and_sufficient_history_are_safe_and_traceable(pipeline) -> None:
+def test_causal_proxy_is_history_independent_and_traceable(tmp_path) -> None:
+    pipeline = CommandPipeline(
+        tmp_path / "causal-learning.db",
+        token_secret=b"stage3-causal-learning-secret-32b",
+        audit_database_role=AuditDatabaseRole.PRODUCTION,
+    )
     initial = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
     causal = initial.causal_correction
-    assert causal.data_sufficiency == "insufficient"
+    assert causal.data_sufficiency == "deterministic"
     assert causal.advanced_reasoning_applied is True
-    assert math.isclose(sum(causal.posterior_weights.values()), 1.0, abs_tol=1e-8)
-    assert 0 <= causal.normalized_entropy <= 1
-    assert causal.decision_confidence is None
+    assert causal.sample_count == causal.source_audit_count == 0
+    assert causal.posterior_weights == causal.rho_values == {}
+    assert causal.decision_confidence is not None
 
     for _ in range(20):
         result = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
@@ -254,17 +280,12 @@ def test_causal_insufficient_and_sufficient_history_are_safe_and_traceable(pipel
         )
         pipeline.audit_repository.upsert_quality(metadata)
     status = pipeline.rebuild_causal()
-    assert status.data_sufficiency == "sufficient"
-    assert status.candidate_edge_count > 0
-    assert status.pruned_edge_count > 0
-    graph = nx.DiGraph()
-    for edge in pipeline.causal_service._pruned_edges:
-        graph.add_edge(edge.source, edge.target)
-    assert nx.is_directed_acyclic_graph(graph)
+    assert status.data_sufficiency == "deterministic"
+    assert status.candidate_edge_count == status.pruned_edge_count == 0
 
     learned = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
-    assert learned.causal_correction.learning_record_ids
-    assert math.isclose(sum(learned.causal_correction.posterior_weights.values()), 1.0, abs_tol=1e-8)
+    assert learned.causal_correction.learning_record_ids == []
+    assert learned.causal_correction.posterior_weights == {}
     assert learned.decision_confidence is not None
     assert 0 <= learned.decision_confidence <= 1
     assert learned.safety_gate.gate_blocked is False

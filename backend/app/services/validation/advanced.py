@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from time import perf_counter
-from typing import Any
 import math
 
 from app.models.schemas import (
@@ -13,58 +12,11 @@ from app.models.schemas import (
     SemanticFrame,
 )
 
-
-def _truthy(value: Any) -> bool:
-    if isinstance(value, bool):
-        return value
-    return str(value).upper() in {"TRUE", "1", "YES", "AUTHENTICATED", "AUTHORIZED"}
-
-
 class AdvancedValidationService:
     def __init__(self, config: dict[str, Any]) -> None:
         self.conflict_decay_lambda = float(config.get("conflict_decay_lambda", 0.5))
         if self.conflict_decay_lambda <= 0:
             raise ValueError("conflict_decay_lambda must be positive")
-
-    @staticmethod
-    def _latest_by_type(nodes: list[EvidenceNode]) -> dict[str, EvidenceNode]:
-        latest: dict[str, EvidenceNode] = {}
-        for node in nodes:
-            current = latest.get(node.evidence_type)
-            if current is None or (
-                node.timestamp.isoformat() if node.timestamp else "",
-                node.node_id,
-            ) > (
-                current.timestamp.isoformat() if current.timestamp else "",
-                current.node_id,
-            ):
-                latest[node.evidence_type] = node
-        return latest
-
-    @staticmethod
-    def _claimed_value(claim_type: str, matched: list[str]) -> Any:
-        text = "|".join(matched)
-        if claim_type == "simulator_claim":
-            return "SIMULATOR"
-        if claim_type == "role_claim":
-            if "管理员" in text:
-                return "administrator"
-            if "车主" in text:
-                return "owner"
-            return "driver"
-        if claim_type == "emergency_claim":
-            return True
-        if claim_type == "safety_bypass_claim":
-            return "BYPASS_REQUESTED"
-        if claim_type == "outside_vehicle_claim":
-            return "OUTSIDE"
-        if claim_type == "authorization_claim":
-            return "AUTHENTICATED"
-        if claim_type == "direct_interface_claim":
-            return "CONTROL_FRAME" if "报文" in text or "发送" in text else "DIRECT_INTERFACE"
-        if claim_type == "system_mode_claim":
-            return "MODE_CHANGE_REQUESTED"
-        return True
 
     @staticmethod
     def _add_conflict(
@@ -111,151 +63,32 @@ class AdvancedValidationService:
         physical_conflicts: list[dict[str, Any]],
     ) -> AdvancedValidationResult:
         started = perf_counter()
-        by_type = self._latest_by_type(evidence)
+        del evidence
         claims = [
             ContextClaim(
-                claim_type=claim_type,
-                claimed_value=self._claimed_value(
-                    claim_type, list(payload.get("matched_text", []))
-                ),
-                matched_text=list(payload.get("matched_text", [])),
+                claim_type="security_signal",
+                claimed_value=security_signal,
+                matched_text=[security_signal],
                 source_text=frame.raw_text,
             )
-            for claim_type, payload in frame.context_claims.items()
+            for security_signal in frame.security_signals
         ]
         conflicts: list[JailbreakConflict] = []
         failures: list[GroundingFailure] = []
 
         for claim in claims:
-            if claim.claim_type == "simulator_claim":
-                node = by_type.get("vehicle_mode")
-                if node and str(node.value).upper() not in {"SIMULATOR", "TEST"}:
-                    self._add_conflict(
-                        conflicts,
-                        failures,
-                        claim_type=claim.claim_type,
-                        claimed=claim.claimed_value,
-                        observed=node.value,
-                        nodes=[node],
-                        severity=3,
-                        reason="真实道路状态被声明为模拟器或测试环境",
-                        rule_id="SIMULATOR_MODE_SPOOFING",
-                        expected_types=["vehicle_mode"],
-                    )
-            elif claim.claim_type == "role_claim":
-                nodes = [
-                    node
-                    for key in ("occupant_role", "speaker_role")
-                    if (node := by_type.get(key)) is not None
-                ]
-                observed = [str(node.value).lower() for node in nodes]
-                if str(claim.claimed_value).lower() not in observed:
-                    self._add_conflict(
-                        conflicts,
-                        failures,
-                        claim_type=claim.claim_type,
-                        claimed=claim.claimed_value,
-                        observed=observed,
-                        nodes=nodes,
-                        severity=2,
-                        reason="声明角色与乘员及说话人角色证据不一致",
-                        rule_id="ROLE_CLAIM_MISMATCH",
-                        expected_types=["occupant_role", "speaker_role"],
-                    )
-            elif claim.claim_type == "emergency_claim":
-                node = by_type.get("emergency_flag")
-                if node is None or not _truthy(node.value):
-                    self._add_conflict(
-                        conflicts,
-                        failures,
-                        claim_type=claim.claim_type,
-                        claimed=True,
-                        observed=node.value if node else None,
-                        nodes=[node] if node else [],
-                        severity=2,
-                        reason="紧急声明缺少真实紧急状态证据支持",
-                        rule_id="FALSE_EMERGENCY_CLAIM",
-                        expected_types=["emergency_flag"],
-                    )
-            elif claim.claim_type == "safety_bypass_claim":
-                node = by_type.get("safety_constraint")
-                enabled = node is None or str(node.value).upper() not in {"DISABLED", "OFF"}
-                if enabled:
-                    self._add_conflict(
-                        conflicts,
-                        failures,
-                        claim_type=claim.claim_type,
-                        claimed=claim.claimed_value,
-                        observed=node.value if node else None,
-                        nodes=[node] if node else [],
-                        severity=3,
-                        reason="请求关闭或绕过仍然启用的安全约束",
-                        rule_id="SAFETY_CONSTRAINT_BYPASS",
-                        expected_types=["safety_constraint"],
-                    )
-            elif claim.claim_type == "outside_vehicle_claim":
-                node = by_type.get("speaker_zone")
-                if node and str(node.value).lower() not in {"outside", "external"}:
-                    self._add_conflict(
-                        conflicts,
-                        failures,
-                        claim_type=claim.claim_type,
-                        claimed="OUTSIDE",
-                        observed=node.value,
-                        nodes=[node],
-                        severity=1,
-                        reason="车外声明与车内声源区域证据不一致",
-                        rule_id="OUTSIDE_ZONE_MISMATCH",
-                        expected_types=["speaker_zone"],
-                    )
-            elif claim.claim_type == "authorization_claim":
-                node = by_type.get("authentication_state")
-                if node is None or not _truthy(node.value):
-                    self._add_conflict(
-                        conflicts,
-                        failures,
-                        claim_type=claim.claim_type,
-                        claimed="AUTHENTICATED",
-                        observed=node.value if node else None,
-                        nodes=[node] if node else [],
-                        severity=2,
-                        reason="授权声明与认证状态不一致",
-                        rule_id="AUTHORIZATION_CLAIM_MISMATCH",
-                        expected_types=["authentication_state"],
-                    )
-            elif claim.claim_type == "direct_interface_claim":
-                auth = by_type.get("authentication_state")
-                if auth is None or not _truthy(auth.value):
-                    severity = 3 if claim.claimed_value == "CONTROL_FRAME" else 2
-                    self._add_conflict(
-                        conflicts,
-                        failures,
-                        claim_type=claim.claim_type,
-                        claimed=claim.claimed_value,
-                        observed=auth.value if auth else None,
-                        nodes=[auth] if auth else [],
-                        severity=severity,
-                        reason="未授权请求直接调用车辆接口或发送控制报文",
-                        rule_id=(
-                            "UNAUTHORIZED_CONTROL_FRAME"
-                            if severity == 3
-                            else "UNAUTHORIZED_DIRECT_INTERFACE"
-                        ),
-                        expected_types=["authentication_state"],
-                    )
-            elif claim.claim_type == "system_mode_claim":
-                node = by_type.get("vehicle_mode")
+            if claim.claim_type == "security_signal":
                 self._add_conflict(
                     conflicts,
                     failures,
                     claim_type=claim.claim_type,
                     claimed=claim.claimed_value,
-                    observed=node.value if node else None,
-                    nodes=[node] if node else [],
+                    observed=None,
+                    nodes=[],
                     severity=3,
-                    reason="指令请求修改或篡改受保护的系统模式",
-                    rule_id="SYSTEM_MODE_TAMPERING",
-                    expected_types=["vehicle_mode"],
+                    reason="冻结语义编排器检测到安全注入或绕过信号",
+                    rule_id="SECURITY_SIGNAL_DETECTED",
+                    expected_types=[],
                 )
 
         for item in physical_conflicts:

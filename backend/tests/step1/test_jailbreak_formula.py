@@ -12,13 +12,10 @@ def _frame() -> SemanticFrame:
         turn_id="TURN_JB",
         raw_text="查询车速",
         normalized_text="查询车速",
-        action="查询",
-        target="速度",
-        area="unknown",
-        control_domain="驾驶控制",
         semantic_confidence=1.0,
         ambiguity_score=0.0,
-        risk_level="R1",
+        semantic_status="OK",
+        intents=[],
     )
 
 
@@ -43,7 +40,7 @@ def test_jailbreak_formula_uses_exponential_base_and_report_severity() -> None:
                 "type": "TEST_CONFLICT",
                 "severity": 1,
                 "node_ids": [],
-                "evidence_types": ["exact_type"],
+                "evidence_types": ["VEHICLE_SPEED"],
             }
         ],
     )

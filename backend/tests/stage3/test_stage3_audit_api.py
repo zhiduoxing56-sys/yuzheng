@@ -1,9 +1,15 @@
 from __future__ import annotations
 
-from app.models.schemas import AuditRecordQuality, TextCommandRequest
+from app.core.pipeline import CommandPipeline
+from app.models.schemas import AuditDatabaseRole, AuditRecordQuality, TextCommandRequest
 
 
-def test_quality_side_metadata_filters_learning_without_changing_chain(pipeline) -> None:
+def test_quality_side_metadata_filters_learning_without_changing_chain(tmp_path) -> None:
+    pipeline = CommandPipeline(
+        tmp_path / "learning-quality.db",
+        token_secret=b"stage3-learning-quality-secret-32b",
+        audit_database_role=AuditDatabaseRole.PRODUCTION,
+    )
     first = pipeline.process_text(TextCommandRequest(text="打开车门"))
     second = pipeline.process_text(TextCommandRequest(text="播放音乐"))
     third = pipeline.process_text(TextCommandRequest(text="查询当前速度"))
@@ -67,7 +73,9 @@ def test_stage3_endpoints_return_content_not_only_status(api_client) -> None:
     assert body["advanced_reasoning"]["advanced_reasoning_applied"] is True
     assert set(body["score_factors"]) == {"Csem", "Ccov", "Ctrust", "Cjb", "Cnec"}
     assert body["retrieval_metadata"]["implementation"] == "hnswlib"
-    assert body["evidence_demand"]["vectorization_metadata"]["real_model_inference"] is True
+    assert body["evidence_demand"]["intent_demands"][0][
+        "vectorization_metadata"
+    ]["real_model_inference"] is True
 
     turn = client.get(f"/api/turns/{turn_id}").json()
     reasoning = client.get(f"/api/reasoning/turn/{turn_id}").json()
@@ -80,6 +88,7 @@ def test_stage3_endpoints_return_content_not_only_status(api_client) -> None:
     assert turn["horizontal_memory"]
     assert reasoning["validation"]["jailbreak_risk"] == 0
     assert causal["learning_record_count"] == 0
-    assert rebuilt["excluded_record_count"] == 1
+    assert rebuilt["excluded_record_count"] == 0
+    assert rebuilt["auto_rebuild_enabled"] is False
     assert learning["quality_distribution"] == {"TEST_ONLY": 1}
     assert chain == {"valid": True}

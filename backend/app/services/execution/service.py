@@ -32,12 +32,15 @@ class ExecutionService:
         audit = self.pipeline.audit_repository.get_by_turn(turn_id)
         if audit is None:
             raise ValueError(f"未找到轮次: {turn_id}")
+        if len(audit.semantic_frame.intents) != 1:
+            raise AuthorizationTokenError("执行审计必须恰好包含一个正式子意图")
+        intent = audit.semantic_frame.intents[0]
         try:
             payload, metadata = self.pipeline.authorization_service.decode_and_validate(
                 raw_token,
                 expected_turn_id=turn_id,
-                expected_action=audit.semantic_frame.action,
-                expected_target=audit.semantic_frame.target,
+                expected_action=intent.action,
+                expected_target=intent.target,
             )
         except AuthorizationTokenError as exc:
             rejected_metadata = (
@@ -101,6 +104,7 @@ class ExecutionService:
                 workflow_type="PRE_EXECUTION_CHECK",
                 suppress_authorization=True,
                 event_sink=event_sink,
+                trusted_context=self.pipeline.trusted_context_from_audit(audit),
             )
             state_changed = current_digest != metadata.state_snapshot_digest
             capability_denied = (

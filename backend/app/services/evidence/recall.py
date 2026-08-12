@@ -1,11 +1,19 @@
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 
-from app.models.schemas import EvidenceNode, EvidenceStatus, MandatoryRecallRecord
+from app.models.schemas import (
+    EvidenceNode,
+    EvidenceStatus,
+    IntentEvidenceBinding,
+    IntentEvidenceDemand,
+    IntentEvidenceResolution,
+    MandatoryRecallRecord,
+    RetrievalOrigin,
+)
+from app.services.evidence.catalog import require_canonical_evidence_type
 from app.services.evidence.repository import EvidenceRepository
+from app.services.evidence.trust import select_canonical_evidence
 from app.services.index.hnsw import evidence_text
 from app.services.vector.embedding import EmbeddingService
 
@@ -19,80 +27,166 @@ class MandatoryRecallService:
         vector, _ = self.embedder.encode(evidence_text(node))
         return float(np.clip(np.dot(query_vector, vector), 0, 1))
 
-    def supplement(
+    def resolve(
         self,
         candidates: list[EvidenceNode],
-        required_types: list[str],
-        query_vector: list[float],
+        demand: IntentEvidenceDemand,
         turn_id: str,
         missing_hard_gate: bool = True,
-    ) -> tuple[list[EvidenceNode], list[MandatoryRecallRecord], list[str], list[str]]:
-        final_nodes = [node.model_copy(update={"mandatory": False}) for node in candidates]
+        candidate_similarities: dict[str, float] | None = None,
+    ) -> tuple[list[EvidenceNode], IntentEvidenceResolution]:
+        candidate_similarities = candidate_similarities or {}
+        final_nodes = list(candidates)
         records: list[MandatoryRecallRecord] = []
-        recalled_types: list[str] = []
         missing_types: list[str] = []
+        bindings: list[IntentEvidenceBinding] = []
 
-        for evidence_type in required_types:
-            candidate_indexes = [
-                index for index, node in enumerate(final_nodes) if node.evidence_type == evidence_type
+        for evidence_type in demand.required_types:
+            require_canonical_evidence_type(evidence_type)
+            matching_candidates = [
+                node for node in candidates if node.evidence_type == evidence_type
             ]
-            candidate_ids = [final_nodes[index].node_id for index in candidate_indexes]
-            latest = self.repository.latest_resolved(evidence_type)
-            matching_index = next(
+            candidate_ids = [node.node_id for node in matching_candidates]
+            current_turn_missing = next(
                 (
-                    index
-                    for index in candidate_indexes
-                    if latest is not None
-                    and final_nodes[index].node_id == latest.node_id
+                    node
+                    for node in self.repository.turn_nodes(turn_id)
+                    if node.evidence_type == evidence_type
+                    and node.quality_label == EvidenceStatus.MISSING
+                    and node.source != "missing_placeholder"
                 ),
                 None,
             )
-            if matching_index is not None:
-                final_nodes[matching_index] = final_nodes[matching_index].model_copy(
-                    update={
-                        "mandatory": True,
-                        "metadata": {
-                            **final_nodes[matching_index].metadata,
-                            "retrieval_origin": "semantic_retrieval",
-                            "required_resolution": True,
-                        },
-                    }
+            if current_turn_missing is not None:
+                missing = self.repository.get_or_create_missing(
+                    evidence_type,
+                    turn_id,
+                    missing_hard_gate=missing_hard_gate,
+                )
+                final_nodes.append(missing)
+                missing_types.append(evidence_type)
+                bindings.append(
+                    IntentEvidenceBinding(
+                        clause_index=demand.clause_index,
+                        intent_id=demand.intent_id,
+                        evidence_type=evidence_type,
+                        requirement_level="REQUIRED",
+                        node_id=missing.node_id,
+                        resolution_status="MISSING",
+                        retrieval_origin=RetrievalOrigin.NONE,
+                        semantic_similarity=None,
+                    )
                 )
                 records.append(
                     MandatoryRecallRecord(
+                        clause_index=demand.clause_index,
+                        intent_id=demand.intent_id,
+                        evidence_type=evidence_type,
+                        status="MISSING",
+                        candidate_node_ids=candidate_ids,
+                        recalled_node_id=missing.node_id,
+                        source=missing.source,
+                        retrieval_origin=RetrievalOrigin.NONE,
+                        reason=(
+                            "当前 occurrence 的本轮 observation 不可用，"
+                            "使用本轮共享 MISSING 节点"
+                        ),
+                    )
+                )
+                continue
+            if matching_candidates:
+                selected = select_canonical_evidence(
+                    [evidence_type], matching_candidates
+                )[0]
+                bindings.append(
+                    IntentEvidenceBinding(
+                        clause_index=demand.clause_index,
+                        intent_id=demand.intent_id,
+                        evidence_type=evidence_type,
+                        requirement_level="REQUIRED",
+                        node_id=selected.node_id,
+                        resolution_status="RETRIEVED",
+                        retrieval_origin=RetrievalOrigin.HNSW,
+                        semantic_similarity=candidate_similarities.get(selected.node_id),
+                    )
+                )
+                records.append(
+                    MandatoryRecallRecord(
+                        clause_index=demand.clause_index,
+                        intent_id=demand.intent_id,
                         evidence_type=evidence_type,
                         status=(
                             "ALREADY_COVERED"
-                            if latest.quality_label
+                            if selected.quality_label
                             in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
-                            else latest.quality_label.value
+                            else selected.quality_label.value
                         ),
                         candidate_node_ids=candidate_ids,
-                        recalled_node_id=latest.node_id,
-                        source=latest.source,
-                        retrieval_origin="HNSW",
-                        reason="语义候选已包含最新可用强制证据",
+                        recalled_node_id=selected.node_id,
+                        source=selected.source,
+                        retrieval_origin=RetrievalOrigin.HNSW,
+                        reason="当前 Intent 的 HNSW 候选已覆盖 required evidence",
                     )
                 )
                 continue
 
+            latest = self.repository.latest_resolved(evidence_type)
             if latest is not None:
-                recalled = latest.model_copy(
-                    update={
-                        "mandatory": True,
-                        "semantic_similarity": round(self._similarity(query_vector, latest), 6),
-                        "metadata": {
-                            **latest.metadata,
-                            "retrieval_origin": "mandatory_recall",
-                            "recalled_from_stream": evidence_type,
-                            "required_resolution": True,
-                        },
-                    }
+                if latest.quality_label == EvidenceStatus.MISSING:
+                    missing = self.repository.get_or_create_missing(
+                        evidence_type,
+                        turn_id,
+                        missing_hard_gate=missing_hard_gate,
+                    )
+                    final_nodes.append(missing)
+                    missing_types.append(evidence_type)
+                    bindings.append(
+                        IntentEvidenceBinding(
+                            clause_index=demand.clause_index,
+                            intent_id=demand.intent_id,
+                            evidence_type=evidence_type,
+                            requirement_level="REQUIRED",
+                            node_id=missing.node_id,
+                            resolution_status="MISSING",
+                            retrieval_origin=RetrievalOrigin.NONE,
+                            semantic_similarity=None,
+                        )
+                    )
+                    records.append(
+                        MandatoryRecallRecord(
+                            clause_index=demand.clause_index,
+                            intent_id=demand.intent_id,
+                            evidence_type=evidence_type,
+                            status="MISSING",
+                            candidate_node_ids=candidate_ids,
+                            recalled_node_id=missing.node_id,
+                            source=missing.source,
+                            retrieval_origin=RetrievalOrigin.NONE,
+                            reason="Newest exact-type observation is MISSING; using the shared turn placeholder",
+                        )
+                    )
+                    continue
+
+                recalled_similarity = round(
+                    self._similarity(demand.query_vector, latest), 6
                 )
-                final_nodes.append(recalled)
-                recalled_types.append(evidence_type)
+                final_nodes.append(latest)
+                bindings.append(
+                    IntentEvidenceBinding(
+                        clause_index=demand.clause_index,
+                        intent_id=demand.intent_id,
+                        evidence_type=evidence_type,
+                        requirement_level="REQUIRED",
+                        node_id=latest.node_id,
+                        resolution_status="MANDATORY_RECALLED",
+                        retrieval_origin=RetrievalOrigin.MANDATORY_RECALL,
+                        semantic_similarity=recalled_similarity,
+                    )
+                )
                 records.append(
                     MandatoryRecallRecord(
+                        clause_index=demand.clause_index,
+                        intent_id=demand.intent_id,
                         evidence_type=evidence_type,
                         status=(
                             "RECALLED"
@@ -101,32 +195,84 @@ class MandatoryRecallService:
                             else latest.quality_label.value
                         ),
                         candidate_node_ids=candidate_ids,
-                        recalled_node_id=recalled.node_id,
-                        source=recalled.source,
-                        retrieval_origin="MANDATORY_RECALL",
-                        reason="普通语义候选未覆盖，已从最新证据流补召",
+                        recalled_node_id=latest.node_id,
+                        source=latest.source,
+                        retrieval_origin=RetrievalOrigin.MANDATORY_RECALL,
+                        reason="当前 Intent 的 HNSW 候选未覆盖，已从证据流补召",
                     )
                 )
                 continue
 
-            missing = self.repository.create_missing(
+            missing = self.repository.get_or_create_missing(
                 evidence_type,
                 turn_id,
-                "最新证据不可用、过期、篡改或证据流为空",
                 missing_hard_gate=missing_hard_gate,
             )
             final_nodes.append(missing)
             missing_types.append(evidence_type)
+            bindings.append(
+                IntentEvidenceBinding(
+                    clause_index=demand.clause_index,
+                    intent_id=demand.intent_id,
+                    evidence_type=evidence_type,
+                    requirement_level="REQUIRED",
+                    node_id=missing.node_id,
+                    resolution_status="MISSING",
+                    retrieval_origin=RetrievalOrigin.NONE,
+                    semantic_similarity=None,
+                )
+            )
             records.append(
                 MandatoryRecallRecord(
+                    clause_index=demand.clause_index,
+                    intent_id=demand.intent_id,
                     evidence_type=evidence_type,
                     status="MISSING",
                     candidate_node_ids=candidate_ids,
                     recalled_node_id=missing.node_id,
                     source=missing.source,
-                    retrieval_origin="NONE",
-                    reason="强制补召失败，已生成 MISSING 节点",
+                    retrieval_origin=RetrievalOrigin.NONE,
+                    reason="当前 Intent 强制补召失败，使用本轮共享 MISSING 节点",
                 )
             )
 
-        return final_nodes, records, recalled_types, missing_types
+        for evidence_type in demand.optional_types:
+            require_canonical_evidence_type(evidence_type)
+            optional_candidates = [
+                node for node in candidates if node.evidence_type == evidence_type
+            ]
+            selected_nodes = select_canonical_evidence(
+                [evidence_type], optional_candidates
+            )
+            selected = selected_nodes[0] if selected_nodes else None
+            bindings.append(
+                IntentEvidenceBinding(
+                    clause_index=demand.clause_index,
+                    intent_id=demand.intent_id,
+                    evidence_type=evidence_type,
+                    requirement_level="OPTIONAL",
+                    node_id=selected.node_id if selected is not None else None,
+                    resolution_status=(
+                        "RETRIEVED" if selected is not None else "OPTIONAL_NOT_FOUND"
+                    ),
+                    retrieval_origin=(
+                        RetrievalOrigin.HNSW
+                        if selected is not None
+                        else RetrievalOrigin.NONE
+                    ),
+                    semantic_similarity=(
+                        candidate_similarities.get(selected.node_id)
+                        if selected is not None
+                        else None
+                    ),
+                )
+            )
+
+        return final_nodes, IntentEvidenceResolution(
+            clause_index=demand.clause_index,
+            intent_id=demand.intent_id,
+            candidate_node_ids=[node.node_id for node in candidates],
+            bindings=bindings,
+            mandatory_recall_records=records,
+            missing_required_types=missing_types,
+        )

@@ -15,6 +15,7 @@ from app.core.pipeline import CommandPipeline
 from app.models.schemas import (
     DecisionLabel,
     TextCommandRequest,
+    TrustedRuntimeContext,
     TranscriptionResult,
     VehicleStatePatch,
 )
@@ -32,7 +33,7 @@ def _pipeline_with_mode(database: Path, mode: str | None) -> CommandPipeline:
             os.environ.pop("YUZHENG_VOICE_TRUST_MODE", None)
         else:
             os.environ["YUZHENG_VOICE_TRUST_MODE"] = mode
-        return CommandPipeline(database, token_secret=TEST_SECRET)
+        return CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     finally:
         if old_value is None:
             os.environ.pop("YUZHENG_VOICE_TRUST_MODE", None)
@@ -121,7 +122,13 @@ def test_default_enforce_mode_preserves_stage5_constraint_and_health(
     _patch_scores(monkeypatch, enforce_pipeline, la_score=0.5, pa_score=0.5)
     _patch_asr(monkeypatch, enforce_pipeline, "打开车门")
     result = enforce_pipeline.process_audio_bytes(
-        _audio(), speaker_zone="driver", speaker_role="driver"
+        _audio(),
+        speaker_zone="driver",
+        speaker_role="driver",
+        trusted_context=TrustedRuntimeContext(
+            subject_role="driver", subject_zone="driver",
+            subject_source="voice_test", zone_source="voice_test",
+        ),
     )
     assert result.voice_trust.input_trust_label == DecisionLabel.REVIEW.value
     assert result.decision.final_decision == DecisionLabel.REVIEW
@@ -140,7 +147,7 @@ def test_default_enforce_mode_preserves_stage5_constraint_and_health(
     ("la_score", "pa_score", "expected_label"),
     [(0.5, 0.5, "REVIEW"), (0.0, 0.0, "BLOCK")],
 )
-def test_observe_mode_voice_label_does_not_change_downstream_pass(
+def test_observe_mode_voice_label_does_not_override_formal_evidence_pass(
     observe_pipeline: CommandPipeline,
     monkeypatch: pytest.MonkeyPatch,
     la_score: float,
@@ -158,20 +165,24 @@ def test_observe_mode_voice_label_does_not_change_downstream_pass(
         speaker_role="driver",
         session_id=f"observe-{expected_label.lower()}",
         event_sink=events.append,
+        trusted_context=TrustedRuntimeContext(
+            subject_role="driver", subject_zone="driver",
+            subject_source="voice_test", zone_source="voice_test",
+        ),
     )
     assert result.voice_trust.input_trust_label == expected_label
     assert result.asr_result.model_inference_performed is True
-    assert result.semantic_frame.action == "打开"
-    assert result.semantic_frame.target == "车门"
+    assert result.semantic_frame.intents[0].action == "打开"
+    assert result.semantic_frame.intents[0].target == "车门"
     assert result.pipeline is not None
-    assert "vehicle_speed" in result.pipeline.evidence_demand.required_types
+    assert "VEHICLE_SPEED" in result.pipeline.evidence_demand.intent_demands[0].required_types
     assert result.evidence_subgraph.nodes
     assert result.evidence_subgraph.edges
     assert result.pipeline.retrieval_metadata.implementation == "hnswlib"
     assert result.decision.final_decision == DecisionLabel.PASS
     assert "VOICE_TRUST_REVIEW" not in result.decision.reason_codes
     assert "VOICE_TRUST_BLOCK" not in result.decision.reason_codes
-    assert result.decision.authorization_token is not None
+    assert result.decision.authorization_token
     assert result.voice_trust.model_metadata["voice_trust_mode"] == "observe"
     assert result.voice_trust.model_metadata["authorization_effect_applied"] is False
 
@@ -250,7 +261,13 @@ def test_observe_mode_keeps_zone_and_safety_gates(
         _audio(),
         speaker_zone=speaker_zone,
         speaker_role=speaker_role,
-        state_overrides=state,
+        trusted_context=TrustedRuntimeContext(
+            state_overrides=state,
+            subject_role=speaker_role,
+            subject_zone=speaker_zone,
+            subject_source="voice_test",
+            zone_source="voice_test",
+        ),
     )
     assert result.decision.final_decision == DecisionLabel.BLOCK
     assert expected_reason in result.decision.reason_codes or expected_reason in (
@@ -269,6 +286,7 @@ def test_observe_mode_is_startup_only_and_text_runtime_is_unchanged(
         TextCommandRequest(text="打开车门", speaker_zone="driver", speaker_role="driver")
     )
     assert text.decision.final_decision == DecisionLabel.PASS
+    assert text.decision.authorization_token
     capability = observe_pipeline.runtime_capability()
     assert capability.real_model_inference is True
     assert capability.embedding_model == "BAAI/bge-base-zh-v1.5"
@@ -283,7 +301,7 @@ def test_invalid_voice_mode_fails_at_startup(
 ) -> None:
     monkeypatch.setenv("YUZHENG_VOICE_TRUST_MODE", "disabled")
     with pytest.raises(ConfigurationError, match="enforce 或 observe"):
-        CommandPipeline(tmp_path / "invalid.db", token_secret=TEST_SECRET)
+        CommandPipeline(tmp_path / "invalid.db", token_secret=TEST_SECRET, audit_database_role="TEST")
 
 
 def _wav_bytes(signal: np.ndarray, sample_rate: int = 16000) -> bytes:

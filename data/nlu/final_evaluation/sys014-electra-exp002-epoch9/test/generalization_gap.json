@@ -1,0 +1,77 @@
+{
+  "reference": "Frozen ELECTRA exp002 epoch 9 Validation reporting_metrics.json",
+  "gap_definition": "signed delta is TEST - VALIDATION; absolute_difference is magnitude",
+  "metrics": {
+    "intent_macro_f1": {
+      "validation": 0.9910627007401202,
+      "test": 0.7914739229024944,
+      "test_minus_validation": -0.19958877783762574,
+      "absolute_difference": 0.19958877783762574
+    },
+    "scope_macro_f1": {
+      "validation": 0.7331754735792622,
+      "test": 0.5024289985052317,
+      "test_minus_validation": -0.23074647507403045,
+      "absolute_difference": 0.23074647507403045
+    },
+    "structure_macro_f1": {
+      "validation": 1.0,
+      "test": 0.7430808276336732,
+      "test_minus_validation": -0.2569191723663268,
+      "absolute_difference": 0.2569191723663268
+    },
+    "area_span_f1": {
+      "validation": 0.890909090909091,
+      "test": 0.896551724137931,
+      "test_minus_validation": 0.005642633228840066,
+      "absolute_difference": 0.005642633228840066
+    },
+    "value_span_f1": {
+      "validation": 0.8421052631578947,
+      "test": 0.25,
+      "test_minus_validation": -0.5921052631578947,
+      "absolute_difference": 0.5921052631578947
+    },
+    "negation_span_f1": {
+      "validation": 1.0,
+      "test": 0.8307692307692307,
+      "test_minus_validation": -0.1692307692307693,
+      "absolute_difference": 0.1692307692307693
+    },
+    "overall_slot_span_f1": {
+      "validation": 0.9081632653061223,
+      "test": 0.7354838709677418,
+      "test_minus_validation": -0.17267939433838053,
+      "absolute_difference": 0.17267939433838053
+    },
+    "sentence_negated_f1": {
+      "validation": 0.9333333333333333,
+      "test": 0.8372093023255814,
+      "test_minus_validation": -0.09612403100775191,
+      "absolute_difference": 0.09612403100775191
+    },
+    "negated_recall": {
+      "validation": 0.875,
+      "test": 0.75,
+      "test_minus_validation": -0.125,
+      "absolute_difference": 0.125
+    },
+    "raw_ufar": {
+      "validation": 0.034482758620689655,
+      "test": 0.4791666666666667,
+      "test_minus_validation": 0.444683908045977,
+      "absolute_difference": 0.444683908045977
+    }
+  },
+  "warning_rule": "Any principal quality metric absolute decline from Validation greater than 0.15",
+  "warning_metrics": [
+    "intent_macro_f1",
+    "scope_macro_f1",
+    "structure_macro_f1",
+    "value_span_f1",
+    "negation_span_f1",
+    "overall_slot_span_f1"
+  ],
+  "GENERALIZATION_DEGRADATION_WARNING": "YES",
+  "used_for_model_selection_or_tuning": false
+}

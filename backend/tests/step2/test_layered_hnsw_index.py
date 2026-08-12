@@ -25,8 +25,6 @@ def _node(evidence_type: str, index: int) -> EvidenceNode:
         freshness=1,
         consistency=1,
         availability=1,
-        semantic_similarity=0,
-        mandatory=False,
         quality_label=EvidenceStatus.VALID,
         integrity_hash=f"{index:064x}",
         metadata={"entity_id": str(index)},
@@ -38,14 +36,14 @@ def built_index() -> tuple[HNSWIndexService, DeterministicHashEmbeddingService]:
     embedder = DeterministicHashEmbeddingService(768)
     service = HNSWIndexService(load_yaml("index.yaml"), embedder)
     types = [
-        "music_state",
-        "display_state",
-        "door_state",
-        "occupant_role",
-        "vehicle_speed",
-        "front_camera",
-        "safety_rule",
-        "front_lidar",
+        "SYSTEM_MODE",
+        "LIGHTING_STATE",
+        "DOOR_STATE",
+        "OCCUPANT_STATE",
+        "VEHICLE_SPEED",
+        "LANE_STATE",
+        "SERVICE_BRAKE_STATE",
+        "SURROUNDING_OBJECT_STATE",
     ]
     service.build([_node(evidence_type, index) for index, evidence_type in enumerate(types)])
     return service, embedder
@@ -131,7 +129,7 @@ def test_failed_build_keeps_previous_snapshot(monkeypatch, built_index) -> None:
 
     monkeypatch.setattr(service, "_construct_snapshot", fail)
     with pytest.raises(RuntimeError, match="forced atomic"):
-        service.build([_node("vehicle_speed", 99)])
+        service.build([_node("VEHICLE_SPEED", 99)])
 
     after = service.status()
     assert after.index_build_id == before.index_build_id
@@ -152,7 +150,7 @@ def test_concurrent_reader_never_sees_half_built_snapshot(monkeypatch, built_ind
         return original(*args, **kwargs)
 
     monkeypatch.setattr(service, "_construct_snapshot", delayed)
-    worker = Thread(target=lambda: service.build([_node("vehicle_speed", 101)]), daemon=True)
+    worker = Thread(target=lambda: service.build([_node("VEHICLE_SPEED", 101)]), daemon=True)
     worker.start()
     assert entered.wait(timeout=10)
     query, _ = embedder.encode("read while rebuilding")

@@ -1,0 +1,700 @@
+{
+  "validation_value_span_f1": 0.8421052631578947,
+  "test_value_span_f1": 0.25,
+  "validation": {
+    "sample_count": 19,
+    "categories": {
+      "PERCENTAGE": {
+        "support": 4,
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "sample_ids": [
+          "SYS014-POC-0207",
+          "SYS014-POC-0211",
+          "SYS014-POC-0256",
+          "SYS014-POC-0260"
+        ]
+      },
+      "CHINESE_PROPORTION": {
+        "support": 10,
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "sample_ids": [
+          "SYS014-POC-0205",
+          "SYS014-POC-0209",
+          "SYS014-POC-0254",
+          "SYS014-POC-0258",
+          "SYS014-POC-0598",
+          "SYS014-POC-0599",
+          "SYS014-POC-0628",
+          "SYS014-POC-0629",
+          "SYS014-POC-0658",
+          "SYS014-POC-0659"
+        ]
+      },
+      "ABSOLUTE_VALUE": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      },
+      "RELATIVE_ADJUSTMENT": {
+        "support": 3,
+        "tp": 0,
+        "fp": 3,
+        "fn": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": [
+          "SYS014-POC-0216",
+          "SYS014-POC-0218",
+          "SYS014-POC-0220"
+        ]
+      },
+      "FUZZY_AMOUNT": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      },
+      "EXTREME_VALUE": {
+        "support": 2,
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "sample_ids": [
+          "SYS014-POC-0213",
+          "SYS014-POC-0262"
+        ]
+      },
+      "OTHER": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      }
+    }
+  },
+  "test": {
+    "sample_count": 16,
+    "categories": {
+      "PERCENTAGE": {
+        "support": 3,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "sample_ids": [
+          "SYS014-POC-0613",
+          "SYS014-POC-0643",
+          "SYS014-POC-0673"
+        ]
+      },
+      "CHINESE_PROPORTION": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      },
+      "ABSOLUTE_VALUE": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      },
+      "RELATIVE_ADJUSTMENT": {
+        "support": 13,
+        "tp": 1,
+        "fp": 12,
+        "fn": 12,
+        "precision": 0.07692307692307693,
+        "recall": 0.07692307692307693,
+        "f1": 0.07692307692307693,
+        "sample_ids": [
+          "SYS014-POC-0215",
+          "SYS014-POC-0217",
+          "SYS014-POC-0263",
+          "SYS014-POC-0264",
+          "SYS014-POC-0265",
+          "SYS014-POC-0266",
+          "SYS014-POC-0268",
+          "SYS014-POC-0528",
+          "SYS014-POC-0529",
+          "SYS014-POC-0530",
+          "SYS014-POC-0531",
+          "SYS014-POC-0532",
+          "SYS014-POC-0533"
+        ]
+      },
+      "FUZZY_AMOUNT": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      },
+      "EXTREME_VALUE": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      },
+      "OTHER": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "sample_ids": []
+      }
+    }
+  },
+  "all_test_value_samples": [
+    {
+      "sample_id": "SYS014-POC-0215",
+      "text": "把车窗降一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 4,
+          "char_end": 6,
+          "text": "一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 5,
+          "token_end": 7,
+          "char_start": 4,
+          "char_end": 6,
+          "text": "一点"
+        }
+      ],
+      "status": "CORRECT",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_V2_SYN_39DCEC57BED0D35A",
+      "template_signature": "把车窗降<value>",
+      "mechanical_signature": "把车窗降<value",
+      "split_group": "SGRP-173AD029DF2EDBEA",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0217",
+      "text": "把车窗降小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 4,
+          "char_end": 7,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 6,
+          "token_end": 8,
+          "char_start": 5,
+          "char_end": 7,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_V2_SYN_1B06F5A3B14599F8",
+      "template_signature": "把车窗降<value>",
+      "mechanical_signature": "把车窗降<value",
+      "split_group": "SGRP-173AD029DF2EDBEA",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0263",
+      "text": "把司机这边的窗降一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 10,
+          "text": "一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 11,
+          "char_start": 9,
+          "char_end": 10,
+          "text": "点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_V2_SYN_6B32A1DA20AFF1C2",
+      "template_signature": "把<area>的窗降<value>",
+      "mechanical_signature": "把<area>的窗降<value",
+      "split_group": "SGRP-27159FBB95C804C3",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0264",
+      "text": "司机这边的窗再开一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 10,
+          "text": "一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 11,
+          "char_start": 9,
+          "char_end": 10,
+          "text": "点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_V2_SYN_244267F733D8126C",
+      "template_signature": "<area>的窗再开<value>",
+      "mechanical_signature": "area>的窗<THEN>开<value",
+      "split_group": "SGRP-7BFA3B74810B7AAC",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0265",
+      "text": "把司机这边的窗降小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 12,
+          "char_start": 9,
+          "char_end": 11,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_V2_SYN_2178A2A131AE0741",
+      "template_signature": "把<area>的窗降<value>",
+      "mechanical_signature": "把<area>的窗降<value",
+      "split_group": "SGRP-27159FBB95C804C3",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0266",
+      "text": "司机这边的窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 12,
+          "char_start": 9,
+          "char_end": 11,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_V2_SYN_2EF3B84317E4CB3A",
+      "template_signature": "<area>的窗再开<value>",
+      "mechanical_signature": "area>的窗<THEN>开<value",
+      "split_group": "SGRP-7BFA3B74810B7AAC",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0268",
+      "text": "司机这边的窗再开大一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "大一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 10,
+          "token_end": 12,
+          "char_start": 9,
+          "char_end": 11,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_WINDOW_POS_03_07_00",
+      "template_signature": "<area>的窗再开<value>",
+      "mechanical_signature": "area>的窗<THEN>开<value",
+      "split_group": "SGRP-7BFA3B74810B7AAC",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0528",
+      "text": "不要把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_00",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0529",
+      "text": "别把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 9,
+          "char_end": 12,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 11,
+          "token_end": 13,
+          "char_start": 10,
+          "char_end": 12,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_00",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0530",
+      "text": "先别把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_00",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0531",
+      "text": "不用把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_01",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0532",
+      "text": "请勿把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 13,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_01",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0533",
+      "text": "暂时别把副驾驶车窗再开小一点",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 13,
+          "token_end": 15,
+          "char_start": 12,
+          "char_end": 14,
+          "text": "一点"
+        }
+      ],
+      "status": "BOUNDARY_ERROR",
+      "expression_category": "RELATIVE_ADJUSTMENT",
+      "paraphrase_family_id": "PF_WINDOW_SET_POSITION_NEG_01_01",
+      "template_signature": "<neg>把<area>车窗再开<value>",
+      "mechanical_signature": "neg>把<area>车窗<THEN>开<value",
+      "split_group": "SGRP-83E6AC73E1E746B9",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0613",
+      "text": "马上刹车然后把车窗调到30%",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%"
+        }
+      ],
+      "status": "CORRECT",
+      "expression_category": "PERCENTAGE",
+      "paraphrase_family_id": "PF_MULTI_BRAKE_WINDOW_SET_POSITION_0_0",
+      "template_signature": "马上刹车然后把车窗调到<value>",
+      "mechanical_signature": "马上刹车<THEN>把车窗调到<value",
+      "split_group": "SGRP-AE96E249E4546DFD",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0643",
+      "text": "马上刹车再把车窗调到30%",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 11,
+          "token_end": 13,
+          "char_start": 10,
+          "char_end": 13,
+          "text": "30%"
+        }
+      ],
+      "status": "CORRECT",
+      "expression_category": "PERCENTAGE",
+      "paraphrase_family_id": "PF_MULTI_BRAKE_WINDOW_SET_POSITION_0_0",
+      "template_signature": "马上刹车再把车窗调到<value>",
+      "mechanical_signature": "马上刹车<THEN>把车窗调到<value",
+      "split_group": "SGRP-AE96E249E4546DFD",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0673",
+      "text": "马上刹车接着把车窗调到30%",
+      "gold_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_VALUE": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%"
+        }
+      ],
+      "status": "CORRECT",
+      "expression_category": "PERCENTAGE",
+      "paraphrase_family_id": "PF_MULTI_BRAKE_WINDOW_SET_POSITION_0_0",
+      "template_signature": "马上刹车接着把车窗调到<value>",
+      "mechanical_signature": "马上刹车<THEN>把车窗调到<value",
+      "split_group": "SGRP-AE96E249E4546DFD",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    }
+  ],
+  "test_error_profile": {
+    "correct": 4,
+    "boundary_error": 12,
+    "miss": 0
+  },
+  "VALUE_GENERALIZATION_ROOT_CAUSE": "Expression-family and span-boundary distribution shift. Validation is dominated by normalized percentage/Chinese-proportion/extreme forms and contains limited relative-adjustment support; Test has 13/16 relative forms. The model emits a VALUE span for every Test VALUE sample but truncates 12 relative spans (usually dropping 小/大), so this is boundary generalization rather than VALUE detection failure.",
+  "failure_level": "FAMILY/TEMPLATE_BOUNDARY"
+}

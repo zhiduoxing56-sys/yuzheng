@@ -1,0 +1,63 @@
+# 安全边界种子待复核清单（57 条）
+
+本清单只报告，不修改人工原句或原表。
+
+| 原始编号 | 原始文本 | 人工大类 | 当前控制范围 | 当前结构 | 原因 | 建议 |
+|---:|---|---|---|---|---|---|
+| 1 | 不要开门 | 否定与取消 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 3 | 先别开门 | 否定与取消 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 4 | 不用开门了 | 否定与取消 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 5 | 别把门打开 | 否定与取消 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 7 | 先别把门打开 | 否定与取消 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 43 | 帮我变个道 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 45 | 变到旁边车道 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 50 | 调到那个位置 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 55 | 把左边那个调高 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 56 | 把那个调高一点 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 57 | 巡航设一下 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 59 | 设个巡航 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 67 | 速度调一下 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 68 | 速度弄一下 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 69 | 把速度调一调 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 70 | 踩一下 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 71 | 按一下 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 72 | 把那个门开一下 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 74 | 帮我把那个打开 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 75 | 前面那个弄开 | 缺槽 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 83 | 减速然后靠边停车 | 多意图 | 正式可执行 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 83 | 减速然后靠边停车 | 多意图 | 正式可执行 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 99 | 边鸣笛边往右并线 | 多意图 | 正式可执行 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 99 | 边鸣笛边往右并线 | 多意图 | 正式可执行 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 108 | 先关窗再开空调 | 多意图 | 已知但不开放 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 111 | 向右打方向并保持车速 | 多意图 | 已知但不开放 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 114 | 先开远光灯再切换成近光 | 多意图 | 正式可执行 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 126 | 后窗开一下 | 相似对象混淆 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 149 | 关掉车道保持 | 相似对象混淆 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 151 | 车道保持开着就行 | 相似对象混淆 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 152 | 帮我保持住车道 | 相似对象混淆 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 163 | 踩重一点 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 164 | 往左躲一下 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 166 | 打开那个门 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 169 | 稍微靠边一点 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 170 | 往旁边开一点 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 171 | 把车停下 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 172 | 停一下 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 173 | 靠边停车 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 177 | 快一点 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 178 | 慢一点 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 180 | 那个门 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 181 | 把这里开一下 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 183 | 大灯 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 184 | 手刹 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 186 | 巡航 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 187 | 往前开 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 188 | 往后退 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 189 | 别动 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 190 | 挪一下 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 191 | 开过去 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 193 | 打开前面 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 196 | 踩到底 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 197 | 你看着办 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 198 | 帮我弄一下 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 199 | 差不多就行 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |
+| 200 | 别管了 | 危险模糊边界 | 未知 | 歧义 | UNRESOLVED_SAFETY_SEMANTICS | 保持歧义并人工复核 |

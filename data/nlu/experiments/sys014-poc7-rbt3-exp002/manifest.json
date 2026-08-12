@@ -1,0 +1,153 @@
+{
+  "experiment_id": "sys014-poc7-rbt3-exp002",
+  "status": "COMPLETED_NO_ELIGIBLE_SAFETY_CHECKPOINT",
+  "dataset_version": "sys014-poc7-v2",
+  "dataset_hashes": {
+    "dataset_manifest.json": "122621c0ce5e7a6fbaadbbe97cb3e7e86a32812ee1c69fe5ee27c45d94ac8d42",
+    "train.jsonl": "dadfee10cd5356c136311d828a22bdb88d37f09853d00c464d6d686c3b44feee",
+    "validation.jsonl": "3edc527eea43d6e075bc2d633b7a601450fdecbc1e0ecac665fd5bd0a4becf9a"
+  },
+  "model_id": "hfl/rbt3",
+  "model_revision": "0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+  "seed": 14031,
+  "device": "CPU",
+  "cpu_model": "Intel(R) Core(TM) i9-14900HX",
+  "torch_threads": 24,
+  "torch_interop_threads": 24,
+  "torch_version": "2.13.0+cpu",
+  "transformers_version": "5.14.1",
+  "python_executable": "D:\\software\\anaconda\\envs\\yuzheng311\\python.exe",
+  "git_commit": "ecb9701b6c20cfb9f360b3b33292ebd22e75bc78",
+  "started_at": "2026-08-08T21:35:04+08:00",
+  "finished_at": "2026-08-08T21:36:33+08:00",
+  "test_evaluation_executed": false,
+  "safety_gold_evaluation_executed": false,
+  "electra_training_started": false,
+  "runtime_modified": false,
+  "preflight": {
+    "PREFLIGHT": "PASS",
+    "experiment_absent": true,
+    "dataset_hashes": {
+      "dataset_manifest.json": "122621c0ce5e7a6fbaadbbe97cb3e7e86a32812ee1c69fe5ee27c45d94ac8d42",
+      "train.jsonl": "dadfee10cd5356c136311d828a22bdb88d37f09853d00c464d6d686c3b44feee",
+      "validation.jsonl": "3edc527eea43d6e075bc2d633b7a601450fdecbc1e0ecac665fd5bd0a4becf9a"
+    },
+    "projection_failures": 0,
+    "train_count": 587,
+    "validation_count": 129,
+    "test_records_loaded": 0,
+    "safety_gold_records_loaded": 0,
+    "test_used_for_model_selection": false,
+    "safety_gold_used_for_model_selection": false,
+    "fresh_initialization_audit": {
+      "fresh_state_matches_exp001_last": false,
+      "shared_state_tensor_count": 65,
+      "different_state_tensor_count": 63,
+      "different_backbone_tensor_count": 53,
+      "different_joint_head_tensor_count": 10,
+      "exp001_last_checkpoint_sha256": "bc12273c91372d7a5738a726f520a68093c5ccb9114ac406342da96dbfe02efd",
+      "exp001_checkpoint_loaded_into_exp002_model": false,
+      "exp002_initialization_source": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--rbt3\\snapshots\\0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+      "exp002_initialization_revision": "0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c"
+    },
+    "parameter_group_audit": {
+      "group_names": [
+        "backbone",
+        "joint_heads"
+      ],
+      "backbone_parameter_tensor_count": 55,
+      "joint_head_parameter_tensor_count": 10,
+      "all_trainable_parameter_tensor_count": 65,
+      "backbone_parameter_count": 38476800,
+      "joint_head_parameter_count": 17687,
+      "all_trainable_parameter_count": 38494487,
+      "overlap_count": 0,
+      "missing_count": 0,
+      "unexpected_count": 0,
+      "complete_coverage": true,
+      "mutually_exclusive": true
+    },
+    "optimizer_group_base_lrs": {
+      "backbone": 1e-05,
+      "joint_heads": 5e-05
+    },
+    "optimizer_group_current_lrs_after_scheduler_initialization": {
+      "backbone": 0.0,
+      "joint_heads": 0.0
+    },
+    "scheduler_optimizer_group_count": 2,
+    "class_weight_tensor_shapes": {
+      "scope": [
+        4
+      ],
+      "structure": [
+        3
+      ],
+      "intent": null,
+      "slot": null,
+      "negation": [
+        2
+      ]
+    },
+    "prediction_schema_valid": true,
+    "prediction_schema_fields": [
+      "final_raw_decision",
+      "gold_intent",
+      "gold_negated",
+      "gold_scope",
+      "gold_slot_token_spans",
+      "gold_slots",
+      "gold_structure",
+      "intent_probabilities",
+      "intent_top1_top2",
+      "negation_probabilities",
+      "negation_slot_detected",
+      "negation_top1_top2",
+      "pred_intent",
+      "pred_negated",
+      "pred_scope",
+      "pred_structure",
+      "predicted_slot_token_spans",
+      "predicted_slots",
+      "raw_abstain",
+      "raw_executable",
+      "sample_id",
+      "scope_probabilities",
+      "scope_top1_top2",
+      "sentence_slot_agreement",
+      "structure_probabilities",
+      "structure_top1_top2",
+      "text"
+    ],
+    "model_state_digest_before_forward": "3db16a6be562d1f7ed165913d300c66f9e60fb8558dc8f12bd59254f94e65b8a",
+    "model_state_digest_after_forward": "3db16a6be562d1f7ed165913d300c66f9e60fb8558dc8f12bd59254f94e65b8a",
+    "model_parameters_unchanged": true,
+    "gradients_created": false,
+    "training_steps_executed": 0,
+    "backward_preflight_executed": false,
+    "default_exp001_trainer_path_compatible": true,
+    "python_executable": "D:\\software\\anaconda\\envs\\yuzheng311\\python.exe"
+  },
+  "initialization_audit": {
+    "fresh_state_matches_exp001_last": false,
+    "shared_state_tensor_count": 65,
+    "different_state_tensor_count": 63,
+    "different_backbone_tensor_count": 53,
+    "different_joint_head_tensor_count": 10,
+    "exp001_last_checkpoint_sha256": "bc12273c91372d7a5738a726f520a68093c5ccb9114ac406342da96dbfe02efd",
+    "exp001_checkpoint_loaded_into_exp002_model": false,
+    "exp002_initialization_source": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--rbt3\\snapshots\\0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+    "exp002_initialization_revision": "0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c"
+  },
+  "training_duration_seconds": 88.64893609983847,
+  "rss_after_training_bytes": 775180288,
+  "epochs_completed": 10,
+  "training_steps_executed": 370,
+  "best_epoch": null,
+  "best_checkpoint_sha256": null,
+  "closest_safety_diagnostic_epoch": 5,
+  "closest_safety_diagnostic_sha256": "6cdbcd76a9bf073b040ed50e47401cc922dc0e56bb132b6896f9b09cef53e3e2",
+  "last_checkpoint_sha256": "84c31d101691d12a03d6cf1532124f0c87d572e4451c187432f7116fb3ff2fe9",
+  "rbt3_exp002_safety_gate_pass": false,
+  "rbt3_exp002_negation_improved": true
+}

@@ -6,6 +6,37 @@ htmlcov/
 .venv/
 data/database/*.db
 data/database/*.db-*
+data/database/backups/
 data/secrets/
 tmp/
 dist/
+
+# IDE and local Codex workspace
+.idea/
+.codex_work/
+
+# Frontend dependencies
+**/node_modules/
+
+# Runtime and test outputs
+outputs/
+test-results/
+*.log
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
+
+# Machine-learning caches and checkpoints
+data/nlu/model_selection/hf_cache/
+data/nlu/experiments/**/checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors

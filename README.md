@@ -68,6 +68,25 @@ D:\software\anaconda\envs\yuzheng311\python.exe -m pytest -v --durations=50
 
 阶段边界和真实/降级实现状态见 [docs/实现状态.md](docs/实现状态.md)。需求唯一基线为仓库中的作品报告 PDF。
 
+## 审计列表摘要迁移与恢复
+
+审计列表使用独立紧凑摘要表进行数据库筛选和分页，原始 `audit_records.record_json` 保持不变。首次部署本优化前应停止后端，然后执行幂等迁移：
+
+```powershell
+D:\software\anaconda\envs\yuzheng311\python.exe backend\scripts\migrate_audit_list_summaries.py
+```
+
+脚本会先在 `data/database/backups` 创建数据库备份并校验 SHA-256，再在事务内回填摘要，最后核对命令审计总数以及 `audit_id`、`turn_id`、`decision`、`created_at`。重复执行会重新核对并安全更新摘要，不删除或改写原审计载荷。迁移异常会自动从本次备份恢复。
+
+手动恢复时先停止后端，再指定脚本输出的备份路径：
+
+```powershell
+D:\software\anaconda\envs\yuzheng311\python.exe backend\scripts\migrate_audit_list_summaries.py `
+  --restore-from data\database\backups\yuzheng-pre-audit-summary-YYYYMMDDTHHMMSSZ.db
+```
+
+性能基线、正确性对比和验收数据见 [docs/audit-performance-baseline-2026-08-04.md](docs/audit-performance-baseline-2026-08-04.md)。
+
 ## 阶段五边界
 
 默认车辆数据和执行仍来自确定性模拟器，不代表真实传感器或 CAN 总线。文本接口保持原有语义，不伪造声学检查。PC 麦克风是真实设备采集；多座位来源仅由明确的模拟通道映射给出，不代表已接入真实车载阵列定位。React 前端、CARLA、真实台架和真实 CAN 均未开始。`CanVehicleAdapter` 仍仅提供默认关闭的安全边界。

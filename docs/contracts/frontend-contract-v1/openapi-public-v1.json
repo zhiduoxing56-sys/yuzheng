@@ -888,21 +888,6 @@
             "title": "Jailbreak Risk",
             "type": "number"
           },
-          "mandatory_recall_records": {
-            "items": {
-              "$ref": "#/components/schemas/MandatoryRecallRecord"
-            },
-            "title": "Mandatory Recall Records",
-            "type": "array"
-          },
-          "mandatory_supplement_records": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Mandatory Supplement Records",
-            "type": "array"
-          },
           "memory_propagation": {
             "anyOf": [
               {
@@ -912,13 +897,6 @@
                 "type": "null"
               }
             ]
-          },
-          "missing_evidence_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Missing Evidence Types",
-            "type": "array"
           },
           "parent_turn_id": {
             "anyOf": [
@@ -936,10 +914,12 @@
             "title": "Previous Hash",
             "type": "string"
           },
-          "query_vector_digest": {
-            "default": "",
-            "title": "Query Vector Digest",
-            "type": "string"
+          "query_vector_digests": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Query Vector Digests",
+            "type": "array"
           },
           "recommended_recovery": {
             "anyOf": [
@@ -1033,14 +1013,11 @@
             ]
           },
           "vectorization_metadata": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/VectorizationMetadata"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "items": {
+              "$ref": "#/components/schemas/VectorizationMetadata"
+            },
+            "title": "Vectorization Metadata",
+            "type": "array"
           },
           "vehicle_execution_feedback": {
             "anyOf": [
@@ -1316,6 +1293,11 @@
             "title": "Corrected Weights",
             "type": "object"
           },
+          "corrected_weights_projection": {
+            "default": "LEGACY_AUTHORITATIVE",
+            "title": "Corrected Weights Projection",
+            "type": "string"
+          },
           "data_sufficiency": {
             "default": "insufficient",
             "title": "Data Sufficiency",
@@ -1399,6 +1381,11 @@
             "minimum": 1.0,
             "title": "Minimum Sample Count",
             "type": "integer"
+          },
+          "mode": {
+            "default": "HISTORICAL_LEGACY",
+            "title": "Mode",
+            "type": "string"
           },
           "model_built_at": {
             "anyOf": [
@@ -1850,6 +1837,18 @@
             "title": "Causal Variable",
             "type": "string"
           },
+          "clause_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clause Index"
+          },
           "corrected_weight": {
             "anyOf": [
               {
@@ -1862,6 +1861,17 @@
               }
             ],
             "title": "Corrected Weight"
+          },
+          "intent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent Id"
           },
           "node_id": {
             "title": "Node Id",
@@ -1913,6 +1923,11 @@
             "title": "Confidence Status",
             "type": "string"
           },
+          "corrected_weights_projection": {
+            "default": "LEGACY_AUTHORITATIVE",
+            "title": "Corrected Weights Projection",
+            "type": "string"
+          },
           "dag_edges": {
             "items": {
               "$ref": "#/components/schemas/CausalEdge"
@@ -1961,6 +1976,11 @@
               }
             ],
             "title": "Insufficiency Reason"
+          },
+          "mode": {
+            "default": "HISTORICAL_LEGACY",
+            "title": "Mode",
+            "type": "string"
           },
           "model_build_id": {
             "anyOf": [
@@ -2030,9 +2050,34 @@
             "title": "Availability Status",
             "type": "string"
           },
+          "binding_similarity": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Binding Similarity"
+          },
           "causal_variable": {
             "title": "Causal Variable",
             "type": "string"
+          },
+          "clause_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clause Index"
           },
           "freshness_component": {
             "anyOf": [
@@ -2046,6 +2091,17 @@
               }
             ],
             "title": "Freshness Component"
+          },
+          "intent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent Id"
           },
           "lambda_values": {
             "additionalProperties": {
@@ -2073,6 +2129,18 @@
             "title": "Mandatory Component",
             "type": "number"
           },
+          "memory_initial_confidence": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Initial Confidence"
+          },
           "node_id": {
             "title": "Node Id",
             "type": "string"
@@ -2087,6 +2155,21 @@
               }
             ],
             "title": "Raw Prior Score"
+          },
+          "requirement_level": {
+            "anyOf": [
+              {
+                "enum": [
+                  "REQUIRED",
+                  "OPTIONAL"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requirement Level"
           },
           "sas_component": {
             "anyOf": [
@@ -2291,6 +2374,16 @@
               }
             ]
           },
+          "aggregate_safety_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionLabel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "authorization_token": {
             "anyOf": [
               {
@@ -2379,6 +2472,13 @@
             "title": "Grounding Failures",
             "type": "array"
           },
+          "intent_safety_assessments": {
+            "items": {
+              "$ref": "#/components/schemas/IntentSafetyAssessment"
+            },
+            "title": "Intent Safety Assessments",
+            "type": "array"
+          },
           "jailbreak_risk": {
             "default": 0,
             "maximum": 1.0,
@@ -2464,6 +2564,16 @@
       "DecisionResultPresentation": {
         "additionalProperties": false,
         "properties": {
+          "aggregate_safety_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionLabel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "decision_explanation": {
             "anyOf": [
               {
@@ -2498,6 +2608,13 @@
           },
           "initial_decision": {
             "$ref": "#/components/schemas/DecisionLabel"
+          },
+          "intent_safety_assessments": {
+            "items": {
+              "$ref": "#/components/schemas/IntentSafetyAssessmentPresentation"
+            },
+            "title": "Intent Safety Assessments",
+            "type": "array"
           },
           "reasons": {
             "items": {
@@ -2808,80 +2925,24 @@
       "EvidenceDemand": {
         "additionalProperties": false,
         "properties": {
-          "action": {
-            "title": "Action",
-            "type": "string"
-          },
           "demand_id": {
             "title": "Demand Id",
             "type": "string"
           },
-          "optional_types": {
+          "intent_demands": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/IntentEvidenceDemand"
             },
-            "title": "Optional Types",
+            "title": "Intent Demands",
             "type": "array"
-          },
-          "priority": {
-            "default": 0,
-            "maximum": 100.0,
-            "minimum": 0.0,
-            "title": "Priority",
-            "type": "integer"
-          },
-          "query_text": {
-            "title": "Query Text",
-            "type": "string"
-          },
-          "query_vector": {
-            "items": {
-              "type": "number"
-            },
-            "title": "Query Vector",
-            "type": "array"
-          },
-          "required_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Required Types",
-            "type": "array"
-          },
-          "retrieval_scope": {
-            "default": "control_evidence",
-            "title": "Retrieval Scope",
-            "type": "string"
-          },
-          "risk_level": {
-            "title": "Risk Level",
-            "type": "string"
-          },
-          "target": {
-            "title": "Target",
-            "type": "string"
           },
           "turn_id": {
             "title": "Turn Id",
             "type": "string"
-          },
-          "vectorization_metadata": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/VectorizationMetadata"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
-          "turn_id",
-          "action",
-          "target",
-          "risk_level",
-          "query_text"
+          "turn_id"
         ],
         "title": "EvidenceDemand",
         "type": "object"
@@ -2911,6 +2972,19 @@
           "retrieval_origin": {
             "$ref": "#/components/schemas/RetrievalOrigin"
           },
+          "semantic_similarity": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Similarity"
+          },
           "status": {
             "$ref": "#/components/schemas/EvidenceDemandStatus"
           }
@@ -2928,54 +3002,16 @@
       "EvidenceDemandPresentation": {
         "additionalProperties": false,
         "properties": {
-          "action": {
-            "title": "Action",
-            "type": "string"
-          },
           "demand_id": {
             "title": "Demand Id",
             "type": "string"
           },
-          "demand_items": {
+          "intent_demands": {
             "items": {
-              "$ref": "#/components/schemas/EvidenceDemandItem"
+              "$ref": "#/components/schemas/IntentEvidenceDemandPresentation"
             },
-            "title": "Demand Items",
+            "title": "Intent Demands",
             "type": "array"
-          },
-          "optional_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Optional Types",
-            "type": "array"
-          },
-          "priority": {
-            "title": "Priority",
-            "type": "integer"
-          },
-          "query_text": {
-            "title": "Query Text",
-            "type": "string"
-          },
-          "required_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Required Types",
-            "type": "array"
-          },
-          "retrieval_scope": {
-            "title": "Retrieval Scope",
-            "type": "string"
-          },
-          "risk_level": {
-            "title": "Risk Level",
-            "type": "string"
-          },
-          "target": {
-            "title": "Target",
-            "type": "string"
           },
           "turn_id": {
             "title": "Turn Id",
@@ -2984,13 +3020,7 @@
         },
         "required": [
           "demand_id",
-          "turn_id",
-          "action",
-          "target",
-          "risk_level",
-          "query_text",
-          "priority",
-          "retrieval_scope"
+          "turn_id"
         ],
         "title": "EvidenceDemandPresentation",
         "type": "object"
@@ -3158,10 +3188,6 @@
             "title": "Layer",
             "type": "string"
           },
-          "mandatory": {
-            "title": "Mandatory",
-            "type": "boolean"
-          },
           "merged_node_sources": {
             "items": {
               "type": "string"
@@ -3227,12 +3253,6 @@
             ],
             "title": "Security Rank"
           },
-          "semantic_similarity": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Semantic Similarity",
-            "type": "number"
-          },
           "source": {
             "title": "Source",
             "type": "string"
@@ -3274,8 +3294,6 @@
           "freshness",
           "consistency",
           "availability",
-          "semantic_similarity",
-          "mandatory",
           "quality_label",
           "integrity_hash"
         ],
@@ -3321,25 +3339,19 @@
             "title": "Canonicalization Warnings",
             "type": "array"
           },
+          "causal_occurrence_weights": {
+            "items": {
+              "$ref": "#/components/schemas/CausalNodeWeight"
+            },
+            "title": "Causal Occurrence Weights",
+            "type": "array"
+          },
           "causal_parents": {
             "items": {
               "type": "string"
             },
             "title": "Causal Parents",
             "type": "array"
-          },
-          "causal_support": {
-            "anyOf": [
-              {
-                "maximum": 1.0,
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Causal Support"
           },
           "classification_source": {
             "anyOf": [
@@ -3357,19 +3369,6 @@
             "minimum": 0.0,
             "title": "Consistency",
             "type": "number"
-          },
-          "corrected_weight": {
-            "anyOf": [
-              {
-                "maximum": 1.0,
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Corrected Weight"
           },
           "evidence_type": {
             "title": "Evidence Type",
@@ -3476,10 +3475,6 @@
             "title": "Layer Memberships",
             "type": "array"
           },
-          "mandatory": {
-            "title": "Mandatory",
-            "type": "boolean"
-          },
           "memory_initial_confidence": {
             "anyOf": [
               {
@@ -3514,19 +3509,6 @@
             },
             "title": "Outgoing Edges",
             "type": "array"
-          },
-          "prior_probability": {
-            "anyOf": [
-              {
-                "maximum": 1.0,
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Prior Probability"
           },
           "quality_label": {
             "title": "Quality Label",
@@ -3566,12 +3548,6 @@
               }
             ],
             "title": "Security Rank"
-          },
-          "semantic_similarity": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Semantic Similarity",
-            "type": "number"
           },
           "source": {
             "title": "Source",
@@ -3620,72 +3596,10 @@
           "freshness",
           "consistency",
           "availability",
-          "semantic_similarity",
-          "mandatory",
           "quality_label",
           "integrity_hash"
         ],
         "title": "EvidenceNodeDetail",
-        "type": "object"
-      },
-      "EvidenceObservationInput": {
-        "additionalProperties": false,
-        "properties": {
-          "age_seconds": {
-            "default": 0,
-            "minimum": 0.0,
-            "title": "Age Seconds",
-            "type": "number"
-          },
-          "available": {
-            "default": true,
-            "title": "Available",
-            "type": "boolean"
-          },
-          "evidence_type": {
-            "title": "Evidence Type",
-            "type": "string"
-          },
-          "expires_in_seconds": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Expires In Seconds"
-          },
-          "integrity_valid": {
-            "default": true,
-            "title": "Integrity Valid",
-            "type": "boolean"
-          },
-          "source": {
-            "title": "Source",
-            "type": "string"
-          },
-          "unit": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unit"
-          },
-          "value": {
-            "title": "Value"
-          }
-        },
-        "required": [
-          "evidence_type",
-          "source"
-        ],
-        "title": "EvidenceObservationInput",
         "type": "object"
       },
       "EvidencePresentation": {
@@ -3987,18 +3901,11 @@
             "title": "Graph Id",
             "type": "string"
           },
-          "mandatory_recalled_types": {
+          "intent_evidence_resolutions": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/IntentEvidenceResolution"
             },
-            "title": "Mandatory Recalled Types",
-            "type": "array"
-          },
-          "missing_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Missing Types",
+            "title": "Intent Evidence Resolutions",
             "type": "array"
           },
           "nodes": {
@@ -4017,13 +3924,6 @@
                 "type": "null"
               }
             ]
-          },
-          "required_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Required Types",
-            "type": "array"
           },
           "retrieval_metadata": {
             "anyOf": [
@@ -4240,6 +4140,18 @@
             "title": "Checks",
             "type": "array"
           },
+          "hit_rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hit Rules",
+            "type": "array"
+          },
+          "observed": {
+            "additionalProperties": true,
+            "title": "Observed",
+            "type": "object"
+          },
           "overall_status": {
             "enum": [
               "PASSED",
@@ -4247,6 +4159,13 @@
             ],
             "title": "Overall Status",
             "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
           }
         },
         "required": [
@@ -4532,6 +4451,473 @@
           "normalized_text"
         ],
         "title": "InputPresentation",
+        "type": "object"
+      },
+      "IntentEvidenceBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "evidence_type": {
+            "title": "Evidence Type",
+            "type": "string"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Node Id"
+          },
+          "requirement_level": {
+            "enum": [
+              "REQUIRED",
+              "OPTIONAL"
+            ],
+            "title": "Requirement Level",
+            "type": "string"
+          },
+          "resolution_status": {
+            "enum": [
+              "RETRIEVED",
+              "MANDATORY_RECALLED",
+              "MISSING",
+              "OPTIONAL_NOT_FOUND"
+            ],
+            "title": "Resolution Status",
+            "type": "string"
+          },
+          "retrieval_origin": {
+            "$ref": "#/components/schemas/RetrievalOrigin"
+          },
+          "semantic_similarity": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Similarity"
+          }
+        },
+        "required": [
+          "clause_index",
+          "intent_id",
+          "evidence_type",
+          "requirement_level",
+          "resolution_status",
+          "retrieval_origin"
+        ],
+        "title": "IntentEvidenceBinding",
+        "type": "object"
+      },
+      "IntentEvidenceDemand": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "area": {
+            "default": "unknown",
+            "title": "Area",
+            "type": "string"
+          },
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "optional_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Optional Types",
+            "type": "array"
+          },
+          "priority": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "query_text": {
+            "title": "Query Text",
+            "type": "string"
+          },
+          "query_vector": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Query Vector",
+            "type": "array"
+          },
+          "required_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Types",
+            "type": "array"
+          },
+          "retrieval_scope": {
+            "default": "control_evidence",
+            "title": "Retrieval Scope",
+            "type": "string"
+          },
+          "risk_level": {
+            "title": "Risk Level",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "vectorization_metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VectorizationMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "intent_id",
+          "clause_index",
+          "action",
+          "target",
+          "risk_level",
+          "query_text"
+        ],
+        "title": "IntentEvidenceDemand",
+        "type": "object"
+      },
+      "IntentEvidenceDemandPresentation": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "demand_items": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceDemandItem"
+            },
+            "title": "Demand Items",
+            "type": "array"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "optional_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Optional Types",
+            "type": "array"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "integer"
+          },
+          "query_text": {
+            "title": "Query Text",
+            "type": "string"
+          },
+          "required_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Types",
+            "type": "array"
+          },
+          "retrieval_scope": {
+            "title": "Retrieval Scope",
+            "type": "string"
+          },
+          "risk_level": {
+            "title": "Risk Level",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent_id",
+          "clause_index",
+          "action",
+          "target",
+          "area",
+          "risk_level",
+          "query_text",
+          "priority",
+          "retrieval_scope"
+        ],
+        "title": "IntentEvidenceDemandPresentation",
+        "type": "object"
+      },
+      "IntentEvidenceResolution": {
+        "additionalProperties": false,
+        "properties": {
+          "bindings": {
+            "items": {
+              "$ref": "#/components/schemas/IntentEvidenceBinding"
+            },
+            "title": "Bindings",
+            "type": "array"
+          },
+          "candidate_node_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Candidate Node Ids",
+            "type": "array"
+          },
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "mandatory_recall_records": {
+            "items": {
+              "$ref": "#/components/schemas/MandatoryRecallRecord"
+            },
+            "title": "Mandatory Recall Records",
+            "type": "array"
+          },
+          "missing_required_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Required Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "clause_index",
+          "intent_id"
+        ],
+        "title": "IntentEvidenceResolution",
+        "type": "object"
+      },
+      "IntentSafetyAssessment": {
+        "additionalProperties": false,
+        "properties": {
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "decision_merge_reason": {
+            "title": "Decision Merge Reason",
+            "type": "string"
+          },
+          "decision_sources": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionSource"
+            },
+            "title": "Decision Sources",
+            "type": "array"
+          },
+          "explanations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Explanations",
+            "type": "array"
+          },
+          "final_safety_decision": {
+            "$ref": "#/components/schemas/DecisionLabel"
+          },
+          "gate_blocked": {
+            "title": "Gate Blocked",
+            "type": "boolean"
+          },
+          "gate_hit_rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gate Hit Rules",
+            "type": "array"
+          },
+          "gate_observed": {
+            "additionalProperties": true,
+            "title": "Gate Observed",
+            "type": "object"
+          },
+          "gate_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gate Reasons",
+            "type": "array"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "quality_metrics": {
+            "$ref": "#/components/schemas/EvidenceQualityMetrics"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "safety_score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Safety Score",
+            "type": "number"
+          },
+          "score_decision": {
+            "$ref": "#/components/schemas/DecisionLabel"
+          },
+          "score_factors": {
+            "$ref": "#/components/schemas/DecisionScoreFactors"
+          },
+          "supporting_evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Supporting Evidence Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "clause_index",
+          "intent_id",
+          "quality_metrics",
+          "gate_blocked",
+          "score_factors",
+          "safety_score",
+          "score_decision",
+          "final_safety_decision",
+          "decision_merge_reason"
+        ],
+        "title": "IntentSafetyAssessment",
+        "type": "object"
+      },
+      "IntentSafetyAssessmentPresentation": {
+        "additionalProperties": false,
+        "properties": {
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "decision_merge_reason": {
+            "title": "Decision Merge Reason",
+            "type": "string"
+          },
+          "decision_sources": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionSource"
+            },
+            "title": "Decision Sources",
+            "type": "array"
+          },
+          "explanations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Explanations",
+            "type": "array"
+          },
+          "final_safety_decision": {
+            "$ref": "#/components/schemas/DecisionLabel"
+          },
+          "gate": {
+            "$ref": "#/components/schemas/GateResultPresentation"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/QualityMetricsPresentation"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "safety_score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Safety Score",
+            "type": "number"
+          },
+          "score": {
+            "$ref": "#/components/schemas/ScoreResultPresentation"
+          },
+          "score_decision": {
+            "$ref": "#/components/schemas/DecisionLabel"
+          }
+        },
+        "required": [
+          "clause_index",
+          "intent_id",
+          "quality",
+          "gate",
+          "score",
+          "safety_score",
+          "score_decision",
+          "final_safety_decision",
+          "decision_merge_reason"
+        ],
+        "title": "IntentSafetyAssessmentPresentation",
         "type": "object"
       },
       "InterpreterGenerationMetadata": {
@@ -4956,8 +5342,17 @@
             "title": "Candidate Node Ids",
             "type": "array"
           },
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
           "evidence_type": {
             "title": "Evidence Type",
+            "type": "string"
+          },
+          "intent_id": {
+            "title": "Intent Id",
             "type": "string"
           },
           "reason": {
@@ -4976,9 +5371,8 @@
             "title": "Recalled Node Id"
           },
           "retrieval_origin": {
-            "default": "NONE",
-            "title": "Retrieval Origin",
-            "type": "string"
+            "$ref": "#/components/schemas/RetrievalOrigin",
+            "default": "NONE"
           },
           "source": {
             "anyOf": [
@@ -4997,6 +5391,8 @@
           }
         },
         "required": [
+          "clause_index",
+          "intent_id",
           "evidence_type",
           "status",
           "reason"
@@ -5648,6 +6044,31 @@
         "title": "MemoryRelationType",
         "type": "string"
       },
+      "OccurrenceLayerNavigation": {
+        "additionalProperties": false,
+        "description": "The real HNSW layer queries made for one semantic intent occurrence.",
+        "properties": {
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "navigation": {
+            "$ref": "#/components/schemas/SecurityLayerNavigation"
+          }
+        },
+        "required": [
+          "clause_index",
+          "intent_id",
+          "navigation"
+        ],
+        "title": "OccurrenceLayerNavigation",
+        "type": "object"
+      },
       "OriginalDecisionAuditView": {
         "additionalProperties": false,
         "properties": {
@@ -5982,10 +6403,6 @@
             "title": "Layer Memberships",
             "type": "array"
           },
-          "mandatory": {
-            "title": "Mandatory",
-            "type": "boolean"
-          },
           "node_id": {
             "title": "Node Id",
             "type": "string"
@@ -6051,10 +6468,86 @@
           "quality_label",
           "source",
           "timestamp",
-          "mandatory",
           "retrieval_origin"
         ],
         "title": "RetrievalCandidate",
+        "type": "object"
+      },
+      "RetrievalLayer": {
+        "additionalProperties": false,
+        "properties": {
+          "hit_count": {
+            "minimum": 0.0,
+            "title": "Hit Count",
+            "type": "integer"
+          },
+          "layer": {
+            "minimum": 0.0,
+            "title": "Layer",
+            "type": "integer"
+          },
+          "layer_name": {
+            "title": "Layer Name",
+            "type": "string"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/RetrievalLayerNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "layer",
+          "layer_name",
+          "hit_count"
+        ],
+        "title": "RetrievalLayer",
+        "type": "object"
+      },
+      "RetrievalLayerNode": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "evidence_type": {
+            "title": "Evidence Type",
+            "type": "string"
+          },
+          "matched_intents": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Matched Intents",
+            "type": "array"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "rank": {
+            "minimum": 1.0,
+            "title": "Rank",
+            "type": "integer"
+          },
+          "sas": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Sas",
+            "type": "number"
+          }
+        },
+        "required": [
+          "node_id",
+          "display_name",
+          "evidence_type",
+          "sas",
+          "rank"
+        ],
+        "title": "RetrievalLayerNode",
         "type": "object"
       },
       "RetrievalMetadata": {
@@ -6397,6 +6890,13 @@
             ],
             "title": "Node Set Digest Version"
           },
+          "occurrence_layer_navigations": {
+            "items": {
+              "$ref": "#/components/schemas/OccurrenceLayerNavigation"
+            },
+            "title": "Occurrence Layer Navigations",
+            "type": "array"
+          },
           "per_layer_node_count": {
             "additionalProperties": {
               "type": "integer"
@@ -6676,6 +7176,13 @@
             ],
             "title": "Layering Mode"
           },
+          "layers": {
+            "items": {
+              "$ref": "#/components/schemas/RetrievalLayer"
+            },
+            "title": "Layers",
+            "type": "array"
+          },
           "mandatory_recall": {
             "items": {
               "additionalProperties": true,
@@ -6683,6 +7190,12 @@
             },
             "title": "Mandatory Recall",
             "type": "array"
+          },
+          "mandatory_recall_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Mandatory Recall Count",
+            "type": "integer"
           },
           "mandatory_supplemented_node_ids": {
             "items": {
@@ -7715,6 +8228,88 @@
       "SemanticFrame": {
         "additionalProperties": false,
         "properties": {
+          "ambiguity_score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Ambiguity Score",
+            "type": "number"
+          },
+          "frame_id": {
+            "title": "Frame Id",
+            "type": "string"
+          },
+          "intents": {
+            "items": {
+              "$ref": "#/components/schemas/SemanticIntent"
+            },
+            "title": "Intents",
+            "type": "array"
+          },
+          "normalized_text": {
+            "title": "Normalized Text",
+            "type": "string"
+          },
+          "raw_text": {
+            "title": "Raw Text",
+            "type": "string"
+          },
+          "review_candidates": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Review Candidates",
+            "type": "array"
+          },
+          "review_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Review Reasons",
+            "type": "array"
+          },
+          "security_signals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Security Signals",
+            "type": "array"
+          },
+          "semantic_confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Semantic Confidence",
+            "type": "number"
+          },
+          "semantic_status": {
+            "title": "Semantic Status",
+            "type": "string"
+          },
+          "turn_id": {
+            "title": "Turn Id",
+            "type": "string"
+          },
+          "unresolved_clauses": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unresolved Clauses",
+            "type": "array"
+          }
+        },
+        "required": [
+          "turn_id",
+          "raw_text",
+          "normalized_text",
+          "semantic_confidence",
+          "ambiguity_score",
+          "semantic_status"
+        ],
+        "title": "SemanticFrame",
+        "type": "object"
+      },
+      "SemanticIntent": {
+        "additionalProperties": false,
+        "properties": {
           "action": {
             "title": "Action",
             "type": "string"
@@ -7726,45 +8321,30 @@
             "type": "number"
           },
           "area": {
+            "default": "unknown",
             "title": "Area",
             "type": "string"
           },
-          "context_claims": {
-            "additionalProperties": true,
-            "title": "Context Claims",
-            "type": "object"
+          "clause_index": {
+            "minimum": 0.0,
+            "title": "Clause Index",
+            "type": "integer"
+          },
+          "clause_text": {
+            "title": "Clause Text",
+            "type": "string"
           },
           "control_domain": {
+            "default": "unknown",
             "title": "Control Domain",
             "type": "string"
           },
-          "frame_id": {
-            "title": "Frame Id",
+          "intent_id": {
+            "title": "Intent Id",
             "type": "string"
-          },
-          "normalized_text": {
-            "title": "Normalized Text",
-            "type": "string"
-          },
-          "optional_evidence_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Optional Evidence Types",
-            "type": "array"
-          },
-          "raw_text": {
-            "title": "Raw Text",
-            "type": "string"
-          },
-          "required_evidence_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Required Evidence Types",
-            "type": "array"
           },
           "risk_level": {
+            "default": "R1",
             "title": "Risk Level",
             "type": "string"
           },
@@ -7785,15 +8365,9 @@
             "title": "Target",
             "type": "string"
           },
-          "turn_id": {
-            "title": "Turn Id",
-            "type": "string"
-          },
           "value": {
             "anyOf": [
-              {
-                "type": "string"
-              },
+              {},
               {
                 "type": "null"
               }
@@ -7802,18 +8376,15 @@
           }
         },
         "required": [
-          "turn_id",
-          "raw_text",
-          "normalized_text",
+          "clause_index",
+          "clause_text",
+          "intent_id",
           "action",
           "target",
-          "area",
-          "control_domain",
           "semantic_confidence",
-          "ambiguity_score",
-          "risk_level"
+          "ambiguity_score"
         ],
-        "title": "SemanticFrame",
+        "title": "SemanticIntent",
         "type": "object"
       },
       "SpectrumAnalysisResult": {
@@ -7900,13 +8471,6 @@
       "TextCommandRequest": {
         "additionalProperties": false,
         "properties": {
-          "evidence_overrides": {
-            "items": {
-              "$ref": "#/components/schemas/EvidenceObservationInput"
-            },
-            "title": "Evidence Overrides",
-            "type": "array"
-          },
           "session_id": {
             "anyOf": [
               {
@@ -7929,16 +8493,6 @@
             "default": "driver",
             "title": "Speaker Zone",
             "type": "string"
-          },
-          "state_overrides": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/VehicleStatePatch"
-              },
-              {
-                "type": "null"
-              }
-            ]
           },
           "text": {
             "maxLength": 2048,
@@ -8071,13 +8625,6 @@
             "title": "Jailbreak Risk",
             "type": "number"
           },
-          "mandatory_recall_records": {
-            "items": {
-              "$ref": "#/components/schemas/MandatoryRecallRecord"
-            },
-            "title": "Mandatory Recall Records",
-            "type": "array"
-          },
           "memory_propagation": {
             "anyOf": [
               {
@@ -8102,20 +8649,25 @@
           "quality_metrics": {
             "$ref": "#/components/schemas/EvidenceQualityMetrics"
           },
-          "query_vector": {
+          "query_vectors": {
             "items": {
-              "type": "number"
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
             },
-            "title": "Query Vector",
+            "title": "Query Vectors",
             "type": "array"
           },
           "retrieval_metadata": {
             "$ref": "#/components/schemas/RetrievalMetadata"
           },
-          "retrieval_scope": {
-            "default": "control_evidence",
-            "title": "Retrieval Scope",
-            "type": "string"
+          "retrieval_scopes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Retrieval Scopes",
+            "type": "array"
           },
           "root_turn_id": {
             "anyOf": [
@@ -8202,10 +8754,9 @@
           "semantic_frame",
           "evidence_demand",
           "evidence",
-          "query_vector",
+          "query_vectors",
           "retrieval_metadata",
           "candidate_evidence",
-          "mandatory_recall_records",
           "evidence_subgraph",
           "quality_metrics",
           "safety_gate",
@@ -9227,316 +9778,6 @@
           }
         },
         "title": "VehicleState",
-        "type": "object"
-      },
-      "VehicleStatePatch": {
-        "additionalProperties": false,
-        "properties": {
-          "ambient_light": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ambient Light"
-          },
-          "authentication_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Authentication State"
-          },
-          "brake_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Brake State"
-          },
-          "collision_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Collision State"
-          },
-          "display_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Display State"
-          },
-          "door_lock_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Door Lock State"
-          },
-          "door_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Door State"
-          },
-          "emergency_flag": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Emergency Flag"
-          },
-          "front_obstacle_distance": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Front Obstacle Distance"
-          },
-          "gear_position": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Gear Position"
-          },
-          "headlight_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Headlight State"
-          },
-          "music_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Music State"
-          },
-          "navigation_active": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Navigation Active"
-          },
-          "occupant_role": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Occupant Role"
-          },
-          "rear_obstacle_distance": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Rear Obstacle Distance"
-          },
-          "reverse_camera_active": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Reverse Camera Active"
-          },
-          "road_condition": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Road Condition"
-          },
-          "safety_constraint": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Safety Constraint"
-          },
-          "speaker_zone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Speaker Zone"
-          },
-          "speed_limit": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Speed Limit"
-          },
-          "surround_camera_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Surround Camera State"
-          },
-          "ultrasonic_distance": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ultrasonic Distance"
-          },
-          "vehicle_mode": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vehicle Mode"
-          },
-          "vehicle_speed": {
-            "anyOf": [
-              {
-                "minimum": 0.0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vehicle Speed"
-          },
-          "weather": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Weather"
-          },
-          "window_state": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Window State"
-          }
-        },
-        "title": "VehicleStatePatch",
         "type": "object"
       },
       "VoiceTrustResult": {

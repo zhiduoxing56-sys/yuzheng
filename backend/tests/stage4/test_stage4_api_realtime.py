@@ -4,7 +4,10 @@ import asyncio
 from threading import Thread
 
 from app.core.pipeline import CommandPipeline
-from app.models.schemas import PipelineEvent, ReviewAction, ReviewRequest, TextCommandRequest
+from app.models.schemas import (
+    PipelineEvent, ReviewAction, ReviewRequest, TextCommandRequest,
+    TrustedRuntimeContext, VehicleStatePatch,
+)
 from app.websocket.broker import PipelineEventBroker
 
 
@@ -15,19 +18,19 @@ def test_state_scenario_audit_timeline_and_restart_apis(api_client, tmp_path) ->
     client, pipeline = api_client
     initial = client.get("/api/state").json()
     assert initial["vehicle_speed"] == 0
-    patched = client.patch(
-        "/api/state", json={"vehicle_speed": None, "gear_position": "P"}
-    ).json()
+    patched = pipeline.update_vehicle_state(
+        VehicleStatePatch(vehicle_speed=None, gear_position="P")
+    ).model_dump(mode="json")
     assert patched["vehicle_speed"] is None
     missing = client.post(
         "/api/command/text", json={"text": "打开车门"}
     ).json()
     speed = next(
-        node for node in missing["evidence"] if node["evidence_type"] == "vehicle_speed"
+        node for node in missing["evidence"] if node["evidence_type"] == "VEHICLE_SPEED"
     )
     assert speed["quality_label"] == "MISSING"
     assert missing["decision"]["final_decision"] == "BLOCK"
-    reset = client.post("/api/state/reset").json()
+    reset = pipeline.reset_vehicle_state().model_dump(mode="json")
     assert reset["vehicle_speed"] == 0
     assert reset["door_state"] == "CLOSED"
 
@@ -45,8 +48,8 @@ def test_state_scenario_audit_timeline_and_restart_apis(api_client, tmp_path) ->
     assert loaded["vehicle_speed"] == 80
     assert loaded["ambient_light"] == 5
     scenario = client.post("/api/scenarios/parked_open_door/run").json()
-    assert scenario["semantic_frame"]["action"] == "打开"
-    assert scenario["semantic_frame"]["target"] == "车门"
+    assert scenario["semantic_frame"]["intents"][0]["action"] == "打开"
+    assert scenario["semantic_frame"]["intents"][0]["target"] == "车门"
     assert scenario["decision"]["final_decision"] == "PASS"
     assert scenario["decision"]["authorization_token"]
 
@@ -67,7 +70,10 @@ def test_state_scenario_audit_timeline_and_restart_apis(api_client, tmp_path) ->
     assert all(item["final_decision"]["final_decision"] == "PASS" for item in page["items"])
     target_page = client.get("/api/audits?target=车窗").json()
     assert target_page["total"] >= 1
-    assert all(item["semantic_frame"]["target"] == "车窗" for item in target_page["items"])
+    assert all(
+        item["semantic_frame"]["intents"][0]["target"] == "车窗"
+        for item in target_page["items"]
+    )
     audit_id = corrected["command_result"]["audit"]["audit_id"]
     detail = client.get(f"/api/audits/{audit_id}").json()
     assert detail["audit_id"] == audit_id
@@ -84,7 +90,7 @@ def test_state_scenario_audit_timeline_and_restart_apis(api_client, tmp_path) ->
     ).json()["valid"] is True
 
     database_path = pipeline.audit_repository.database_path
-    restarted = CommandPipeline(database_path, token_secret=TEST_SECRET)
+    restarted = CommandPipeline(database_path, token_secret=TEST_SECRET, audit_database_role="TEST")
     restored_status = restarted.review_service.status(vague["turn_id"])
     restored_timeline = restarted.timeline(vague["turn_id"])
     assert restored_status.current_turn_id == corrected["related_turn_id"]
@@ -99,12 +105,7 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
         worker = Thread(
             target=lambda: response_holder.append(
                 client.post(
-                    "/api/command/text",
-                    json={
-                        "text": "打开车门",
-                        "session_id": "session-a",
-                        "state_overrides": {"vehicle_speed": 0, "gear_position": "P"},
-                    },
+                    "/api/scenarios/parked_open_door/run?session_id=session-a",
                 )
             )
         )
@@ -121,10 +122,11 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
     expected = [
         "INPUT_RECEIVED",
         "TRUST_CHECKED",
-            "ASR_COMPLETED",
-            "SEMANTIC_PARSED",
-            "RUNTIME_CAPABILITY_CHECKED",
-            "EVIDENCE_RETRIEVED",
+        "ASR_COMPLETED",
+        "ZONE_PERMISSION_CHECKED",
+        "SEMANTIC_PARSED",
+        "RUNTIME_CAPABILITY_CHECKED",
+        "EVIDENCE_RETRIEVED",
         "MANDATORY_SUPPLEMENTED",
         "EVIDENCE_QUALITY_EVALUATED",
         "GRAPH_BUILT",
@@ -231,13 +233,17 @@ def test_websocket_events_are_real_ordered_safe_and_session_isolated(api_client)
 
 
 def test_real_bge_hnsw_and_canonical_index_remain_stable(tmp_path) -> None:
-    pipeline = CommandPipeline(tmp_path / "stable.db", token_secret=TEST_SECRET)
+    pipeline = CommandPipeline(tmp_path / "stable.db", token_secret=TEST_SECRET, audit_database_role="TEST")
     cold = pipeline.index.status()
     for _ in range(100):
         result = pipeline.process_text(
             TextCommandRequest(
                 text="打开车门",
+            ),
+            trusted_context=TrustedRuntimeContext(
                 state_overrides={"vehicle_speed": 0, "gear_position": "P"},
+                subject_role="driver", subject_zone="driver",
+                subject_source="stage4_test", zone_source="stage4_test",
             ),
             suppress_authorization=True,
         )

@@ -1,0 +1,89 @@
+{
+  "protocol_version": "sys014-stage4b-v1",
+  "dataset_version": "sys014-poc7-v2",
+  "registry_version": "sys-014-stage2.1-draft-2",
+  "model_id": "hfl/chinese-electra-180g-small-discriminator",
+  "model_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+  "seed": 14031,
+  "device_policy": "DEVICE_AGNOSTIC_CPU_CAPABLE_GPU_PREFERRED",
+  "training_enabled": true,
+  "selected_max_length": 32,
+  "optimizer_name": "AdamW",
+  "learning_rate_candidates": [
+    1e-05,
+    2e-05,
+    3e-05,
+    5e-05
+  ],
+  "baseline_learning_rate": 2e-05,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "gradient_clip_norm": 1.0,
+  "cpu_batch_size": 16,
+  "cuda_batch_size": 16,
+  "epoch_candidate_min": 5,
+  "epoch_candidate_max": 15,
+  "baseline_epochs": 10,
+  "early_stopping_patience": 3,
+  "loss_weights": {
+    "scope": 1.0,
+    "structure": 1.0,
+    "intent": 1.0,
+    "slot": 1.0,
+    "negation": 1.0
+  },
+  "class_weight_policy": {
+    "scope": "SQRT_INVERSE_FREQ",
+    "structure": "SQRT_INVERSE_FREQ",
+    "intent": "NONE",
+    "slot": "SQRT_INVERSE_FREQ",
+    "negation": "SQRT_INVERSE_FREQ"
+  },
+  "class_weight_cap": 3.0,
+  "quality_score_weights": {
+    "intent_macro_f1": 0.3,
+    "scope_macro_f1": 0.2,
+    "structure_macro_f1": 0.2,
+    "slot_span_f1": 0.2,
+    "negation_f1": 0.1
+  },
+  "safety_gates": {
+    "ufar_max": 0.05,
+    "multi_false_accept_rate_max": 0.0,
+    "ambiguous_false_accept_rate_max": 0.0
+  },
+  "cpu_epoch_time_estimate": "NOT_MEASURED",
+  "experiment_id": "sys014-poc7-electra-exp002",
+  "actual_batch_size": 16,
+  "training_device": "CPU",
+  "single_optimizer_parameter_group": true,
+  "discriminative_learning_rate": false,
+  "slot_class_weight_policy": "SQRT_INVERSE_FREQ_CAP_3",
+  "slot_class_weight_vector": {
+    "O": 0.19794488,
+    "B-AREA": 0.8355972,
+    "I-AREA": 0.71646876,
+    "B-VALUE": 1.34863894,
+    "I-VALUE": 1.30130344,
+    "B-NEGATION": 1.39229546,
+    "I-NEGATION": 1.20775131
+  },
+  "effective_task_loss_weights": {
+    "scope": 1.0,
+    "structure": 1.0,
+    "intent": 1.0,
+    "slot": 1.0,
+    "negation": 1.0
+  },
+  "total_optimizer_steps": 370,
+  "warmup_steps": 37,
+  "isolated_acceptance_thresholds": {
+    "intent_macro_f1": 0.03,
+    "scope_macro_f1": 0.03,
+    "structure_macro_f1": 0.02,
+    "negation_f1": 0.03,
+    "in_scope_control_recall": 0.03
+  },
+  "test_used_for_model_selection": false,
+  "safety_gold_used_for_model_selection": false
+}

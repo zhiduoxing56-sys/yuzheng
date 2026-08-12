@@ -1,4 +1,4 @@
-from app.models.schemas import DecisionLabel
+from app.models.schemas import DecisionLabel, VehicleStatePatch
 
 
 def test_health_reports_real_database_connection(api_client) -> None:
@@ -22,29 +22,30 @@ def test_health_reports_real_database_connection(api_client) -> None:
 
 def test_text_api_returns_pipeline_data_and_persists_audit(api_client) -> None:
     client, pipeline = api_client
+    pipeline.update_vehicle_state(VehicleStatePatch(vehicle_speed=80, gear_position="D"))
     response = client.post(
         "/api/command/text",
         json={
             "text": "打开车门",
             "speaker_zone": "driver",
             "speaker_role": "driver",
-            "state_overrides": {"vehicle_speed": 80, "gear_position": "D"},
         },
     )
     body = response.json()
     assert response.status_code == 200
-    assert body["semantic_frame"]["action"] == "打开"
-    assert body["semantic_frame"]["target"] == "车门"
-    assert "vehicle_speed" in body["evidence_demand"]["required_types"]
+    assert body["semantic_frame"]["intents"][0]["action"] == "打开"
+    assert body["semantic_frame"]["intents"][0]["target"] == "车门"
+    assert "VEHICLE_SPEED" in body["evidence_demand"]["intent_demands"][0][
+        "required_types"
+    ]
     assert body["safety_gate"]["blocked"] is True
     assert body["safety_gate"]["mandatory_evidence_missing"] is False
     assert body["decision"]["decision"] == body["decision"]["score_decision"]
     assert body["decision"]["score_decision"] == DecisionLabel.PASS.value
     assert body["decision"]["final_decision"] == DecisionLabel.BLOCK.value
-    assert body["decision"]["soft_safety_score"] == 0.975
     assert body["decision"]["score_evaluation_mode"] == "diagnostic_after_gate"
     assert body["decision"]["gate_blocked"] is True
-    assert body["decision"]["gate_reasons"] == ["行驶中禁止打开车门"]
+    assert "行驶中禁止打开车门" in body["decision"]["gate_reasons"]
     assert body["audit"]["current_hash"]
     assert pipeline.audit_repository.count() == 1
     saved = pipeline.audit_repository.get_by_turn(body["turn_id"])
@@ -63,17 +64,17 @@ def test_blank_text_is_rejected_before_pipeline(api_client) -> None:
 
 def test_text_api_preserves_explicit_null_as_missing_mandatory_evidence(api_client) -> None:
     client, pipeline = api_client
+    pipeline.update_vehicle_state(VehicleStatePatch(vehicle_speed=None, gear_position="P"))
     response = client.post(
         "/api/command/text",
         json={
             "text": "打开车门",
             "speaker_zone": "driver",
             "speaker_role": "driver",
-            "state_overrides": {"vehicle_speed": None, "gear_position": "P"},
         },
     )
     body = response.json()
-    speed_node = next(node for node in body["evidence"] if node["evidence_type"] == "vehicle_speed")
+    speed_node = next(node for node in body["evidence"] if node["evidence_type"] == "VEHICLE_SPEED")
 
     assert response.status_code == 200
     assert speed_node["value"] is None

@@ -1,0 +1,108 @@
+{
+  "measurement": "audit_latency_baseline_before",
+  "measured_at": "2026-08-06",
+  "branch": "backend-contract-freeze-v1",
+  "commit": "ecb9701b6c20cfb9f360b3b33292ebd22e75bc78",
+  "environment": {
+    "python": "D:\\software\\anaconda\\envs\\yuzheng311\\python.exe",
+    "base_url": "http://127.0.0.1:8765",
+    "database": "D:\\语证\\data\\database\\yuzheng.db",
+    "instruction": "变道并加速",
+    "warmup_runs": 1,
+    "measured_runs": 5
+  },
+  "instrumentation_limitations": {
+    "audit_build_ms": "UNAVAILABLE_BEFORE_INSTRUMENTATION",
+    "audit_serialize_ms": "UNAVAILABLE_BEFORE_INSTRUMENTATION",
+    "audit_hash_ms": "UNAVAILABLE_BEFORE_INSTRUMENTATION",
+    "audit_db_commit_ms": "UNAVAILABLE_BEFORE_INSTRUMENTATION",
+    "response_serialized_ms": "UNAVAILABLE_BEFORE_INSTRUMENTATION",
+    "request_completed_ms": "HTTP_CLIENT_WALL_CLOCK_ONLY"
+  },
+  "warmup": {
+    "turn_id": "TURN_2fea7bf9b008",
+    "audit_id": "AUD_c4fd77fea9a5",
+    "http_end_to_end_ms": 20477.0034,
+    "core_decision_ms": 103.8386,
+    "post_decision_to_token_ms": 16871.457,
+    "submit_response_bytes": 7811003,
+    "audit_http_bytes": 4181814,
+    "full_timeline_bytes": 4187576,
+    "timeline_summary_bytes": 714
+  },
+  "runs": [
+    {
+      "run": 1,
+      "turn_id": "TURN_62e1c93a6ad3",
+      "audit_id": "AUD_1f7af579df72",
+      "http_end_to_end_ms": 20076.5017,
+      "core_decision_ms": 73.7302,
+      "post_decision_to_token_ms": 16553.117,
+      "submit_response_bytes": 7810920,
+      "audit_http_bytes": 4182214,
+      "full_timeline_bytes": 4187978,
+      "timeline_summary_bytes": 714
+    },
+    {
+      "run": 2,
+      "turn_id": "TURN_0a5b4ad6274c",
+      "audit_id": "AUD_de565a1bb030",
+      "http_end_to_end_ms": 18047.6373,
+      "core_decision_ms": 68.4133,
+      "post_decision_to_token_ms": 14653.546,
+      "submit_response_bytes": 7810987,
+      "audit_http_bytes": 4182250,
+      "full_timeline_bytes": 4188014,
+      "timeline_summary_bytes": 714
+    },
+    {
+      "run": 3,
+      "turn_id": "TURN_4a27f4edd7a2",
+      "audit_id": "AUD_6ec918014c6e",
+      "http_end_to_end_ms": 19052.5477,
+      "core_decision_ms": 110.5399,
+      "post_decision_to_token_ms": 15668.527,
+      "submit_response_bytes": 7811342,
+      "audit_http_bytes": 4182427,
+      "full_timeline_bytes": 4188191,
+      "timeline_summary_bytes": 714
+    },
+    {
+      "run": 4,
+      "turn_id": "TURN_c1e3445c2fab",
+      "audit_id": "AUD_f896b6ac1b9d",
+      "http_end_to_end_ms": 17998.5736,
+      "core_decision_ms": 77.9245,
+      "post_decision_to_token_ms": 14400.847,
+      "submit_response_bytes": 7811350,
+      "audit_http_bytes": 4182430,
+      "full_timeline_bytes": 4188194,
+      "timeline_summary_bytes": 714
+    },
+    {
+      "run": 5,
+      "turn_id": "TURN_71954c01dadd",
+      "audit_id": "AUD_6b83f66790ee",
+      "http_end_to_end_ms": 20287.8738,
+      "core_decision_ms": 66.0253,
+      "post_decision_to_token_ms": 16819.224,
+      "submit_response_bytes": 7810988,
+      "audit_http_bytes": 4182248,
+      "full_timeline_bytes": 4188012,
+      "timeline_summary_bytes": 714
+    }
+  ],
+  "statistics": {
+    "http_end_to_end_ms": {"average": 19092.6268, "p50": 19052.5477, "p95": 20287.8738, "max": 20287.8738},
+    "core_decision_ms": {"average": 79.3266, "p50": 73.7302, "p95": 110.5399, "max": 110.5399},
+    "post_decision_to_token_ms": {"average": 15619.0522, "p50": 15668.527, "p95": 16819.224, "max": 16819.224},
+    "submit_response_bytes": {"average": 7811117.4, "p50": 7810988, "p95": 7811350, "max": 7811350},
+    "audit_http_bytes": {"average": 4182313.8, "p50": 4182250, "p95": 4182430, "max": 4182430},
+    "full_timeline_bytes": {"average": 4188077.8, "p50": 4188014, "p95": 4188194, "max": 4188194},
+    "timeline_summary_bytes": {"average": 714, "p50": 714, "p95": 714, "max": 714}
+  },
+  "frozen_contract_status": {
+    "submit_response_under_100kb": "BLOCKED_BY_FROZEN_CONTRACT",
+    "reason": "contract 1.0.0 requires the complete TextCommandResponse and mandatory AuditRecord"
+  }
+}

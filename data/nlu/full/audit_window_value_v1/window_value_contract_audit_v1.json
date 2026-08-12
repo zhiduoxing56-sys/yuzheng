@@ -1,0 +1,1297 @@
+{
+  "audit_version": "window_value_contract_audit_v1",
+  "generated_at_utc": "2026-08-09T14:23:03.777370+00:00",
+  "immutable_inputs": {
+    "registry": {
+      "path": "data/nlu/spec/intent_registry_r3.yaml",
+      "sha256": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06"
+    },
+    "baseline_v2": {
+      "path": "data/nlu/full/baseline_v2/full_nlu_canonical_raw_pool_v2.jsonl",
+      "sha256": "6d8645adf0fd9429bb8fd6d3d75ecfdf6d65ff4c33926ea1cc27054dd5c51a51"
+    },
+    "mapping_metadata_v2": {
+      "path": "data/nlu/full/baseline_v2/sample_mapping_metadata_v2.jsonl",
+      "sha256": "7d6900b1261d1b02a636d62a83755feb82189fc9717187f7c8f9e865ab40bd7e"
+    },
+    "source_provenance_v2": {
+      "path": "data/nlu/full/baseline_v2/source_provenance_v2.jsonl",
+      "sha256": "a356c659b43fd25a1f25306cba67087f3224f2f5d5f583d1aa7c15baf7ecd8a0"
+    }
+  },
+  "frozen_r3_contract": {
+    "registry_version": "sys-014-semantic-hardening-r3",
+    "registry_sha256": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06",
+    "canonical_intent_id": "WINDOW_SET_POSITION",
+    "canonical_action": "ADJUST",
+    "canonical_target": "WINDOW",
+    "control_attribute": "OPENING_POSITION",
+    "value_contract_name": "PERCENT_0_100_REQUIRED",
+    "value_contract": {
+      "allowed": true,
+      "required": true,
+      "type": "PERCENT",
+      "canonical_unit": "%",
+      "valid_range": {
+        "min": 0,
+        "max": 100
+      },
+      "enum_values": []
+    },
+    "required_slots": [
+      "VALUE"
+    ],
+    "optional_slots": [
+      "AREA"
+    ],
+    "half_normalization": {
+      "source_semantics": "一半",
+      "canonical_value": 50,
+      "canonical_unit": "%",
+      "applies_only_to_percent_contracts": true
+    },
+    "window_specific_zero_semantics_present": false,
+    "window_specific_hundred_semantics_present": false,
+    "window_specific_endpoint_mapping_present": false,
+    "parallel_endpoint_state_intents": [
+      {
+        "intent_id": "WINDOW_OPEN",
+        "canonical_action": "OPEN",
+        "control_attribute": "OPENING_STATE",
+        "value_contract": "NONE"
+      },
+      {
+        "intent_id": "WINDOW_CLOSE",
+        "canonical_action": "CLOSE",
+        "control_attribute": "OPENING_STATE",
+        "value_contract": "NONE"
+      }
+    ],
+    "endpoint_intent_precedence_rule_present": false
+  },
+  "referenced_vss_source_evidence": {
+    "source_path": "data/standards/vss/6.0/source/vss.csv",
+    "source_sha256": "6e8947c75e7ff794c75382343b69083abbda87d32d6d1842b06e86adc9cc95db",
+    "branch_rows": [
+      {
+        "Signal": "Vehicle.Cabin.Door.Row1.DriverSide.Window",
+        "Description": null,
+        "Comment": ""
+      },
+      {
+        "Signal": "Vehicle.Cabin.Door.Row1.PassengerSide.Window",
+        "Description": null,
+        "Comment": ""
+      },
+      {
+        "Signal": "Vehicle.Cabin.Door.Row2.DriverSide.Window",
+        "Description": null,
+        "Comment": ""
+      },
+      {
+        "Signal": "Vehicle.Cabin.Door.Row2.PassengerSide.Window",
+        "Description": null,
+        "Comment": ""
+      }
+    ],
+    "position_rows": [
+      {
+        "Signal": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+        "Unit": "percent",
+        "Min": "0",
+        "Max": "100",
+        "Description": null,
+        "Comment": "Relationship between Open/Close and Start/End position is item dependent."
+      },
+      {
+        "Signal": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position",
+        "Unit": "percent",
+        "Min": "0",
+        "Max": "100",
+        "Description": null,
+        "Comment": "Relationship between Open/Close and Start/End position is item dependent."
+      },
+      {
+        "Signal": "Vehicle.Cabin.Door.Row2.DriverSide.Window.Position",
+        "Unit": "percent",
+        "Min": "0",
+        "Max": "100",
+        "Description": null,
+        "Comment": "Relationship between Open/Close and Start/End position is item dependent."
+      },
+      {
+        "Signal": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position",
+        "Unit": "percent",
+        "Min": "0",
+        "Max": "100",
+        "Description": null,
+        "Comment": "Relationship between Open/Close and Start/End position is item dependent."
+      }
+    ],
+    "facts": {
+      "window_start_position": "CLOSED",
+      "position_0": "START_POSITION",
+      "position_100": "END_POSITION",
+      "source_explicitly_says_end_is_fully_open": false,
+      "source_warns_open_close_start_end_relation_is_item_dependent": true
+    }
+  },
+  "endpoint_direction_conclusion": {
+    "status": "NOT_FULLY_FROZEN_IN_R3",
+    "zero_percent": "VSS evidence derives 0%=CLOSED start position",
+    "hundred_percent": "VSS text says END_POSITION; R3 does not explicitly freeze END_POSITION=FULLY_OPEN",
+    "vss_source_derives_zero_as_closed_start": true,
+    "safe_to_add_window_endpoint_mapping_without_a_versioned_contract_decision": false,
+    "safe_to_normalize_fully_closed_to_zero_under_current_frozen_r3_alone": false,
+    "safe_to_normalize_fully_open_to_hundred_under_current_frozen_r3_alone": false,
+    "baseline_mutated": false,
+    "mapping_rule_mutated": false,
+    "registry_mutated": false,
+    "blocking_reason": "The requested bidirectional endpoint convention is not explicit in the frozen R3 contract. No common-sense completion was applied.",
+    "additional_ambiguity": "R3 also contains WINDOW_OPEN/WINDOW_CLOSE state intents and no precedence rule deciding whether endpoint utterances map to state intents or WINDOW_SET_POSITION endpoint values."
+  },
+  "expression_audit": {
+    "terms": [
+      "完全打开",
+      "完全关闭",
+      "升到底",
+      "降到底",
+      "三分之一",
+      "三分之二",
+      "最低",
+      "最高",
+      "到底",
+      "全开",
+      "全关",
+      "一半",
+      "半开"
+    ],
+    "all_term_hits": 327,
+    "all_term_hits_currently_missing_slot": 23,
+    "window_related_term_hits": 45,
+    "window_related_currently_missing_slot": 14,
+    "per_expression": {
+      "完全打开": {
+        "canonical_pool_hits": 0,
+        "current_missing_slot_hits": 0,
+        "window_related_hits": 0,
+        "window_related_current_missing_slot_hits": 0
+      },
+      "完全关闭": {
+        "canonical_pool_hits": 0,
+        "current_missing_slot_hits": 0,
+        "window_related_hits": 0,
+        "window_related_current_missing_slot_hits": 0
+      },
+      "升到底": {
+        "canonical_pool_hits": 2,
+        "current_missing_slot_hits": 2,
+        "window_related_hits": 2,
+        "window_related_current_missing_slot_hits": 2
+      },
+      "降到底": {
+        "canonical_pool_hits": 0,
+        "current_missing_slot_hits": 0,
+        "window_related_hits": 0,
+        "window_related_current_missing_slot_hits": 0
+      },
+      "三分之一": {
+        "canonical_pool_hits": 15,
+        "current_missing_slot_hits": 4,
+        "window_related_hits": 4,
+        "window_related_current_missing_slot_hits": 4
+      },
+      "三分之二": {
+        "canonical_pool_hits": 3,
+        "current_missing_slot_hits": 1,
+        "window_related_hits": 1,
+        "window_related_current_missing_slot_hits": 1
+      },
+      "最低": {
+        "canonical_pool_hits": 161,
+        "current_missing_slot_hits": 11,
+        "window_related_hits": 7,
+        "window_related_current_missing_slot_hits": 3
+      },
+      "最高": {
+        "canonical_pool_hits": 90,
+        "current_missing_slot_hits": 2,
+        "window_related_hits": 2,
+        "window_related_current_missing_slot_hits": 1
+      },
+      "到底": {
+        "canonical_pool_hits": 5,
+        "current_missing_slot_hits": 2,
+        "window_related_hits": 2,
+        "window_related_current_missing_slot_hits": 2
+      },
+      "全开": {
+        "canonical_pool_hits": 3,
+        "current_missing_slot_hits": 1,
+        "window_related_hits": 2,
+        "window_related_current_missing_slot_hits": 1
+      },
+      "全关": {
+        "canonical_pool_hits": 9,
+        "current_missing_slot_hits": 1,
+        "window_related_hits": 5,
+        "window_related_current_missing_slot_hits": 1
+      },
+      "一半": {
+        "canonical_pool_hits": 44,
+        "current_missing_slot_hits": 1,
+        "window_related_hits": 22,
+        "window_related_current_missing_slot_hits": 1
+      },
+      "半开": {
+        "canonical_pool_hits": 2,
+        "current_missing_slot_hits": 0,
+        "window_related_hits": 0,
+        "window_related_current_missing_slot_hits": 0
+      }
+    },
+    "missing_list_path": "data/nlu/full/audit_window_value_v1/window_value_expression_missing_slot_samples_v1.jsonl",
+    "window_missing_list_path": "data/nlu/full/audit_window_value_v1/window_value_expression_window_missing_slot_samples_v1.jsonl"
+  },
+  "normalization_matrix": [
+    {
+      "expression": "最低",
+      "current_r3_decision": "DO_NOT_NORMALIZE",
+      "reason": "必须先判定描述的是玻璃物理高度还是开度比例，并需冻结端点数值方向。"
+    },
+    {
+      "expression": "最高",
+      "current_r3_decision": "DO_NOT_NORMALIZE",
+      "reason": "必须先判定描述的是玻璃物理高度还是开度比例，并需冻结端点数值方向。"
+    },
+    {
+      "expression": "到底",
+      "current_r3_decision": "DO_NOT_NORMALIZE",
+      "reason": "脱离升/降/开/关上下文不能确定端点；端点数值方向也未冻结。"
+    },
+    {
+      "expression": "升到底",
+      "current_r3_decision": "PHYSICAL_CLOSED_ENDPOINT_ONLY",
+      "reason": "物理端点可确定，canonical 百分比端点尚未在 R3 明写。"
+    },
+    {
+      "expression": "降到底",
+      "current_r3_decision": "PHYSICAL_OPEN_ENDPOINT_ONLY",
+      "reason": "物理端点可确定，canonical 百分比端点尚未在 R3 明写。"
+    },
+    {
+      "expression": "全开/完全打开",
+      "current_r3_decision": "PHYSICAL_OPEN_ENDPOINT_ONLY",
+      "reason": "fully open 明确，但 R3 未明写其 canonical 百分比。"
+    },
+    {
+      "expression": "全关/完全关闭",
+      "current_r3_decision": "PHYSICAL_CLOSED_ENDPOINT_ONLY",
+      "reason": "fully closed 明确；VSS 可推出 closed start=0，但 R3 尚未形成版本化车窗端点映射。"
+    },
+    {
+      "expression": "一半",
+      "current_r3_decision": "NORMALIZE_TO_50_PERCENT",
+      "reason": "R3 deterministic_lexical_normalization 已明确。"
+    },
+    {
+      "expression": "半开",
+      "current_r3_decision": "DO_NOT_ADD_NEW_ALIAS_IN_AUDIT",
+      "reason": "语义中点明确，但 R3 的版本化词法归一来源只明列‘一半’。"
+    },
+    {
+      "expression": "三分之一/三分之二",
+      "current_r3_decision": "DO_NOT_NORMALIZE",
+      "reason": "需先区分绝对目标与相对变化，并冻结循环小数的 canonical 序列化精度。"
+    }
+  ],
+  "target_sample_recheck": {
+    "current_sample": {
+      "样本编号": "fnlu-5d8cea51f8e39780f01ec46c",
+      "原始文本": "主驾车窗降到最低",
+      "规范文本": "主驾车窗降到最低",
+      "来源": "MAC-SLU",
+      "原始文件": "train_set.jsonl",
+      "原始编号": "1235",
+      "控制范围": "正式可执行",
+      "结构状态": "缺槽",
+      "语气状态": "肯定",
+      "子意图列表": [
+        {
+          "规范动作": "ADJUST",
+          "规范对象": "WINDOW",
+          "控制属性": "OPENING_POSITION",
+          "位置": "LEFT_FRONT",
+          "数值": null,
+          "方向": null,
+          "模式": null
+        }
+      ],
+      "合同是否完整": false,
+      "是否允许进入正式正样本": false,
+      "是否需要人工复核": false,
+      "映射规则版本": "nlu_mapping_v3",
+      "人工覆盖规则版本": null
+    },
+    "current_mapping_metadata": {
+      "样本编号": "fnlu-5d8cea51f8e39780f01ec46c",
+      "canonical_intent_ids": [
+        "WINDOW_SET_POSITION"
+      ],
+      "review_reasons": [],
+      "compound_flags": [],
+      "applied_rule_ids": [
+        "V3-FRAME-001"
+      ],
+      "candidate_intent_ids": [
+        "WINDOW_SET_POSITION"
+      ],
+      "candidate_details": [
+        {
+          "intent_id": "WINDOW_SET_POSITION",
+          "resolved": true,
+          "complete": false,
+          "missing_slots": [
+            "VALUE"
+          ],
+          "rule_ids": [
+            "V3-FRAME-001"
+          ]
+        }
+      ]
+    },
+    "original_provenance": {
+      "样本编号": "fnlu-5d8cea51f8e39780f01ec46c",
+      "source_dataset": "MAC-SLU",
+      "source_file": "train_set.jsonl",
+      "source_split": "train",
+      "source_row": 84,
+      "source_id": "1235",
+      "raw_text": "主驾车窗降到最低",
+      "original_annotation": {
+        "意图1": {
+          "车载控制": [
+            {
+              "value": "车身控制",
+              "name": "intent"
+            },
+            {
+              "name": "位置",
+              "value": "主驾"
+            },
+            {
+              "name": "对象",
+              "value": "车窗"
+            },
+            {
+              "name": "操作",
+              "value": "降"
+            },
+            {
+              "name": "操作_concrete",
+              "value": "到"
+            },
+            {
+              "name": "value",
+              "value": "最低"
+            },
+            {
+              "value": "幅度",
+              "name": "调节内容"
+            }
+          ]
+        }
+      },
+      "split_sens": [
+        "主驾车窗降到最低"
+      ],
+      "conversion_version": "full_nlu_baseline_v2"
+    },
+    "physical_language_semantics": "主驾/LEFT_FRONT，车窗下降到机械最低端，即 fully open endpoint",
+    "numeric_value_under_current_frozen_r3": null,
+    "reason_not_changed": "R3 未显式冻结 fully open 与 100% 的对应，不能按常识补数值。",
+    "conditional_result_if_future_contract_explicitly_freezes_0_closed_100_open": {
+      "控制范围": "正式可执行",
+      "结构状态": "单意图",
+      "语气状态": "肯定",
+      "子意图列表": [
+        {
+          "规范动作": "ADJUST",
+          "规范对象": "WINDOW",
+          "控制属性": "OPENING_POSITION",
+          "位置": "LEFT_FRONT",
+          "数值": "100%",
+          "方向": null,
+          "模式": null
+        }
+      ],
+      "合同是否完整": true,
+      "是否允许进入正式正样本": true,
+      "是否需要人工复核": false
+    }
+  },
+  "relative_small_audit": {
+    "patterns": [
+      "开一点",
+      "开启一点",
+      "留条缝",
+      "开条缝",
+      "稍微降一点",
+      "降一点",
+      "稍微开",
+      "一点点"
+    ],
+    "sample_count": 16,
+    "fixed_numeric_conversion_violation_count": 0,
+    "possible_numeric_contract_bypass_count": 2,
+    "samples": [
+      {
+        "样本编号": "fnlu-9a38c842be3dc160250a1d62",
+        "原始文本": "帮我开启一点点全部车窗",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "ALL",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "开启"
+              },
+              {
+                "name": "value",
+                "value": "一点点"
+              },
+              {
+                "name": "位置",
+                "value": "全部"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-e2006204f52bfcba81b61919",
+        "原始文本": "我想降一点右前车窗",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "RIGHT_FRONT",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "value",
+                "value": "降一点"
+              },
+              {
+                "name": "位置",
+                "value": "右前"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-a4347851bdc3d3368461d883",
+        "原始文本": "前排车窗打开百分之二十后排车窗打开一点",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "FRONT_ROW",
+            "数值": "20%",
+            "方向": null,
+            "模式": null
+          },
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "REAR_ROW",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "前排"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "value",
+                "value": "百分之二十"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "后排"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "value": "-",
+                "name": "value"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-33aa0fa9fefdf826e1ef6754",
+        "原始文本": "打开所有窗户打开一点",
+        "结构状态": "单意图",
+        "车窗子意图": [
+          {
+            "规范动作": "OPEN",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_STATE",
+            "位置": "ALL",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": true,
+        "是否允许进入正式正样本": true,
+        "固定数值违规": false,
+        "可能绕过数值合同": true,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "打开"
+              },
+              {
+                "name": "位置",
+                "value": "所有"
+              },
+              {
+                "name": "对象",
+                "value": "窗户"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-66d9ba29488c017c817d43a0",
+        "原始文本": "留条缝给右排窗户",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": null,
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "value",
+                "value": "留条缝给"
+              },
+              {
+                "name": "位置",
+                "value": "右排"
+              },
+              {
+                "name": "对象",
+                "value": "窗户"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-2fd6c201884505e8185c598f",
+        "原始文本": "留条缝给右前窗户",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "RIGHT_FRONT",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "value",
+                "value": "留条缝给"
+              },
+              {
+                "name": "位置",
+                "value": "右前"
+              },
+              {
+                "name": "对象",
+                "value": "窗户"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-8b021b3e238a5bbeb51bcf3e",
+        "原始文本": "全部车窗降一点",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "ALL",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "全部"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "name": "操作",
+                "value": "降"
+              },
+              {
+                "name": "value",
+                "value": "一点"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-7c0a2bc8cb3e18e777de0c66",
+        "原始文本": "我要降一点全部车窗",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "ALL",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "value",
+                "value": "降一点"
+              },
+              {
+                "name": "位置",
+                "value": "全部"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-7d414359c06a1770e44acea7",
+        "原始文本": "帮我降一点右前车窗",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "RIGHT_FRONT",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "value",
+                "value": "降一点"
+              },
+              {
+                "name": "位置",
+                "value": "右前"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-f0b7af948b24207727ebbba2",
+        "原始文本": "全部车窗开条缝",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "ALL",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "全部"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "name": "操作",
+                "value": "开"
+              },
+              {
+                "value": "minor",
+                "name": "value"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-b8368118c65ab1993259f086",
+        "原始文本": "关闭自动灯光所有车窗开条缝",
+        "结构状态": "歧义",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "ALL",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关闭"
+              },
+              {
+                "name": "模式",
+                "value": "自动"
+              },
+              {
+                "name": "对象",
+                "value": "灯光"
+              },
+              {
+                "value": "模式",
+                "name": "调节内容"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "所有"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "name": "操作",
+                "value": "开"
+              },
+              {
+                "value": "minor",
+                "name": "value"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-27d023a061c0d45719aaafbc",
+        "原始文本": "将副驾车窗开条缝",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "RIGHT_FRONT",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "副驾"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "name": "操作",
+                "value": "开"
+              },
+              {
+                "value": "minor",
+                "name": "value"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-a60155b408e7f9e330bc99eb",
+        "原始文本": "斜对面车窗开一点",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": null,
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "斜对面"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "name": "操作",
+                "value": "开"
+              },
+              {
+                "value": "-",
+                "name": "value"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-394f605a6f561ca4ffb431c1",
+        "原始文本": "全部车窗帮我留一点点通风",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": "ALL",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "位置",
+                "value": "全部"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              },
+              {
+                "value": "-",
+                "name": "value"
+              },
+              {
+                "value": "调节",
+                "name": "操作"
+              },
+              {
+                "value": "幅度",
+                "name": "调节内容"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-54e32f529dd24e08b689ba2a",
+        "原始文本": "关上主副驾车窗打开一点点",
+        "结构状态": "多意图",
+        "车窗子意图": [
+          {
+            "规范动作": "CLOSE",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_STATE",
+            "位置": "RIGHT_FRONT",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          },
+          {
+            "规范动作": "OPEN",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_STATE",
+            "位置": "RIGHT_FRONT",
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": true,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": true,
+        "原始标注": {
+          "意图1": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关上"
+              },
+              {
+                "name": "位置",
+                "value": "主副驾"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              }
+            ]
+          },
+          "意图2": {
+            "车载控制": [
+              {
+                "value": "车身控制",
+                "name": "intent"
+              },
+              {
+                "name": "操作",
+                "value": "关上"
+              },
+              {
+                "name": "位置",
+                "value": "主副驾"
+              },
+              {
+                "name": "对象",
+                "value": "车窗"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "样本编号": "fnlu-78660ae6ea4c1e013909ca84",
+        "原始文本": "前门车窗开条缝",
+        "结构状态": "缺槽",
+        "车窗子意图": [
+          {
+            "规范动作": "ADJUST",
+            "规范对象": "WINDOW",
+            "控制属性": "OPENING_POSITION",
+            "位置": null,
+            "数值": null,
+            "方向": null,
+            "模式": null
+          }
+        ],
+        "合同是否完整": false,
+        "是否允许进入正式正样本": false,
+        "固定数值违规": false,
+        "可能绕过数值合同": false,
+        "原始标注": {
+          "安全边界类别": "相似对象混淆"
+        }
+      }
+    ]
+  }
+}

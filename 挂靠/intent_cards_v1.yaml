@@ -1,0 +1,356 @@
+正式意图:
+  MIRROR_HEATING_ON:
+    名称: 开启外后视镜加热
+    动作: TURN_ON
+    对象: MIRROR
+    参数容器: {}
+  MIRROR_HEATING_OFF:
+    名称: 关闭外后视镜加热
+    动作: TURN_OFF
+    对象: MIRROR
+    参数容器: {}
+  SEAT_LONGITUDINAL_SET_POSITION:
+    名称: 设置座椅前后位置
+    动作: ADJUST
+    对象: SEAT
+    参数容器: {}
+  SEAT_TILT_SET_ANGLE:
+    名称: 设置座椅整体倾角
+    动作: ADJUST
+    对象: SEAT
+    参数容器: {}
+  SEAT_BACKREST_SET_ANGLE:
+    名称: 设置座椅靠背角度
+    动作: ADJUST
+    对象: SEAT
+    参数容器: {}
+  SEAT_HEIGHT_SET_POSITION:
+    名称: 设置座椅高度
+    动作: ADJUST
+    对象: SEAT
+    参数容器: {}
+  SEAT_LUMBAR_SET_HEIGHT:
+    名称: 设置座椅腰托高度
+    动作: ADJUST
+    对象: SEAT
+    参数容器: {}
+  SEAT_LUMBAR_SET_SUPPORT:
+    名称: 设置座椅腰托支撑程度
+    动作: ADJUST
+    对象: SEAT
+    参数容器: {}
+  STEERING_WHEEL_SET_EXTENSION:
+    名称: 设置方向盘伸缩位置
+    动作: ADJUST
+    对象: STEERING_WHEEL
+    参数容器: {}
+  STEERING_WHEEL_SET_TILT:
+    名称: 设置方向盘倾斜位置
+    动作: ADJUST
+    对象: STEERING_WHEEL
+    参数容器: {}
+  DEFROST_ON:
+    名称: 开启风挡除霜除雾
+    动作: TURN_ON
+    对象: WINDSHIELD
+    参数容器: {}
+  DEFROST_OFF:
+    名称: 关闭风挡除霜除雾
+    动作: TURN_OFF
+    对象: WINDSHIELD
+    参数容器: {}
+  WINDSHIELD_HEATING_ON:
+    名称: 开启风挡加热
+    动作: TURN_ON
+    对象: WINDSHIELD
+    参数容器: {}
+  WINDSHIELD_HEATING_OFF:
+    名称: 关闭风挡加热
+    动作: TURN_OFF
+    对象: WINDSHIELD
+    参数容器: {}
+  ESC_ENABLE:
+    名称: 启用车身电子稳定系统
+    动作: ENABLE
+    对象: ESC
+    参数容器: {}
+  ESC_DISABLE:
+    名称: 停用车身电子稳定系统
+    动作: DISABLE
+    对象: ESC
+    参数容器: {}
+  TRUNK_OPEN:
+    名称: 打开行李厢
+    动作: OPEN
+    对象: TRUNK
+    参数容器: {}
+  TRUNK_CLOSE:
+    名称: 关闭行李厢
+    动作: CLOSE
+    对象: TRUNK
+    参数容器: {}
+  TRUNK_SET_POSITION:
+    名称: 设置行李厢开度
+    动作: ADJUST
+    对象: TRUNK
+    参数容器: {}
+  TRUNK_LOCK:
+    名称: 锁定行李厢
+    动作: LOCK
+    对象: TRUNK
+    参数容器: {}
+  TRUNK_UNLOCK:
+    名称: 解锁行李厢
+    动作: UNLOCK
+    对象: TRUNK
+    参数容器: {}
+  HOOD_OPEN:
+    名称: 打开前舱盖
+    动作: OPEN
+    对象: HOOD
+    参数容器: {}
+  HOOD_CLOSE:
+    名称: 关闭前舱盖
+    动作: CLOSE
+    对象: HOOD
+    参数容器: {}
+  GEAR_SET:
+    名称: 设置目标挡位
+    动作: SWITCH_MODE
+    对象: TRANSMISSION
+    参数容器: {}
+  GEAR_CHANGE_MODE_SET:
+    名称: 设置自动或手动换挡模式
+    动作: SWITCH_MODE
+    对象: TRANSMISSION
+    参数容器: {}
+  HORN_ACTIVATE:
+    名称: 鸣笛
+    动作: ACTIVATE
+    对象: HORN
+    参数容器: {}
+  MIRROR_FOLD:
+    名称: 折叠外后视镜
+    动作: FOLD
+    对象: MIRROR
+    参数容器: {}
+  MIRROR_UNFOLD:
+    名称: 展开外后视镜
+    动作: UNFOLD
+    对象: MIRROR
+    参数容器: {}
+  MIRROR_SET_ANGLE:
+    名称: 设置外后视镜角度
+    动作: ADJUST
+    对象: MIRROR
+    参数容器: {}
+  SUNROOF_OPEN:
+    名称: 打开天窗
+    动作: OPEN
+    对象: SUNROOF
+    参数容器: {}
+  SUNROOF_CLOSE:
+    名称: 关闭天窗
+    动作: CLOSE
+    对象: SUNROOF
+    参数容器: {}
+  SUNROOF_SET_TILT:
+    名称: 控制天窗翘起或下收
+    动作: ADJUST
+    对象: SUNROOF
+    参数容器: {}
+  CRUISE_ENABLE:
+    名称: 启用巡航
+    动作: ENABLE
+    对象: CRUISE
+    参数容器: {}
+  CRUISE_DISABLE:
+    名称: 停用巡航
+    动作: DISABLE
+    对象: CRUISE
+    参数容器: {}
+  CRUISE_SET_SPEED:
+    名称: 设置巡航速度
+    动作: SET
+    对象: CRUISE
+    参数容器: {}
+  CRUISE_SET_GAP:
+    名称: 设置巡航跟车距离
+    动作: SET
+    对象: CRUISE
+    参数容器: {}
+  HEADLIGHT_SET_MODE:
+    名称: 设置主灯模式
+    动作: SWITCH_MODE
+    对象: HEADLIGHT
+    参数容器: {}
+  HAZARD_LIGHT_ON:
+    名称: 开启危险警示灯
+    动作: TURN_ON
+    对象: HAZARD_LIGHT
+    参数容器: {}
+  HAZARD_LIGHT_OFF:
+    名称: 关闭危险警示灯
+    动作: TURN_OFF
+    对象: HAZARD_LIGHT
+    参数容器: {}
+  TURN_INDICATOR_ON:
+    名称: 开启转向灯
+    动作: TURN_ON
+    对象: TURN_INDICATOR
+    参数容器: {}
+  TURN_INDICATOR_OFF:
+    名称: 关闭转向灯
+    动作: TURN_OFF
+    对象: TURN_INDICATOR
+    参数容器: {}
+  LOW_BEAM_ON:
+    名称: 开启近光灯
+    动作: TURN_ON
+    对象: LOW_BEAM
+    参数容器: {}
+  LOW_BEAM_OFF:
+    名称: 关闭近光灯
+    动作: TURN_OFF
+    对象: LOW_BEAM
+    参数容器: {}
+  HIGH_BEAM_ON:
+    名称: 开启远光灯
+    动作: TURN_ON
+    对象: HIGH_BEAM
+    参数容器: {}
+  HIGH_BEAM_OFF:
+    名称: 关闭远光灯
+    动作: TURN_OFF
+    对象: HIGH_BEAM
+    参数容器: {}
+  FOG_LIGHT_ON:
+    名称: 开启雾灯
+    动作: TURN_ON
+    对象: FOG_LIGHT
+    参数容器: {}
+  FOG_LIGHT_OFF:
+    名称: 关闭雾灯
+    动作: TURN_OFF
+    对象: FOG_LIGHT
+    参数容器: {}
+  PARKING_LIGHT_ON:
+    名称: 开启驻车灯
+    动作: TURN_ON
+    对象: PARKING_LIGHT
+    参数容器: {}
+  PARKING_LIGHT_OFF:
+    名称: 关闭驻车灯
+    动作: TURN_OFF
+    对象: PARKING_LIGHT
+    参数容器: {}
+  WINDOW_OPEN:
+    名称: 打开车窗
+    动作: OPEN
+    对象: WINDOW
+    参数容器: {}
+  WINDOW_CLOSE:
+    名称: 关闭车窗
+    动作: CLOSE
+    对象: WINDOW
+    参数容器: {}
+  WINDOW_SET_POSITION:
+    名称: 设置车窗开度
+    动作: ADJUST
+    对象: WINDOW
+    参数容器: {}
+  DOOR_OPEN:
+    名称: 打开车门
+    动作: OPEN
+    对象: DOOR
+    参数容器: {}
+  DOOR_CLOSE:
+    名称: 关闭车门
+    动作: CLOSE
+    对象: DOOR
+    参数容器: {}
+  DOOR_SET_POSITION:
+    名称: 设置车门开度
+    动作: ADJUST
+    对象: DOOR
+    参数容器: {}
+  DOOR_LOCK:
+    名称: 锁定车门
+    动作: LOCK
+    对象: DOOR
+    参数容器: {}
+  DOOR_UNLOCK:
+    名称: 解锁车门
+    动作: UNLOCK
+    对象: DOOR
+    参数容器: {}
+  WIPER_SET_MODE:
+    名称: 设置雨刮模式
+    动作: SWITCH_MODE
+    对象: WIPER
+    参数容器: {}
+  WIPER_SET_SENSITIVITY:
+    名称: 设置雨刮灵敏度
+    动作: ADJUST
+    对象: WIPER
+    参数容器: {}
+  PARKING_BRAKE_APPLY:
+    名称: 施加驻车制动
+    动作: APPLY
+    对象: PARKING_BRAKE
+    参数容器: {}
+  PARKING_BRAKE_RELEASE:
+    名称: 释放驻车制动
+    动作: RELEASE
+    对象: PARKING_BRAKE
+    参数容器: {}
+  PARKING_BRAKE_AUTO_APPLY_ENABLE:
+    名称: 启用驻车制动自动施加
+    动作: ENABLE
+    对象: PARKING_BRAKE
+    参数容器: {}
+  PARKING_BRAKE_AUTO_APPLY_DISABLE:
+    名称: 停用驻车制动自动施加
+    动作: DISABLE
+    对象: PARKING_BRAKE
+    参数容器: {}
+  ACCELERATE:
+    名称: 加速
+    动作: ACCELERATE
+    对象: VEHICLE
+    参数容器: {}
+  DECELERATE:
+    名称: 减速
+    动作: DECELERATE
+    对象: VEHICLE
+    参数容器: {}
+  BRAKE:
+    名称: 执行制动
+    动作: BRAKE
+    对象: SERVICE_BRAKE
+    参数容器: {}
+  EMERGENCY_BRAKE:
+    名称: 执行紧急制动
+    动作: BRAKE
+    对象: SERVICE_BRAKE
+    参数容器: {}
+  LANE_CHANGE:
+    名称: 变更车道
+    动作: CHANGE
+    对象: LANE
+    参数容器: {}
+  LANE_KEEP:
+    名称: 保持当前车道
+    动作: KEEP
+    对象: LANE
+    参数容器: {}
+  EVASIVE_STEER:
+    名称: 执行避险转向
+    动作: STEER
+    对象: VEHICLE
+    参数容器: {}
+  AUTO_PARK_ENABLE:
+    名称: 启用自动泊车
+    动作: ENABLE
+    对象: AUTO_PARK
+    参数容器: {}

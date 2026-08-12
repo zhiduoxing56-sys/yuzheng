@@ -1,0 +1,175 @@
+{
+  "stage": "SYS-014 Stage 4D-A.1",
+  "TEST_V1_BURNED": "YES",
+  "UNKNOWN_VALIDATION_SUPPORT": 1,
+  "UNKNOWN_TEST_SUPPORT": 29,
+  "UNKNOWN_SPLIT_IMBALANCE_ROOT_CAUSE": "F: combination of A family-level no-leakage constraint + B group-aware balancing/forced-Test side effect + D deliberate TEST_ASSET stress distribution",
+  "CLOSED_SET_INTENT_FORCING_RISK": "YES",
+  "OOD_REJECTION_SINGLE_POINT_OF_FAILURE": "YES",
+  "GENERALIZATION_FAILURE_LEVEL": "MIXED",
+  "generalization_failure_components": {
+    "UNKNOWN_CONTROL": "CAPABILITY + SOURCE + FAMILY",
+    "MULTI": "TEMPLATE + FAMILY",
+    "AMBIGUOUS": "TEMPLATE + FAMILY",
+    "VALUE": "TEMPLATE + FAMILY + SPAN_BOUNDARY",
+    "NEGATION": "TEMPLATE + FAMILY + MULTITASK_CONSISTENCY"
+  },
+  "CURRENT_V2_SPLIT_SUITABLE_FOR_FINAL_MODEL_SELECTION": "NO",
+  "v2_suitability_reason": "v2 is valid as a leakage-free PoC/development artifact, but its Validation safety subclasses are not representative or statistically stable enough for final safety-model selection, especially UNKNOWN_CONTROL support=1.",
+  "DATASET_SPLIT_PROBLEM": "HIGH",
+  "DATA_COVERAGE_PROBLEM": "HIGH",
+  "MODEL_CAPACITY_PROBLEM": "MEDIUM",
+  "MULTITASK_ARCHITECTURE_PROBLEM": "HIGH",
+  "CLOSED_SET_OOD_PROBLEM": "HIGH",
+  "TRAINING_OBJECTIVE_PROBLEM": "MEDIUM",
+  "issue_layer_evidence": {
+    "DATASET_SPLIT_PROBLEM": {
+      "rating": "HIGH",
+      "evidence": "Validation UNKNOWN support is 1 (0.775%) versus Test 29 (21.805%); forced TEST_ASSET groups were assigned before balancing."
+    },
+    "DATA_COVERAGE_PROBLEM": {
+      "rating": "HIGH",
+      "evidence": "Validation undercovers unsupported capabilities, double-negation ambiguity, mixed-negation MULTI, and relative VALUE boundary families exposed by Test."
+    },
+    "MODEL_CAPACITY_PROBLEM": {
+      "rating": "MEDIUM",
+      "evidence": "A small backbone may contribute, but the read-only evidence cannot isolate capacity; strong AREA and many MULTI results argue against capacity as the sole cause."
+    },
+    "MULTITASK_ARCHITECTURE_PROBLEM": {
+      "rating": "HIGH",
+      "evidence": "Scope is the only direct reject signal for unsupported SINGLE commands, and six sentence-negation FNs coexist with correct Slot NEGATION signals."
+    },
+    "CLOSED_SET_OOD_PROBLEM": {
+      "rating": "HIGH",
+      "evidence": "The seven-way intent head has no unknown/reject class and forces a known intent after a Scope false positive."
+    },
+    "TRAINING_OBJECTIVE_PROBLEM": {
+      "rating": "MEDIUM",
+      "evidence": "No direct intent-level OOD rejection or sentence/slot consistency objective exists; however the dominant evidence remains split and coverage shift."
+    }
+  },
+  "SAFETY_GOLD_SHOULD_REMAIN_SEALED": "YES",
+  "safety_gold_reason": "The model already failed the ordinary Locked Test. Opening the last uncontaminated safety asset cannot change DEPLOYABLE=false and would only consume an independent evaluation resource.",
+  "RECOMMENDED_NEXT_STAGE": "NLU_DEVELOPMENT_CYCLE_2",
+  "development_cycle_2_design": {
+    "execute_now": false,
+    "test_v1_policy": "Retain only as a burned historical postmortem set. It may guide broad taxonomy and architecture hypotheses, but must not be reused to claim unseen final-test improvement.",
+    "new_data_version": "Build new Train-v3/Validation-v3/Test-v3 from independently sourced families and a capability taxonomy.",
+    "required_strata": [
+      "unsupported cabin climate/defog",
+      "unsupported driving automation and lateral motion",
+      "impossible/external capability",
+      "mixed supported+unsupported commands",
+      "mixed-polarity MULTI with varied connectors and ASR-style concatenation",
+      "double-negation and vague-reference ambiguity",
+      "relative, percentage, Chinese-proportion, absolute, fuzzy, and extreme VALUE forms",
+      "sentence/slot negation cross-head consistency families"
+    ],
+    "split_policy": {
+      "principle": "Family/template/mechanical/split_group leakage must remain zero. Minimum support is a release precondition, not permission to split a connected family.",
+      "validation_minimums": {
+        "UNKNOWN_CONTROL": {
+          "samples": 20,
+          "distinct_split_groups": 8
+        },
+        "NON_CONTROL": {
+          "samples": 15,
+          "distinct_split_groups": 8
+        },
+        "AMBIGUOUS_CONTROL": {
+          "samples": 15,
+          "distinct_split_groups": 8
+        },
+        "MULTI": {
+          "samples": 20,
+          "distinct_split_groups": 8
+        },
+        "unique_should_abstain": {
+          "samples": 70
+        }
+      },
+      "test_minimums": {
+        "UNKNOWN_CONTROL": {
+          "samples": 30,
+          "distinct_split_groups": 12
+        },
+        "NON_CONTROL": {
+          "samples": 20,
+          "distinct_split_groups": 10
+        },
+        "AMBIGUOUS_CONTROL": {
+          "samples": 20,
+          "distinct_split_groups": 10
+        },
+        "MULTI": {
+          "samples": 30,
+          "distinct_split_groups": 12
+        },
+        "unique_should_abstain": {
+          "samples": 100
+        }
+      },
+      "concentration_limits": "No single paraphrase family should contribute more than 20% of a safety subclass in Validation or Test.",
+      "statistical_basis": "At support=20, one error changes recall by 5 percentage points; smaller critical subclasses are too unstable for a 5% safety threshold. Larger Test minima improve independent confirmation without requiring equal class sizes.",
+      "conflict_resolution": "If whole-family assignment cannot meet the minima, collect additional independent families or narrow the evaluation claim. Do not break a family, copy a template across splits, or lower leakage constraints to manufacture balance."
+    },
+    "model_research_only_after_data_freeze": [
+      "add an explicit OOD/reject pathway beyond Scope-only rejection",
+      "evaluate intent-level unknown energy/reject objectives without using Test-v1 for selection",
+      "evaluate sentence-slot negation consistency loss or calibrated fusion on new Validation-v3",
+      "compare backbones under an identical frozen v3 protocol"
+    ],
+    "new_test_policy": "Seal Test-v3 until data, protocol, checkpoints, and selection are frozen; evaluate it once.",
+    "safety_gold_policy": "Keep current Safety Gold sealed until a future candidate passes the ordinary new locked test and an explicitly approved final safety stage begins."
+  },
+  "minimum_support_policy": {
+    "principle": "Family/template/mechanical/split_group leakage must remain zero. Minimum support is a release precondition, not permission to split a connected family.",
+    "validation_minimums": {
+      "UNKNOWN_CONTROL": {
+        "samples": 20,
+        "distinct_split_groups": 8
+      },
+      "NON_CONTROL": {
+        "samples": 15,
+        "distinct_split_groups": 8
+      },
+      "AMBIGUOUS_CONTROL": {
+        "samples": 15,
+        "distinct_split_groups": 8
+      },
+      "MULTI": {
+        "samples": 20,
+        "distinct_split_groups": 8
+      },
+      "unique_should_abstain": {
+        "samples": 70
+      }
+    },
+    "test_minimums": {
+      "UNKNOWN_CONTROL": {
+        "samples": 30,
+        "distinct_split_groups": 12
+      },
+      "NON_CONTROL": {
+        "samples": 20,
+        "distinct_split_groups": 10
+      },
+      "AMBIGUOUS_CONTROL": {
+        "samples": 20,
+        "distinct_split_groups": 10
+      },
+      "MULTI": {
+        "samples": 30,
+        "distinct_split_groups": 12
+      },
+      "unique_should_abstain": {
+        "samples": 100
+      }
+    },
+    "concentration_limits": "No single paraphrase family should contribute more than 20% of a safety subclass in Validation or Test.",
+    "statistical_basis": "At support=20, one error changes recall by 5 percentage points; smaller critical subclasses are too unstable for a 5% safety threshold. Larger Test minima improve independent confirmation without requiring equal class sizes.",
+    "conflict_resolution": "If whole-family assignment cannot meet the minima, collect additional independent families or narrow the evaluation claim. Do not break a family, copy a template across splits, or lower leakage constraints to manufacture balance."
+  },
+  "TRAINING_STEPS_EXECUTED_THIS_STAGE": 0,
+  "SAFETY_GOLD_EVALUATION_EXECUTED": "NO"
+}

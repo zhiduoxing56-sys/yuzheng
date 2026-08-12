@@ -1,0 +1,61 @@
+{
+  "measurement": "audit_field_size_breakdown_before",
+  "database": {
+    "path": "D:\\语证\\data\\database\\yuzheng.db",
+    "bytes": 252956672,
+    "record_count": 148,
+    "command_count": 147,
+    "review_outcome_count": 1,
+    "record_bytes": {
+      "average": 1167641.89,
+      "median": 450746,
+      "p95": 3841970,
+      "max": 3922180,
+      "min": 813
+    }
+  },
+  "sample": {
+    "audit_id": "AUD_6b83f66790ee",
+    "turn_id": "TURN_71954c01dadd",
+    "stored_record_bytes": 3978080
+  },
+  "top_level_fields": [
+    {"rank": 1, "field": "final_decision", "bytes": 1555554},
+    {"rank": 2, "field": "advanced_reasoning", "bytes": 777198},
+    {"rank": 3, "field": "causal_correction", "bytes": 565459},
+    {"rank": 4, "field": "causal_candidate_edges", "bytes": 246824},
+    {"rank": 5, "field": "causal_removed_edges", "bytes": 234243},
+    {"rank": 6, "field": "memory_propagation", "bytes": 209549},
+    {"rank": 7, "field": "evidence_subgraph", "bytes": 157220},
+    {"rank": 8, "field": "candidate_recall_results", "bytes": 51274},
+    {"rank": 9, "field": "horizontal_memory", "bytes": 45989},
+    {"rank": 10, "field": "retrieval_metadata", "bytes": 30098},
+    {"rank": 11, "field": "vertical_propagation", "bytes": 29149},
+    {"rank": 12, "field": "causal_pruned_edges", "bytes": 27772},
+    {"rank": 13, "field": "evidence_demand", "bytes": 16959}
+  ],
+  "duplicate_large_structures": [
+    {"bytes_each": 565459, "copies": 4, "paths": ["advanced_reasoning.causal_correction", "causal_correction", "final_decision.causal_correction", "final_decision.advanced_reasoning.causal_correction"]},
+    {"bytes_each": 246824, "copies": 5, "paths": ["advanced_reasoning.causal_correction.candidate_edges", "causal_correction.candidate_edges", "causal_candidate_edges", "final_decision.causal_correction.candidate_edges", "final_decision.advanced_reasoning.causal_correction.candidate_edges"]},
+    {"bytes_each": 234243, "copies": 5, "paths": ["advanced_reasoning.causal_correction.removed_edges", "causal_correction.removed_edges", "causal_removed_edges", "final_decision.causal_correction.removed_edges", "final_decision.advanced_reasoning.causal_correction.removed_edges"]},
+    {"bytes_each": 777198, "copies": 2, "paths": ["advanced_reasoning", "final_decision.advanced_reasoning"]},
+    {"bytes_each": 209549, "copies": 4, "paths": ["advanced_reasoning.memory_propagation", "memory_propagation", "final_decision.memory_propagation", "final_decision.advanced_reasoning.memory_propagation"]},
+    {"bytes_each": 27772, "copies": 9, "paths": ["advanced_reasoning.causal_correction.pruned_edges", "advanced_reasoning.causal_correction.causal_graph.Ecausal", "causal_correction.pruned_edges", "causal_correction.causal_graph.Ecausal", "causal_pruned_edges", "final_decision.causal_correction.pruned_edges", "final_decision.causal_correction.causal_graph.Ecausal", "final_decision.advanced_reasoning.causal_correction.pruned_edges", "final_decision.advanced_reasoning.causal_correction.causal_graph.Ecausal"]},
+    {"bytes_each": 73415, "copies": 4, "paths": ["advanced_reasoning.memory_propagation.relation_edges", "memory_propagation.relation_edges", "final_decision.memory_propagation.relation_edges", "final_decision.advanced_reasoning.memory_propagation.relation_edges"]},
+    {"bytes_each": 45989, "copies": 5, "paths": ["advanced_reasoning.memory_propagation.horizontal_links", "memory_propagation.horizontal_links", "horizontal_memory", "final_decision.memory_propagation.horizontal_links", "final_decision.advanced_reasoning.memory_propagation.horizontal_links"]},
+    {"bytes_each": 29149, "copies": 5, "paths": ["advanced_reasoning.memory_propagation.vertical_links", "memory_propagation.vertical_links", "vertical_propagation", "final_decision.memory_propagation.vertical_links", "final_decision.advanced_reasoning.memory_propagation.vertical_links"]},
+    {"bytes_each": 30098, "copies": 2, "paths": ["evidence_subgraph.retrieval_metadata", "retrieval_metadata"]}
+  ],
+  "structural_findings": {
+    "same_evidence_graph_repeated": false,
+    "advanced_reasoning_embeds_evidence_graph": false,
+    "advanced_reasoning_repeats_memory_and_causal": true,
+    "presentation_embeds_full_audit": false,
+    "audit_embeds_presentation": false,
+    "memory_embeds_parent_or_historical_audit": false,
+    "timeline_stages_copy_full_audit": true,
+    "review_child_embeds_parent_full_audit": false,
+    "submit_response_repeats_large_artifacts": true,
+    "recursive_historical_audit_nesting": false
+  }
+}

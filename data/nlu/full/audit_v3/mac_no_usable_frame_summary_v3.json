@@ -1,0 +1,10 @@
+{
+  "sample_count": 3957,
+  "classification_counts": {
+    "无法判断": 2981,
+    "明显非控制": 916,
+    "明显车辆/座舱控制": 52,
+    "明显残缺/垃圾输入": 8
+  },
+  "deterministically_resolved_count": 929
+}

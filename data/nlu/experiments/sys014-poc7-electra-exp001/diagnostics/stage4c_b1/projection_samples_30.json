@@ -1,0 +1,4097 @@
+[
+  {
+    "sample_id": "SYS014-POC-0797",
+    "split": "TRAIN",
+    "text": "请打开司机这边的窗",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 3,
+        "char_end": 7,
+        "text": "司机这边",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "请",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "打",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "开",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "司",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 5,
+        "token": "机",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 6,
+        "token": "这",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 7,
+        "token": "边",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 8,
+        "token": "的",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 9,
+        "token": "窗",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0816",
+    "split": "TRAIN",
+    "text": "开一下后排右边的窗",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 3,
+        "char_end": 7,
+        "text": "后排右边",
+        "canonical_value": "RIGHT_REAR",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "开",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "一",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "下",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "后",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 5,
+        "token": "排",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 6,
+        "token": "右",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 7,
+        "token": "边",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 8,
+        "token": "的",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 9,
+        "token": "窗",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0096",
+    "split": "TRAIN",
+    "text": "主驾门开一下",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "主驾",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "主",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 2,
+        "token": "驾",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "门",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "开",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "一",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "下",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0224",
+    "split": "TRAIN",
+    "text": "左前车窗开到50%",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "左前",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 6,
+        "char_end": 9,
+        "text": "50%",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "左",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 2,
+        "token": "前",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "车",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "窗",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "开",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "到",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "50",
+        "char_offset": [
+          6,
+          8
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 8,
+        "token": "%",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0121",
+    "split": "TRAIN",
+    "text": "帮我开一下右前车门",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 5,
+        "char_end": 7,
+        "text": "右前",
+        "canonical_value": "RIGHT_FRONT",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "帮",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "我",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "开",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "一",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "下",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "右",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 7,
+        "token": "前",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 8,
+        "token": "车",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 9,
+        "token": "门",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0231",
+    "split": "TRAIN",
+    "text": "把左前车窗降一点",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 1,
+        "char_end": 3,
+        "text": "左前",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 6,
+        "char_end": 8,
+        "text": "一点",
+        "canonical_value": null,
+        "normalization_status": "RAW_ONLY"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "把",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "左",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "前",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "窗",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "降",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "一",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 8,
+        "token": "点",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0114",
+    "split": "TRAIN",
+    "text": "先开一下司机这边的门",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 4,
+        "char_end": 8,
+        "text": "司机这边",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "先",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "开",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "一",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "下",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "司",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 6,
+        "token": "机",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 7,
+        "token": "这",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 8,
+        "token": "边",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 9,
+        "token": "的",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "门",
+        "char_offset": [
+          9,
+          10
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 11,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0799",
+    "split": "TRAIN",
+    "text": "帮我把主驾窗打开",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 3,
+        "char_end": 5,
+        "text": "主驾",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "帮",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "我",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "把",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "主",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 5,
+        "token": "驾",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 6,
+        "token": "窗",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "打",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "开",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 9,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0128",
+    "split": "TRAIN",
+    "text": "给我把右前车门开了",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 3,
+        "char_end": 5,
+        "text": "右前",
+        "canonical_value": "RIGHT_FRONT",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "给",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "我",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "把",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "右",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 5,
+        "token": "前",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 6,
+        "token": "车",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "门",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "开",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 9,
+        "token": "了",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0132",
+    "split": "TRAIN",
+    "text": "副驾驶门开一下",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 0,
+        "char_end": 3,
+        "text": "副驾驶",
+        "canonical_value": "RIGHT_FRONT",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "副",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 2,
+        "token": "驾",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "驶",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 4,
+        "token": "门",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "开",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "一",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "下",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "AREA"
+  },
+  {
+    "sample_id": "SYS014-POC-0600",
+    "split": "TRAIN",
+    "text": "左后车窗开到一半然后踩下刹车",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "左后",
+        "canonical_value": "LEFT_REAR",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 6,
+        "char_end": 8,
+        "text": "一半",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "左",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 2,
+        "token": "后",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "车",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "窗",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "开",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "到",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "一",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 8,
+        "token": "半",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "然",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "后",
+        "char_offset": [
+          9,
+          10
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 11,
+        "token": "踩",
+        "char_offset": [
+          10,
+          11
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 12,
+        "token": "下",
+        "char_offset": [
+          11,
+          12
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 13,
+        "token": "刹",
+        "char_offset": [
+          12,
+          13
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 14,
+        "token": "车",
+        "char_offset": [
+          13,
+          14
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 15,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0273",
+    "split": "TRAIN",
+    "text": "把右前车窗开到三成",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 1,
+        "char_end": 3,
+        "text": "右前",
+        "canonical_value": "RIGHT_FRONT",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 7,
+        "char_end": 9,
+        "text": "三成",
+        "canonical_value": "30%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "把",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "右",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "前",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "窗",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "开",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "到",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "三",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "成",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0523",
+    "split": "TRAIN",
+    "text": "可别把车窗开到一半",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "可别",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 7,
+        "char_end": 9,
+        "text": "一半",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "可",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "别",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "把",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "窗",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "开",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "到",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "一",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "半",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0608",
+    "split": "TRAIN",
+    "text": "继续加速然后把车窗调到30%",
+    "slots": [
+      {
+        "slot_type": "VALUE",
+        "char_start": 11,
+        "char_end": 14,
+        "text": "30%",
+        "canonical_value": "30%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "继",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "续",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "加",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "速",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "然",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "后",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "把",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "车",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 9,
+        "token": "窗",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "调",
+        "char_offset": [
+          9,
+          10
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 11,
+        "token": "到",
+        "char_offset": [
+          10,
+          11
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 12,
+        "token": "30",
+        "char_offset": [
+          11,
+          13
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 13,
+        "token": "%",
+        "char_offset": [
+          13,
+          14
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 14,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0622",
+    "split": "TRAIN",
+    "text": "关闭右后车门再把车窗调到30%",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 2,
+        "char_end": 4,
+        "text": "右后",
+        "canonical_value": "RIGHT_REAR",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 12,
+        "char_end": 15,
+        "text": "30%",
+        "canonical_value": "30%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "关",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "闭",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "右",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 4,
+        "token": "后",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 5,
+        "token": "车",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "门",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "再",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "把",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 9,
+        "token": "车",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "窗",
+        "char_offset": [
+          9,
+          10
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 11,
+        "token": "调",
+        "char_offset": [
+          10,
+          11
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 12,
+        "token": "到",
+        "char_offset": [
+          11,
+          12
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 13,
+        "token": "30",
+        "char_offset": [
+          12,
+          14
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 14,
+        "token": "%",
+        "char_offset": [
+          14,
+          15
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 15,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0241",
+    "split": "TRAIN",
+    "text": "把主驾车窗开到三成",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 1,
+        "char_end": 3,
+        "text": "主驾",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 7,
+        "char_end": 9,
+        "text": "三成",
+        "canonical_value": "30%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "把",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "主",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "驾",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "窗",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "开",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "到",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "三",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "成",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0272",
+    "split": "TRAIN",
+    "text": "右前车窗开到50%",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "右前",
+        "canonical_value": "RIGHT_FRONT",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 6,
+        "char_end": 9,
+        "text": "50%",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "右",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 2,
+        "token": "前",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "车",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "窗",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "开",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "到",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "50",
+        "char_offset": [
+          6,
+          8
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 8,
+        "token": "%",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0221",
+    "split": "TRAIN",
+    "text": "把左前车窗开到一半",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 1,
+        "char_end": 3,
+        "text": "左前",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 7,
+        "char_end": 9,
+        "text": "一半",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "把",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 2,
+        "token": "左",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "前",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "窗",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "开",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "到",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "一",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "半",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0236",
+    "split": "TRAIN",
+    "text": "左前车窗再开大一点",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "左前",
+        "canonical_value": "LEFT_FRONT",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 6,
+        "char_end": 9,
+        "text": "大一点",
+        "canonical_value": null,
+        "normalization_status": "RAW_ONLY"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "左",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 2,
+        "token": "前",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "车",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "窗",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "再",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "开",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "大",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 8,
+        "token": "一",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "点",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0627",
+    "split": "TRAIN",
+    "text": "左后车窗开到一半再把车门关上",
+    "slots": [
+      {
+        "slot_type": "AREA",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "左后",
+        "canonical_value": "LEFT_REAR",
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 6,
+        "char_end": 8,
+        "text": "一半",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "左",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 1,
+        "bio_label": "B-AREA"
+      },
+      {
+        "token_index": 2,
+        "token": "后",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 2,
+        "bio_label": "I-AREA"
+      },
+      {
+        "token_index": 3,
+        "token": "车",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "窗",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "开",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "到",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "一",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 8,
+        "token": "半",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "再",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 10,
+        "token": "把",
+        "char_offset": [
+          9,
+          10
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 11,
+        "token": "车",
+        "char_offset": [
+          10,
+          11
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 12,
+        "token": "门",
+        "char_offset": [
+          11,
+          12
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 13,
+        "token": "关",
+        "char_offset": [
+          12,
+          13
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 14,
+        "token": "上",
+        "char_offset": [
+          13,
+          14
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 15,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "VALUE"
+  },
+  {
+    "sample_id": "SYS014-POC-0498",
+    "split": "TRAIN",
+    "text": "不要关闭车门",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "不要",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "不",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "要",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "关",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "闭",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "车",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "门",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0517",
+    "split": "TRAIN",
+    "text": "别把车窗开到一半",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 1,
+        "text": "别",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 6,
+        "char_end": 8,
+        "text": "一半",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "别",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "把",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "车",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "窗",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "开",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "到",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "一",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 8,
+        "token": "半",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0556",
+    "split": "TRAIN",
+    "text": "暂时别加速",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 3,
+        "text": "暂时别",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "暂",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "时",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "别",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 4,
+        "token": "加",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "速",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0536",
+    "split": "TRAIN",
+    "text": "先别关闭大灯",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "先别",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "先",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "别",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "关",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "闭",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "大",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "灯",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0570",
+    "split": "TRAIN",
+    "text": "先别刹车",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "先别",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "先",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "别",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "刹",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0543",
+    "split": "TRAIN",
+    "text": "无需关闭大灯",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "无需",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "无",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "需",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "关",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "闭",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "大",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "灯",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0545",
+    "split": "TRAIN",
+    "text": "先不要关闭大灯",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 3,
+        "text": "先不要",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "先",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "不",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "要",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 4,
+        "token": "关",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "闭",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "大",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "灯",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0560",
+    "split": "TRAIN",
+    "text": "无需加速",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "无需",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "无",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "需",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "加",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "速",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0525",
+    "split": "TRAIN",
+    "text": "无需把车窗开到一半",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 2,
+        "text": "无需",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      },
+      {
+        "slot_type": "VALUE",
+        "char_start": 7,
+        "char_end": 9,
+        "text": "一半",
+        "canonical_value": "50%",
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "无",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "需",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 6,
+        "bio_label": "I-NEGATION"
+      },
+      {
+        "token_index": 3,
+        "token": "把",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "窗",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "开",
+        "char_offset": [
+          5,
+          6
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 7,
+        "token": "到",
+        "char_offset": [
+          6,
+          7
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 8,
+        "token": "一",
+        "char_offset": [
+          7,
+          8
+        ],
+        "special_token": false,
+        "label_id": 3,
+        "bio_label": "B-VALUE"
+      },
+      {
+        "token_index": 9,
+        "token": "半",
+        "char_offset": [
+          8,
+          9
+        ],
+        "special_token": false,
+        "label_id": 4,
+        "bio_label": "I-VALUE"
+      },
+      {
+        "token_index": 10,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  },
+  {
+    "sample_id": "SYS014-POC-0499",
+    "split": "TRAIN",
+    "text": "别关闭车门",
+    "slots": [
+      {
+        "slot_type": "NEGATION",
+        "char_start": 0,
+        "char_end": 1,
+        "text": "别",
+        "canonical_value": true,
+        "normalization_status": "NORMALIZED"
+      }
+    ],
+    "tokens": [
+      {
+        "token_index": 0,
+        "token": "[CLS]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      },
+      {
+        "token_index": 1,
+        "token": "别",
+        "char_offset": [
+          0,
+          1
+        ],
+        "special_token": false,
+        "label_id": 5,
+        "bio_label": "B-NEGATION"
+      },
+      {
+        "token_index": 2,
+        "token": "关",
+        "char_offset": [
+          1,
+          2
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 3,
+        "token": "闭",
+        "char_offset": [
+          2,
+          3
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 4,
+        "token": "车",
+        "char_offset": [
+          3,
+          4
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 5,
+        "token": "门",
+        "char_offset": [
+          4,
+          5
+        ],
+        "special_token": false,
+        "label_id": 0,
+        "bio_label": "O"
+      },
+      {
+        "token_index": 6,
+        "token": "[SEP]",
+        "char_offset": [
+          0,
+          0
+        ],
+        "special_token": true,
+        "label_id": -100,
+        "bio_label": "IGNORE_INDEX"
+      }
+    ],
+    "projection_failures": [],
+    "audit_entity": "NEGATION"
+  }
+]

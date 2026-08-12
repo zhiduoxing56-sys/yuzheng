@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
+import math
 from typing import Any, Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def utc_now() -> datetime:
@@ -20,12 +21,58 @@ class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", protected_namespaces=())
 
 
+def _validate_vehicle_source_fields(data: Any) -> Any:
+    if not isinstance(data, dict):
+        return data
+    numeric_fields = {
+        "vehicle_speed",
+        "front_obstacle_distance",
+        "rear_obstacle_distance",
+        "ultrasonic_distance",
+        "speed_limit",
+    }
+    for field_name in numeric_fields:
+        if field_name not in data or data[field_name] is None:
+            continue
+        value = data[field_name]
+        valid = (
+            not isinstance(value, bool)
+            and isinstance(value, (int, float))
+            and (not isinstance(value, float) or math.isfinite(value))
+        )
+        if not valid:
+            raise ValueError(
+                f"{field_name} violates FINITE_INT_OR_FLOAT_EXCLUDING_BOOL: "
+                f"INVALID_VALUE_TYPE ({type(value).__name__})"
+            )
+    if "ambient_light" in data and data["ambient_light"] is not None:
+        value = data["ambient_light"]
+        valid = (
+            not isinstance(value, bool)
+            and isinstance(value, (int, float))
+            and (not isinstance(value, float) or math.isfinite(value))
+        ) or (isinstance(value, str) and value.upper() in {"LOW", "DARK", "NIGHT"})
+        if not valid:
+            raise ValueError(
+                "ambient_light violates FINITE_INT_OR_FLOAT_EXCLUDING_BOOL_OR_"
+                f"LOW_DARK_NIGHT: INVALID_VALUE_TYPE ({type(value).__name__})"
+            )
+    return data
+
+
 class EvidenceStatus(str, Enum):
     VALID = "VALID"
     SUSPICIOUS = "SUSPICIOUS"
     STALE = "STALE"
     TAMPERED = "TAMPERED"
     MISSING = "MISSING"
+
+
+class RetrievalOrigin(str, Enum):
+    HNSW = "HNSW"
+    MANDATORY_RECALL = "MANDATORY_RECALL"
+    BOTH = "BOTH"
+    NONE = "NONE"
 
 
 class DecisionLabel(str, Enum):
@@ -109,6 +156,11 @@ class AuditRecordQuality(str, Enum):
     SUPERSEDED = "SUPERSEDED"
     TEST_ONLY = "TEST_ONLY"
     LEGACY_MODEL = "LEGACY_MODEL"
+
+
+class AuditDatabaseRole(str, Enum):
+    PRODUCTION = "PRODUCTION"
+    TEST = "TEST"
 
 
 class AuditRecordType(str, Enum):
@@ -273,30 +325,43 @@ class ZonePermissionResult(StrictModel):
     calculated_risk: float = Field(ge=0, le=1)
 
 
+class SemanticIntent(StrictModel):
+    clause_index: int = Field(ge=0)
+    clause_text: str
+    intent_id: str
+    action: str
+    target: str
+    area: str = "unknown"
+    value: Any | None = None
+    control_domain: str = "unknown"
+    risk_level: str = "R1"
+    risk_tags: list[str] = Field(default_factory=list)
+    semantic_confidence: float = Field(ge=0, le=1)
+    ambiguity_score: float = Field(ge=0, le=1)
+
+
 class SemanticFrame(StrictModel):
     frame_id: str = Field(default_factory=lambda: make_id("SEM"))
     turn_id: str
     raw_text: str
     normalized_text: str
-    action: str
-    target: str
-    area: str
-    value: str | None = None
-    control_domain: str
     semantic_confidence: float = Field(ge=0, le=1)
     ambiguity_score: float = Field(ge=0, le=1)
-    risk_level: str
-    risk_tags: list[str] = Field(default_factory=list)
-    context_claims: dict[str, Any] = Field(default_factory=dict)
-    required_evidence_types: list[str] = Field(default_factory=list)
-    optional_evidence_types: list[str] = Field(default_factory=list)
+    semantic_status: str
+    review_reasons: list[str] = Field(default_factory=list)
+    review_candidates: list[str] = Field(default_factory=list)
+    unresolved_clauses: list[str] = Field(default_factory=list)
+    security_signals: list[str] = Field(default_factory=list)
+    intents: list[SemanticIntent] = Field(default_factory=list)
 
 
-class EvidenceDemand(StrictModel):
-    demand_id: str = Field(default_factory=lambda: make_id("DEM"))
-    turn_id: str
+class IntentEvidenceDemand(StrictModel):
+    intent_id: str
+    clause_index: int = Field(ge=0)
     action: str
     target: str
+    area: str = "unknown"
+    value: Any | None = None
     risk_level: str
     query_text: str
     query_vector: list[float] = Field(default_factory=list)
@@ -305,6 +370,12 @@ class EvidenceDemand(StrictModel):
     optional_types: list[str] = Field(default_factory=list)
     priority: int = Field(default=0, ge=0, le=100)
     retrieval_scope: str = "control_evidence"
+
+
+class EvidenceDemand(StrictModel):
+    demand_id: str = Field(default_factory=lambda: make_id("DEM"))
+    turn_id: str
+    intent_demands: list[IntentEvidenceDemand] = Field(default_factory=list)
 
 
 class EvidenceNode(StrictModel):
@@ -319,8 +390,6 @@ class EvidenceNode(StrictModel):
     freshness: float = Field(ge=0, le=1)
     consistency: float = Field(ge=0, le=1)
     availability: float = Field(ge=0, le=1)
-    semantic_similarity: float = Field(ge=0, le=1)
-    mandatory: bool
     quality_label: EvidenceStatus
     integrity_hash: str
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -336,6 +405,13 @@ class EvidenceNode(StrictModel):
     merged_node_sources: list[str] = Field(default_factory=list)
     field_resolution: dict[str, str] = Field(default_factory=dict)
     canonicalization_warnings: list[str] = Field(default_factory=list)
+
+    @field_validator("evidence_type")
+    @classmethod
+    def canonical_evidence_type_only(cls, value: str) -> str:
+        from app.services.evidence.catalog import require_canonical_evidence_type
+
+        return require_canonical_evidence_type(value)
 
 
 class EvidenceEdge(StrictModel):
@@ -377,6 +453,7 @@ class SecurityClassInfo(StrictModel):
     name: SecurityClass
     rank: int | None = Field(default=None, ge=0, le=3)
     report_label: str
+    node_layer_label: str
     mapping_source: str
 
 
@@ -443,6 +520,14 @@ class SecurityLayerNavigation(StrictModel):
     total_elapsed_ms: float = Field(ge=0)
 
 
+class OccurrenceLayerNavigation(StrictModel):
+    """The real HNSW layer queries made for one semantic intent occurrence."""
+
+    clause_index: int = Field(ge=0)
+    intent_id: str
+    navigation: SecurityLayerNavigation
+
+
 class RetrievalVisualizationPath(StrictModel):
     sequence: int = Field(ge=1)
     from_node_id: str
@@ -505,6 +590,9 @@ class RetrievalMetadata(StrictModel):
     mapping_coverage: float | None = Field(default=None, ge=0, le=1)
     unclassified_types: list[str] = Field(default_factory=list)
     security_layer_navigation: SecurityLayerNavigation | None = None
+    occurrence_layer_navigations: list[OccurrenceLayerNavigation] = Field(
+        default_factory=list
+    )
     retrieval_visualization_path: list[RetrievalVisualizationPath] = Field(
         default_factory=list
     )
@@ -518,13 +606,40 @@ class RetrievalMetadata(StrictModel):
 
 
 class MandatoryRecallRecord(StrictModel):
+    clause_index: int = Field(ge=0)
+    intent_id: str
     evidence_type: str
     status: str
     candidate_node_ids: list[str] = Field(default_factory=list)
     recalled_node_id: str | None = None
     source: str | None = None
-    retrieval_origin: str = "NONE"
+    retrieval_origin: RetrievalOrigin = RetrievalOrigin.NONE
     reason: str
+
+
+class IntentEvidenceBinding(StrictModel):
+    clause_index: int = Field(ge=0)
+    intent_id: str
+    evidence_type: str
+    requirement_level: Literal["REQUIRED", "OPTIONAL"]
+    node_id: str | None = None
+    resolution_status: Literal[
+        "RETRIEVED",
+        "MANDATORY_RECALLED",
+        "MISSING",
+        "OPTIONAL_NOT_FOUND",
+    ]
+    retrieval_origin: RetrievalOrigin
+    semantic_similarity: float | None = Field(default=None, ge=0, le=1)
+
+
+class IntentEvidenceResolution(StrictModel):
+    clause_index: int = Field(ge=0)
+    intent_id: str
+    candidate_node_ids: list[str] = Field(default_factory=list)
+    bindings: list[IntentEvidenceBinding] = Field(default_factory=list)
+    mandatory_recall_records: list[MandatoryRecallRecord] = Field(default_factory=list)
+    missing_required_types: list[str] = Field(default_factory=list)
 
 
 class EvidenceQualityMetrics(StrictModel):
@@ -558,10 +673,10 @@ class EvidenceSubgraph(StrictModel):
     turn_id: str
     nodes: list[EvidenceNode] = Field(default_factory=list)
     edges: list[EvidenceEdge] = Field(default_factory=list)
-    required_types: list[str] = Field(default_factory=list)
+    intent_evidence_resolutions: list[IntentEvidenceResolution] = Field(
+        default_factory=list
+    )
     retrieved_types: list[str] = Field(default_factory=list)
-    mandatory_recalled_types: list[str] = Field(default_factory=list)
-    missing_types: list[str] = Field(default_factory=list)
     quality_metrics: EvidenceQualityMetrics | None = None
     retrieval_metadata: RetrievalMetadata | None = None
     corrected_weights: dict[str, float] = Field(default_factory=dict)
@@ -734,6 +849,11 @@ class CausalEdge(StrictModel):
 class CausalPriorComponents(StrictModel):
     node_id: str
     causal_variable: str
+    clause_index: int | None = Field(default=None, ge=0)
+    intent_id: str | None = None
+    binding_similarity: float | None = Field(default=None, ge=0, le=1)
+    requirement_level: Literal["REQUIRED", "OPTIONAL"] | None = None
+    memory_initial_confidence: float | None = Field(default=None, ge=0)
     sas_component: float | None = Field(default=None, ge=0, le=1)
     layer_confidence_component: float | None = Field(default=None, ge=0)
     freshness_component: float | None = Field(default=None, ge=0, le=1)
@@ -760,6 +880,8 @@ class ParentStateStatistics(StrictModel):
 class CausalNodeWeight(StrictModel):
     node_id: str
     causal_variable: str
+    clause_index: int | None = Field(default=None, ge=0)
+    intent_id: str | None = None
     prior_probability: float | None = Field(default=None, ge=0, le=1)
     causal_support: float | None = Field(default=None, ge=0, le=1)
     unnormalized_weight: float | None = Field(default=None, ge=0)
@@ -788,6 +910,8 @@ class CausalModelSnapshot(StrictModel):
 
 
 class CausalCorrectionResult(StrictModel):
+    mode: str = "HISTORICAL_LEGACY"
+    corrected_weights_projection: str = "LEGACY_AUTHORITATIVE"
     model_snapshot: CausalModelSnapshot | None = None
     parent_state_statistics: list[ParentStateStatistics] = Field(default_factory=list)
     prior_components: list[CausalPriorComponents] = Field(default_factory=list)
@@ -1025,6 +1149,25 @@ class DecisionScoreFactors(StrictModel):
         return self
 
 
+class IntentSafetyAssessment(StrictModel):
+    clause_index: int = Field(ge=0)
+    intent_id: str
+    quality_metrics: EvidenceQualityMetrics
+    gate_blocked: bool
+    gate_hit_rules: list[str] = Field(default_factory=list)
+    gate_reasons: list[str] = Field(default_factory=list)
+    gate_observed: dict[str, Any] = Field(default_factory=dict)
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
+    score_factors: DecisionScoreFactors
+    safety_score: float = Field(ge=0, le=1)
+    score_decision: DecisionLabel
+    final_safety_decision: DecisionLabel
+    decision_sources: list[DecisionSource] = Field(default_factory=list)
+    decision_merge_reason: str
+    reason_codes: list[str] = Field(default_factory=list)
+    explanations: list[str] = Field(default_factory=list)
+
+
 class DecisionResult(StrictModel):
     turn_id: str
     decision: DecisionLabel
@@ -1049,6 +1192,8 @@ class DecisionResult(StrictModel):
     memory_propagation: MemoryPropagationResult | None = None
     grounding_failures: list[GroundingFailure] = Field(default_factory=list)
     conflicts: list[JailbreakConflict] = Field(default_factory=list)
+    intent_safety_assessments: list[IntentSafetyAssessment] = Field(default_factory=list)
+    aggregate_safety_decision: DecisionLabel | None = None
     created_at: datetime = Field(default_factory=utc_now)
 
     @model_validator(mode="before")
@@ -1120,6 +1265,11 @@ class VehicleState(StrictModel):
     safety_constraint: str | None = "ENABLED"
     updated_at: datetime = Field(default_factory=utc_now)
 
+    @model_validator(mode="before")
+    @classmethod
+    def reject_wide_numeric_evidence_values(cls, data: Any) -> Any:
+        return _validate_vehicle_source_fields(data)
+
 
 class VehicleStatePatch(StrictModel):
     vehicle_speed: float | None = Field(default=None, ge=0)
@@ -1149,6 +1299,33 @@ class VehicleStatePatch(StrictModel):
     collision_state: str | bool | None = None
     safety_constraint: str | None = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def reject_wide_numeric_evidence_values(cls, data: Any) -> Any:
+        return _validate_vehicle_source_fields(data)
+
+
+class RuntimeSafetyContext(StrictModel):
+    """Trusted non-evidence runtime values used only by direct safety interlocks."""
+
+    navigation_active: bool | None = None
+    display_state: str | None = None
+    music_state: str | None = None
+    reverse_camera_active: bool | None = None
+    surround_camera_state: str | None = None
+    ultrasonic_distance: float | None = Field(default=None, ge=0)
+
+    @classmethod
+    def from_vehicle_state(cls, state: VehicleState) -> "RuntimeSafetyContext":
+        return cls(
+            navigation_active=state.navigation_active,
+            display_state=state.display_state,
+            music_state=state.music_state,
+            reverse_camera_active=state.reverse_camera_active,
+            surround_camera_state=state.surround_camera_state,
+            ultrasonic_distance=state.ultrasonic_distance,
+        )
+
 
 class EvidenceObservationInput(StrictModel):
     evidence_type: str
@@ -1160,13 +1337,29 @@ class EvidenceObservationInput(StrictModel):
     integrity_valid: bool = True
     expires_in_seconds: float | None = None
 
+    @field_validator("evidence_type")
+    @classmethod
+    def canonical_evidence_type_only(cls, value: str) -> str:
+        from app.services.evidence.catalog import require_canonical_evidence_type
+
+        return require_canonical_evidence_type(value)
+
+
+class TrustedRuntimeContext(StrictModel):
+    """Backend-only trust boundary for simulator, scenario, and verified audio inputs."""
+
+    state_overrides: VehicleStatePatch | None = None
+    evidence_overrides: list[EvidenceObservationInput] = Field(default_factory=list)
+    subject_role: str | None = None
+    subject_zone: str | None = None
+    subject_source: str | None = None
+    zone_source: str | None = None
+
 
 class TextCommandRequest(StrictModel):
     text: str = Field(min_length=1, max_length=2048)
     speaker_zone: str = "driver"
     speaker_role: str = "driver"
-    state_overrides: VehicleStatePatch | None = None
-    evidence_overrides: list[EvidenceObservationInput] = Field(default_factory=list)
     session_id: str | None = Field(default=None, min_length=1, max_length=100)
 
     @model_validator(mode="after")
@@ -1184,7 +1377,6 @@ class MicrophoneCommandRequest(StrictModel):
     ] = "unknown"
     speaker_role: str = "unknown"
     session_id: str | None = Field(default=None, min_length=1, max_length=100)
-    state_overrides: VehicleStatePatch | None = None
 
 
 class AuditRecord(StrictModel):
@@ -1203,12 +1395,9 @@ class AuditRecord(StrictModel):
     semantic_frame: SemanticFrame
     evidence_demand: EvidenceDemand
     candidate_recall_results: list[EvidenceNode]
-    mandatory_supplement_records: list[dict[str, Any]] = Field(default_factory=list)
-    vectorization_metadata: VectorizationMetadata | None = None
-    query_vector_digest: str = ""
+    vectorization_metadata: list[VectorizationMetadata] = Field(default_factory=list)
+    query_vector_digests: list[str] = Field(default_factory=list)
     retrieval_metadata: RetrievalMetadata | None = None
-    mandatory_recall_records: list[MandatoryRecallRecord] = Field(default_factory=list)
-    missing_evidence_types: list[str] = Field(default_factory=list)
     evidence_subgraph: EvidenceSubgraph | None = None
     evidence_subgraph_summary: dict[str, Any] = Field(default_factory=dict)
     evidence_quality_metrics: EvidenceQualityMetrics | dict[str, float] = Field(default_factory=dict)
@@ -1296,17 +1485,16 @@ class TextCommandResponse(StrictModel):
     semantic_frame: SemanticFrame
     evidence_demand: EvidenceDemand
     evidence: list[EvidenceNode]
-    query_vector: list[float]
+    query_vectors: list[list[float]]
     retrieval_metadata: RetrievalMetadata
     candidate_evidence: list[EvidenceNode]
-    mandatory_recall_records: list[MandatoryRecallRecord]
     evidence_subgraph: EvidenceSubgraph
     quality_metrics: EvidenceQualityMetrics
     safety_gate: SafetyGateResult
     decision: DecisionResult
     audit: AuditRecord
     actionable: bool = True
-    retrieval_scope: str = "control_evidence"
+    retrieval_scopes: list[str] = Field(default_factory=list)
     advanced_reasoning: AdvancedReasoningResult | None = None
     memory_propagation: MemoryPropagationResult | None = None
     causal_correction: CausalCorrectionResult | None = None
@@ -1365,6 +1553,13 @@ class IndexRebuildRequest(StrictModel):
     exclude_types: list[str] = Field(default_factory=list)
 
 
+class IndexParametersRequest(StrictModel):
+    M: int = Field(gt=0)
+    ef_construction: int = Field(gt=0)
+    ef_search: int = Field(gt=0)
+    layer_count: int = Field(gt=0)
+
+
 class IndexStatus(StrictModel):
     implementation: str
     node_count: int = Field(ge=0)
@@ -1372,6 +1567,7 @@ class IndexStatus(StrictModel):
     M: int = Field(gt=0)
     ef_construction: int = Field(gt=0)
     ef_search: int = Field(gt=0)
+    layer_count: int = Field(gt=0)
     top_k: int = Field(gt=0)
     canonical_node_count: int = Field(default=0, ge=0)
     ephemeral_node_count: int = Field(default=0, ge=0)
@@ -1395,8 +1591,6 @@ class IndexStatus(StrictModel):
     classification_mapping_digest: str | None = None
     formula_version: str | None = None
     formula_source: str | None = None
-    L: int | None = Field(default=None, ge=0)
-    L_source: str | None = None
     security_mapping_version: str | None = None
     security_rank_mapping_source: str | None = None
     index_seed_digest: str | None = None

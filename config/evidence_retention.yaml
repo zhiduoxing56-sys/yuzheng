@@ -2,8 +2,6 @@ dynamic_stream_window: 16
 retained_turns: 64
 cleanup_after_audit: true
 retain_static_nodes: true
-retain_rule_nodes: true
-static_evidence_types:
-  - safety_rule
-static_sources:
-  - safety_rule_config
+retain_rule_nodes: false
+static_evidence_types: []
+static_sources: []

@@ -1,0 +1,3780 @@
+{
+  "schema_version": "vss-stage1-import-1",
+  "source_version": "VSS 6.0",
+  "source_metadata": {
+    "upstream_project": "COVESA/vehicle_signal_specification",
+    "source_version": "VSS 6.0",
+    "release_tag": "v6.0",
+    "release_commit": "20c609b",
+    "source_url": "https://github.com/COVESA/vehicle_signal_specification/releases/download/v6.0/vss.csv",
+    "source_artifact": "vss.csv",
+    "retrieved_at": "2026-08-07T14:44:23Z",
+    "sha256": "6E8947C75E7FF794C75382343B69083ABBDA87D32D6D1842B06E86ADC9CC95DB",
+    "file_size": 303193,
+    "license": "MPL-2.0"
+  },
+  "semantic_boundary": {
+    "vss_actuator": "COVESA VSS 中可读写的车辆信号",
+    "capability_candidate": "由单个有效 actuator 确定性生成、等待人工建模的候选",
+    "not_voice_capability": true,
+    "not_current_yuzheng_capability": true,
+    "not_safety_rule": true,
+    "runtime_registration_performed": false
+  },
+  "counts": {
+    "vss_total_entries": 1607,
+    "actuator_total": 643,
+    "actuator_deprecated": 2,
+    "actuator_effective": 641,
+    "capability_candidates": 641,
+    "manual_review_required": 404
+  },
+  "actuator_by_primary_domain": {
+    "ADAS": 21,
+    "Body": 57,
+    "Cabin": 455,
+    "Chassis": 5,
+    "IsAutoPowerOptimize": 1,
+    "MotionManagement": 67,
+    "PowerOptimizeLevel": 1,
+    "Powertrain": 35,
+    "TripMeterReading": 1
+  },
+  "actuator_by_secondary_domain": {
+    "ADAS.ABS": 1,
+    "ADAS.CruiseControl": 6,
+    "ADAS.DMS": 1,
+    "ADAS.EBA": 1,
+    "ADAS.EBD": 1,
+    "ADAS.ESC": 1,
+    "ADAS.IsAutoPowerOptimize": 1,
+    "ADAS.LaneDepartureDetection": 1,
+    "ADAS.ObstacleDetection": 6,
+    "ADAS.PowerOptimizeLevel": 1,
+    "ADAS.TCS": 1,
+    "Body.Hood": 3,
+    "Body.Horn": 1,
+    "Body.IsAutoPowerOptimize": 1,
+    "Body.Lights": 14,
+    "Body.Mirrors": 12,
+    "Body.PowerOptimizeLevel": 1,
+    "Body.RearMainSpoilerPosition": 1,
+    "Body.Trunk": 10,
+    "Body.Windshield": 14,
+    "Cabin.Door": 40,
+    "Cabin.HVAC": 30,
+    "Cabin.Infotainment": 32,
+    "Cabin.IsAutoPowerOptimize": 1,
+    "Cabin.IsWindowChildLockEngaged": 1,
+    "Cabin.Light": 42,
+    "Cabin.PowerOptimizeLevel": 1,
+    "Cabin.RearShade": 3,
+    "Cabin.RearviewMirror": 1,
+    "Cabin.Seat": 300,
+    "Cabin.Sunroof": 4,
+    "Chassis.ParkingBrake": 2,
+    "Chassis.SteeringWheel": 3,
+    "IsAutoPowerOptimize": 1,
+    "MotionManagement.Brake": 28,
+    "MotionManagement.ElectricAxle": 12,
+    "MotionManagement.Steering": 14,
+    "MotionManagement.Suspension": 13,
+    "PowerOptimizeLevel": 1,
+    "Powertrain.FuelSystem": 1,
+    "Powertrain.IsAutoPowerOptimize": 1,
+    "Powertrain.PowerOptimizeLevel": 1,
+    "Powertrain.TractionBattery": 22,
+    "Powertrain.Transmission": 10,
+    "TripMeterReading": 1
+  },
+  "effective_actuator_by_major_domain": {
+    "ADAS": 21,
+    "Body": 55,
+    "Cabin": 455,
+    "MotionManagement": 67,
+    "Other": 8,
+    "Powertrain": 35
+  },
+  "effective_actuator_by_datatype": {
+    "boolean": 255,
+    "double": 2,
+    "float": 100,
+    "int16": 38,
+    "int8": 30,
+    "string": 81,
+    "uint16": 41,
+    "uint32": 1,
+    "uint8": 93
+  },
+  "candidate_by_control_mode": {
+    "BOOLEAN": 255,
+    "ENUM": 57,
+    "NUMERIC": 305,
+    "OTHER": 0,
+    "STRING": 24,
+    "STRUCT": 0
+  },
+  "manual_review_by_reason": {
+    "boolean 描述未同时明确 true/false 的用户语义": 171,
+    "内部 request/command/control 语义: request": 35,
+    "内部 request/command/control 语义: request, internal, actuator internal": 1,
+    "内部 request/command/control 语义: request, internal, set-point, steer-by-wire, actuator internal": 2,
+    "内部 request/command/control 语义: request, requested": 10,
+    "内部 request/command/control 语义: request, set-point": 3,
+    "内部 request/command/control 语义: request, set-point, steer-by-wire": 2,
+    "同一对象同时存在 ActualPosition 与 TargetPosition": 8,
+    "同一对象存在 Actual/Target 语义对: Position": 8,
+    "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch": 59,
+    "同一对象存在不同语义兄弟节点: Position, Switch": 1,
+    "字符串型 actuator 需要人工确认枚举或自由文本语义": 81,
+    "技术目标/限制量语义需人工判断: Distribution": 8,
+    "技术目标/限制量语义需人工判断: Distribution, Torque": 1,
+    "技术目标/限制量语义需人工判断: Force": 1,
+    "技术目标/限制量语义需人工判断: Limit": 1,
+    "技术目标/限制量语义需人工判断: Maximum, Distribution, Force": 1,
+    "技术目标/限制量语义需人工判断: Maximum, Distribution, Torque": 3,
+    "技术目标/限制量语义需人工判断: Maximum, Force": 1,
+    "技术目标/限制量语义需人工判断: Maximum, Limit": 2,
+    "技术目标/限制量语义需人工判断: Maximum, Limit, Torque": 2,
+    "技术目标/限制量语义需人工判断: Maximum, Torque": 6,
+    "技术目标/限制量语义需人工判断: Minimum, Distribution, Force": 1,
+    "技术目标/限制量语义需人工判断: Minimum, Distribution, Torque": 3,
+    "技术目标/限制量语义需人工判断: Minimum, Limit": 2,
+    "技术目标/限制量语义需人工判断: Minimum, Limit, Torque": 2,
+    "技术目标/限制量语义需人工判断: Minimum, Torque": 6,
+    "技术目标/限制量语义需人工判断: Omega": 8,
+    "技术目标/限制量语义需人工判断: Target": 19,
+    "技术目标/限制量语义需人工判断: Target, Force": 4,
+    "技术目标/限制量语义需人工判断: Target, Offset": 3,
+    "技术目标/限制量语义需人工判断: Target, Offset, Torque": 2,
+    "技术目标/限制量语义需人工判断: Target, Torque": 5,
+    "根级或组件不明确，无法判断用户可理解能力": 3,
+    "诊断/健康/维护语义: fault": 9,
+    "高风险或底层控制域: ADAS": 21,
+    "高风险或底层控制域: MotionManagement": 67,
+    "高风险或底层控制域: Powertrain": 35
+  },
+  "manual_review_items": [
+    {
+      "candidate_id": "VSS6_A0BBE802EB759580",
+      "vss_path": "Vehicle.ADAS.ABS.IsEnabled",
+      "candidate_capability": "abs.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4EEA4C5F2D55A0A2",
+      "vss_path": "Vehicle.ADAS.CruiseControl.AdaptiveDistanceSet",
+      "candidate_capability": "cruise_control.adaptive_distance_set",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3C822025C6EEF9C0",
+      "vss_path": "Vehicle.ADAS.CruiseControl.AdaptiveIntervalSet",
+      "candidate_capability": "cruise_control.adaptive_interval_set",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_94433EAD48834B2C",
+      "vss_path": "Vehicle.ADAS.CruiseControl.IsActive",
+      "candidate_capability": "cruise_control.active",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_91509D70789C0737",
+      "vss_path": "Vehicle.ADAS.CruiseControl.IsAdaptive",
+      "candidate_capability": "cruise_control.adaptive",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BDA7D81575D814C2",
+      "vss_path": "Vehicle.ADAS.CruiseControl.IsEnabled",
+      "candidate_capability": "cruise_control.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A391375035CE52C8",
+      "vss_path": "Vehicle.ADAS.CruiseControl.SpeedSet",
+      "candidate_capability": "cruise_control.speed_set",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_10C5CE0ECF8594B9",
+      "vss_path": "Vehicle.ADAS.DMS.IsEnabled",
+      "candidate_capability": "dms.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_71EB2CC0BF8922B0",
+      "vss_path": "Vehicle.ADAS.EBA.IsEnabled",
+      "candidate_capability": "eba.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0334D2B85725CF08",
+      "vss_path": "Vehicle.ADAS.EBD.IsEnabled",
+      "candidate_capability": "ebd.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5FE39E2D7A5BD2D7",
+      "vss_path": "Vehicle.ADAS.ESC.IsEnabled",
+      "candidate_capability": "esc.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3EE2AD572F9D8287",
+      "vss_path": "Vehicle.ADAS.IsAutoPowerOptimize",
+      "candidate_capability": "adas.auto_power_optimize",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_ED16AE199EB33DDA",
+      "vss_path": "Vehicle.ADAS.LaneDepartureDetection.IsEnabled",
+      "candidate_capability": "lane_departure_detection.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B8455ADEF9863CF8",
+      "vss_path": "Vehicle.ADAS.ObstacleDetection.Front.Center.IsEnabled",
+      "candidate_capability": "obstacle_detection.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_046C0BA1A1B002AC",
+      "vss_path": "Vehicle.ADAS.ObstacleDetection.Front.Left.IsEnabled",
+      "candidate_capability": "obstacle_detection.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6BA7DD7FD588811B",
+      "vss_path": "Vehicle.ADAS.ObstacleDetection.Front.Right.IsEnabled",
+      "candidate_capability": "obstacle_detection.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A6C69D85EBE38BB9",
+      "vss_path": "Vehicle.ADAS.ObstacleDetection.Rear.Center.IsEnabled",
+      "candidate_capability": "obstacle_detection.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6FE79A3B3D2392B8",
+      "vss_path": "Vehicle.ADAS.ObstacleDetection.Rear.Left.IsEnabled",
+      "candidate_capability": "obstacle_detection.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BA995D5FABB604C4",
+      "vss_path": "Vehicle.ADAS.ObstacleDetection.Rear.Right.IsEnabled",
+      "candidate_capability": "obstacle_detection.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_440B3B529DFA4CD5",
+      "vss_path": "Vehicle.ADAS.PowerOptimizeLevel",
+      "candidate_capability": "adas.power_optimize_level",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_10B603B27E7DB719",
+      "vss_path": "Vehicle.ADAS.TCS.IsEnabled",
+      "candidate_capability": "tcs.enabled",
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_82D12568B7F125DC",
+      "vss_path": "Vehicle.Body.Hood.IsOpen",
+      "candidate_capability": "hood.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BE53E53DDBF26E59",
+      "vss_path": "Vehicle.Body.Hood.Position",
+      "candidate_capability": "hood.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1423A7680FC8D326",
+      "vss_path": "Vehicle.Body.Hood.Switch",
+      "candidate_capability": "hood.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A0426685614C5BA4",
+      "vss_path": "Vehicle.Body.Lights.Brake.IsActive",
+      "candidate_capability": "brake.is_active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_89441EEC1BA74659",
+      "vss_path": "Vehicle.Body.Lights.LightSwitch",
+      "candidate_capability": "lights.light_switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_AAEE0F4BC1A83D1C",
+      "vss_path": "Vehicle.Body.Mirrors.DriverSide.Yaw",
+      "candidate_capability": "mirrors.yaw",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C0586150D4A3513D",
+      "vss_path": "Vehicle.Body.Mirrors.PassengerSide.Yaw",
+      "candidate_capability": "mirrors.yaw",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_11AAE663F4A588DF",
+      "vss_path": "Vehicle.Body.Trunk.Front.IsLightOn",
+      "candidate_capability": "trunk.light_on",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6D6A055EF83FB399",
+      "vss_path": "Vehicle.Body.Trunk.Front.IsLocked",
+      "candidate_capability": "trunk.locked",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_64F3EAC5350EFF70",
+      "vss_path": "Vehicle.Body.Trunk.Front.IsOpen",
+      "candidate_capability": "trunk.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_84A5CCEE2583FA4C",
+      "vss_path": "Vehicle.Body.Trunk.Front.Position",
+      "candidate_capability": "trunk.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9856D4B5541F8C28",
+      "vss_path": "Vehicle.Body.Trunk.Front.Switch",
+      "candidate_capability": "trunk.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6370329F49BB697C",
+      "vss_path": "Vehicle.Body.Trunk.Rear.IsLightOn",
+      "candidate_capability": "trunk.light_on",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_57F5707194FB5797",
+      "vss_path": "Vehicle.Body.Trunk.Rear.IsLocked",
+      "candidate_capability": "trunk.locked",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E8D0E61EFD0A735C",
+      "vss_path": "Vehicle.Body.Trunk.Rear.IsOpen",
+      "candidate_capability": "trunk.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D25C788ACE945001",
+      "vss_path": "Vehicle.Body.Trunk.Rear.Position",
+      "candidate_capability": "trunk.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E105F33FE7DD95A2",
+      "vss_path": "Vehicle.Body.Trunk.Rear.Switch",
+      "candidate_capability": "trunk.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A0D37AD3709A9E5B",
+      "vss_path": "Vehicle.Body.Windshield.Front.Wiping.Intensity",
+      "candidate_capability": "wiping.intensity",
+      "manual_review_reasons": [
+        "内部 request/command/control 语义: request, requested"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3A876A65956ADAF7",
+      "vss_path": "Vehicle.Body.Windshield.Front.Wiping.Mode",
+      "candidate_capability": "wiping.mode",
+      "manual_review_reasons": [
+        "内部 request/command/control 语义: request, requested",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D54ED64C63646A45",
+      "vss_path": "Vehicle.Body.Windshield.Front.Wiping.System.ActualPosition",
+      "candidate_capability": "system.actual_position",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A505D5D96E8C41AA",
+      "vss_path": "Vehicle.Body.Windshield.Front.Wiping.System.Frequency",
+      "candidate_capability": "system.frequency",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_143E11A372691041",
+      "vss_path": "Vehicle.Body.Windshield.Front.Wiping.System.Mode",
+      "candidate_capability": "system.mode",
+      "manual_review_reasons": [
+        "内部 request/command/control 语义: request, requested",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_420B98844038E02A",
+      "vss_path": "Vehicle.Body.Windshield.Front.Wiping.System.TargetPosition",
+      "candidate_capability": "system.target_position",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault",
+        "内部 request/command/control 语义: request, requested",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_396E3C727CCBCECD",
+      "vss_path": "Vehicle.Body.Windshield.Rear.Wiping.Intensity",
+      "candidate_capability": "wiping.intensity",
+      "manual_review_reasons": [
+        "内部 request/command/control 语义: request, requested"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FBAE665212381821",
+      "vss_path": "Vehicle.Body.Windshield.Rear.Wiping.Mode",
+      "candidate_capability": "wiping.mode",
+      "manual_review_reasons": [
+        "内部 request/command/control 语义: request, requested",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DC0979968B653E41",
+      "vss_path": "Vehicle.Body.Windshield.Rear.Wiping.System.ActualPosition",
+      "candidate_capability": "system.actual_position",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_754BB76374C73D8B",
+      "vss_path": "Vehicle.Body.Windshield.Rear.Wiping.System.Frequency",
+      "candidate_capability": "system.frequency",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7C25E566A4FCD1C0",
+      "vss_path": "Vehicle.Body.Windshield.Rear.Wiping.System.Mode",
+      "candidate_capability": "system.mode",
+      "manual_review_reasons": [
+        "内部 request/command/control 语义: request, requested",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8C44090DDC296A51",
+      "vss_path": "Vehicle.Body.Windshield.Rear.Wiping.System.TargetPosition",
+      "candidate_capability": "system.target_position",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault",
+        "内部 request/command/control 语义: request, requested",
+        "同一对象同时存在 ActualPosition 与 TargetPosition",
+        "同一对象存在 Actual/Target 语义对: Position",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4422FDB6C40697D6",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.IsLocked",
+      "candidate_capability": "door.locked",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4FEAD0220DBAA5B9",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen",
+      "candidate_capability": "door.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BFAB1AC791F956B1",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Position",
+      "candidate_capability": "door.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DA1EBEC015C97E40",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Shade.IsOpen",
+      "candidate_capability": "shade.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_19DC8384313BCC67",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Shade.Position",
+      "candidate_capability": "shade.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B7104D36ECCA6D2D",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Shade.Switch",
+      "candidate_capability": "shade.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6672409A309B23F4",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Switch",
+      "candidate_capability": "door.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D1AF331CC4BE433C",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.IsOpen",
+      "candidate_capability": "window.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_91AEF9DD8E633FCE",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+      "candidate_capability": "window.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A790ADB69CE7CDA8",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Switch",
+      "candidate_capability": "window.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DB6A4BBDCCC0AEA0",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.IsLocked",
+      "candidate_capability": "door.locked",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_211A6CFA1484D42B",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen",
+      "candidate_capability": "door.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DC70D9BAFAA849E6",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Position",
+      "candidate_capability": "door.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E2CE6FF7954BDF1B",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Shade.IsOpen",
+      "candidate_capability": "shade.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A7DB1E1C6C825777",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Shade.Position",
+      "candidate_capability": "shade.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C0F31B8D61462FFD",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Shade.Switch",
+      "candidate_capability": "shade.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DC4DA8994532250C",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Switch",
+      "candidate_capability": "door.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_68258BCA515A1200",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.IsOpen",
+      "candidate_capability": "window.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3FBA1F323F00417B",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position",
+      "candidate_capability": "window.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_009A3E91E7BA6566",
+      "vss_path": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.Switch",
+      "candidate_capability": "window.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_17D67D00127FA54A",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.IsLocked",
+      "candidate_capability": "door.locked",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6F5AB29EE1E446DF",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.IsOpen",
+      "candidate_capability": "door.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2F5E245319DD43B2",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Position",
+      "candidate_capability": "door.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1E9DDFDC9A61778F",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Shade.IsOpen",
+      "candidate_capability": "shade.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EA3858229994A26A",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Shade.Position",
+      "candidate_capability": "shade.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C28D39551BDA58BB",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Shade.Switch",
+      "candidate_capability": "shade.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6F9B2BD735F8D514",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Switch",
+      "candidate_capability": "door.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_ABEEEE50B59434CA",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Window.IsOpen",
+      "candidate_capability": "window.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_58C20A6F593B00C9",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Window.Position",
+      "candidate_capability": "window.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CA964E1F997539AC",
+      "vss_path": "Vehicle.Cabin.Door.Row2.DriverSide.Window.Switch",
+      "candidate_capability": "window.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_06E38A03FB8C49F6",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.IsLocked",
+      "candidate_capability": "door.locked",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B6E6C0348A8D1F6A",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen",
+      "candidate_capability": "door.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5F62887A4F72A9C6",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Position",
+      "candidate_capability": "door.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2904C887EED1780B",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Shade.IsOpen",
+      "candidate_capability": "shade.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BE86538D1191C13F",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Shade.Position",
+      "candidate_capability": "shade.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A64E45EB20B31028",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Shade.Switch",
+      "candidate_capability": "shade.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_45B0C7C7FFEF7C93",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Switch",
+      "candidate_capability": "door.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F61DDD95CEBEE04D",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.IsOpen",
+      "candidate_capability": "window.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1FBBBB25A146E413",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position",
+      "candidate_capability": "window.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B32F4894B03190D9",
+      "vss_path": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.Switch",
+      "candidate_capability": "window.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CA3878D598F6D133",
+      "vss_path": "Vehicle.Cabin.HVAC.IsAirConditioningActive",
+      "candidate_capability": "hvac.air_conditioning_active",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_66195E3CA5742F42",
+      "vss_path": "Vehicle.Cabin.HVAC.IsFrontDefrosterActive",
+      "candidate_capability": "hvac.front_defroster_active",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3EE9CFEB0A08A9BF",
+      "vss_path": "Vehicle.Cabin.HVAC.IsRearDefrosterActive",
+      "candidate_capability": "hvac.rear_defroster_active",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7FC5FBF33E20054A",
+      "vss_path": "Vehicle.Cabin.HVAC.IsRecirculationActive",
+      "candidate_capability": "hvac.recirculation_active",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D74233174D566035",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row1.Driver.AirDistribution",
+      "candidate_capability": "driver.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C01CD18DAAD954CA",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row1.Passenger.AirDistribution",
+      "candidate_capability": "passenger.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C524313485C6BEF8",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row2.Driver.AirDistribution",
+      "candidate_capability": "driver.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_45369EC9C977060A",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row2.Passenger.AirDistribution",
+      "candidate_capability": "passenger.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_44074BBA6F34C5C3",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row3.Driver.AirDistribution",
+      "candidate_capability": "driver.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B2E9EE3939BACE8F",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row3.Passenger.AirDistribution",
+      "candidate_capability": "passenger.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1EE6AD4663BF43E0",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row4.Driver.AirDistribution",
+      "candidate_capability": "driver.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0AC4AE425E1338B8",
+      "vss_path": "Vehicle.Cabin.HVAC.Station.Row4.Passenger.AirDistribution",
+      "candidate_capability": "passenger.air_distribution",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Distribution"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C8C393E662BE9B78",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.DateFormat",
+      "candidate_capability": "hmi.date_format",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9542D082C4DEF7AB",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.DayNightMode",
+      "candidate_capability": "hmi.day_night_mode",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3332CBC4B7315FA9",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.DistanceUnit",
+      "candidate_capability": "hmi.distance_unit",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_64ADA8A5FC7B7796",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.EVEconomyUnits",
+      "candidate_capability": "hmi.ev_economy_units",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_54B696BC5E48969F",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.EVEnergyUnits",
+      "candidate_capability": "hmi.ev_energy_units",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CD982533CFD51382",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.FontSize",
+      "candidate_capability": "hmi.font_size",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_29B73BEC9A18435B",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.FuelEconomyUnits",
+      "candidate_capability": "hmi.fuel_economy_units",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F874EA0021ACA0BA",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.FuelVolumeUnit",
+      "candidate_capability": "hmi.fuel_volume_unit",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_AB2EBF0565EAC0BF",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.IsScreenAlwaysOn",
+      "candidate_capability": "hmi.screen_always_on",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B115DFC563725476",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.SpeedUnit",
+      "candidate_capability": "hmi.speed_unit",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4D9BF7143E7C230C",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.TemperatureUnit",
+      "candidate_capability": "hmi.temperature_unit",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FE78B9CD971E30AA",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.TimeFormat",
+      "candidate_capability": "hmi.time_format",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_48DCA170EFD32FBF",
+      "vss_path": "Vehicle.Cabin.Infotainment.HMI.TirePressureUnit",
+      "candidate_capability": "hmi.tire_pressure_unit",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6B2AC8718EF19F16",
+      "vss_path": "Vehicle.Cabin.Infotainment.Media.Action",
+      "candidate_capability": "media.action",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_65F37ABDE71AC61B",
+      "vss_path": "Vehicle.Cabin.Infotainment.Media.Played.Source",
+      "candidate_capability": "played.source",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_33D04CF10517054B",
+      "vss_path": "Vehicle.Cabin.Infotainment.Media.SelectedURI",
+      "candidate_capability": "media.selected_uri",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_70F1A24883C7FC2C",
+      "vss_path": "Vehicle.Cabin.Infotainment.Navigation.GuidanceVoice",
+      "candidate_capability": "navigation.guidance_voice",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_69347D1150204AB7",
+      "vss_path": "Vehicle.Cabin.Infotainment.Navigation.Map.IsAutoScaleModeUsed",
+      "candidate_capability": "map.auto_scale_mode_used",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D0AFC1E0B0EBB3F0",
+      "vss_path": "Vehicle.Cabin.Infotainment.Navigation.Mute",
+      "candidate_capability": "navigation.mute",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3D8CAB320BF0A9F4",
+      "vss_path": "Vehicle.Cabin.Infotainment.SmartphoneProjection.Active",
+      "candidate_capability": "smartphone_projection.active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_19379A4CEE9ADC67",
+      "vss_path": "Vehicle.Cabin.Infotainment.SmartphoneProjection.Source",
+      "candidate_capability": "smartphone_projection.source",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_46BF9E5866E53815",
+      "vss_path": "Vehicle.Cabin.Infotainment.SmartphoneScreenMirroring.Active",
+      "candidate_capability": "smartphone_screen_mirroring.active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3B6A1453C4F596E6",
+      "vss_path": "Vehicle.Cabin.Infotainment.SmartphoneScreenMirroring.Source",
+      "candidate_capability": "smartphone_screen_mirroring.source",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B34B598BEDB0E6EE",
+      "vss_path": "Vehicle.Cabin.Light.AmbientLight.Row1.DriverSide.Color",
+      "candidate_capability": "ambient_light.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EF0CCFD38D84ADA7",
+      "vss_path": "Vehicle.Cabin.Light.AmbientLight.Row1.PassengerSide.Color",
+      "candidate_capability": "ambient_light.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D1C3686D8101A2C6",
+      "vss_path": "Vehicle.Cabin.Light.AmbientLight.Row2.DriverSide.Color",
+      "candidate_capability": "ambient_light.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C82FD904DA6E724E",
+      "vss_path": "Vehicle.Cabin.Light.AmbientLight.Row2.PassengerSide.Color",
+      "candidate_capability": "ambient_light.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E02DE75838A4566B",
+      "vss_path": "Vehicle.Cabin.Light.InteractiveLightBar.Color",
+      "candidate_capability": "interactive_light_bar.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9804CAB20697D699",
+      "vss_path": "Vehicle.Cabin.Light.InteractiveLightBar.Effect",
+      "candidate_capability": "interactive_light_bar.effect",
+      "manual_review_reasons": [
+        "诊断/健康/维护语义: fault",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C382CE86ABAEB4F8",
+      "vss_path": "Vehicle.Cabin.Light.IsDomeOn",
+      "candidate_capability": "light.dome_on",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_61DA46DA75BB96FA",
+      "vss_path": "Vehicle.Cabin.Light.IsGloveBoxOn",
+      "candidate_capability": "light.glove_box_on",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3601504811F734D1",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row1.DriverSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_20FD944D90562BBA",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row1.PassengerSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0B5DF034687CA52B",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row2.DriverSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_87AD0E61325CFAA9",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row2.PassengerSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_252B3A980A0F9534",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row3.DriverSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F71184AACED88943",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row3.PassengerSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A3922D069CEBF02B",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row4.DriverSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E9F89D62A541AB74",
+      "vss_path": "Vehicle.Cabin.Light.Spotlight.Row4.PassengerSide.Color",
+      "candidate_capability": "spotlight.color",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CC6180E59D21FCEB",
+      "vss_path": "Vehicle.Cabin.RearShade.IsOpen",
+      "candidate_capability": "rear_shade.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6278E14009D6F16F",
+      "vss_path": "Vehicle.Cabin.RearShade.Position",
+      "candidate_capability": "rear_shade.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9377A2536E0A281E",
+      "vss_path": "Vehicle.Cabin.RearShade.Switch",
+      "candidate_capability": "rear_shade.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FD549B3A4039EDD0",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsLessLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C5A7A1207C348F63",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsLessSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0EB5F56A20F4DFC6",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsLumbarDownSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_841A03F693F2737A",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsLumbarUpSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CE5DE5A6BB04F9B5",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsMoreLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B3D1CFDFA4AF6131",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsMoreSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5ADBE6BFD2A3419C",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsReclineBackwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EF1BB35C9C936649",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Backrest.IsReclineForwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D285BE9C4DA44412",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Headrest.IsBackwardSwitchEngaged",
+      "candidate_capability": "headrest.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0096816478113263",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Headrest.IsDownSwitchEngaged",
+      "candidate_capability": "headrest.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_76220A52BC027045",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Headrest.IsForwardSwitchEngaged",
+      "candidate_capability": "headrest.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0C17E28036689CF5",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Headrest.IsUpSwitchEngaged",
+      "candidate_capability": "headrest.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_71FB28EECF241E80",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsBackwardSwitchEngaged",
+      "candidate_capability": "seat.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6070A6C1ACBD5D33",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsCoolerSwitchEngaged",
+      "candidate_capability": "seat.cooler_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2A60302D5CDBF057",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsDecreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.decrease_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2B2E186857449986",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsDownSwitchEngaged",
+      "candidate_capability": "seat.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_29D0790EDBD06185",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsForwardSwitchEngaged",
+      "candidate_capability": "seat.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2246DC39A9AB596B",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsIncreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.increase_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FB1BD417DCC82982",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsTiltBackwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C52BB188902464BD",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsTiltForwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_05FCE72D70281B9C",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsUpSwitchEngaged",
+      "candidate_capability": "seat.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A0B0900357FB20DB",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.IsWarmerSwitchEngaged",
+      "candidate_capability": "seat.warmer_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6DC917C473A7269B",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Massage.TypeActive",
+      "candidate_capability": "massage.type_active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_75C4AFF45EC4156D",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Seating.IsBackwardSwitchEngaged",
+      "candidate_capability": "seating.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EFB32E584CEA6E64",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.DriverSide.Seating.IsForwardSwitchEngaged",
+      "candidate_capability": "seating.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1B185FC66EFF1C8A",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsLessLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3D06A75820B6D96A",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsLessSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_304D95B60B008916",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsLumbarDownSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DBB4C0DB7653B6E6",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsLumbarUpSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8B398B792919F24C",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsMoreLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C59B16F6F3366D98",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsMoreSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B7FE1D286D142116",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsReclineBackwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_177AE11642D446B3",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Backrest.IsReclineForwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EDACEC2E1665E8F3",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Headrest.IsBackwardSwitchEngaged",
+      "candidate_capability": "headrest.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_47E4A5D88E2C50DE",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Headrest.IsDownSwitchEngaged",
+      "candidate_capability": "headrest.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E5ADBF5144794DF4",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Headrest.IsForwardSwitchEngaged",
+      "candidate_capability": "headrest.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3B0EA5969E3E2F06",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Headrest.IsUpSwitchEngaged",
+      "candidate_capability": "headrest.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D5091C0A6354818C",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsBackwardSwitchEngaged",
+      "candidate_capability": "seat.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F7C2980595676DC5",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsCoolerSwitchEngaged",
+      "candidate_capability": "seat.cooler_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CE3C057B2DDA8D9B",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsDecreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.decrease_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C26343B96243DBEE",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsDownSwitchEngaged",
+      "candidate_capability": "seat.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7687558CCF5F6287",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsForwardSwitchEngaged",
+      "candidate_capability": "seat.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E6B72A01D3821EF4",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsIncreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.increase_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E8F6219417419273",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsTiltBackwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_292BBF9831C7043F",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsTiltForwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_52ED20EB723FB377",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsUpSwitchEngaged",
+      "candidate_capability": "seat.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E38B02367A790823",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.IsWarmerSwitchEngaged",
+      "candidate_capability": "seat.warmer_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0B21740629959372",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Massage.TypeActive",
+      "candidate_capability": "massage.type_active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_35ACB25707F7EA78",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Seating.IsBackwardSwitchEngaged",
+      "candidate_capability": "seating.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5EEAB3104BBD7D8A",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.Middle.Seating.IsForwardSwitchEngaged",
+      "candidate_capability": "seating.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B73DBE7E1193EFFA",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsLessLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_19E57BFAFC7C4DE2",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsLessSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_AFA3A37D1EBA3161",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsLumbarDownSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FEFDC2217D8EF2DE",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsLumbarUpSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CC5F3C110CA0333C",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsMoreLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E0AA5F5A74ACE5ED",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsMoreSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D7243FD46796BF51",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsReclineBackwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_82F268F5711E2FE1",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Backrest.IsReclineForwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4F015AB94726B544",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Headrest.IsBackwardSwitchEngaged",
+      "candidate_capability": "headrest.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0BCAE8D4AA5B0491",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Headrest.IsDownSwitchEngaged",
+      "candidate_capability": "headrest.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_ED8D105DD8FA19A7",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Headrest.IsForwardSwitchEngaged",
+      "candidate_capability": "headrest.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2A6C77A9DD7B4212",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Headrest.IsUpSwitchEngaged",
+      "candidate_capability": "headrest.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D0BE9956BC8E85B6",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsBackwardSwitchEngaged",
+      "candidate_capability": "seat.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_303F77E12C3E4FD1",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsCoolerSwitchEngaged",
+      "candidate_capability": "seat.cooler_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D6BC07AE1AE42E76",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsDecreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.decrease_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B7A475008CB6FDCB",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsDownSwitchEngaged",
+      "candidate_capability": "seat.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_533AF3E7FE82F20B",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsForwardSwitchEngaged",
+      "candidate_capability": "seat.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CC0E91ED6DC845C3",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsIncreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.increase_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A0828DA3B127A6AC",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsTiltBackwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1EFBA4805A0A7E55",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsTiltForwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C73F5FF842332138",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsUpSwitchEngaged",
+      "candidate_capability": "seat.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1970555A22BABE82",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.IsWarmerSwitchEngaged",
+      "candidate_capability": "seat.warmer_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4A13B5E17810707C",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Massage.TypeActive",
+      "candidate_capability": "massage.type_active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7A815C54E0373CC9",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Seating.IsBackwardSwitchEngaged",
+      "candidate_capability": "seating.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_25A06C6D1D4B81F1",
+      "vss_path": "Vehicle.Cabin.Seat.Row1.PassengerSide.Seating.IsForwardSwitchEngaged",
+      "candidate_capability": "seating.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B6EB029EA694DBDE",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsLessLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_230F3CC8A906C210",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsLessSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FDC5AD32B56669C8",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsLumbarDownSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6CC1C5DA866980B1",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsLumbarUpSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C1C12AFA30830FDC",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsMoreLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8FD97A4D69420580",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsMoreSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6B21766BED651928",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsReclineBackwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_06831992E281377F",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Backrest.IsReclineForwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_18EE783341A08D65",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Headrest.IsBackwardSwitchEngaged",
+      "candidate_capability": "headrest.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_555C94130447E32E",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Headrest.IsDownSwitchEngaged",
+      "candidate_capability": "headrest.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6DABACE5F6E5B09E",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Headrest.IsForwardSwitchEngaged",
+      "candidate_capability": "headrest.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6355B3132A215105",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Headrest.IsUpSwitchEngaged",
+      "candidate_capability": "headrest.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_83799D00CE8CC1B8",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsBackwardSwitchEngaged",
+      "candidate_capability": "seat.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C1153DA26DEF5CD2",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsCoolerSwitchEngaged",
+      "candidate_capability": "seat.cooler_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F0BBC734D6E1B9ED",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsDecreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.decrease_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9AF8C85572E5D49A",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsDownSwitchEngaged",
+      "candidate_capability": "seat.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_000D21A8FD0A44AB",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsForwardSwitchEngaged",
+      "candidate_capability": "seat.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0387AA9BEC42AFB0",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsIncreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.increase_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0364773D19455EE7",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsTiltBackwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0488D30F6020D27F",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsTiltForwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_34810D42D84D53C6",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsUpSwitchEngaged",
+      "candidate_capability": "seat.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A45F6E57FFB238CB",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.IsWarmerSwitchEngaged",
+      "candidate_capability": "seat.warmer_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_28119AEC274DFE3C",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Massage.TypeActive",
+      "candidate_capability": "massage.type_active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_556E9256B109495B",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Seating.IsBackwardSwitchEngaged",
+      "candidate_capability": "seating.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_AD0E595EF6D1C075",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.DriverSide.Seating.IsForwardSwitchEngaged",
+      "candidate_capability": "seating.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_97A70AE83EBD7FDF",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsLessLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_96ACB0728867268D",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsLessSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B16F3DDD38D6E06D",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsLumbarDownSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A1F40C35BB21D483",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsLumbarUpSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0AD34145E36AAEE3",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsMoreLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DBB951347BFBA978",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsMoreSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8782A70811004600",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsReclineBackwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_79916A38444D88EC",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Backrest.IsReclineForwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_02661F39278E5063",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Headrest.IsBackwardSwitchEngaged",
+      "candidate_capability": "headrest.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7D59496973553DF7",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Headrest.IsDownSwitchEngaged",
+      "candidate_capability": "headrest.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_44A332D86104CB07",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Headrest.IsForwardSwitchEngaged",
+      "candidate_capability": "headrest.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_24BDC594073FA4C7",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Headrest.IsUpSwitchEngaged",
+      "candidate_capability": "headrest.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A2A203C26B8FDD6A",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsBackwardSwitchEngaged",
+      "candidate_capability": "seat.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_285BC5F51C12FC72",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsCoolerSwitchEngaged",
+      "candidate_capability": "seat.cooler_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3FC25ED50F59585F",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsDecreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.decrease_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CB44C0464B7EE741",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsDownSwitchEngaged",
+      "candidate_capability": "seat.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4DA4E81FD5400E70",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsForwardSwitchEngaged",
+      "candidate_capability": "seat.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_06B6F1923CADE162",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsIncreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.increase_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_89EC023C7CCB2D92",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsTiltBackwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_93F0E70016329581",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsTiltForwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_977D6CD2AFD8FFA2",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsUpSwitchEngaged",
+      "candidate_capability": "seat.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_AB6B9A5B03DE74CC",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.IsWarmerSwitchEngaged",
+      "candidate_capability": "seat.warmer_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C506B021647B2A4C",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Massage.TypeActive",
+      "candidate_capability": "massage.type_active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_76AF562A27A9F4DC",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Seating.IsBackwardSwitchEngaged",
+      "candidate_capability": "seating.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DF39E27E369A2F37",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.Middle.Seating.IsForwardSwitchEngaged",
+      "candidate_capability": "seating.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9106163104CBA35F",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsLessLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A52A534A2AE5707D",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsLessSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.less_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4313F1C8AA368913",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsLumbarDownSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D72BA44A59E8C0FD",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsLumbarUpSwitchEngaged",
+      "candidate_capability": "backrest.lumbar_up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_347F1E6FEDA52B0D",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsMoreLumbarSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_lumbar_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8B9495BCE9FB5EE6",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsMoreSideBolsterSupportSwitchEngaged",
+      "candidate_capability": "backrest.more_side_bolster_support_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_ADFBE66B1FA29FC0",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsReclineBackwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_60C64C9CD6A5C9F6",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Backrest.IsReclineForwardSwitchEngaged",
+      "candidate_capability": "backrest.recline_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E8F0A6CB1A184D57",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Headrest.IsBackwardSwitchEngaged",
+      "candidate_capability": "headrest.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BB0D9E099BA4E8E9",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Headrest.IsDownSwitchEngaged",
+      "candidate_capability": "headrest.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_27DB54E9587CE1FE",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Headrest.IsForwardSwitchEngaged",
+      "candidate_capability": "headrest.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6813CC18A83E180E",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Headrest.IsUpSwitchEngaged",
+      "candidate_capability": "headrest.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_36F3ED696DC1D8E9",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsBackwardSwitchEngaged",
+      "candidate_capability": "seat.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_69DA60FB3258DFC8",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsCoolerSwitchEngaged",
+      "candidate_capability": "seat.cooler_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_62B40A13C3E6D3D5",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsDecreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.decrease_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6E5DE728503E7180",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsDownSwitchEngaged",
+      "candidate_capability": "seat.down_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_47F067E39282B36E",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsForwardSwitchEngaged",
+      "candidate_capability": "seat.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_80C3EA3632BD0E08",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsIncreaseMassageLevelSwitchEngaged",
+      "candidate_capability": "seat.increase_massage_level_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_95007F72CE62BE26",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsTiltBackwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FC1F27754318C6A7",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsTiltForwardSwitchEngaged",
+      "candidate_capability": "seat.tilt_forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E3A0DFAD425A30D6",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsUpSwitchEngaged",
+      "candidate_capability": "seat.up_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_17D6AB17652A9F77",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.IsWarmerSwitchEngaged",
+      "candidate_capability": "seat.warmer_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C2F11E342867ABBD",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Massage.TypeActive",
+      "candidate_capability": "massage.type_active",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_FA045DC0FBFDA862",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Seating.IsBackwardSwitchEngaged",
+      "candidate_capability": "seating.backward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F776CCAFD6AC90D6",
+      "vss_path": "Vehicle.Cabin.Seat.Row2.PassengerSide.Seating.IsForwardSwitchEngaged",
+      "candidate_capability": "seating.forward_switch_engaged",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F62B4DDA303B6182",
+      "vss_path": "Vehicle.Cabin.Sunroof.Shade.IsOpen",
+      "candidate_capability": "shade.open",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A765C1B38AB62DA9",
+      "vss_path": "Vehicle.Cabin.Sunroof.Shade.Position",
+      "candidate_capability": "shade.position",
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_91E50F9A4EEE6428",
+      "vss_path": "Vehicle.Cabin.Sunroof.Shade.Switch",
+      "candidate_capability": "shade.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D2C01661D24EEFEF",
+      "vss_path": "Vehicle.Cabin.Sunroof.Switch",
+      "candidate_capability": "sunroof.switch",
+      "manual_review_reasons": [
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "同一对象存在不同语义兄弟节点: Position, Switch"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_AC368C9B7C723A2E",
+      "vss_path": "Vehicle.Chassis.ParkingBrake.IsAutoApplyEnabled",
+      "candidate_capability": "parking_brake.auto_apply_enabled",
+      "manual_review_reasons": [
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_452356F12C4C5B50",
+      "vss_path": "Vehicle.IsAutoPowerOptimize",
+      "candidate_capability": "vehicle.auto_power_optimize",
+      "manual_review_reasons": [
+        "根级或组件不明确，无法判断用户可理解能力"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_647B49B0EE70DEEE",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.TorqueDistributionFrictionRightMaximum",
+      "candidate_capability": "axle.torque_distribution_friction_right_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Distribution, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_853C383583575ADB",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.TorqueDistributionFrictionRightMinimum",
+      "candidate_capability": "axle.torque_distribution_friction_right_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Distribution, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BD3293C8C8A05840",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.TorqueElectricMinimum",
+      "candidate_capability": "axle.torque_electric_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Minimum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9171E330929A5A88",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.TorqueFrictionDifferenceMaximum",
+      "candidate_capability": "axle.torque_friction_difference_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Maximum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1E0025D3CF8AE693",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Left.OmegaLower",
+      "candidate_capability": "wheel.omega_lower",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7138DF7375A9E06F",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Left.OmegaUpper",
+      "candidate_capability": "wheel.omega_upper",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_49883E3CD64415E9",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Left.TorqueFrictionMaximum",
+      "candidate_capability": "wheel.torque_friction_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3F5E49E30F06D3F2",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Left.TorqueFrictionMinimum",
+      "candidate_capability": "wheel.torque_friction_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B011702D21E680A8",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Right.OmegaLower",
+      "candidate_capability": "wheel.omega_lower",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3DCDDBC1079E58E2",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Right.OmegaUpper",
+      "candidate_capability": "wheel.omega_upper",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D21BB93F5C814D3B",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Right.TorqueFrictionMaximum",
+      "candidate_capability": "wheel.torque_friction_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_89112A68CEA24560",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row1.Wheel.Right.TorqueFrictionMinimum",
+      "candidate_capability": "wheel.torque_friction_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_23CA6E38B5F675FC",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.TorqueDistributionFrictionRightMaximum",
+      "candidate_capability": "axle.torque_distribution_friction_right_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Distribution, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B14ED276CF9753D2",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.TorqueDistributionFrictionRightMinimum",
+      "candidate_capability": "axle.torque_distribution_friction_right_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Distribution, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2C7114D9343D6AC6",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.TorqueElectricMinimum",
+      "candidate_capability": "axle.torque_electric_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Minimum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8E7D55E68AE685E0",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.TorqueFrictionDifferenceMaximum",
+      "candidate_capability": "axle.torque_friction_difference_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Maximum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5307D43EEF6BD6AC",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Left.OmegaLower",
+      "candidate_capability": "wheel.omega_lower",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0C170DFE262E6391",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Left.OmegaUpper",
+      "candidate_capability": "wheel.omega_upper",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_79BD7E75F440FC88",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Left.TorqueFrictionMaximum",
+      "candidate_capability": "wheel.torque_friction_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_124E6B40FAC80046",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Left.TorqueFrictionMinimum",
+      "candidate_capability": "wheel.torque_friction_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B77DB55E6FB2656B",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Right.OmegaLower",
+      "candidate_capability": "wheel.omega_lower",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_400A69A41EB226A4",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Right.OmegaUpper",
+      "candidate_capability": "wheel.omega_upper",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Omega"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0A67A77C697DD5F8",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Right.TorqueFrictionMaximum",
+      "candidate_capability": "wheel.torque_friction_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EB8538DCE9BE4279",
+      "vss_path": "Vehicle.MotionManagement.Brake.Axle.Row2.Wheel.Right.TorqueFrictionMinimum",
+      "candidate_capability": "wheel.torque_friction_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5AC7F862148F4731",
+      "vss_path": "Vehicle.MotionManagement.Brake.VehicleForceDistributionFrontMaximum",
+      "candidate_capability": "brake.vehicle_force_distribution_front_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Distribution, Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9237D9BCB1311B8F",
+      "vss_path": "Vehicle.MotionManagement.Brake.VehicleForceDistributionFrontMinimum",
+      "candidate_capability": "brake.vehicle_force_distribution_front_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Distribution, Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2F5420E26FC2F31C",
+      "vss_path": "Vehicle.MotionManagement.Brake.VehicleForceElectric",
+      "candidate_capability": "brake.vehicle_force_electric",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5BECBE2ABF35C1A1",
+      "vss_path": "Vehicle.MotionManagement.Brake.VehicleForceMaximum",
+      "candidate_capability": "brake.vehicle_force_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4A63E43BEBBD40C5",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row1.RotationalSpeedMaximumLimit",
+      "candidate_capability": "electric_axle.rotational_speed_maximum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Maximum, Limit"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_73D89834475A1033",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row1.RotationalSpeedMinimumLimit",
+      "candidate_capability": "electric_axle.rotational_speed_minimum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Minimum, Limit"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F54F0A75F1B4A239",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row1.RotationalSpeedTarget",
+      "candidate_capability": "electric_axle.rotational_speed_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EAE6E957318C8D71",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row1.TorqueMaximumLimit",
+      "candidate_capability": "electric_axle.torque_maximum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Maximum, Limit, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_80DE24ECD9DEB330",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row1.TorqueMinimumLimit",
+      "candidate_capability": "electric_axle.torque_minimum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Minimum, Limit, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6173A322A2BEAE27",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row1.TorqueTarget",
+      "candidate_capability": "electric_axle.torque_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_80732133DAA86916",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row2.RotationalSpeedMaximumLimit",
+      "candidate_capability": "electric_axle.rotational_speed_maximum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Maximum, Limit"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8E669B7391FF61B7",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row2.RotationalSpeedMinimumLimit",
+      "candidate_capability": "electric_axle.rotational_speed_minimum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Minimum, Limit"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CFFFA35D2D0EC3CF",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row2.RotationalSpeedTarget",
+      "candidate_capability": "electric_axle.rotational_speed_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_923C8B0C89E6D20D",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row2.TorqueMaximumLimit",
+      "candidate_capability": "electric_axle.torque_maximum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Maximum, Limit, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6B601BF953D28D4C",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row2.TorqueMinimumLimit",
+      "candidate_capability": "electric_axle.torque_minimum_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Minimum, Limit, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_68011CA7DC94C6F6",
+      "vss_path": "Vehicle.MotionManagement.ElectricAxle.Row2.TorqueTarget",
+      "candidate_capability": "electric_axle.torque_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5CFBE98200F4D516",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row1.PositionOffsetTargetMode",
+      "candidate_capability": "axle.position_offset_target_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target, Offset"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_15663BFDBAF100FB",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row1.PositionTargetMode",
+      "candidate_capability": "axle.position_target_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A566A450BE7B2438",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row1.RackPositionOffsetTarget",
+      "candidate_capability": "axle.rack_position_offset_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, internal, set-point, steer-by-wire, actuator internal",
+        "技术目标/限制量语义需人工判断: Target, Offset"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_04120FD6B1D68B4E",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row1.RackPositionTarget",
+      "candidate_capability": "axle.rack_position_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, set-point",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_CEA4DFBE0E52E5E5",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row1.SteerAngleOffsetTarget",
+      "candidate_capability": "axle.steer_angle_offset_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, internal, set-point, steer-by-wire, actuator internal",
+        "技术目标/限制量语义需人工判断: Target, Offset"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_620A9A160A849CED",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row1.SteerAngleTarget",
+      "candidate_capability": "axle.steer_angle_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, set-point",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_215C708A747CA919",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row2.SteerAngleTarget",
+      "candidate_capability": "axle.steer_angle_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, set-point",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_5A7057BFC4485D7F",
+      "vss_path": "Vehicle.MotionManagement.Steering.Axle.Row2.SteerAngleVelocityTarget",
+      "candidate_capability": "axle.steer_angle_velocity_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, requested",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D87462928353CFDB",
+      "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.AngleTarget",
+      "candidate_capability": "steering_wheel.angle_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, set-point, steer-by-wire",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_85F82BD9A00431A7",
+      "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.AngleTargetMode",
+      "candidate_capability": "steering_wheel.angle_target_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1E488ACA114A6039",
+      "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.TorqueOffsetTarget",
+      "candidate_capability": "steering_wheel.torque_offset_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, internal, actuator internal",
+        "技术目标/限制量语义需人工判断: Target, Offset, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8D94DB4D74177767",
+      "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.TorqueOffsetTargetMode",
+      "candidate_capability": "steering_wheel.torque_offset_target_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target, Offset, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9D68145C8B1047A1",
+      "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.TorqueTarget",
+      "candidate_capability": "steering_wheel.torque_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, set-point, steer-by-wire",
+        "技术目标/限制量语义需人工判断: Target, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_1D581BFF36B7D82D",
+      "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.TorqueTargetMode",
+      "candidate_capability": "steering_wheel.torque_target_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_69871DCC39A3D39B",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row1.Wheel.Left.DampingForceTarget",
+      "candidate_capability": "wheel.damping_force_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target, Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F92A89B4F1FC4C25",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row1.Wheel.Left.DampingRateTarget",
+      "candidate_capability": "wheel.damping_rate_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_426BA9504A05DD0E",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row1.Wheel.Right.DampingForceTarget",
+      "candidate_capability": "wheel.damping_force_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target, Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_12C507E9CB3C4B34",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row1.Wheel.Right.DampingRateTarget",
+      "candidate_capability": "wheel.damping_rate_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_727CBAF709FBCDC7",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row2.Wheel.Left.DampingForceTarget",
+      "candidate_capability": "wheel.damping_force_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target, Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_74391F3F81233B70",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row2.Wheel.Left.DampingRateTarget",
+      "candidate_capability": "wheel.damping_rate_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_49D1004D8D71BE9F",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row2.Wheel.Right.DampingForceTarget",
+      "candidate_capability": "wheel.damping_force_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target, Force"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B5CD97B7CE3CB217",
+      "vss_path": "Vehicle.MotionManagement.Suspension.Axle.Row2.Wheel.Right.DampingRateTarget",
+      "candidate_capability": "wheel.damping_rate_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7EDB99EDCF65737B",
+      "vss_path": "Vehicle.MotionManagement.Suspension.DampingPrioTarget",
+      "candidate_capability": "suspension.damping_prio_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_4836290CE1ECD85D",
+      "vss_path": "Vehicle.MotionManagement.Suspension.RollPrioTarget",
+      "candidate_capability": "suspension.roll_prio_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_75D274EF68D059E3",
+      "vss_path": "Vehicle.MotionManagement.Suspension.RollTorqueDistributionFrontMaximum",
+      "candidate_capability": "suspension.roll_torque_distribution_front_maximum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Maximum, Distribution, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_73FF3E5736766454",
+      "vss_path": "Vehicle.MotionManagement.Suspension.RollTorqueDistributionFrontMinimum",
+      "candidate_capability": "suspension.roll_torque_distribution_front_minimum",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Minimum, Distribution, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B0D3E6ABC71BD426",
+      "vss_path": "Vehicle.MotionManagement.Suspension.RollTorqueTarget",
+      "candidate_capability": "suspension.roll_torque_target",
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request",
+        "技术目标/限制量语义需人工判断: Target, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_0A72450631D43EA0",
+      "vss_path": "Vehicle.PowerOptimizeLevel",
+      "candidate_capability": "vehicle.power_optimize_level",
+      "manual_review_reasons": [
+        "根级或组件不明确，无法判断用户可理解能力"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BBA5399EFB896334",
+      "vss_path": "Vehicle.Powertrain.FuelSystem.IsFuelPortFlapOpen",
+      "candidate_capability": "fuel_system.fuel_port_flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_794C066EC5BF429E",
+      "vss_path": "Vehicle.Powertrain.IsAutoPowerOptimize",
+      "candidate_capability": "powertrain.auto_power_optimize",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_72FBFFC69E2DE2C6",
+      "vss_path": "Vehicle.Powertrain.PowerOptimizeLevel",
+      "candidate_capability": "powertrain.power_optimize_level",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BE33B8C4989E498A",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.BatteryConditioning.RequestedMode",
+      "candidate_capability": "battery_conditioning.requested_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "内部 request/command/control 语义: request, requested",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D96D4E24F0ECEBBC",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.BatteryConditioning.StartTime",
+      "candidate_capability": "battery_conditioning.start_time",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_829CE76956B9B277",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.BatteryConditioning.TargetTemperature",
+      "candidate_capability": "battery_conditioning.target_temperature",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_2CAF589AADCB77E6",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.BatteryConditioning.TargetTime",
+      "candidate_capability": "battery_conditioning.target_time",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义",
+        "技术目标/限制量语义需人工判断: Target"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_EDA0FA5D10DED918",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit",
+      "candidate_capability": "charging.charge_limit",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "技术目标/限制量语义需人工判断: Limit"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3B80562FF1A34862",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsChargingCableLocked",
+      "candidate_capability": "any_position.charging_cable_locked",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_3CCF313A21BB7CD1",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsFlapOpen",
+      "candidate_capability": "any_position.flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E3FC16D6A63CBA3F",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.FrontLeft.IsChargingCableLocked",
+      "candidate_capability": "front_left.charging_cable_locked",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B6AB7659AC1A9FB4",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.FrontLeft.IsFlapOpen",
+      "candidate_capability": "front_left.flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_D4C737E3E17C6ADF",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.FrontMiddle.IsChargingCableLocked",
+      "candidate_capability": "front_middle.charging_cable_locked",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E260E4196574F253",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.FrontMiddle.IsFlapOpen",
+      "candidate_capability": "front_middle.flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B59DE33620A39F30",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.FrontRight.IsChargingCableLocked",
+      "candidate_capability": "front_right.charging_cable_locked",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_DF778BB8C09BC2DF",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.FrontRight.IsFlapOpen",
+      "candidate_capability": "front_right.flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_795F296481EBF501",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.RearLeft.IsChargingCableLocked",
+      "candidate_capability": "rear_left.charging_cable_locked",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_861620B160B96417",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.RearLeft.IsFlapOpen",
+      "candidate_capability": "rear_left.flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_016A3E2C5888BC9F",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.RearMiddle.IsChargingCableLocked",
+      "candidate_capability": "rear_middle.charging_cable_locked",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_805D9DB00B9E2A0D",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.RearMiddle.IsFlapOpen",
+      "candidate_capability": "rear_middle.flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_ABE8210DFAB2EF2B",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.RearRight.IsChargingCableLocked",
+      "candidate_capability": "rear_right.charging_cable_locked",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_C61F88C23165E2C2",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.RearRight.IsFlapOpen",
+      "candidate_capability": "rear_right.flap_open",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "boolean 描述未同时明确 true/false 的用户语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_7B252F047D35C262",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging",
+      "candidate_capability": "charging.start_stop_charging",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_482E7818FA58F41A",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.Timer.Mode",
+      "candidate_capability": "timer.mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8391A1E968AD9E22",
+      "vss_path": "Vehicle.Powertrain.TractionBattery.Charging.Timer.Time",
+      "candidate_capability": "timer.time",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_576F0829D6A3B104",
+      "vss_path": "Vehicle.Powertrain.Transmission.ClutchEngagement",
+      "candidate_capability": "transmission.clutch_engagement",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_BE21E23073EF5D53",
+      "vss_path": "Vehicle.Powertrain.Transmission.DiffLockFrontEngagement",
+      "candidate_capability": "transmission.diff_lock_front_engagement",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_9CEA1B32DA15D068",
+      "vss_path": "Vehicle.Powertrain.Transmission.DiffLockRearEngagement",
+      "candidate_capability": "transmission.diff_lock_rear_engagement",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_E46369D8E358D117",
+      "vss_path": "Vehicle.Powertrain.Transmission.GearChangeMode",
+      "candidate_capability": "transmission.gear_change_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F6925A92D510864A",
+      "vss_path": "Vehicle.Powertrain.Transmission.IsElectricalPowertrainEngaged",
+      "candidate_capability": "transmission.electrical_powertrain_engaged",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_8647351D50836742",
+      "vss_path": "Vehicle.Powertrain.Transmission.IsLowRangeEngaged",
+      "candidate_capability": "transmission.low_range_engaged",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_F8DA578DB2DD567C",
+      "vss_path": "Vehicle.Powertrain.Transmission.IsParkLockEngaged",
+      "candidate_capability": "transmission.park_lock_engaged",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_A209A2B6EEDD0015",
+      "vss_path": "Vehicle.Powertrain.Transmission.PerformanceMode",
+      "candidate_capability": "transmission.performance_mode",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "字符串型 actuator 需要人工确认枚举或自由文本语义"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_319A57E7A1791D6A",
+      "vss_path": "Vehicle.Powertrain.Transmission.SelectedGear",
+      "candidate_capability": "transmission.selected_gear",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_6ABC396453A58985",
+      "vss_path": "Vehicle.Powertrain.Transmission.TorqueDistribution",
+      "candidate_capability": "transmission.torque_distribution",
+      "manual_review_reasons": [
+        "高风险或底层控制域: Powertrain",
+        "技术目标/限制量语义需人工判断: Distribution, Torque"
+      ]
+    },
+    {
+      "candidate_id": "VSS6_B41BDE2526A41742",
+      "vss_path": "Vehicle.TripMeterReading",
+      "candidate_capability": "vehicle.trip_meter_reading",
+      "manual_review_reasons": [
+        "根级或组件不明确，无法判断用户可理解能力"
+      ]
+    }
+  ],
+  "anomalies": {
+    "unparsed_rows": [],
+    "missing_critical_fields": [],
+    "unknown_datatypes": [],
+    "duplicate_paths": [],
+    "allowed_parse_errors": [],
+    "other_anomalies": []
+  },
+  "typical_capability_samples": [
+    {
+      "candidate_id": "VSS6_4FEAD0220DBAA5B9",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen",
+      "source_path": "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen",
+      "source_version": "VSS 6.0",
+      "domain": "Cabin",
+      "component": "Door",
+      "component_path": "Door",
+      "instance": "Row1.DriverSide",
+      "property": "IsOpen",
+      "datatype": "boolean",
+      "value_constraint": {
+        "min": null,
+        "max": null,
+        "allowed": [],
+        "default": null
+      },
+      "candidate_capability": "door.open",
+      "control_mode": "BOOLEAN",
+      "parameters": {
+        "instance_path": "Row1.DriverSide",
+        "row": 1,
+        "side": "driver",
+        "value": {
+          "name": "desired_state",
+          "type": "boolean",
+          "boolean_semantic_mapping": "not_inferred"
+        }
+      },
+      "manual_review_required": true,
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ],
+      "candidate_status": "CANDIDATE_ONLY_NOT_REGISTERED",
+      "normalized_ref": {
+        "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen"
+      },
+      "upstream_metadata_ref": "../source/metadata.json"
+    },
+    {
+      "candidate_id": "VSS6_91AEF9DD8E633FCE",
+      "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+      "source_path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+      "source_version": "VSS 6.0",
+      "domain": "Cabin",
+      "component": "Window",
+      "component_path": "Door.Window",
+      "instance": "Row1.DriverSide",
+      "property": "Position",
+      "datatype": "uint8",
+      "value_constraint": {
+        "min": 0,
+        "max": 100,
+        "allowed": [],
+        "default": null
+      },
+      "candidate_capability": "window.position",
+      "control_mode": "NUMERIC",
+      "parameters": {
+        "instance_path": "Row1.DriverSide",
+        "row": 1,
+        "side": "driver",
+        "value": {
+          "name": "position",
+          "type": "numeric",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "manual_review_required": true,
+      "manual_review_reasons": [
+        "同一对象存在不同语义兄弟节点: IsOpen, Position, Switch"
+      ],
+      "candidate_status": "CANDIDATE_ONLY_NOT_REGISTERED",
+      "normalized_ref": {
+        "vss_path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position"
+      },
+      "upstream_metadata_ref": "../source/metadata.json"
+    },
+    {
+      "candidate_id": "VSS6_4305FC26D3AF2EBD",
+      "vss_path": "Vehicle.Body.Horn.IsActive",
+      "source_path": "Vehicle.Body.Horn.IsActive",
+      "source_version": "VSS 6.0",
+      "domain": "Body",
+      "component": "Horn",
+      "component_path": "Horn",
+      "instance": null,
+      "property": "IsActive",
+      "datatype": "boolean",
+      "value_constraint": {
+        "min": null,
+        "max": null,
+        "allowed": [],
+        "default": null
+      },
+      "candidate_capability": "horn.active",
+      "control_mode": "BOOLEAN",
+      "parameters": {
+        "value": {
+          "name": "desired_state",
+          "type": "boolean",
+          "boolean_semantic_mapping": "not_inferred"
+        }
+      },
+      "manual_review_required": false,
+      "manual_review_reasons": [],
+      "candidate_status": "CANDIDATE_ONLY_NOT_REGISTERED",
+      "normalized_ref": {
+        "vss_path": "Vehicle.Body.Horn.IsActive"
+      },
+      "upstream_metadata_ref": "../source/metadata.json"
+    },
+    {
+      "candidate_id": "VSS6_94433EAD48834B2C",
+      "vss_path": "Vehicle.ADAS.CruiseControl.IsActive",
+      "source_path": "Vehicle.ADAS.CruiseControl.IsActive",
+      "source_version": "VSS 6.0",
+      "domain": "ADAS",
+      "component": "CruiseControl",
+      "component_path": "CruiseControl",
+      "instance": null,
+      "property": "IsActive",
+      "datatype": "boolean",
+      "value_constraint": {
+        "min": null,
+        "max": null,
+        "allowed": [],
+        "default": null
+      },
+      "candidate_capability": "cruise_control.active",
+      "control_mode": "BOOLEAN",
+      "parameters": {
+        "value": {
+          "name": "desired_state",
+          "type": "boolean",
+          "boolean_semantic_mapping": "not_inferred"
+        }
+      },
+      "manual_review_required": true,
+      "manual_review_reasons": [
+        "高风险或底层控制域: ADAS"
+      ],
+      "candidate_status": "CANDIDATE_ONLY_NOT_REGISTERED",
+      "normalized_ref": {
+        "vss_path": "Vehicle.ADAS.CruiseControl.IsActive"
+      },
+      "upstream_metadata_ref": "../source/metadata.json"
+    },
+    {
+      "candidate_id": "VSS6_D87462928353CFDB",
+      "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.AngleTarget",
+      "source_path": "Vehicle.MotionManagement.Steering.SteeringWheel.AngleTarget",
+      "source_version": "VSS 6.0",
+      "domain": "MotionManagement",
+      "component": "SteeringWheel",
+      "component_path": "Steering.SteeringWheel",
+      "instance": null,
+      "property": "AngleTarget",
+      "datatype": "int16",
+      "value_constraint": {
+        "min": null,
+        "max": null,
+        "allowed": [],
+        "default": null
+      },
+      "candidate_capability": "steering_wheel.angle_target",
+      "control_mode": "NUMERIC",
+      "parameters": {
+        "value": {
+          "name": "angle_target",
+          "type": "numeric"
+        }
+      },
+      "manual_review_required": true,
+      "manual_review_reasons": [
+        "高风险或底层控制域: MotionManagement",
+        "内部 request/command/control 语义: request, set-point, steer-by-wire",
+        "技术目标/限制量语义需人工判断: Target"
+      ],
+      "candidate_status": "CANDIDATE_ONLY_NOT_REGISTERED",
+      "normalized_ref": {
+        "vss_path": "Vehicle.MotionManagement.Steering.SteeringWheel.AngleTarget"
+      },
+      "upstream_metadata_ref": "../source/metadata.json"
+    }
+  ]
+}

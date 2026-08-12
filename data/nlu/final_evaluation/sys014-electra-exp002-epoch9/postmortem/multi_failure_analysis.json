@@ -1,0 +1,2754 @@
+{
+  "test_multi_support": 23,
+  "correctly_abstained": 20,
+  "false_accepted": 3,
+  "all_multi_predictions": [
+    {
+      "sample_id": "SYS014-POC-0032",
+      "text": "关闭车门然后打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7150580286979675,
+        "NON_CONTROL": 0.03135278448462486,
+        "UNKNOWN_CONTROL": 0.18762291967868805,
+        "AMBIGUOUS_CONTROL": 0.06596633046865463
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7150580286979675,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.18762291967868805,
+        "margin": 0.5274351239204407
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.1452871561050415,
+        "MULTI": 0.793605387210846,
+        "AMBIGUOUS": 0.06110748276114464
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.793605387210846,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.1452871561050415,
+        "margin": 0.6483182311058044
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1566874235868454,
+        "DOOR_CLOSE": 0.12525232136249542,
+        "WINDOW_OPEN": 0.27550065517425537,
+        "WINDOW_SET_POSITION": 0.10652326792478561,
+        "HEADLIGHT_OFF": 0.14656028151512146,
+        "ACCELERATE": 0.09867491573095322,
+        "BRAKE": 0.09080124646425247
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27550065517425537,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.1566874235868454,
+        "margin": 0.11881323158740997
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8358182311058044,
+        "NEGATED": 0.16418176889419556
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8358182311058044,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.16418176889419556,
+        "margin": 0.6716364622116089
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_001",
+      "template_signature": "关闭车门然后打开大屏",
+      "mechanical_signature": "关闭车门<THEN>打开大屏",
+      "split_group": "SGRP-605097FF62049E13",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0033",
+      "text": "关闭车门之后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8135316371917725,
+        "NON_CONTROL": 0.03352907672524452,
+        "UNKNOWN_CONTROL": 0.1186714842915535,
+        "AMBIGUOUS_CONTROL": 0.03426779434084892
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8135316371917725,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1186714842915535,
+        "margin": 0.6948601603507996
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6562290191650391,
+        "MULTI": 0.26822608709335327,
+        "AMBIGUOUS": 0.0755448192358017
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6562290191650391,
+        "top2_class": "MULTI",
+        "top2_probability": 0.26822608709335327,
+        "margin": 0.3880029320716858
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10352115333080292,
+        "DOOR_CLOSE": 0.19190464913845062,
+        "WINDOW_OPEN": 0.27632322907447815,
+        "WINDOW_SET_POSITION": 0.10248059034347534,
+        "HEADLIGHT_OFF": 0.14980417490005493,
+        "ACCELERATE": 0.08323732763528824,
+        "BRAKE": 0.09272892028093338
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27632322907447815,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.19190464913845062,
+        "margin": 0.08441857993602753
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.361402302980423,
+        "NEGATED": 0.6385977268218994
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6385977268218994,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.361402302980423,
+        "margin": 0.27719542384147644
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 12,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 7,
+          "token_end": 9,
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_002",
+      "template_signature": "关闭车门之后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0034",
+      "text": "打开车门然后关闭大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7315720319747925,
+        "NON_CONTROL": 0.029528092592954636,
+        "UNKNOWN_CONTROL": 0.1730685830116272,
+        "AMBIGUOUS_CONTROL": 0.06583134084939957
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7315720319747925,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1730685830116272,
+        "margin": 0.5585034489631653
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.16266177594661713,
+        "MULTI": 0.7754912972450256,
+        "AMBIGUOUS": 0.061846986413002014
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7754912972450256,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.16266177594661713,
+        "margin": 0.6128295063972473
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.14833855628967285,
+        "DOOR_CLOSE": 0.14162200689315796,
+        "WINDOW_OPEN": 0.2419040948152542,
+        "WINDOW_SET_POSITION": 0.10741744190454483,
+        "HEADLIGHT_OFF": 0.16875945031642914,
+        "ACCELERATE": 0.10463087260723114,
+        "BRAKE": 0.08732762187719345
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2419040948152542,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.16875945031642914,
+        "margin": 0.07314464449882507
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8533740639686584,
+        "NEGATED": 0.14662592113018036
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8533740639686584,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.14662592113018036,
+        "margin": 0.7067481279373169
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "关闭大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_003",
+      "template_signature": "打开车门然后关闭大屏",
+      "mechanical_signature": "打开车门<THEN>关闭大屏",
+      "split_group": "SGRP-09D2FEE29E4D1E68",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0035",
+      "text": "打开车窗然后关闭前照灯",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7502235770225525,
+        "NON_CONTROL": 0.02944931946694851,
+        "UNKNOWN_CONTROL": 0.15683171153068542,
+        "AMBIGUOUS_CONTROL": 0.06349532306194305
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7502235770225525,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.15683171153068542,
+        "margin": 0.5933918952941895
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.15554825961589813,
+        "MULTI": 0.7840513586997986,
+        "AMBIGUOUS": 0.06040043383836746
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7840513586997986,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.15554825961589813,
+        "margin": 0.6285030841827393
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.14263112843036652,
+        "DOOR_CLOSE": 0.14018118381500244,
+        "WINDOW_OPEN": 0.23549731075763702,
+        "WINDOW_SET_POSITION": 0.1154661625623703,
+        "HEADLIGHT_OFF": 0.17457647621631622,
+        "ACCELERATE": 0.1040845438838005,
+        "BRAKE": 0.08756322413682938
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.23549731075763702,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.17457647621631622,
+        "margin": 0.0609208345413208
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.860314130783081,
+        "NEGATED": 0.13968594372272491
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.860314130783081,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.13968594372272491,
+        "margin": 0.7206282019615173
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "打开车窗",
+          "intent": "WINDOW_OPEN",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 11,
+          "text": "关闭前照灯",
+          "intent": "HEADLIGHT_OFF",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_004",
+      "template_signature": "打开车窗然后关闭前照灯",
+      "mechanical_signature": "打开车窗<THEN>关闭前照灯",
+      "split_group": "SGRP-1E1F99925E930419",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0036",
+      "text": "关闭前照灯再打开车窗",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7894099354743958,
+        "NON_CONTROL": 0.024205800145864487,
+        "UNKNOWN_CONTROL": 0.13795244693756104,
+        "AMBIGUOUS_CONTROL": 0.04843180254101753
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7894099354743958,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13795244693756104,
+        "margin": 0.6514574885368347
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.1717248111963272,
+        "MULTI": 0.7698302865028381,
+        "AMBIGUOUS": 0.05844491347670555
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7698302865028381,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.1717248111963272,
+        "margin": 0.5981054902076721
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.13901285827159882,
+        "DOOR_CLOSE": 0.12288961559534073,
+        "WINDOW_OPEN": 0.2674250304698944,
+        "WINDOW_SET_POSITION": 0.11854839324951172,
+        "HEADLIGHT_OFF": 0.16205282509326935,
+        "ACCELERATE": 0.11176935583353043,
+        "BRAKE": 0.07830191403627396
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2674250304698944,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.16205282509326935,
+        "margin": 0.10537220537662506
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8655885457992554,
+        "NEGATED": 0.13441148400306702
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8655885457992554,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.13441148400306702,
+        "margin": 0.7311770915985107
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 5,
+          "text": "关闭前照灯",
+          "intent": "HEADLIGHT_OFF",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开车窗",
+          "intent": "WINDOW_OPEN",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_005",
+      "template_signature": "关闭前照灯再打开车窗",
+      "mechanical_signature": "关闭前照灯<THEN>打开车窗",
+      "split_group": "SGRP-C0B2ACC0249CEC0B",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0037",
+      "text": "先减速再打开车门",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8054795265197754,
+        "NON_CONTROL": 0.02064462937414646,
+        "UNKNOWN_CONTROL": 0.13819614052772522,
+        "AMBIGUOUS_CONTROL": 0.035679642111063004
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8054795265197754,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13819614052772522,
+        "margin": 0.6672834157943726
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.24087519943714142,
+        "MULTI": 0.707584798336029,
+        "AMBIGUOUS": 0.05154002830386162
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.707584798336029,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.24087519943714142,
+        "margin": 0.46670961380004883
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.188038632273674,
+        "DOOR_CLOSE": 0.14112617075443268,
+        "WINDOW_OPEN": 0.28684163093566895,
+        "WINDOW_SET_POSITION": 0.08319556713104248,
+        "HEADLIGHT_OFF": 0.11113215982913971,
+        "ACCELERATE": 0.09673383086919785,
+        "BRAKE": 0.0929320827126503
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.28684163093566895,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.188038632273674,
+        "margin": 0.09880299866199493
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8153102993965149,
+        "NEGATED": 0.1846896857023239
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8153102993965149,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1846896857023239,
+        "margin": 0.6306205987930298
+      },
+      "segments": [
+        {
+          "char_start": 1,
+          "char_end": 3,
+          "text": "减速",
+          "intent": null,
+          "negated": false
+        },
+        {
+          "char_start": 4,
+          "char_end": 8,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_006",
+      "template_signature": "先减速再打开车门",
+      "mechanical_signature": "先减速<THEN>打开车门",
+      "split_group": "SGRP-5E17A405720B2BAB",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0038",
+      "text": "打开大屏以后关闭车门",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7776117324829102,
+        "NON_CONTROL": 0.03267958015203476,
+        "UNKNOWN_CONTROL": 0.13829414546489716,
+        "AMBIGUOUS_CONTROL": 0.05141453444957733
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7776117324829102,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.13829414546489716,
+        "margin": 0.6393175721168518
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.36944282054901123,
+        "MULTI": 0.570235550403595,
+        "AMBIGUOUS": 0.06032165139913559
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.570235550403595,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.36944282054901123,
+        "margin": 0.20079272985458374
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.11899875849485397,
+        "DOOR_CLOSE": 0.1893446147441864,
+        "WINDOW_OPEN": 0.16105137765407562,
+        "WINDOW_SET_POSITION": 0.10156427323818207,
+        "HEADLIGHT_OFF": 0.24725346267223358,
+        "ACCELERATE": 0.11752686649560928,
+        "BRAKE": 0.0642605647444725
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.24725346267223358,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.1893446147441864,
+        "margin": 0.05790884792804718
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8721293807029724,
+        "NEGATED": 0.12787054479122162
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8721293807029724,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.12787054479122162,
+        "margin": 0.7442588210105896
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_007",
+      "template_signature": "打开大屏以后关闭车门",
+      "mechanical_signature": "打开大屏<THEN>关闭车门",
+      "split_group": "SGRP-DCDFB1D2C397BC2E",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0039",
+      "text": "关闭巡航然后打开车门",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6778463125228882,
+        "NON_CONTROL": 0.031181612983345985,
+        "UNKNOWN_CONTROL": 0.2249538153409958,
+        "AMBIGUOUS_CONTROL": 0.06601822376251221
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6778463125228882,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.2249538153409958,
+        "margin": 0.4528924822807312
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.18929460644721985,
+        "MULTI": 0.7474915981292725,
+        "AMBIGUOUS": 0.06321381032466888
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7474915981292725,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.18929460644721985,
+        "margin": 0.558197021484375
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1731000393629074,
+        "DOOR_CLOSE": 0.10668130218982697,
+        "WINDOW_OPEN": 0.2969142496585846,
+        "WINDOW_SET_POSITION": 0.09528683125972748,
+        "HEADLIGHT_OFF": 0.13468635082244873,
+        "ACCELERATE": 0.09713713824748993,
+        "BRAKE": 0.09619400650262833
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2969142496585846,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.1731000393629074,
+        "margin": 0.12381421029567719
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8389864563941956,
+        "NEGATED": 0.16101355850696564
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8389864563941956,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.16101355850696564,
+        "margin": 0.6779729127883911
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭巡航",
+          "intent": null,
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_008",
+      "template_signature": "关闭巡航然后打开车门",
+      "mechanical_signature": "关闭巡航<THEN>打开车门",
+      "split_group": "SGRP-F1C179984C865294",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0040",
+      "text": "不要打开车门，然后打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8119838237762451,
+        "NON_CONTROL": 0.02624640241265297,
+        "UNKNOWN_CONTROL": 0.11426910758018494,
+        "AMBIGUOUS_CONTROL": 0.04750058054924011
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8119838237762451,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.11426910758018494,
+        "margin": 0.6977146863937378
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.40078461170196533,
+        "MULTI": 0.49902889132499695,
+        "AMBIGUOUS": 0.10018644481897354
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.49902889132499695,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.40078461170196533,
+        "margin": 0.09824427962303162
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12253092974424362,
+        "DOOR_CLOSE": 0.1025371104478836,
+        "WINDOW_OPEN": 0.3491916060447693,
+        "WINDOW_SET_POSITION": 0.09776758402585983,
+        "HEADLIGHT_OFF": 0.10152772068977356,
+        "ACCELERATE": 0.08423420786857605,
+        "BRAKE": 0.14221081137657166
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.3491916060447693,
+        "top2_class": "BRAKE",
+        "top2_probability": 0.14221081137657166,
+        "margin": 0.20698079466819763
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.47601261734962463,
+        "NEGATED": 0.5239874124526978
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.5239874124526978,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.47601261734962463,
+        "margin": 0.04797479510307312
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 6,
+          "text": "不要打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": true
+        },
+        {
+          "char_start": 9,
+          "char_end": 13,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_009",
+      "template_signature": "<neg>打开车门,然后打开大屏",
+      "mechanical_signature": "neg>打开车门<THEN>打开大屏",
+      "split_group": "SGRP-FF9BFBA115BC43BC",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0041",
+      "text": "关闭车门，然后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.814764142036438,
+        "NON_CONTROL": 0.031311534345149994,
+        "UNKNOWN_CONTROL": 0.11855961382389069,
+        "AMBIGUOUS_CONTROL": 0.03536470606923103
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.814764142036438,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.11855961382389069,
+        "margin": 0.6962045431137085
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6135036945343018,
+        "MULTI": 0.31071215867996216,
+        "AMBIGUOUS": 0.0757841244339943
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6135036945343018,
+        "top2_class": "MULTI",
+        "top2_probability": 0.31071215867996216,
+        "margin": 0.3027915358543396
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09017547219991684,
+        "DOOR_CLOSE": 0.13531185686588287,
+        "WINDOW_OPEN": 0.3040449619293213,
+        "WINDOW_SET_POSITION": 0.09680386632680893,
+        "HEADLIGHT_OFF": 0.13975593447685242,
+        "ACCELERATE": 0.10098421573638916,
+        "BRAKE": 0.13292379677295685
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.3040449619293213,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.13975593447685242,
+        "margin": 0.16428902745246887
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.30273351073265076,
+        "NEGATED": 0.6972664594650269
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6972664594650269,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.30273351073265076,
+        "margin": 0.3945329487323761
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 7,
+          "char_end": 13,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 8,
+          "token_end": 10,
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_010",
+      "template_signature": "关闭车门,然后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0042",
+      "text": "不要打开车窗，再关闭前照灯",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8866986632347107,
+        "NON_CONTROL": 0.022046398371458054,
+        "UNKNOWN_CONTROL": 0.06359996646642685,
+        "AMBIGUOUS_CONTROL": 0.0276549831032753
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8866986632347107,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.06359996646642685,
+        "margin": 0.8230987191200256
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6144656538963318,
+        "MULTI": 0.306262731552124,
+        "AMBIGUOUS": 0.07927160710096359
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6144656538963318,
+        "top2_class": "MULTI",
+        "top2_probability": 0.306262731552124,
+        "margin": 0.30820292234420776
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08543545752763748,
+        "DOOR_CLOSE": 0.14555568993091583,
+        "WINDOW_OPEN": 0.24456289410591125,
+        "WINDOW_SET_POSITION": 0.10411077737808228,
+        "HEADLIGHT_OFF": 0.19695927202701569,
+        "ACCELERATE": 0.12178564816713333,
+        "BRAKE": 0.10159026086330414
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.24456289410591125,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.19695927202701569,
+        "margin": 0.04760362207889557
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.36717942357063293,
+        "NEGATED": 0.6328205466270447
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6328205466270447,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.36717942357063293,
+        "margin": 0.26564112305641174
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 6,
+          "text": "不要打开车窗",
+          "intent": "WINDOW_OPEN",
+          "negated": true
+        },
+        {
+          "char_start": 8,
+          "char_end": 13,
+          "text": "关闭前照灯",
+          "intent": "HEADLIGHT_OFF",
+          "negated": false
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_011",
+      "template_signature": "<neg>打开车窗,再关闭前照灯",
+      "mechanical_signature": "neg>打开车窗<THEN>关闭前照灯",
+      "split_group": "SGRP-E77D1F35187658D8",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0043",
+      "text": "打开车门，同时关闭大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8213546872138977,
+        "NON_CONTROL": 0.02307073026895523,
+        "UNKNOWN_CONTROL": 0.12070968002080917,
+        "AMBIGUOUS_CONTROL": 0.03486480191349983
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8213546872138977,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.12070968002080917,
+        "margin": 0.7006450295448303
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.41341355443000793,
+        "MULTI": 0.5295851230621338,
+        "AMBIGUOUS": 0.0570012703537941
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.5295851230621338,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.41341355443000793,
+        "margin": 0.11617156863212585
+      },
+      "gold_intent": null,
+      "pred_intent": "HEADLIGHT_OFF",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09575797617435455,
+        "DOOR_CLOSE": 0.16938284039497375,
+        "WINDOW_OPEN": 0.1970324069261551,
+        "WINDOW_SET_POSITION": 0.10176019370555878,
+        "HEADLIGHT_OFF": 0.22826066613197327,
+        "ACCELERATE": 0.14040952920913696,
+        "BRAKE": 0.06739635765552521
+      },
+      "intent_top1_top2": {
+        "top1_class": "HEADLIGHT_OFF",
+        "top1_probability": 0.22826066613197327,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.1970324069261551,
+        "margin": 0.031228259205818176
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8471018075942993,
+        "NEGATED": 0.1528981626033783
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8471018075942993,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1528981626033783,
+        "margin": 0.6942036151885986
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "打开车门",
+          "intent": "DOOR_OPEN",
+          "negated": false
+        },
+        {
+          "char_start": 7,
+          "char_end": 11,
+          "text": "关闭大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_012",
+      "template_signature": "打开车门,同时关闭大屏",
+      "mechanical_signature": "打开车门<THEN>关闭大屏",
+      "split_group": "SGRP-09D2FEE29E4D1E68",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0044",
+      "text": "关闭车门，并且打开车窗",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8167077898979187,
+        "NON_CONTROL": 0.02385636605322361,
+        "UNKNOWN_CONTROL": 0.1272001564502716,
+        "AMBIGUOUS_CONTROL": 0.03223567083477974
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8167077898979187,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1272001564502716,
+        "margin": 0.6895076036453247
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.3904914855957031,
+        "MULTI": 0.5422077775001526,
+        "AMBIGUOUS": 0.06730077415704727
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.5422077775001526,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.3904914855957031,
+        "margin": 0.15171629190444946
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.0948188453912735,
+        "DOOR_CLOSE": 0.1340627670288086,
+        "WINDOW_OPEN": 0.3064877986907959,
+        "WINDOW_SET_POSITION": 0.11741258203983307,
+        "HEADLIGHT_OFF": 0.155282661318779,
+        "ACCELERATE": 0.12347709387540817,
+        "BRAKE": 0.06845816969871521
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.3064877986907959,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.155282661318779,
+        "margin": 0.1512051373720169
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.7262061834335327,
+        "NEGATED": 0.2737938165664673
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.7262061834335327,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.2737938165664673,
+        "margin": 0.45241236686706543
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 7,
+          "char_end": 11,
+          "text": "打开车窗",
+          "intent": "WINDOW_OPEN",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_013",
+      "template_signature": "关闭车门,并且打开车窗",
+      "mechanical_signature": "关闭车门<THEN>打开车窗",
+      "split_group": "SGRP-AEFC6C1F6DEA8A7C",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0045",
+      "text": "关闭车门；打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.789864718914032,
+        "NON_CONTROL": 0.025109807029366493,
+        "UNKNOWN_CONTROL": 0.1519758701324463,
+        "AMBIGUOUS_CONTROL": 0.033049631863832474
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.789864718914032,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1519758701324463,
+        "margin": 0.6378888487815857
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.36595839262008667,
+        "MULTI": 0.5726904273033142,
+        "AMBIGUOUS": 0.06135110184550285
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.5726904273033142,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.36595839262008667,
+        "margin": 0.20673203468322754
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12304717302322388,
+        "DOOR_CLOSE": 0.13046762347221375,
+        "WINDOW_OPEN": 0.2589166760444641,
+        "WINDOW_SET_POSITION": 0.09054341912269592,
+        "HEADLIGHT_OFF": 0.22075575590133667,
+        "ACCELERATE": 0.10706505179405212,
+        "BRAKE": 0.06920425593852997
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.2589166760444641,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.22075575590133667,
+        "margin": 0.03816092014312744
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8339448571205139,
+        "NEGATED": 0.1660551279783249
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8339448571205139,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1660551279783249,
+        "margin": 0.6678897142410278
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 5,
+          "char_end": 9,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_014",
+      "template_signature": "关闭车门;打开大屏",
+      "mechanical_signature": "关闭车门打开大屏",
+      "split_group": "SGRP-3B3694C833848035",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0046",
+      "text": "关闭车门，打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7780532240867615,
+        "NON_CONTROL": 0.02634282223880291,
+        "UNKNOWN_CONTROL": 0.1608385145664215,
+        "AMBIGUOUS_CONTROL": 0.03476542979478836
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7780532240867615,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1608385145664215,
+        "margin": 0.6172146797180176
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.3379131555557251,
+        "MULTI": 0.5962969064712524,
+        "AMBIGUOUS": 0.06578993797302246
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.5962969064712524,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.3379131555557251,
+        "margin": 0.25838375091552734
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12996438145637512,
+        "DOOR_CLOSE": 0.13056567311286926,
+        "WINDOW_OPEN": 0.27067023515701294,
+        "WINDOW_SET_POSITION": 0.09270106256008148,
+        "HEADLIGHT_OFF": 0.20443211495876312,
+        "ACCELERATE": 0.09899386763572693,
+        "BRAKE": 0.07267257571220398
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27067023515701294,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.20443211495876312,
+        "margin": 0.06623812019824982
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8414570093154907,
+        "NEGATED": 0.1585429459810257
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8414570093154907,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1585429459810257,
+        "margin": 0.6829140782356262
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 5,
+          "char_end": 9,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_015",
+      "template_signature": "关闭车门,打开大屏",
+      "mechanical_signature": "关闭车门打开大屏",
+      "split_group": "SGRP-3B3694C833848035",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0047",
+      "text": "关闭车门接着打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.6997290849685669,
+        "NON_CONTROL": 0.03671247884631157,
+        "UNKNOWN_CONTROL": 0.18711070716381073,
+        "AMBIGUOUS_CONTROL": 0.07644772529602051
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.6997290849685669,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.18711070716381073,
+        "margin": 0.512618362903595
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.1471279114484787,
+        "MULTI": 0.7944735884666443,
+        "AMBIGUOUS": 0.05839846283197403
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7944735884666443,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.1471279114484787,
+        "margin": 0.6473456621170044
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.15671148896217346,
+        "DOOR_CLOSE": 0.1551186591386795,
+        "WINDOW_OPEN": 0.25317633152008057,
+        "WINDOW_SET_POSITION": 0.11191524565219879,
+        "HEADLIGHT_OFF": 0.13458211719989777,
+        "ACCELERATE": 0.09510648250579834,
+        "BRAKE": 0.093389593064785
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.25317633152008057,
+        "top2_class": "DOOR_OPEN",
+        "top2_probability": 0.15671148896217346,
+        "margin": 0.0964648425579071
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8398415446281433,
+        "NEGATED": 0.1601584553718567
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8398415446281433,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1601584553718567,
+        "margin": 0.6796830892562866
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_016",
+      "template_signature": "关闭车门接着打开大屏",
+      "mechanical_signature": "关闭车门<THEN>打开大屏",
+      "split_group": "SGRP-605097FF62049E13",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0048",
+      "text": "关闭车门随后打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7760022282600403,
+        "NON_CONTROL": 0.026592489331960678,
+        "UNKNOWN_CONTROL": 0.15252768993377686,
+        "AMBIGUOUS_CONTROL": 0.04487757757306099
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7760022282600403,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.15252768993377686,
+        "margin": 0.6234745383262634
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.24392881989479065,
+        "MULTI": 0.6938284039497375,
+        "AMBIGUOUS": 0.062242764979600906
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.6938284039497375,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.24392881989479065,
+        "margin": 0.4498995840549469
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.14107400178909302,
+        "DOOR_CLOSE": 0.15301717817783356,
+        "WINDOW_OPEN": 0.26609113812446594,
+        "WINDOW_SET_POSITION": 0.11774925142526627,
+        "HEADLIGHT_OFF": 0.15887370705604553,
+        "ACCELERATE": 0.0898016020655632,
+        "BRAKE": 0.07339317351579666
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.26609113812446594,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.15887370705604553,
+        "margin": 0.10721743106842041
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8779070973396301,
+        "NEGATED": 0.1220928207039833
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8779070973396301,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1220928207039833,
+        "margin": 0.755814254283905
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 10,
+          "text": "打开大屏",
+          "intent": null,
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_TEST_MULTI_017",
+      "template_signature": "关闭车门随后打开大屏",
+      "mechanical_signature": "关闭车门<THEN>打开大屏",
+      "split_group": "SGRP-605097FF62049E13",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0607",
+      "text": "继续加速然后把车门关上",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7974291443824768,
+        "NON_CONTROL": 0.025271963328123093,
+        "UNKNOWN_CONTROL": 0.1207687258720398,
+        "AMBIGUOUS_CONTROL": 0.05653016269207001
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7974291443824768,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1207687258720398,
+        "margin": 0.676660418510437
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.12972790002822876,
+        "MULTI": 0.8223803639411926,
+        "AMBIGUOUS": 0.0478917732834816
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.8223803639411926,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.12972790002822876,
+        "margin": 0.6926524639129639
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.12257644534111023,
+        "DOOR_CLOSE": 0.17210055887699127,
+        "WINDOW_OPEN": 0.21308507025241852,
+        "WINDOW_SET_POSITION": 0.12955068051815033,
+        "HEADLIGHT_OFF": 0.14429429173469543,
+        "ACCELERATE": 0.13323087990283966,
+        "BRAKE": 0.08516198396682739
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.21308507025241852,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.17210055887699127,
+        "margin": 0.040984511375427246
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8720728158950806,
+        "NEGATED": 0.12792718410491943
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8720728158950806,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.12792718410491943,
+        "margin": 0.7441456317901611
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "继续加速",
+          "intent": "ACCELERATE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 11,
+          "text": "把车门关上",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_MULTI_ACCELERATE_DOOR_CLOSE_0_0",
+      "template_signature": "继续加速然后把车门关上",
+      "mechanical_signature": "继续加速<THEN>把车门关上",
+      "split_group": "SGRP-DB8AB5F450662E0D",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0613",
+      "text": "马上刹车然后把车窗调到30%",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7862870693206787,
+        "NON_CONTROL": 0.02960480935871601,
+        "UNKNOWN_CONTROL": 0.12217261642217636,
+        "AMBIGUOUS_CONTROL": 0.06193552538752556
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7862870693206787,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.12217261642217636,
+        "margin": 0.6641144752502441
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.13014769554138184,
+        "MULTI": 0.811980128288269,
+        "AMBIGUOUS": 0.05787225812673569
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.811980128288269,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.13014769554138184,
+        "margin": 0.6818324327468872
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_SET_POSITION",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1172884851694107,
+        "DOOR_CLOSE": 0.1466488093137741,
+        "WINDOW_OPEN": 0.1985951066017151,
+        "WINDOW_SET_POSITION": 0.19860206544399261,
+        "HEADLIGHT_OFF": 0.12053459882736206,
+        "ACCELERATE": 0.11989860981702805,
+        "BRAKE": 0.09843240678310394
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_SET_POSITION",
+        "top1_probability": 0.19860206544399261,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.1985951066017151,
+        "margin": 6.9588422775268555e-06
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8111966252326965,
+        "NEGATED": 0.18880333006381989
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8111966252326965,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.18880333006381989,
+        "margin": 0.6223933100700378
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "马上刹车",
+          "intent": "BRAKE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 14,
+          "text": "把车窗调到30%",
+          "intent": "WINDOW_SET_POSITION",
+          "negated": false
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%"
+        }
+      ],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_MULTI_BRAKE_WINDOW_SET_POSITION_0_0",
+      "template_signature": "马上刹车然后把车窗调到<value>",
+      "mechanical_signature": "马上刹车<THEN>把车窗调到<value",
+      "split_group": "SGRP-AE96E249E4546DFD",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0637",
+      "text": "继续加速再把车门关上",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.839789628982544,
+        "NON_CONTROL": 0.02013256959617138,
+        "UNKNOWN_CONTROL": 0.09469279646873474,
+        "AMBIGUOUS_CONTROL": 0.045385003089904785
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.839789628982544,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.09469279646873474,
+        "margin": 0.7450968027114868
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.19194774329662323,
+        "MULTI": 0.7680529952049255,
+        "AMBIGUOUS": 0.03999925032258034
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7680529952049255,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.19194774329662323,
+        "margin": 0.5761052370071411
+      },
+      "gold_intent": null,
+      "pred_intent": "DOOR_CLOSE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.11410500109195709,
+        "DOOR_CLOSE": 0.1963493824005127,
+        "WINDOW_OPEN": 0.1788865476846695,
+        "WINDOW_SET_POSITION": 0.12887850403785706,
+        "HEADLIGHT_OFF": 0.1587090641260147,
+        "ACCELERATE": 0.1530371755361557,
+        "BRAKE": 0.07003432512283325
+      },
+      "intent_top1_top2": {
+        "top1_class": "DOOR_CLOSE",
+        "top1_probability": 0.1963493824005127,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.1788865476846695,
+        "margin": 0.0174628347158432
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8860470652580261,
+        "NEGATED": 0.11395292729139328
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8860470652580261,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.11395292729139328,
+        "margin": 0.7720941305160522
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "继续加速",
+          "intent": "ACCELERATE",
+          "negated": false
+        },
+        {
+          "char_start": 5,
+          "char_end": 10,
+          "text": "把车门关上",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_MULTI_ACCELERATE_DOOR_CLOSE_0_0",
+      "template_signature": "继续加速再把车门关上",
+      "mechanical_signature": "继续加速<THEN>把车门关上",
+      "split_group": "SGRP-DB8AB5F450662E0D",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0643",
+      "text": "马上刹车再把车窗调到30%",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8383722901344299,
+        "NON_CONTROL": 0.0231566671282053,
+        "UNKNOWN_CONTROL": 0.08834005147218704,
+        "AMBIGUOUS_CONTROL": 0.050130970776081085
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8383722901344299,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.08834005147218704,
+        "margin": 0.7500322461128235
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.16892990469932556,
+        "MULTI": 0.7696865200996399,
+        "AMBIGUOUS": 0.061383575201034546
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.7696865200996399,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.16892990469932556,
+        "margin": 0.6007566452026367
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_SET_POSITION",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09940800815820694,
+        "DOOR_CLOSE": 0.1287958323955536,
+        "WINDOW_OPEN": 0.19480696320533752,
+        "WINDOW_SET_POSITION": 0.24524565041065216,
+        "HEADLIGHT_OFF": 0.12504394352436066,
+        "ACCELERATE": 0.12660416960716248,
+        "BRAKE": 0.08009540289640427
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_SET_POSITION",
+        "top1_probability": 0.24524565041065216,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.19480696320533752,
+        "margin": 0.050438687205314636
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8273722529411316,
+        "NEGATED": 0.1726277619600296
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8273722529411316,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1726277619600296,
+        "margin": 0.6547445058822632
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "马上刹车",
+          "intent": "BRAKE",
+          "negated": false
+        },
+        {
+          "char_start": 5,
+          "char_end": 13,
+          "text": "把车窗调到30%",
+          "intent": "WINDOW_SET_POSITION",
+          "negated": false
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 10,
+          "char_end": 13,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 11,
+          "token_end": 13,
+          "char_start": 10,
+          "char_end": 13,
+          "text": "30%"
+        }
+      ],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_MULTI_BRAKE_WINDOW_SET_POSITION_0_0",
+      "template_signature": "马上刹车再把车窗调到<value>",
+      "mechanical_signature": "马上刹车<THEN>把车窗调到<value",
+      "split_group": "SGRP-AE96E249E4546DFD",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0667",
+      "text": "继续加速接着把车门关上",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7874243259429932,
+        "NON_CONTROL": 0.0290776789188385,
+        "UNKNOWN_CONTROL": 0.11504147201776505,
+        "AMBIGUOUS_CONTROL": 0.0684565007686615
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7874243259429932,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.11504147201776505,
+        "margin": 0.6723828315734863
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.13066622614860535,
+        "MULTI": 0.8255016207695007,
+        "AMBIGUOUS": 0.043832141906023026
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.8255016207695007,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.13066622614860535,
+        "margin": 0.6948354244232178
+      },
+      "gold_intent": null,
+      "pred_intent": "DOOR_CLOSE",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.11484850943088531,
+        "DOOR_CLOSE": 0.19850604236125946,
+        "WINDOW_OPEN": 0.1881103217601776,
+        "WINDOW_SET_POSITION": 0.14096926152706146,
+        "HEADLIGHT_OFF": 0.12971150875091553,
+        "ACCELERATE": 0.13879279792308807,
+        "BRAKE": 0.08906146138906479
+      },
+      "intent_top1_top2": {
+        "top1_class": "DOOR_CLOSE",
+        "top1_probability": 0.19850604236125946,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.1881103217601776,
+        "margin": 0.010395720601081848
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8708057999610901,
+        "NEGATED": 0.1291942000389099
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8708057999610901,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.1291942000389099,
+        "margin": 0.7416115999221802
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "继续加速",
+          "intent": "ACCELERATE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 11,
+          "text": "把车门关上",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        }
+      ],
+      "gold_slots": [],
+      "predicted_slots": [],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_MULTI_ACCELERATE_DOOR_CLOSE_0_0",
+      "template_signature": "继续加速接着把车门关上",
+      "mechanical_signature": "继续加速<THEN>把车门关上",
+      "split_group": "SGRP-DB8AB5F450662E0D",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    },
+    {
+      "sample_id": "SYS014-POC-0673",
+      "text": "马上刹车接着把车窗调到30%",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.7764062285423279,
+        "NON_CONTROL": 0.03419489413499832,
+        "UNKNOWN_CONTROL": 0.12040948122739792,
+        "AMBIGUOUS_CONTROL": 0.06898936629295349
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.7764062285423279,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.12040948122739792,
+        "margin": 0.6559967398643494
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "MULTI",
+      "structure_probabilities": {
+        "SINGLE": 0.12989625334739685,
+        "MULTI": 0.8082471489906311,
+        "AMBIGUOUS": 0.06185656040906906
+      },
+      "structure_top1_top2": {
+        "top1_class": "MULTI",
+        "top1_probability": 0.8082471489906311,
+        "top2_class": "SINGLE",
+        "top2_probability": 0.12989625334739685,
+        "margin": 0.6783509254455566
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_SET_POSITION",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.1067809909582138,
+        "DOOR_CLOSE": 0.14594721794128418,
+        "WINDOW_OPEN": 0.19839899241924286,
+        "WINDOW_SET_POSITION": 0.21176806092262268,
+        "HEADLIGHT_OFF": 0.10578534007072449,
+        "ACCELERATE": 0.12638472020626068,
+        "BRAKE": 0.1049347072839737
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_SET_POSITION",
+        "top1_probability": 0.21176806092262268,
+        "top2_class": "WINDOW_OPEN",
+        "top2_probability": 0.19839899241924286,
+        "margin": 0.013369068503379822
+      },
+      "gold_negated": null,
+      "pred_negated": false,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.8264299035072327,
+        "NEGATED": 0.17357009649276733
+      },
+      "negation_top1_top2": {
+        "top1_class": "NOT_NEGATED",
+        "top1_probability": 0.8264299035072327,
+        "top2_class": "NEGATED",
+        "top2_probability": 0.17357009649276733,
+        "margin": 0.6528598070144653
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "马上刹车",
+          "intent": "BRAKE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 14,
+          "text": "把车窗调到30%",
+          "intent": "WINDOW_SET_POSITION",
+          "negated": false
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 12,
+          "token_end": 14,
+          "char_start": 11,
+          "char_end": 14,
+          "text": "30%"
+        }
+      ],
+      "raw_executable": false,
+      "raw_abstain": true,
+      "paraphrase_family_id": "PF_MULTI_BRAKE_WINDOW_SET_POSITION_0_0",
+      "template_signature": "马上刹车接着把车窗调到<value>",
+      "mechanical_signature": "马上刹车<THEN>把车窗调到<value",
+      "split_group": "SGRP-AE96E249E4546DFD",
+      "source_type": "SYNTHETIC_TEMPLATE"
+    }
+  ],
+  "multi_false_accepts": [
+    {
+      "sample_id": "SYS014-POC-0033",
+      "text": "关闭车门之后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8135316371917725,
+        "NON_CONTROL": 0.03352907672524452,
+        "UNKNOWN_CONTROL": 0.1186714842915535,
+        "AMBIGUOUS_CONTROL": 0.03426779434084892
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8135316371917725,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.1186714842915535,
+        "margin": 0.6948601603507996
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6562290191650391,
+        "MULTI": 0.26822608709335327,
+        "AMBIGUOUS": 0.0755448192358017
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6562290191650391,
+        "top2_class": "MULTI",
+        "top2_probability": 0.26822608709335327,
+        "margin": 0.3880029320716858
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.10352115333080292,
+        "DOOR_CLOSE": 0.19190464913845062,
+        "WINDOW_OPEN": 0.27632322907447815,
+        "WINDOW_SET_POSITION": 0.10248059034347534,
+        "HEADLIGHT_OFF": 0.14980417490005493,
+        "ACCELERATE": 0.08323732763528824,
+        "BRAKE": 0.09272892028093338
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.27632322907447815,
+        "top2_class": "DOOR_CLOSE",
+        "top2_probability": 0.19190464913845062,
+        "margin": 0.08441857993602753
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.361402302980423,
+        "NEGATED": 0.6385977268218994
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6385977268218994,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.361402302980423,
+        "margin": 0.27719542384147644
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 6,
+          "char_end": 12,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 7,
+          "token_end": 9,
+          "char_start": 6,
+          "char_end": 8,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_002",
+      "template_signature": "关闭车门之后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0041",
+      "text": "关闭车门，然后不要打开大屏",
+      "gold_scope": "UNKNOWN_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.814764142036438,
+        "NON_CONTROL": 0.031311534345149994,
+        "UNKNOWN_CONTROL": 0.11855961382389069,
+        "AMBIGUOUS_CONTROL": 0.03536470606923103
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.814764142036438,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.11855961382389069,
+        "margin": 0.6962045431137085
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6135036945343018,
+        "MULTI": 0.31071215867996216,
+        "AMBIGUOUS": 0.0757841244339943
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6135036945343018,
+        "top2_class": "MULTI",
+        "top2_probability": 0.31071215867996216,
+        "margin": 0.3027915358543396
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.09017547219991684,
+        "DOOR_CLOSE": 0.13531185686588287,
+        "WINDOW_OPEN": 0.3040449619293213,
+        "WINDOW_SET_POSITION": 0.09680386632680893,
+        "HEADLIGHT_OFF": 0.13975593447685242,
+        "ACCELERATE": 0.10098421573638916,
+        "BRAKE": 0.13292379677295685
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.3040449619293213,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.13975593447685242,
+        "margin": 0.16428902745246887
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.30273351073265076,
+        "NEGATED": 0.6972664594650269
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6972664594650269,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.30273351073265076,
+        "margin": 0.3945329487323761
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 4,
+          "text": "关闭车门",
+          "intent": "DOOR_CLOSE",
+          "negated": false
+        },
+        {
+          "char_start": 7,
+          "char_end": 13,
+          "text": "不要打开大屏",
+          "intent": null,
+          "negated": true
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 8,
+          "token_end": 10,
+          "char_start": 7,
+          "char_end": 9,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_010",
+      "template_signature": "关闭车门,然后<neg>打开大屏",
+      "mechanical_signature": "关闭车门<THEN><neg>打开大屏",
+      "split_group": "SGRP-0AF2A30B446DF244",
+      "source_type": "TEST_ASSET"
+    },
+    {
+      "sample_id": "SYS014-POC-0042",
+      "text": "不要打开车窗，再关闭前照灯",
+      "gold_scope": "IN_SCOPE_CONTROL",
+      "pred_scope": "IN_SCOPE_CONTROL",
+      "scope_probabilities": {
+        "IN_SCOPE_CONTROL": 0.8866986632347107,
+        "NON_CONTROL": 0.022046398371458054,
+        "UNKNOWN_CONTROL": 0.06359996646642685,
+        "AMBIGUOUS_CONTROL": 0.0276549831032753
+      },
+      "scope_top1_top2": {
+        "top1_class": "IN_SCOPE_CONTROL",
+        "top1_probability": 0.8866986632347107,
+        "top2_class": "UNKNOWN_CONTROL",
+        "top2_probability": 0.06359996646642685,
+        "margin": 0.8230987191200256
+      },
+      "gold_structure": "MULTI",
+      "pred_structure": "SINGLE",
+      "structure_probabilities": {
+        "SINGLE": 0.6144656538963318,
+        "MULTI": 0.306262731552124,
+        "AMBIGUOUS": 0.07927160710096359
+      },
+      "structure_top1_top2": {
+        "top1_class": "SINGLE",
+        "top1_probability": 0.6144656538963318,
+        "top2_class": "MULTI",
+        "top2_probability": 0.306262731552124,
+        "margin": 0.30820292234420776
+      },
+      "gold_intent": null,
+      "pred_intent": "WINDOW_OPEN",
+      "intent_probabilities": {
+        "DOOR_OPEN": 0.08543545752763748,
+        "DOOR_CLOSE": 0.14555568993091583,
+        "WINDOW_OPEN": 0.24456289410591125,
+        "WINDOW_SET_POSITION": 0.10411077737808228,
+        "HEADLIGHT_OFF": 0.19695927202701569,
+        "ACCELERATE": 0.12178564816713333,
+        "BRAKE": 0.10159026086330414
+      },
+      "intent_top1_top2": {
+        "top1_class": "WINDOW_OPEN",
+        "top1_probability": 0.24456289410591125,
+        "top2_class": "HEADLIGHT_OFF",
+        "top2_probability": 0.19695927202701569,
+        "margin": 0.04760362207889557
+      },
+      "gold_negated": null,
+      "pred_negated": true,
+      "negation_probabilities": {
+        "NOT_NEGATED": 0.36717942357063293,
+        "NEGATED": 0.6328205466270447
+      },
+      "negation_top1_top2": {
+        "top1_class": "NEGATED",
+        "top1_probability": 0.6328205466270447,
+        "top2_class": "NOT_NEGATED",
+        "top2_probability": 0.36717942357063293,
+        "margin": 0.26564112305641174
+      },
+      "segments": [
+        {
+          "char_start": 0,
+          "char_end": 6,
+          "text": "不要打开车窗",
+          "intent": "WINDOW_OPEN",
+          "negated": true
+        },
+        {
+          "char_start": 8,
+          "char_end": 13,
+          "text": "关闭前照灯",
+          "intent": "HEADLIGHT_OFF",
+          "negated": false
+        }
+      ],
+      "gold_slots": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slots": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要"
+        }
+      ],
+      "raw_executable": true,
+      "raw_abstain": false,
+      "paraphrase_family_id": "PF_TEST_MULTI_011",
+      "template_signature": "<neg>打开车窗,再关闭前照灯",
+      "mechanical_signature": "neg>打开车窗<THEN>关闭前照灯",
+      "split_group": "SGRP-E77D1F35187658D8",
+      "source_type": "TEST_ASSET"
+    }
+  ],
+  "MULTI_GENERALIZATION_FAILURE_PATTERN": "All three failures are mixed-polarity multi-command constructions. Two combine a supported door command with an unsupported display command using 之后/然后 and punctuation; one combines two supported intents with negation plus 再. Since 20/23 MULTI cases abstain correctly, the failure is concentrated in held-out mixed-negation/compositional families rather than length or connector use in general.",
+  "ambiguous_analysis": {
+    "test_ambiguous_support": 3,
+    "correctly_abstained": 2,
+    "false_accepted": 1,
+    "all_ambiguous_predictions": [
+      {
+        "sample_id": "SYS014-POC-0026",
+        "text": "把那个打开",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "AMBIGUOUS_CONTROL",
+        "scope_probabilities": {
+          "IN_SCOPE_CONTROL": 0.1964387744665146,
+          "NON_CONTROL": 0.12474015355110168,
+          "UNKNOWN_CONTROL": 0.21036042273044586,
+          "AMBIGUOUS_CONTROL": 0.4684606194496155
+        },
+        "scope_top1_top2": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.4684606194496155,
+          "top2_class": "UNKNOWN_CONTROL",
+          "top2_probability": 0.21036042273044586,
+          "margin": 0.2581002116203308
+        },
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "structure_probabilities": {
+          "SINGLE": 0.21164046227931976,
+          "MULTI": 0.1534568816423416,
+          "AMBIGUOUS": 0.6349026560783386
+        },
+        "structure_top1_top2": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.6349026560783386,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.21164046227931976,
+          "margin": 0.42326217889785767
+        },
+        "gold_intent": null,
+        "pred_intent": "BRAKE",
+        "intent_probabilities": {
+          "DOOR_OPEN": 0.10773748904466629,
+          "DOOR_CLOSE": 0.0595766082406044,
+          "WINDOW_OPEN": 0.13483482599258423,
+          "WINDOW_SET_POSITION": 0.06574078649282455,
+          "HEADLIGHT_OFF": 0.08268969506025314,
+          "ACCELERATE": 0.10853955149650574,
+          "BRAKE": 0.44088101387023926
+        },
+        "intent_top1_top2": {
+          "top1_class": "BRAKE",
+          "top1_probability": 0.44088101387023926,
+          "top2_class": "WINDOW_OPEN",
+          "top2_probability": 0.13483482599258423,
+          "margin": 0.30604618787765503
+        },
+        "gold_negated": null,
+        "pred_negated": false,
+        "negation_probabilities": {
+          "NOT_NEGATED": 0.8878406882286072,
+          "NEGATED": 0.11215928941965103
+        },
+        "negation_top1_top2": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.8878406882286072,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.11215928941965103,
+          "margin": 0.7756813764572144
+        },
+        "segments": [],
+        "gold_slots": [],
+        "predicted_slots": [],
+        "raw_executable": false,
+        "raw_abstain": true,
+        "paraphrase_family_id": "PF_TEST_AMB_001",
+        "template_signature": "把那个打开",
+        "mechanical_signature": "把那个打开",
+        "split_group": "SGRP-8173B7632280B792",
+        "source_type": "TEST_ASSET"
+      },
+      {
+        "sample_id": "SYS014-POC-0030",
+        "text": "请帮我处理一下",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "AMBIGUOUS_CONTROL",
+        "scope_probabilities": {
+          "IN_SCOPE_CONTROL": 0.11371005326509476,
+          "NON_CONTROL": 0.12276865541934967,
+          "UNKNOWN_CONTROL": 0.08597752451896667,
+          "AMBIGUOUS_CONTROL": 0.6775438189506531
+        },
+        "scope_top1_top2": {
+          "top1_class": "AMBIGUOUS_CONTROL",
+          "top1_probability": 0.6775438189506531,
+          "top2_class": "NON_CONTROL",
+          "top2_probability": 0.12276865541934967,
+          "margin": 0.5547751784324646
+        },
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "AMBIGUOUS",
+        "structure_probabilities": {
+          "SINGLE": 0.2719157934188843,
+          "MULTI": 0.08487241715192795,
+          "AMBIGUOUS": 0.6432117223739624
+        },
+        "structure_top1_top2": {
+          "top1_class": "AMBIGUOUS",
+          "top1_probability": 0.6432117223739624,
+          "top2_class": "SINGLE",
+          "top2_probability": 0.2719157934188843,
+          "margin": 0.3712959289550781
+        },
+        "gold_intent": null,
+        "pred_intent": "BRAKE",
+        "intent_probabilities": {
+          "DOOR_OPEN": 0.09749338775873184,
+          "DOOR_CLOSE": 0.08232440799474716,
+          "WINDOW_OPEN": 0.12223877012729645,
+          "WINDOW_SET_POSITION": 0.08202913403511047,
+          "HEADLIGHT_OFF": 0.09659281373023987,
+          "ACCELERATE": 0.16392628848552704,
+          "BRAKE": 0.35539522767066956
+        },
+        "intent_top1_top2": {
+          "top1_class": "BRAKE",
+          "top1_probability": 0.35539522767066956,
+          "top2_class": "ACCELERATE",
+          "top2_probability": 0.16392628848552704,
+          "margin": 0.19146893918514252
+        },
+        "gold_negated": null,
+        "pred_negated": false,
+        "negation_probabilities": {
+          "NOT_NEGATED": 0.8852611184120178,
+          "NEGATED": 0.1147388368844986
+        },
+        "negation_top1_top2": {
+          "top1_class": "NOT_NEGATED",
+          "top1_probability": 0.8852611184120178,
+          "top2_class": "NEGATED",
+          "top2_probability": 0.1147388368844986,
+          "margin": 0.7705222964286804
+        },
+        "segments": [],
+        "gold_slots": [],
+        "predicted_slots": [],
+        "raw_executable": false,
+        "raw_abstain": true,
+        "paraphrase_family_id": "PF_TEST_AMB_005",
+        "template_signature": "请帮我处理一下",
+        "mechanical_signature": "处理一下",
+        "split_group": "SGRP-26C12E4942A16144",
+        "source_type": "TEST_ASSET"
+      },
+      {
+        "sample_id": "SYS014-POC-0031",
+        "text": "不要不打开车门",
+        "gold_scope": "AMBIGUOUS_CONTROL",
+        "pred_scope": "IN_SCOPE_CONTROL",
+        "scope_probabilities": {
+          "IN_SCOPE_CONTROL": 0.8295261263847351,
+          "NON_CONTROL": 0.06636186689138412,
+          "UNKNOWN_CONTROL": 0.06356152892112732,
+          "AMBIGUOUS_CONTROL": 0.040550440549850464
+        },
+        "scope_top1_top2": {
+          "top1_class": "IN_SCOPE_CONTROL",
+          "top1_probability": 0.8295261263847351,
+          "top2_class": "NON_CONTROL",
+          "top2_probability": 0.06636186689138412,
+          "margin": 0.7631642818450928
+        },
+        "gold_structure": "AMBIGUOUS",
+        "pred_structure": "SINGLE",
+        "structure_probabilities": {
+          "SINGLE": 0.8537153005599976,
+          "MULTI": 0.06616374105215073,
+          "AMBIGUOUS": 0.08012101799249649
+        },
+        "structure_top1_top2": {
+          "top1_class": "SINGLE",
+          "top1_probability": 0.8537153005599976,
+          "top2_class": "AMBIGUOUS",
+          "top2_probability": 0.08012101799249649,
+          "margin": 0.7735942602157593
+        },
+        "gold_intent": null,
+        "pred_intent": "WINDOW_OPEN",
+        "intent_probabilities": {
+          "DOOR_OPEN": 0.08189911395311356,
+          "DOOR_CLOSE": 0.2416263073682785,
+          "WINDOW_OPEN": 0.25771841406822205,
+          "WINDOW_SET_POSITION": 0.08084075152873993,
+          "HEADLIGHT_OFF": 0.13338924944400787,
+          "ACCELERATE": 0.0571247860789299,
+          "BRAKE": 0.14740140736103058
+        },
+        "intent_top1_top2": {
+          "top1_class": "WINDOW_OPEN",
+          "top1_probability": 0.25771841406822205,
+          "top2_class": "DOOR_CLOSE",
+          "top2_probability": 0.2416263073682785,
+          "margin": 0.016092106699943542
+        },
+        "gold_negated": null,
+        "pred_negated": true,
+        "negation_probabilities": {
+          "NOT_NEGATED": 0.11401136219501495,
+          "NEGATED": 0.8859886527061462
+        },
+        "negation_top1_top2": {
+          "top1_class": "NEGATED",
+          "top1_probability": 0.8859886527061462,
+          "top2_class": "NOT_NEGATED",
+          "top2_probability": 0.11401136219501495,
+          "margin": 0.7719773054122925
+        },
+        "segments": [],
+        "gold_slots": [
+          {
+            "slot_type": "NEGATION",
+            "char_start": 0,
+            "char_end": 3,
+            "text": "不要不",
+            "canonical_value": null,
+            "normalization_status": "RAW_ONLY"
+          }
+        ],
+        "predicted_slots": [
+          {
+            "slot_type": "NEGATION",
+            "token_start": 1,
+            "token_end": 3,
+            "char_start": 0,
+            "char_end": 2,
+            "text": "不要"
+          }
+        ],
+        "raw_executable": true,
+        "raw_abstain": false,
+        "paraphrase_family_id": "PF_TEST_AMB_006",
+        "template_signature": "<neg>打开车门",
+        "mechanical_signature": "neg>打开车门",
+        "split_group": "SGRP-8B7DE95CF9236F50",
+        "source_type": "TEST_ASSET"
+      }
+    ],
+    "comparison_with_validation_0731_0732_0733": "The Test false accept is a double-negation ambiguity (不要不打开车门) in PF_TEST_AMB_006. Validation 0731/0732/0733 are vague-referent/action variants in PF_AMBIG_18. They are different paraphrase families, templates, and ambiguity mechanisms.",
+    "same_language_family": false,
+    "new_ambiguity_pattern": true
+  }
+}

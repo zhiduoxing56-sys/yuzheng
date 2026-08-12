@@ -284,9 +284,10 @@ class DualMemoryService:
         frame: SemanticFrame,
         conflicts: list[dict[str, Any]],
         *,
+        semantic_similarity_by_node_id: dict[str, float],
         retrieval_origins: dict[str, str] | None = None,
     ) -> MemoryPropagationResult:
-        del frame  # Algorithm 2 uses persisted SAS and explicit relation criteria only.
+        del frame  # Algorithm 2 uses occurrence-projected SAS and explicit relation criteria only.
         started = perf_counter()
         current = self._deduplicate(nodes)
         by_id = {node.node_id: node for node in current}
@@ -354,7 +355,7 @@ class DualMemoryService:
         initial: dict[str, float | None] = {}
         final: dict[str, float | None] = {}
         for node in current:
-            value = float(node.semantic_similarity)
+            value = float(semantic_similarity_by_node_id.get(node.node_id, 0.0))
             if node.quality_label in {EvidenceStatus.MISSING, EvidenceStatus.TAMPERED}:
                 value = 0.0
             initial[node.node_id] = round(value, 8)

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:yuzheng:sys-014:nlu-annotation-semantic-hardening-r2",
+  "title": "SYS-014 NLU Annotation Record (Semantic Hardening R2 DRAFT/OFFLINE)",
+  "description": "Canonical annotations use raw Unicode character offsets. Token labels are derived during training and are never authoritative. Passing this JSON Schema is necessary but not sufficient: every record must also pass registry cross-validation for intent existence/scope, AREA, MODE, VALUE and required slots.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sample_id",
+    "text",
+    "registry_version",
+    "paraphrase_family_id",
+    "intent_structure",
+    "scope_label",
+    "intent",
+    "intent_candidates",
+    "segments",
+    "slots",
+    "negated",
+    "ood_label",
+    "safety_tags",
+    "split",
+    "annotation_status",
+    "source_ref"
+  ],
+  "properties": {
+    "sample_id": {"type": "string", "minLength": 1},
+    "text": {"type": "string", "minLength": 1},
+    "registry_version": {"const": "sys-014-semantic-hardening-r2"},
+    "normalized_preview": {"type": ["string", "null"], "description": "Reviewer aid only; the raw text remains authoritative."},
+    "paraphrase_family_id": {"type": "string", "minLength": 1},
+    "intent_structure": {"enum": ["SINGLE", "MULTI", "AMBIGUOUS"]},
+    "scope_label": {"enum": ["IN_SCOPE_CONTROL", "NON_CONTROL", "UNKNOWN_CONTROL", "AMBIGUOUS_CONTROL"]},
+    "intent": {
+      "type": ["string", "null"],
+      "description": "One registry intent only for a valid SINGLE sample. MULTI/NON_CONTROL/UNKNOWN/AMBIGUOUS records use null."
+    },
+    "intent_candidates": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true,
+      "description": "Human ambiguity analysis only; not an authorization candidate list."
+    },
+    "segments": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/intentSegment"},
+      "description": "Required for MULTI when segment boundaries and sub-intents are annotatable."
+    },
+    "slots": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/slotSpan"}
+    },
+    "negated": {
+      "type": ["boolean", "null"],
+      "description": "SINGLE+IN_SCOPE_CONTROL requires boolean. MULTI, AMBIGUOUS, NON_CONTROL, UNKNOWN_CONTROL and AMBIGUOUS_CONTROL require null; MULTI segment polarity is stored on each segment."
+    },
+    "ood_label": {"enum": ["IN_DISTRIBUTION", "OOD", "BOUNDARY"]},
+    "safety_tags": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "SYS_001_NEGATION",
+          "SYS_003_MULTI_INTENT",
+          "UNKNOWN_TARGET",
+          "UNKNOWN_ACTION",
+          "OPEN_DOMAIN",
+          "ASR_CONFUSABLE",
+          "VAGUE_REFERENCE",
+          "VALUE_BOUNDARY",
+          "CONTEXT_CLAIM",
+          "CAPABILITY_CONFLICT"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "split": {"enum": ["UNASSIGNED", "TRAIN", "VALIDATION", "TEST", "SAFETY_GOLD"]},
+    "annotation_status": {"enum": ["DRAFT", "DOUBLE_REVIEW_REQUIRED", "ADJUDICATED", "REJECTED"]},
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_id", "license_or_permission"],
+      "properties": {
+        "source_type": {"enum": ["TEST_ASSET", "HUMAN_AUTHORED", "FIELD_COLLECTION", "ASR_TRANSCRIPT", "SYNTHETIC_TEMPLATE"]},
+        "source_id": {"type": "string"},
+        "license_or_permission": {"type": "string"}
+      }
+    },
+    "review_notes": {"type": "string"}
+  },
+  "$defs": {
+    "charSpan": {
+      "type": "object",
+      "required": ["char_start", "char_end", "text"],
+      "properties": {
+        "char_start": {"type": "integer", "minimum": 0},
+        "char_end": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1}
+      },
+      "description": "Half-open raw character span [char_start, char_end). text must equal source_text[char_start:char_end]."
+    },
+    "slotSpan": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/charSpan"},
+        {
+          "type": "object",
+          "required": ["slot_type", "canonical_value"],
+          "properties": {
+            "slot_type": {"enum": ["AREA", "VALUE", "DIRECTION", "MODE", "NEGATION"]},
+            "canonical_value": {"type": ["string", "number", "boolean", "null"]},
+            "normalization_status": {"enum": ["RAW_ONLY", "NORMALIZED", "INVALID"]}
+          }
+        }
+      ]
+    },
+    "intentSegment": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/charSpan"},
+        {
+          "type": "object",
+          "required": ["intent", "negated"],
+          "properties": {
+            "intent": {"type": ["string", "null"]},
+            "negated": {"type": "boolean"}
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"intent_structure": {"const": "SINGLE"}, "scope_label": {"const": "IN_SCOPE_CONTROL"}}},
+      "then": {"properties": {"intent": {"type": "string"}, "negated": {"type": "boolean"}}}
+    },
+    {
+      "if": {"properties": {"intent_structure": {"const": "MULTI"}}},
+      "then": {"properties": {"intent": {"const": null}, "negated": {"const": null}}}
+    },
+    {
+      "if": {"properties": {"intent_structure": {"const": "AMBIGUOUS"}}},
+      "then": {"properties": {"intent": {"const": null}, "negated": {"const": null}}}
+    },
+    {
+      "if": {"properties": {"scope_label": {"enum": ["NON_CONTROL", "UNKNOWN_CONTROL", "AMBIGUOUS_CONTROL"]}}},
+      "then": {"properties": {"intent": {"const": null}, "negated": {"const": null}}}
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "report_version": "full_nlu_baseline_v1_v2_diff_v1",
+  "build_date": "2026-08-09",
+  "headline": {
+    "正式可执行": {
+      "v1": 2731,
+      "v2": 2071
+    },
+    "已知但不开放": {
+      "v1": 2149,
+      "v2": 3231
+    },
+    "非控制": {
+      "v1": 6734,
+      "v2": 8682
+    },
+    "未知": {
+      "v1": 9285,
+      "v2": 6915
+    },
+    "需要人工复核": {
+      "v1": 11044,
+      "v2": 7817
+    },
+    "正式正样本": {
+      "v1": 619,
+      "v2": 610
+    },
+    "71项零覆盖": {
+      "v1": 10,
+      "v2": 4
+    },
+    "71项弱覆盖": {
+      "v1": 36,
+      "v2": 42
+    }
+  },
+  "changed_sample_count": 4183,
+  "change_reason_by_rule": {
+    "V3-CABIN-001": 39,
+    "V3-CABIN-013": 53,
+    "V3-NOFRAME-002": 63,
+    "NO_NEW_RULE_LABEL_ONLY_CHANGE": 364,
+    "V3-NOFRAME-003": 1407,
+    "V3-CABIN-021": 161,
+    "V3-FRAME-001": 287,
+    "V3-CABIN-011": 120,
+    "V3-CABIN-012": 20,
+    "V3-CABIN-020": 13,
+    "V3-NONCONTROL-001": 562,
+    "V3-CABIN-003": 229,
+    "V3-CABIN-022": 38,
+    "V3-CABIN-005": 482,
+    "V3-CABIN-007": 207,
+    "V3-CABIN-016": 46,
+    "V3-CABIN-004": 405,
+    "V3-CABIN-009": 136,
+    "V3-CABIN-008": 38,
+    "V3-CABIN-010": 51,
+    "V3-CABIN-006": 105,
+    "V3-CABIN-018": 118,
+    "V3-CABIN-019": 57,
+    "V3-CABIN-002": 14,
+    "V3-FORMAL-004": 2,
+    "V3-CABIN-015": 9,
+    "V3-FORMAL-009": 6,
+    "V3-CABIN-017": 77,
+    "V3-CABIN-014": 20,
+    "V3-FORMAL-001": 7,
+    "V3-FORMAL-006": 4,
+    "V3-NOFRAME-001": 13,
+    "V3-FORMAL-005": 3,
+    "V3-FORMAL-002": 2,
+    "V3-FORMAL-007": 3,
+    "V3-FORMAL-008": 1
+  },
+  "control_scope_transition_matrix": {
+    "未知 -> 未知": 6548,
+    "正式可执行 -> 已知但不开放": 460,
+    "已知但不开放 -> 已知但不开放": 2020,
+    "非控制 -> 非控制": 6734,
+    "未知 -> 已知但不开放": 751,
+    "正式可执行 -> 未知": 243,
+    "正式可执行 -> 正式可执行": 2025,
+    "未知 -> 非控制": 1945,
+    "已知但不开放 -> 未知": 124,
+    "未知 -> 正式可执行": 41,
+    "正式可执行 -> 非控制": 3,
+    "已知但不开放 -> 正式可执行": 5
+  },
+  "formal_positive_transition_matrix": {
+    "False -> False": 20258,
+    "True -> True": 588,
+    "True -> False": 31,
+    "False -> True": 22
+  },
+  "formal_positive_loss_by_rule": {
+    "V3-CABIN-003": 6,
+    "NO_NEW_RULE_CONSERVATIVE_REVIEW": 3,
+    "V3-CABIN-008": 6,
+    "V3-CABIN-009": 7,
+    "V3-CABIN-005": 2,
+    "V3-CABIN-013": 1,
+    "V3-CABIN-021": 3,
+    "V3-CABIN-012": 1,
+    "V3-CABIN-007": 1,
+    "V3-CABIN-004": 1
+  },
+  "formal_positive_gain_by_rule": {
+    "V3-FORMAL-001": 1,
+    "V3-FORMAL-006": 4,
+    "V3-FORMAL-009": 4,
+    "V3-NOFRAME-001": 10,
+    "V3-FORMAL-005": 1,
+    "V3-FORMAL-008": 1,
+    "V3-FORMAL-004": 1
+  },
+  "zero_intents_v2": [
+    "MIRROR_HEATING_OFF",
+    "SEAT_TILT_SET_ANGLE",
+    "MIRROR_SET_ANGLE",
+    "TURN_INDICATOR_ON"
+  ],
+  "weak_intents_v2": [
+    "MIRROR_HEATING_ON",
+    "SEAT_HEIGHT_SET_POSITION",
+    "STEERING_WHEEL_SET_EXTENSION",
+    "STEERING_WHEEL_SET_TILT",
+    "WINDSHIELD_HEATING_ON",
+    "WINDSHIELD_HEATING_OFF",
+    "ESC_ENABLE",
+    "TRUNK_OPEN",
+    "TRUNK_CLOSE",
+    "TRUNK_SET_POSITION",
+    "TRUNK_LOCK",
+    "TRUNK_UNLOCK",
+    "GEAR_CHANGE_MODE_SET",
+    "MIRROR_FOLD",
+    "MIRROR_UNFOLD",
+    "SUNROOF_SET_TILT",
+    "CRUISE_ENABLE",
+    "CRUISE_DISABLE",
+    "CRUISE_SET_SPEED",
+    "CRUISE_SET_GAP",
+    "HAZARD_LIGHT_ON",
+    "HAZARD_LIGHT_OFF",
+    "TURN_INDICATOR_OFF",
+    "LOW_BEAM_ON",
+    "LOW_BEAM_OFF",
+    "HIGH_BEAM_ON",
+    "HIGH_BEAM_OFF",
+    "FOG_LIGHT_ON",
+    "FOG_LIGHT_OFF",
+    "PARKING_LIGHT_OFF",
+    "DOOR_SET_POSITION",
+    "DOOR_LOCK",
+    "DOOR_UNLOCK",
+    "WIPER_SET_MODE",
+    "WIPER_SET_SENSITIVITY",
+    "PARKING_BRAKE_APPLY",
+    "PARKING_BRAKE_AUTO_APPLY_ENABLE",
+    "PARKING_BRAKE_AUTO_APPLY_DISABLE",
+    "DECELERATE",
+    "LANE_KEEP",
+    "EVASIVE_STEER",
+    "AUTO_PARK_ENABLE"
+  ],
+  "needs_review_reason_distribution_v1": {
+    "UNRESOLVED_MAC_VEHICLE_SEMANTICS": 4627,
+    "NO_USABLE_MAC_SEMANTIC_FRAME": 3957,
+    "EMPTY_MAC_ANNOTATION": 1793,
+    "BROAD_LIGHT_OBJECT": 516,
+    "MIXED_CONTROL_NONCONTROL": 430,
+    "KNOWN_CABIN_ACTION_UNRESOLVED": 211,
+    "UNRESOLVED_SAFETY_SEMANTICS": 57,
+    "STEERING_DIMENSION_UNRESOLVED": 29,
+    "EMPTY_SOURCE_QUERY": 1
+  },
+  "needs_review_reason_distribution_v2": {
+    "NO_HIGH_PRECISION_DOMAIN_EVIDENCE": 4195,
+    "BROAD_LIGHT_OBJECT": 308,
+    "UNRESOLVED_MAC_VEHICLE_SEMANTICS_V3": 2790,
+    "MIXED_CONTROL_NONCONTROL": 431,
+    "KNOWN_CABIN_ACTION_UNRESOLVED": 147,
+    "EMPTY_SHORT_OR_DEICTIC": 28,
+    "EXPLICIT_CONTROL_BUT_CONTRACT_UNRESOLVED": 32,
+    "STEERING_DIMENSION_UNRESOLVED": 27,
+    "BROAD_LIGHT_MUST_REMAIN_AMBIGUOUS": 12,
+    "EMPTY_SOURCE_QUERY": 1,
+    "UNRESOLVED_SAFETY_SEMANTICS": 57
+  },
+  "traceability_gate": {
+    "status": "PASS",
+    "untraced_improvement_count": 0
+  }
+}

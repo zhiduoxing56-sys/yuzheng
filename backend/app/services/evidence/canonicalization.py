@@ -16,18 +16,14 @@ _SOURCE_PRIORITY = {
     "QUALITY_EVALUATED": 30,
     "EVIDENCE_OVERRIDE": 40,
     "EVIDENCE_REPOSITORY": 50,
-    "SAFETY_RULE_REPOSITORY": 60,
-    "GRAPH_AUXILIARY": 70,
 }
 _STABLE_SOURCE_PRIORITY = {
-    "SAFETY_RULE_REPOSITORY": 0,
     "EVIDENCE_REPOSITORY": 10,
     "EVIDENCE_OVERRIDE": 20,
     "HNSW_QUERY_EVALUATED": 30,
     "MANDATORY_RECALL_EVALUATED": 40,
     "QUALITY_EVALUATED": 50,
     "REQUIRED_MISSING_OR_TAMPERED": 60,
-    "GRAPH_AUXILIARY": 70,
 }
 _SEVERE_QUALITY_PRIORITY = {
     EvidenceStatus.TAMPERED: 0,
@@ -38,10 +34,7 @@ _STABLE_FIELDS = (
     "source",
     "unit",
 )
-_QUERY_FIELDS = (
-    "semantic_similarity",
-    "mandatory",
-)
+_QUERY_FIELDS: tuple[str, ...] = ()
 _QUALITY_FIELDS = (
     "freshness",
     "consistency",
@@ -72,11 +65,7 @@ _QUERY_METADATA_KEYS = {
     "runtime_graph_history",
 }
 _STABLE_METADATA_KEYS = {
-    "original_evidence_type",
-    "canonical_evidence_type",
-    "mapping_source",
     "entity_id",
-    "rule_id",
     "area",
     "unit",
     "display_name",

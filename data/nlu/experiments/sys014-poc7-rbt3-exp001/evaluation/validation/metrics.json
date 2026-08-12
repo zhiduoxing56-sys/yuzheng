@@ -1,0 +1,489 @@
+{
+  "status": "DIAGNOSTIC_CLOSEST_TO_FROZEN_SAFETY_GATES_NOT_SELECTED",
+  "epoch": 5,
+  "losses": {
+    "scope_loss": 0.14379291608929634,
+    "structure_loss": 0.11389587033126089,
+    "intent_loss": 0.08850028200281991,
+    "slot_loss": 0.1773096350952983,
+    "negation_loss": 0.1391107617980904,
+    "total_loss": 0.6626094596253501
+  },
+  "intent": {
+    "accuracy": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "macro_f1": 1.0,
+    "per_class": {
+      "DOOR_OPEN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "DOOR_CLOSE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 18
+      },
+      "WINDOW_OPEN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 9
+      },
+      "WINDOW_SET_POSITION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 13
+      },
+      "HEADLIGHT_OFF": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 16
+      },
+      "ACCELERATE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 17
+      },
+      "BRAKE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 16
+      }
+    },
+    "confusion_matrix": [
+      [
+        11,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        18,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        9,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        13,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        16,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        17,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        16
+      ]
+    ]
+  },
+  "scope": {
+    "accuracy": 0.9844961240310077,
+    "macro_precision": 0.8728632478632479,
+    "macro_recall": 0.9700854700854701,
+    "macro_f1": 0.8998240321769733,
+    "per_class": {
+      "IN_SCOPE_CONTROL": {
+        "precision": 0.9914529914529915,
+        "recall": 0.9914529914529915,
+        "f1": 0.9914529914529915,
+        "support": 117
+      },
+      "NON_CONTROL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 2
+      },
+      "UNKNOWN_CONTROL": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "support": 1
+      },
+      "AMBIGUOUS_CONTROL": {
+        "precision": 1.0,
+        "recall": 0.8888888888888888,
+        "f1": 0.9411764705882353,
+        "support": 9
+      }
+    },
+    "confusion_matrix": [
+      [
+        116,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        8
+      ]
+    ]
+  },
+  "structure": {
+    "accuracy": 0.9922480620155039,
+    "macro_precision": 0.9967948717948718,
+    "macro_recall": 0.9629629629629629,
+    "macro_f1": 0.9787818509046131,
+    "per_class": {
+      "SINGLE": {
+        "precision": 0.9903846153846154,
+        "recall": 1.0,
+        "f1": 0.9951690821256038,
+        "support": 103
+      },
+      "MULTI": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 17
+      },
+      "AMBIGUOUS": {
+        "precision": 1.0,
+        "recall": 0.8888888888888888,
+        "f1": 0.9411764705882353,
+        "support": 9
+      }
+    },
+    "confusion_matrix": [
+      [
+        103,
+        0,
+        0
+      ],
+      [
+        0,
+        17,
+        0
+      ],
+      [
+        1,
+        0,
+        8
+      ]
+    ]
+  },
+  "slot": {
+    "AREA": {
+      "precision": 0.8771929824561403,
+      "recall": 0.9615384615384616,
+      "f1": 0.9174311926605504,
+      "tp": 50,
+      "fp": 7,
+      "fn": 2
+    },
+    "VALUE": {
+      "precision": 0.8888888888888888,
+      "recall": 0.8421052631578947,
+      "f1": 0.8648648648648649,
+      "tp": 16,
+      "fp": 2,
+      "fn": 3
+    },
+    "NEGATION": {
+      "precision": 1.0,
+      "recall": 0.8333333333333334,
+      "f1": 0.9090909090909091,
+      "tp": 20,
+      "fp": 0,
+      "fn": 4
+    },
+    "OVERALL": {
+      "precision": 0.9052631578947369,
+      "recall": 0.9052631578947369,
+      "f1": 0.9052631578947369,
+      "tp": 86,
+      "fp": 9,
+      "fn": 9
+    }
+  },
+  "negation": {
+    "accuracy": 0.93,
+    "macro_precision": 0.9578313253012047,
+    "macro_recall": 0.8541666666666667,
+    "macro_f1": 0.8926215677251113,
+    "per_class": {
+      "NOT_NEGATED": {
+        "precision": 0.9156626506024096,
+        "recall": 1.0,
+        "f1": 0.9559748427672956,
+        "support": 76
+      },
+      "NEGATED": {
+        "precision": 1.0,
+        "recall": 0.7083333333333334,
+        "f1": 0.8292682926829268,
+        "support": 24
+      }
+    },
+    "confusion_matrix": [
+      [
+        76,
+        0
+      ],
+      [
+        7,
+        17
+      ]
+    ]
+  },
+  "per_intent_negation": {
+    "DOOR_OPEN": "NOT_ESTIMABLE",
+    "DOOR_CLOSE": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        }
+      },
+      "confusion_matrix": [
+        [
+          12,
+          0
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    "WINDOW_OPEN": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 7
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 2
+        }
+      },
+      "confusion_matrix": [
+        [
+          7,
+          0
+        ],
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    "WINDOW_SET_POSITION": "NOT_ESTIMABLE",
+    "HEADLIGHT_OFF": {
+      "accuracy": 0.6875,
+      "macro_precision": 0.34375,
+      "macro_recall": 0.5,
+      "macro_f1": 0.4074074074074074,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 0.6875,
+          "recall": 1.0,
+          "f1": 0.8148148148148148,
+          "support": 11
+        },
+        "NEGATED": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 5
+        }
+      },
+      "confusion_matrix": [
+        [
+          11,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ]
+    },
+    "ACCELERATE": {
+      "accuracy": 0.8823529411764706,
+      "macro_precision": 0.9285714285714286,
+      "macro_recall": 0.8,
+      "macro_f1": 0.8365384615384616,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 0.8571428571428571,
+          "recall": 1.0,
+          "f1": 0.9230769230769231,
+          "support": 12
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 0.6,
+          "f1": 0.75,
+          "support": 5
+        }
+      },
+      "confusion_matrix": [
+        [
+          12,
+          0
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    "BRAKE": {
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "NOT_NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "NEGATED": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        }
+      },
+      "confusion_matrix": [
+        [
+          10,
+          0
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    }
+  },
+  "safety": {
+    "metric_name": "RAW_VALIDATION_UFAR",
+    "deployment_calibrated": false,
+    "UNSAFE_FALSE_ACCEPT_RATE": 0.034482758620689655,
+    "unsafe_false_accepts": 1,
+    "total_should_abstain": 29,
+    "per_category": {
+      "NON_CONTROL": {
+        "total_should_abstain": 2,
+        "unsafe_false_accepts": 0,
+        "false_accept_rate": 0.0
+      },
+      "UNKNOWN_CONTROL": {
+        "total_should_abstain": 1,
+        "unsafe_false_accepts": 0,
+        "false_accept_rate": 0.0
+      },
+      "AMBIGUOUS_CONTROL": {
+        "total_should_abstain": 9,
+        "unsafe_false_accepts": 1,
+        "false_accept_rate": 0.1111111111111111
+      },
+      "MULTI": {
+        "total_should_abstain": 17,
+        "unsafe_false_accepts": 0,
+        "false_accept_rate": 0.0
+      },
+      "AMBIGUOUS": {
+        "total_should_abstain": 9,
+        "unsafe_false_accepts": 1,
+        "false_accept_rate": 0.1111111111111111
+      }
+    }
+  },
+  "primary_quality_inputs": {
+    "intent_macro_f1": 1.0,
+    "scope_macro_f1": 0.8998240321769733,
+    "structure_macro_f1": 0.9787818509046131,
+    "slot_span_f1": 0.9052631578947369,
+    "negation_f1": 0.8292682926829268
+  },
+  "PRIMARY_QUALITY_SCORE": 0.9397006374635573,
+  "SAFETY_GATES_PASS": false
+}

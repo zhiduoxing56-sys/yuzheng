@@ -30,22 +30,19 @@ freshness:
   default:
     decay_coefficient: 0.02
     validity_seconds: 30
-  vehicle_speed:
+  VEHICLE_SPEED:
     decay_coefficient: 0.35
     validity_seconds: 3
-  gear_position:
+  GEAR_STATE:
     decay_coefficient: 0.12
     validity_seconds: 10
-  door_lock_state:
+  DOOR_LOCK_STATE:
     decay_coefficient: 0.08
     validity_seconds: 15
-  occupant_role:
+  OCCUPANT_STATE:
     decay_coefficient: 0.02
     validity_seconds: 60
-  speaker_zone:
-    decay_coefficient: 0.05
-    validity_seconds: 30
-  vehicle_mode:
+  SYSTEM_MODE:
     decay_coefficient: 0.03
     validity_seconds: 60
 

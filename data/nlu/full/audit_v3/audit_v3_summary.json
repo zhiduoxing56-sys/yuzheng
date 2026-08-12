@@ -1,0 +1,46 @@
+{
+  "unresolved_frame_occurrences": 4627,
+  "unresolved_unique_samples": 4311,
+  "semantic_pattern_count": 2246,
+  "no_usable_frame": {
+    "sample_count": 3957,
+    "classification_counts": {
+      "无法判断": 2981,
+      "明显非控制": 916,
+      "明显车辆/座舱控制": 52,
+      "明显残缺/垃圾输入": 8
+    },
+    "deterministically_resolved_count": 929
+  },
+  "safety_unresolved_count": 57,
+  "audit_rule_occurrence_counts": {
+    "V3-CABIN-021": 156,
+    "V3-CABIN-020": 13,
+    "V3-NONCONTROL-001": 599,
+    "V3-CABIN-022": 39,
+    "V3-CABIN-005": 206,
+    "V3-CABIN-007": 198,
+    "V3-CABIN-016": 72,
+    "V3-CABIN-004": 250,
+    "V3-CABIN-013": 21,
+    "V3-CABIN-006": 90,
+    "V3-CABIN-018": 118,
+    "V3-CABIN-019": 69,
+    "V3-CABIN-008": 7,
+    "V3-CABIN-012": 3,
+    "V3-CABIN-015": 4,
+    "V3-FORMAL-009": 6,
+    "V3-CABIN-017": 56,
+    "V3-CABIN-009": 17,
+    "V3-FORMAL-001": 5,
+    "V3-CABIN-014": 5,
+    "V3-FORMAL-006": 1,
+    "V3-FORMAL-005": 2,
+    "V3-FORMAL-002": 2,
+    "V3-FORMAL-007": 2,
+    "V3-NOFRAME-003": 916,
+    "V3-CABIN-003": 3,
+    "V3-NOFRAME-002": 13,
+    "V3-NOFRAME-004": 8
+  }
+}

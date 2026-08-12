@@ -1,0 +1,68 @@
+{
+  "protocol_version": "sys014-stage4b-v1",
+  "dataset_version": "sys014-poc7-v2",
+  "registry_version": "sys-014-stage2.1-draft-2",
+  "model_id": "hfl/rbt3",
+  "model_revision": "0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+  "seed": 14031,
+  "device_policy": "DEVICE_AGNOSTIC_CPU_CAPABLE_GPU_PREFERRED",
+  "training_enabled": true,
+  "selected_max_length": 32,
+  "optimizer_name": "AdamW",
+  "learning_rate_candidates": [
+    1e-05,
+    2e-05,
+    3e-05,
+    5e-05
+  ],
+  "baseline_learning_rate": 2e-05,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "gradient_clip_norm": 1.0,
+  "cpu_batch_size": 16,
+  "cuda_batch_size": 32,
+  "epoch_candidate_min": 5,
+  "epoch_candidate_max": 15,
+  "baseline_epochs": 10,
+  "early_stopping_patience": 3,
+  "loss_weights": {
+    "scope": 1.0,
+    "structure": 1.0,
+    "intent": 1.0,
+    "slot": 1.0,
+    "negation": 1.0
+  },
+  "class_weight_policy": {
+    "scope": "SQRT_INVERSE_FREQ",
+    "structure": "SQRT_INVERSE_FREQ",
+    "intent": "NONE",
+    "slot": "NONE",
+    "negation": "SQRT_INVERSE_FREQ"
+  },
+  "class_weight_cap": 3.0,
+  "quality_score_weights": {
+    "intent_macro_f1": 0.3,
+    "scope_macro_f1": 0.2,
+    "structure_macro_f1": 0.2,
+    "slot_span_f1": 0.2,
+    "negation_f1": 0.1
+  },
+  "safety_gates": {
+    "ufar_max": 0.05,
+    "multi_false_accept_rate_max": 0.0,
+    "ambiguous_false_accept_rate_max": 0.0
+  },
+  "cpu_epoch_time_estimate": "NOT_MEASURED",
+  "experiment_id": "sys014-poc7-rbt3-exp001",
+  "actual_batch_size": 16,
+  "training_device": "CPU",
+  "total_optimizer_steps": 370,
+  "warmup_steps": 37,
+  "seed_controls": [
+    "python_random",
+    "numpy",
+    "torch"
+  ],
+  "test_used_for_model_selection": false,
+  "safety_gold_used_for_model_selection": false
+}

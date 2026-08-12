@@ -1,0 +1,628 @@
+{
+  "stage": "SYS-014_STAGE_4C-C",
+  "audit_mode": "READ_ONLY_EXISTING_ARTIFACTS; REPORT_FILES_ONLY_WRITE",
+  "FROZEN_PROTOCOL_REQUIRES_ABLATION_PASS_FOR_MODEL_CANDIDACY": "NO",
+  "ELECTRA_EXP002_PASS": "NO",
+  "ELECTRA_EXP002_EXPERIMENT_PASS": "NO",
+  "ELECTRA_EXP002_FROZEN_SAFETY_ELIGIBLE": "YES",
+  "ELECTRA_EXP002_MODEL_CANDIDATE_ELIGIBLE": "YES",
+  "ELECTRA_EXP001_NEGATION_FALSE_NEGATIVE_COUNT": 1,
+  "ELECTRA_EXP002_NEGATION_FALSE_NEGATIVE_COUNT": 3,
+  "SENTENCE_NEGATION_FN_WITH_CORRECT_SLOT_SIGNAL": 3,
+  "UNKNOWN_CONTROL_VALIDATION_SUPPORT": 1,
+  "UNKNOWN_CONTROL_RESULT_STATISTICALLY_FRAGILE": "YES",
+  "VALIDATION_REUSE_RISK": "HIGH",
+  "RECOMMENDED_NEXT_PATH": "PATH_SELECT",
+  "PROVISIONAL_FINAL_MODEL": "hfl/chinese-electra-180g-small-discriminator",
+  "PROVISIONAL_FINAL_EXPERIMENT": "sys014-poc7-electra-exp002",
+  "PROVISIONAL_FINAL_EPOCH": 9,
+  "PROVISIONAL_FINAL_CHECKPOINT_SHA256": "dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68",
+  "DEPLOYABLE": false,
+  "STAGE_4C_MODEL_DECISION_AUDIT_COMPLETE": "YES",
+  "TRAINING_STEPS_EXECUTED_THIS_STAGE": 0,
+  "TEST_EVALUATION_EXECUTED": "NO",
+  "SAFETY_GOLD_EVALUATION_EXECUTED": "NO",
+  "QUALIFICATION_SEMANTICS": {
+    "FROZEN_SAFETY_GATE_PASS": {
+      "definition": "UFAR <= 0.05 AND MULTI false accepts = 0 AND AMBIGUOUS false accepts = 0",
+      "role": "checkpoint eligibility gate frozen in Stage 4B"
+    },
+    "EXPERIMENT_ABLATION_PASS": {
+      "definition": "experiment-local acceptance criteria added for the ELECTRA exp001-to-exp002 Slot-weighting ablation",
+      "role": "preserved historical experiment verdict; not a frozen permanent model-candidate gate"
+    },
+    "FINAL_MODEL_CANDIDATE_ELIGIBLE": {
+      "definition": "passes the frozen safety gate and is therefore eligible for frozen PRIMARY_QUALITY_SCORE comparison",
+      "role": "candidate status only; does not imply deployment readiness"
+    }
+  },
+  "FROZEN_PROTOCOL_AUDIT": {
+    "training_design": {
+      "path": "docs/plans/2026-08-08-sys-014-stage4b-training-design.md",
+      "sha256": "a923525410070f191b2f7ed550bf3a886e3f966ad37e4477c40bd8988a448be9",
+      "rule": "Best checkpoint must pass the three validation safety gates; eligible checkpoints are compared by PRIMARY_QUALITY_SCORE."
+    },
+    "checkpoint_selection_implementations": [
+      {
+        "path": "scripts/nlu_training/stage4c_exp001.py",
+        "evidence": "improved = safety_pass and score > best_score"
+      },
+      {
+        "path": "scripts/nlu_training/stage4c_electra_exp001.py",
+        "evidence": "eligible = bool(validation['SAFETY_GATES_PASS']); if eligible and score > best_score"
+      },
+      {
+        "path": "scripts/nlu_training/metrics.py",
+        "evidence": "overall <= 0.05 and multi == 0.0 and ambiguous == 0.0"
+      }
+    ],
+    "later_ablation_failure_permanent_disqualification_rule_found": false,
+    "conclusion": "The frozen protocol does not require a later experiment-specific ablation PASS for final model candidacy."
+  },
+  "VALIDATION_POPULATION": {
+    "total": 129,
+    "should_abstain": 29,
+    "negated": 24,
+    "unknown_control": 1
+  },
+  "FOUR_EXPERIMENT_MODEL_MATRIX": [
+    {
+      "label": "RBT3 exp001",
+      "experiment_id": "sys014-poc7-rbt3-exp001",
+      "reporting_epoch": 5,
+      "checkpoint_kind": "CLOSEST_SAFETY_DIAGNOSTIC",
+      "intent_macro_f1": 1.0,
+      "scope_macro_f1": 0.8998240321769733,
+      "structure_macro_f1": 0.9787818509046131,
+      "area_span_f1": 0.9174311926605504,
+      "value_span_f1": 0.8648648648648649,
+      "negation_span_f1": 0.9090909090909091,
+      "overall_slot_span_f1": 0.9052631578947369,
+      "sentence_negation_f1": 0.8292682926829268,
+      "negated_recall": 0.7083333333333334,
+      "primary_quality_score": 0.9397006374635573,
+      "raw_ufar": 0.034482758620689655,
+      "total_unsafe_false_accepts": 1,
+      "non_control_false_accepts": 0,
+      "unknown_control_false_accepts": 0,
+      "ambiguous_control_false_accepts": 1,
+      "multi_false_accepts": 0,
+      "ambiguous_false_accepts": 1,
+      "frozen_safety_gate_pass": false,
+      "experiment_specific_pass": false,
+      "experiment_specific_pass_source": {
+        "field": "RBT3_BASELINE_TRAINING_PASS",
+        "value": false
+      },
+      "final_model_candidate_eligible": false,
+      "trainable_parameter_count": 38494487,
+      "stage4a_cpu_p95_total_ms": 7.8832,
+      "stage4a_latency_scope": "original pretrained encoder profile; not fine-tuned end-to-end runtime",
+      "total_training_seconds": 143.35214759991504
+    },
+    {
+      "label": "RBT3 exp002",
+      "experiment_id": "sys014-poc7-rbt3-exp002",
+      "reporting_epoch": 5,
+      "checkpoint_kind": "CLOSEST_SAFETY_DIAGNOSTIC",
+      "intent_macro_f1": 0.9719387755102041,
+      "scope_macro_f1": 0.49683544303797467,
+      "structure_macro_f1": 0.9782135076252724,
+      "area_span_f1": 0.6666666666666666,
+      "value_span_f1": 0.17391304347826086,
+      "negation_span_f1": 0.13793103448275862,
+      "overall_slot_span_f1": 0.49006622516556286,
+      "sentence_negation_f1": 0.9565217391304348,
+      "negated_recall": 0.9166666666666666,
+      "primary_quality_score": 0.7802568417318667,
+      "raw_ufar": 0.10344827586206896,
+      "total_unsafe_false_accepts": 3,
+      "non_control_false_accepts": 2,
+      "unknown_control_false_accepts": 1,
+      "ambiguous_control_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "ambiguous_false_accepts": 0,
+      "frozen_safety_gate_pass": false,
+      "experiment_specific_pass": false,
+      "experiment_specific_pass_source": {
+        "rule": "RBT3_EXP002_SAFETY_GATE_PASS AND RBT3_EXP002_NEGATION_IMPROVED",
+        "RBT3_EXP002_SAFETY_GATE_PASS": false,
+        "RBT3_EXP002_NEGATION_IMPROVED": true
+      },
+      "final_model_candidate_eligible": false,
+      "trainable_parameter_count": 38494487,
+      "stage4a_cpu_p95_total_ms": 7.8832,
+      "stage4a_latency_scope": "original pretrained encoder profile; not fine-tuned end-to-end runtime",
+      "total_training_seconds": 88.64893609983847
+    },
+    {
+      "label": "ELECTRA exp001",
+      "experiment_id": "sys014-poc7-electra-exp001",
+      "reporting_epoch": 10,
+      "checkpoint_kind": "ELIGIBLE_BEST",
+      "intent_macro_f1": 0.9820728291316527,
+      "scope_macro_f1": 0.6312149859943977,
+      "structure_macro_f1": 0.9782135076252724,
+      "area_span_f1": 0.3333333333333333,
+      "value_span_f1": 0.0,
+      "negation_span_f1": 0.12903225806451613,
+      "overall_slot_span_f1": 0.24675324675324675,
+      "sentence_negation_f1": 0.9787234042553191,
+      "negated_recall": 0.9583333333333334,
+      "primary_quality_score": 0.7637305372396112,
+      "raw_ufar": 0.034482758620689655,
+      "total_unsafe_false_accepts": 1,
+      "non_control_false_accepts": 1,
+      "unknown_control_false_accepts": 0,
+      "ambiguous_control_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "ambiguous_false_accepts": 0,
+      "frozen_safety_gate_pass": true,
+      "experiment_specific_pass": true,
+      "experiment_specific_pass_source": {
+        "field": "ELECTRA_EXP001_BASELINE_HEALTHY",
+        "value": true
+      },
+      "final_model_candidate_eligible": true,
+      "trainable_parameter_count": 12286487,
+      "stage4a_cpu_p95_total_ms": 14.78464,
+      "stage4a_latency_scope": "original pretrained encoder profile; not fine-tuned end-to-end runtime",
+      "total_training_seconds": 137.83776649995707
+    },
+    {
+      "label": "ELECTRA exp002",
+      "experiment_id": "sys014-poc7-electra-exp002",
+      "reporting_epoch": 9,
+      "checkpoint_kind": "ELIGIBLE_BEST",
+      "intent_macro_f1": 0.9910627007401202,
+      "scope_macro_f1": 0.7331754735792622,
+      "structure_macro_f1": 1.0,
+      "area_span_f1": 0.890909090909091,
+      "value_span_f1": 0.8421052631578947,
+      "negation_span_f1": 1.0,
+      "overall_slot_span_f1": 0.9081632653061223,
+      "sentence_negation_f1": 0.9333333333333333,
+      "negated_recall": 0.875,
+      "primary_quality_score": 0.9189198913324462,
+      "raw_ufar": 0.034482758620689655,
+      "total_unsafe_false_accepts": 1,
+      "non_control_false_accepts": 0,
+      "unknown_control_false_accepts": 1,
+      "ambiguous_control_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "ambiguous_false_accepts": 0,
+      "frozen_safety_gate_pass": true,
+      "experiment_specific_pass": false,
+      "experiment_specific_pass_source": {
+        "field": "ELECTRA_EXP002_PASS",
+        "value": false,
+        "blocking_item": "negation_f1 degradation 0.04539007092198577 > 0.03"
+      },
+      "final_model_candidate_eligible": true,
+      "trainable_parameter_count": 12286487,
+      "stage4a_cpu_p95_total_ms": 14.78464,
+      "stage4a_latency_scope": "original pretrained encoder profile; not fine-tuned end-to-end runtime",
+      "total_training_seconds": 89.69901570002548
+    }
+  ],
+  "ELECTRA_EXP001_NEGATION_FALSE_NEGATIVES": [
+    {
+      "sample_id": "SYS014-POC-0849",
+      "text": "别把后排的窗打开",
+      "gold_intent": "WINDOW_OPEN",
+      "predicted_intent": "WINDOW_OPEN",
+      "gold_sentence_negation": "NEGATED",
+      "predicted_sentence_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.4792439937591553,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 1,
+          "text": "别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [],
+      "correct_slot_signal": false,
+      "raw_executable": true,
+      "raw_abstain": false
+    }
+  ],
+  "ELECTRA_EXP002_NEGATION_FALSE_NEGATIVES": [
+    {
+      "sample_id": "SYS014-POC-0563",
+      "text": "不要再提点速度",
+      "gold_intent": "ACCELERATE",
+      "predicted_intent": "ACCELERATE",
+      "gold_sentence_negation": "NEGATED",
+      "predicted_sentence_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.491740882396698,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "不要"
+        }
+      ],
+      "correct_slot_signal": true,
+      "raw_executable": true,
+      "raw_abstain": false
+    },
+    {
+      "sample_id": "SYS014-POC-0564",
+      "text": "别再提点速度",
+      "gold_intent": "ACCELERATE",
+      "predicted_intent": "ACCELERATE",
+      "gold_sentence_negation": "NEGATED",
+      "predicted_sentence_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.36772388219833374,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 1,
+          "text": "别",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "别"
+        }
+      ],
+      "correct_slot_signal": true,
+      "raw_executable": true,
+      "raw_abstain": false
+    },
+    {
+      "sample_id": "SYS014-POC-0567",
+      "text": "请勿再提点速度",
+      "gold_intent": "ACCELERATE",
+      "predicted_intent": "ACCELERATE",
+      "gold_sentence_negation": "NEGATED",
+      "predicted_sentence_negation": "NOT_NEGATED",
+      "NEGATED_probability": 0.4798073172569275,
+      "gold_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "char_start": 0,
+          "char_end": 2,
+          "text": "请勿",
+          "canonical_value": true,
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_NEGATION_spans": [
+        {
+          "slot_type": "NEGATION",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "请勿"
+        }
+      ],
+      "correct_slot_signal": true,
+      "raw_executable": true,
+      "raw_abstain": false
+    }
+  ],
+  "UNKNOWN_CONTROL_AUDIT": {
+    "sample_id": "SYS014-POC-0773",
+    "text": "打开危险警示灯",
+    "validation_support": 1,
+    "unknown_control_recall": 0.0,
+    "predicted_scope": "IN_SCOPE_CONTROL",
+    "scope_probabilities": {
+      "IN_SCOPE_CONTROL": 0.5996754169464111,
+      "NON_CONTROL": 0.04764772206544876,
+      "UNKNOWN_CONTROL": 0.2964063882827759,
+      "AMBIGUOUS_CONTROL": 0.05627051368355751
+    },
+    "raw_executable": true,
+    "raw_abstain": false,
+    "statistically_fragile": true
+  },
+  "ELECTRA_EXP002_ALL_EPOCH_AUDIT": [
+    {
+      "epoch": 1,
+      "frozen_safety_gate_pass": false,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.18771865766223553,
+      "intent_macro_f1": 0.03975155279503106,
+      "scope_macro_f1": 0.44074074074074077,
+      "structure_macro_f1": 0.2972582972582973,
+      "overall_slot_span_f1": 0.007633587786259542,
+      "value_span_f1": 0.0,
+      "negation_span_f1": 0.0,
+      "sentence_negation_f1": 0.26666666666666666,
+      "negated_recall": 0.16666666666666666,
+      "raw_ufar": 0.8620689655172413,
+      "total_unsafe_false_accepts": 25,
+      "ambiguous_false_accepts": 7,
+      "multi_false_accepts": 17,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 0
+    },
+    {
+      "epoch": 2,
+      "frozen_safety_gate_pass": false,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.21732786945732782,
+      "intent_macro_f1": 0.2944975644216631,
+      "scope_macro_f1": 0.23780487804878048,
+      "structure_macro_f1": 0.2959770114942529,
+      "overall_slot_span_f1": 0.0,
+      "value_span_f1": 0.0,
+      "negation_span_f1": 0.0,
+      "sentence_negation_f1": 0.2222222222222222,
+      "negated_recall": 0.125,
+      "raw_ufar": 1.0,
+      "total_unsafe_false_accepts": 29,
+      "ambiguous_false_accepts": 9,
+      "multi_false_accepts": 17,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 2
+    },
+    {
+      "epoch": 3,
+      "frozen_safety_gate_pass": false,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.5525974642688699,
+      "intent_macro_f1": 0.6651504049672516,
+      "scope_macro_f1": 0.23780487804878048,
+      "structure_macro_f1": 0.6645656286911893,
+      "overall_slot_span_f1": 0.5901639344262295,
+      "value_span_f1": 0.7272727272727273,
+      "negation_span_f1": 0.5833333333333334,
+      "sentence_negation_f1": 0.5454545454545454,
+      "negated_recall": 0.375,
+      "raw_ufar": 0.6896551724137931,
+      "total_unsafe_false_accepts": 20,
+      "ambiguous_false_accepts": 5,
+      "multi_false_accepts": 12,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 2
+    },
+    {
+      "epoch": 4,
+      "frozen_safety_gate_pass": false,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.7486455309997275,
+      "intent_macro_f1": 0.8335350491878712,
+      "scope_macro_f1": 0.3657407407407407,
+      "structure_macro_f1": 0.8779342723004695,
+      "overall_slot_span_f1": 0.8808290155440415,
+      "value_span_f1": 0.7999999999999999,
+      "negation_span_f1": 0.9166666666666666,
+      "sentence_negation_f1": 0.7368421052631579,
+      "negated_recall": 0.5833333333333334,
+      "raw_ufar": 0.3448275862068966,
+      "total_unsafe_false_accepts": 10,
+      "ambiguous_false_accepts": 3,
+      "multi_false_accepts": 4,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 2
+    },
+    {
+      "epoch": 5,
+      "frozen_safety_gate_pass": false,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.8171768877611676,
+      "intent_macro_f1": 0.8969609916038488,
+      "scope_macro_f1": 0.46351987447698745,
+      "structure_macro_f1": 1.0,
+      "overall_slot_span_f1": 0.9435897435897437,
+      "value_span_f1": 0.8888888888888888,
+      "negation_span_f1": 1.0,
+      "sentence_negation_f1": 0.6666666666666666,
+      "negated_recall": 0.5,
+      "raw_ufar": 0.10344827586206896,
+      "total_unsafe_false_accepts": 3,
+      "ambiguous_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 2
+    },
+    {
+      "epoch": 6,
+      "frozen_safety_gate_pass": false,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.8732171041729866,
+      "intent_macro_f1": 0.9736281736281737,
+      "scope_macro_f1": 0.6312149859943977,
+      "structure_macro_f1": 1.0,
+      "overall_slot_span_f1": 0.9230769230769231,
+      "value_span_f1": 0.8648648648648649,
+      "negation_span_f1": 1.0,
+      "sentence_negation_f1": 0.7027027027027027,
+      "negated_recall": 0.5416666666666666,
+      "raw_ufar": 0.06896551724137931,
+      "total_unsafe_false_accepts": 2,
+      "ambiguous_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 1
+    },
+    {
+      "epoch": 7,
+      "frozen_safety_gate_pass": false,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.8737160646719471,
+      "intent_macro_f1": 0.9736281736281737,
+      "scope_macro_f1": 0.6312149859943977,
+      "structure_macro_f1": 1.0,
+      "overall_slot_span_f1": 0.8923076923076922,
+      "value_span_f1": 0.8648648648648649,
+      "negation_span_f1": 1.0,
+      "sentence_negation_f1": 0.7692307692307693,
+      "negated_recall": 0.625,
+      "raw_ufar": 0.06896551724137931,
+      "total_unsafe_false_accepts": 2,
+      "ambiguous_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 1
+    },
+    {
+      "epoch": 8,
+      "frozen_safety_gate_pass": true,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.9006964725284423,
+      "intent_macro_f1": 0.9736281736281737,
+      "scope_macro_f1": 0.7155854430379747,
+      "structure_macro_f1": 1.0,
+      "overall_slot_span_f1": 0.9128205128205129,
+      "value_span_f1": 0.8648648648648649,
+      "negation_span_f1": 1.0,
+      "sentence_negation_f1": 0.8292682926829268,
+      "negated_recall": 0.7083333333333334,
+      "raw_ufar": 0.034482758620689655,
+      "total_unsafe_false_accepts": 1,
+      "ambiguous_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 0
+    },
+    {
+      "epoch": 9,
+      "frozen_safety_gate_pass": true,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.9189198913324462,
+      "intent_macro_f1": 0.9910627007401202,
+      "scope_macro_f1": 0.7331754735792622,
+      "structure_macro_f1": 1.0,
+      "overall_slot_span_f1": 0.9081632653061223,
+      "value_span_f1": 0.8421052631578947,
+      "negation_span_f1": 1.0,
+      "sentence_negation_f1": 0.9333333333333333,
+      "negated_recall": 0.875,
+      "raw_ufar": 0.034482758620689655,
+      "total_unsafe_false_accepts": 1,
+      "ambiguous_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 0
+    },
+    {
+      "epoch": 10,
+      "frozen_safety_gate_pass": true,
+      "experiment_ablation_pass": false,
+      "primary_quality_score": 0.9128637139360175,
+      "intent_macro_f1": 0.9826021297795491,
+      "scope_macro_f1": 0.7155854430379747,
+      "structure_macro_f1": 1.0,
+      "overall_slot_span_f1": 0.9081632653061223,
+      "value_span_f1": 0.8421052631578947,
+      "negation_span_f1": 1.0,
+      "sentence_negation_f1": 0.9333333333333333,
+      "negated_recall": 0.875,
+      "raw_ufar": 0.034482758620689655,
+      "total_unsafe_false_accepts": 1,
+      "ambiguous_false_accepts": 0,
+      "multi_false_accepts": 0,
+      "unknown_control_false_accepts": 1,
+      "non_control_false_accepts": 0
+    }
+  ],
+  "ELECTRA_EXP002_ELIGIBLE_EPOCHS": [
+    8,
+    9,
+    10
+  ],
+  "ELECTRA_EXP002_OTHER_ELIGIBLE_EPOCH_WITH_BETTER_NEGATION": {
+    "exists": false,
+    "epochs": [],
+    "finding": "Epoch 10 ties epoch 9 on Sentence Negation and Slot but has lower PRIMARY_QUALITY_SCORE; epoch 8 has worse Sentence Negation."
+  },
+  "VALIDATION_REUSE_AUDIT": {
+    "risk": "HIGH",
+    "model_development_uses": [
+      "RBT3 baseline judgment",
+      "RBT3 safety-focused adjustment",
+      "backbone comparison",
+      "ELECTRA Slot-weighting adjustment"
+    ],
+    "exp003_overfit_risk": "HIGH",
+    "reason": "A new experiment targeted at three already-inspected Validation cases would further adapt decisions to a repeatedly reused, small Validation set."
+  },
+  "DECISION_RATIONALE": {
+    "selected_path": "PATH_SELECT",
+    "why": [
+      "ELECTRA exp002 epoch 9 passes every frozen safety gate.",
+      "It has the highest PRIMARY_QUALITY_SCORE among frozen-eligible reporting candidates.",
+      "Slot Overall and VALUE are materially stronger than ELECTRA exp001 while Intent and Structure remain high.",
+      "The three Sentence Negation false negatives are concentrated in ACCELERATE and all retain exact NEGATION Slot signal.",
+      "Another Validation-targeted exp003 has high reuse and selection-overfitting risk."
+    ],
+    "known_risks_not_waived": [
+      "Three epoch-9 Sentence Negation false negatives are raw executable in the offline artifact.",
+      "The only UNKNOWN_CONTROL Validation example is raw executable.",
+      "Test, Safety Gold, and runtime integration remain unexecuted."
+    ]
+  },
+  "PROVISIONAL_FINAL_CANDIDATE": {
+    "model_id": "hfl/chinese-electra-180g-small-discriminator",
+    "model_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "experiment_id": "sys014-poc7-electra-exp002",
+    "epoch": 9,
+    "checkpoint_kind": "ELIGIBLE_BEST",
+    "checkpoint_manifest": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/best/checkpoint_manifest.json",
+    "checkpoint_state": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/best/model_state.pt",
+    "model_state_sha256": "dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68",
+    "actual_file_sha256": "dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68",
+    "sha256_verified": true,
+    "BEST": true,
+    "DEPLOYABLE": false,
+    "not_deployable_reasons": [
+      "Test evaluation not executed",
+      "Safety Gold evaluation not executed",
+      "runtime integration not completed"
+    ]
+  },
+  "SOURCE_ARTIFACTS": {
+    "rbt3_exp001": {
+      "summary": "data/nlu/experiments/sys014-poc7-rbt3-exp001/training_summary.json",
+      "metrics": "data/nlu/experiments/sys014-poc7-rbt3-exp001/evaluation/validation/metrics.json"
+    },
+    "rbt3_exp002": {
+      "summary": "data/nlu/experiments/sys014-poc7-rbt3-exp002/training_summary.json",
+      "metrics": "data/nlu/experiments/sys014-poc7-rbt3-exp002/evaluation/validation/reporting_metrics.json",
+      "config": "data/nlu/experiments/sys014-poc7-rbt3-exp002/experiment_config.json"
+    },
+    "electra_exp001": {
+      "summary": "data/nlu/experiments/sys014-poc7-electra-exp001/training_summary.json",
+      "metrics": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/reporting_metrics.json",
+      "predictions": "data/nlu/experiments/sys014-poc7-electra-exp001/evaluation/validation/epoch_10_predictions.jsonl"
+    },
+    "electra_exp002": {
+      "summary": "data/nlu/experiments/sys014-poc7-electra-exp002/training_summary.json",
+      "metrics": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/reporting_metrics.json",
+      "epochs": "data/nlu/experiments/sys014-poc7-electra-exp002/metrics_by_epoch.jsonl",
+      "predictions": "data/nlu/experiments/sys014-poc7-electra-exp002/evaluation/validation/epoch_09_predictions.jsonl",
+      "best_manifest": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/best/checkpoint_manifest.json",
+      "best_state": "data/nlu/experiments/sys014-poc7-electra-exp002/checkpoints/best/model_state.pt"
+    }
+  }
+}

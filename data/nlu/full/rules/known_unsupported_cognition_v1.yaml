@@ -1,0 +1,72 @@
+catalog_version: known_unsupported_cognition_v1
+status: VERSIONED_EXTENSION_OF_R3_KNOWN_UNSUPPORTED_CONTROL
+scope_label: 已知但不开放
+registry_backed_intent_ids:
+  - MIRROR_ADJUSTMENT_LOCK
+  - MIRROR_ADJUSTMENT_UNLOCK
+  - ABS_ENABLE
+  - ABS_DISABLE
+  - TCS_ENABLE
+  - TCS_DISABLE
+  - EBD_ENABLE
+  - EBD_DISABLE
+  - EBA_ENABLE
+  - EBA_DISABLE
+  - HOOD_SET_POSITION
+  - LOW_RANGE_ENABLE
+  - LOW_RANGE_DISABLE
+  - TORQUE_DISTRIBUTION_SET
+  - TRANSMISSION_PERFORMANCE_MODE_SET
+  - DIFFERENTIAL_LOCK
+  - DIFFERENTIAL_UNLOCK
+  - ELECTRIC_POWERTRAIN_ENGAGE
+  - ELECTRIC_POWERTRAIN_DISENGAGE
+  - CLUTCH_SET_ENGAGEMENT
+  - PARK_LOCK
+  - PARK_UNLOCK
+extended_cabin_capabilities:
+  - target: READING_LIGHT
+    aliases: [阅读灯]
+    attributes: [STATE]
+  - target: CABIN_LIGHT
+    aliases: [车内灯, 舱内灯, 顶灯]
+    attributes: [STATE]
+  - target: HVAC
+    aliases: [空调, 冷气, 暖气]
+    attributes: [STATE, TEMPERATURE, FAN_SPEED, AIR_DIRECTION, MODE]
+  - target: SEAT_HEATING
+    aliases: [座椅加热]
+    attributes: [STATE, LEVEL, TEMPERATURE]
+  - target: SEAT_VENTILATION
+    aliases: [座椅通风]
+    attributes: [STATE, LEVEL]
+  - target: SEAT_MASSAGE
+    aliases: [座椅按摩, 按摩]
+    attributes: [STATE, LEVEL, MODE]
+  - target: AMBIENT_LIGHT
+    aliases: [氛围灯]
+    attributes: [STATE, BRIGHTNESS, COLOR, MODE]
+  - target: SUNSHADE
+    aliases: [遮阳帘, 遮阳幕]
+    attributes: [OPENING_STATE, OPENING_POSITION]
+  - target: DISPLAY
+    aliases: [屏幕, 显示屏, 中控屏, 娱乐屏]
+    attributes: [STATE, BRIGHTNESS, POSITION]
+  - target: FRAGRANCE
+    aliases: [香氛, 芳香]
+    attributes: [STATE, LEVEL, MODE]
+  - target: STEERING_WHEEL_HEATING
+    aliases: [方向盘加热]
+    attributes: [STATE, LEVEL]
+  - target: VEHICLE
+    aliases: [保持速度, 维持速度]
+    attributes: [SPEED]
+  - target: VEHICLE
+    aliases: [打方向, 方向打]
+    attributes: [TRAJECTORY]
+  - target: LANE
+    aliases: [车道保持辅助, 车道保持系统]
+    attributes: [STATE]
+  - target: HIGH_BEAM
+    aliases: [远光灯闪一下, 闪远光]
+    attributes: [STATE]

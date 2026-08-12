@@ -1,0 +1,77 @@
+mapping_rule_version: nlu_mapping_v2
+target_registry_version: sys-014-semantic-hardening-r3
+target_registry_sha256: c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06
+status: FROZEN_FOR_FULL_NLU_BASELINE_BUILD
+scope: DATA_MAPPING_ONLY_NOT_RUNTIME_EXECUTION
+
+source_policy:
+  mac_slu: USE_STRUCTURED_SEMANTICS_AS_EVIDENCE_NOT_AS_AUTHORITY
+  weak_seed: SENTENCE_AND_APPROVED_INTENT_NAME_ARE_AUTHORITATIVE_SUBJECT_TO_R3_CONTRACT
+  safety_seed: ONLY_SENTENCE_AND_BOUNDARY_CATEGORY_ARE_AUTHORITATIVE
+  nearest_intent_forcing: PROHIBITED
+  unresolved_vehicle_control: NEEDS_REVIEW
+
+approved_weak_seed_intent_aliases:
+  设置自动/手动换挡模式: GEAR_CHANGE_MODE_SET
+
+polarity_lexicalized_action_exceptions:
+  PARKING_BRAKE_RELEASE:
+    - 取消驻车制动
+
+normalization:
+  unicode_form: NFKC
+  collapse_whitespace: true
+  trim: true
+  semantic_rewrite: PROHIBITED
+  deterministic_fraction_forms:
+    一成: 10%
+    二成: 20%
+    三成: 30%
+    四成: 40%
+    五成: 50%
+    六成: 60%
+    七成: 70%
+    八成: 80%
+    九成: 90%
+
+light_semantics:
+  position_light_aliases: [示宽灯, 示廓灯, 位置灯]
+  canonical_intent_id: HEADLIGHT_SET_MODE
+  canonical_mode: POSITION
+  parking_light_aliases: [驻车灯, 停车灯]
+  parking_light_intent_ids: [PARKING_LIGHT_ON, PARKING_LIGHT_OFF]
+  broad_ambiguous_objects: [车灯, 灯光, 灯]
+  broad_object_structure_status: 歧义
+  prohibited_guess_targets: [HEADLIGHT, LOW_BEAM, HIGH_BEAM, FOG_LIGHT, PARKING_LIGHT]
+
+steering_wheel_semantics:
+  STEERING_WHEEL_SET_EXTENSION:
+    completeness: VALUE_OR_DIRECTION
+    direction_aliases:
+      EXTEND: [往外, 向外, 伸出, 拉出来, 离我远]
+      RETRACT: [往里, 向里, 收回, 缩回, 缩进去, 靠近]
+  STEERING_WHEEL_SET_TILT:
+    completeness: VALUE_OR_DIRECTION
+    direction_aliases:
+      UP: [向上, 往上, 抬高, 升起来, 升高]
+      DOWN: [向下, 往下, 降低, 降下来]
+
+safety_contracts:
+  LANE_CHANGE:
+    required_direction: [LEFT, RIGHT]
+  EVASIVE_STEER:
+    explicit_avoidance_required: true
+    required_direction: [LEFT, RIGHT]
+  GEAR_SET:
+    canonical_modes: [P, N, D, R, FORWARD_GEAR_N, REVERSE_GEAR_N]
+    physical_mapping_authority: VehicleCapabilityMapping
+    prohibited_generic_mappings: ["R -> -1", "R -> REVERSE_GEAR_1"]
+
+structure_precedence: [歧义, 缺槽, 多意图, 单意图]
+positive_pool_required:
+  控制范围: 正式可执行
+  结构状态: 单意图
+  语气状态: 肯定
+  合同是否完整: true
+  是否需要人工复核: false
+  unique_mapping: true

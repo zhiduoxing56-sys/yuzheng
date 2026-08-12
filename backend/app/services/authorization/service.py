@@ -182,7 +182,11 @@ class AuthorizationTokenService:
         return value, "local_file", metadata
 
     def is_executable(self, frame: SemanticFrame) -> bool:
-        return f"{frame.action}|{frame.target}" in self.executable_actions
+        return (
+            len(frame.intents) == 1
+            and f"{frame.intents[0].action}|{frame.intents[0].target}"
+            in self.executable_actions
+        )
 
     def issue(
         self,
@@ -192,6 +196,9 @@ class AuthorizationTokenService:
         frame: SemanticFrame,
         state: VehicleState,
     ) -> AuthorizationGrant:
+        if len(frame.intents) != 1:
+            raise AuthorizationTokenError("车辆执行授权当前要求恰好一个正式子意图")
+        intent = frame.intents[0]
         if self._capability_provider is not None:
             capability = self._capability_provider()
             if (
@@ -213,9 +220,9 @@ class AuthorizationTokenService:
             "token_id": token_id,
             "root_turn_id": root_turn_id,
             "turn_id": turn_id,
-            "action": frame.action,
-            "target": frame.target,
-            "area": frame.area,
+            "action": intent.action,
+            "target": intent.target,
+            "area": intent.area,
             "issued_at": issued_at.isoformat().replace("+00:00", "Z"),
             "expires_at": expires_at.isoformat().replace("+00:00", "Z"),
             "nonce": nonce,
@@ -236,9 +243,9 @@ class AuthorizationTokenService:
             token_id=token_id,
             root_turn_id=root_turn_id,
             turn_id=turn_id,
-            action=frame.action,
-            target=frame.target,
-            area=frame.area,
+            action=intent.action,
+            target=intent.target,
+            area=intent.area,
             issued_at=issued_at,
             expires_at=expires_at,
             state_snapshot_digest=snapshot_digest,

@@ -1,0 +1,295 @@
+{
+  "annotation_schema_id": "urn:yuzheng:sys-014:nlu-annotation-stage2.1-draft-2",
+  "created_at": "2026-08-08T16:31:50+08:00",
+  "dataset_name": "SYS-014 7-Intent PoC",
+  "dataset_version": "sys014-poc7-v1",
+  "file_sha256": {
+    "data/nlu/poc/candidate_pool.jsonl": "5facede3e3e1d83178d5e4da23c69af949bc5d49bbfda4444ab02fb804560ea9",
+    "data/nlu/poc/safety_gold_candidates.jsonl": "d9d9b597d888ec24c8fec52631b3dd9dabd4b48013a768ef8ff037ffbee77565",
+    "data/nlu/spec/annotation_guidelines.md": "20dba043fae4bb54629a4547b8c6c93eb10ca2750b81f0e28cc7104989c1350c",
+    "data/nlu/spec/annotation_schema.json": "5a67db9562df24aa6ad309b15dd4dda19821f6eecfee37cf652ff97df0146650",
+    "data/nlu/spec/intent_registry_draft.yaml": "e28bed95c2e1456c6ca53c4a7f37814c992998158fd84fd7ae682669f8769fad",
+    "safety_gold.jsonl": "87d667321e94c36ce89ce4ceb604fb34205f22d2611838454c3c61ee7416f48c",
+    "test.jsonl": "6646bb29853717719e74790d8f8ba885ab4a473c03435d24f4d9ea0b2cf8d859",
+    "train.jsonl": "c95eccacdc4ca504636e14dfb65d99ebeeabab276a53ce91cf32f5ded8c498de",
+    "validation.jsonl": "051cf9c36471c84fe395185456f46763c2c4ea197f12f020eff210b886ec9607"
+  },
+  "grouping_strategy": {
+    "algorithm": "DSU connected components",
+    "edges": [
+      "paraphrase_family_id",
+      "template_signature_v1",
+      "mechanical_signature_v1"
+    ],
+    "mechanical_signature": "template signature plus polite/context removal and connector normalization",
+    "split_group_assignment_digest_sha256": "194f3b12d4e67f8c84711a27a9a5ce292d1155e6e460254cf6d76aabf2658f9b",
+    "template_signature": "replace AREA/VALUE/NEGATION spans with <AREA>/<VALUE>/<NEG>, then NFKC whitespace/punctuation normalization",
+    "unit": "split_group_id"
+  },
+  "immutable": true,
+  "leakage_audit": {
+    "exact_cross_split_duplicates": 0,
+    "family_leakage_failures": 0,
+    "mechanical_near_duplicate_cross_split_failures": 0,
+    "normalized_cross_split_duplicates": 0,
+    "split_group_leakage_failures": 0,
+    "template_signature_cross_split_duplicates": 0,
+    "test_asset_in_train": 0,
+    "unassigned_count": 0
+  },
+  "poc_intents": [
+    "DOOR_OPEN",
+    "DOOR_CLOSE",
+    "WINDOW_OPEN",
+    "WINDOW_SET_POSITION",
+    "HEADLIGHT_OFF",
+    "ACCELERATE",
+    "BRAKE"
+  ],
+  "pre_freeze_fixes": {
+    "deleted": [
+      "SYS014-POC-0462"
+    ],
+    "label_fixed": [
+      "SYS014-POC-0070",
+      "SYS014-POC-0686",
+      "SYS014-POC-0687",
+      "SYS014-POC-0688"
+    ],
+    "paraphrase_family_refined_for_group_coverage": [
+      "SYS014-POC-0787",
+      "SYS014-POC-0788",
+      "SYS014-POC-0789",
+      "SYS014-POC-0790",
+      "SYS014-POC-0791",
+      "SYS014-POC-0792"
+    ]
+  },
+  "registry_version": "sys-014-stage2.1-draft-2",
+  "safety_gold_count": 60,
+  "safety_gold_policy": "isolated final safety regression only; prohibited for training, early stopping, hyperparameter/threshold selection, confidence calibration, and model selection",
+  "source_candidate_count": 849,
+  "source_safety_gold_count": 60,
+  "split_seed": 14031,
+  "split_strategy": "deterministic constrained group split; TEST_ASSET groups forced to TEST; target ratios 70/15/15",
+  "statistics": {
+    "TEST": {
+      "count": 141,
+      "intent_coverage": {
+        "ACCELERATE": {
+          "multi_segment_mentions": 1,
+          "negated_single": 1,
+          "positive_single": 2
+        },
+        "BRAKE": {
+          "multi_segment_mentions": 3,
+          "negated_single": 0,
+          "positive_single": 2
+        },
+        "DOOR_CLOSE": {
+          "multi_segment_mentions": 9,
+          "negated_single": 0,
+          "positive_single": 3
+        },
+        "DOOR_OPEN": {
+          "multi_segment_mentions": 5,
+          "negated_single": 14,
+          "positive_single": 10
+        },
+        "HEADLIGHT_OFF": {
+          "multi_segment_mentions": 3,
+          "negated_single": 1,
+          "positive_single": 1
+        },
+        "WINDOW_OPEN": {
+          "multi_segment_mentions": 5,
+          "negated_single": 2,
+          "positive_single": 54
+        },
+        "WINDOW_SET_POSITION": {
+          "multi_segment_mentions": 3,
+          "negated_single": 0,
+          "positive_single": 5
+        }
+      },
+      "intent_structure": {
+        "AMBIGUOUS": 3,
+        "MULTI": 21,
+        "SINGLE": 117
+      },
+      "scope": {
+        "AMBIGUOUS_CONTROL": 3,
+        "IN_SCOPE_CONTROL": 103,
+        "NON_CONTROL": 6,
+        "UNKNOWN_CONTROL": 29
+      },
+      "semantic_type": {
+        "mixed_negation_multi": 4,
+        "negated_single": 18,
+        "positive_single": 77
+      },
+      "slots": {
+        "AREA": 60,
+        "NEGATION": 24,
+        "VALUE": 8
+      },
+      "source_type": {
+        "SYNTHETIC_TEMPLATE": 71,
+        "TEST_ASSET": 70
+      },
+      "unknown_control_derived": {
+        "UNKNOWN_EXTERNAL_CONTROL": 1,
+        "UNKNOWN_KNOWN_REGISTRY_OUTSIDE_POC": 28
+      }
+    },
+    "TRAIN": {
+      "count": 582,
+      "intent_coverage": {
+        "ACCELERATE": {
+          "multi_segment_mentions": 27,
+          "negated_single": 12,
+          "positive_single": 60
+        },
+        "BRAKE": {
+          "multi_segment_mentions": 24,
+          "negated_single": 12,
+          "positive_single": 60
+        },
+        "DOOR_CLOSE": {
+          "multi_segment_mentions": 23,
+          "negated_single": 12,
+          "positive_single": 66
+        },
+        "DOOR_OPEN": {
+          "multi_segment_mentions": 26,
+          "negated_single": 4,
+          "positive_single": 59
+        },
+        "HEADLIGHT_OFF": {
+          "multi_segment_mentions": 20,
+          "negated_single": 12,
+          "positive_single": 50
+        },
+        "WINDOW_OPEN": {
+          "multi_segment_mentions": 4,
+          "negated_single": 10,
+          "positive_single": 4
+        },
+        "WINDOW_SET_POSITION": {
+          "multi_segment_mentions": 24,
+          "negated_single": 12,
+          "positive_single": 58
+        }
+      },
+      "intent_structure": {
+        "AMBIGUOUS": 48,
+        "MULTI": 74,
+        "SINGLE": 460
+      },
+      "scope": {
+        "AMBIGUOUS_CONTROL": 48,
+        "IN_SCOPE_CONTROL": 505,
+        "NON_CONTROL": 14,
+        "UNKNOWN_CONTROL": 15
+      },
+      "semantic_type": {
+        "mixed_negation_multi": 1,
+        "negated_single": 74,
+        "positive_single": 357
+      },
+      "slots": {
+        "AREA": 209,
+        "NEGATION": 75,
+        "VALUE": 94
+      },
+      "source_type": {
+        "SYNTHETIC_TEMPLATE": 582
+      },
+      "unknown_control_derived": {
+        "UNKNOWN_EXTERNAL_CONTROL": 4,
+        "UNKNOWN_KNOWN_REGISTRY_OUTSIDE_POC": 11
+      }
+    },
+    "VALIDATION": {
+      "count": 126,
+      "intent_coverage": {
+        "ACCELERATE": {
+          "multi_segment_mentions": 3,
+          "negated_single": 5,
+          "positive_single": 13
+        },
+        "BRAKE": {
+          "multi_segment_mentions": 4,
+          "negated_single": 6,
+          "positive_single": 3
+        },
+        "DOOR_CLOSE": {
+          "multi_segment_mentions": 10,
+          "negated_single": 6,
+          "positive_single": 3
+        },
+        "DOOR_OPEN": {
+          "multi_segment_mentions": 6,
+          "negated_single": 0,
+          "positive_single": 3
+        },
+        "HEADLIGHT_OFF": {
+          "multi_segment_mentions": 13,
+          "negated_single": 5,
+          "positive_single": 21
+        },
+        "WINDOW_OPEN": {
+          "multi_segment_mentions": 3,
+          "negated_single": 3,
+          "positive_single": 2
+        },
+        "WINDOW_SET_POSITION": {
+          "multi_segment_mentions": 3,
+          "negated_single": 6,
+          "positive_single": 5
+        }
+      },
+      "intent_structure": {
+        "AMBIGUOUS": 9,
+        "MULTI": 21,
+        "SINGLE": 96
+      },
+      "scope": {
+        "AMBIGUOUS_CONTROL": 9,
+        "IN_SCOPE_CONTROL": 102,
+        "NON_CONTROL": 5,
+        "UNKNOWN_CONTROL": 10
+      },
+      "semantic_type": {
+        "mixed_negation_multi": 0,
+        "negated_single": 31,
+        "positive_single": 50
+      },
+      "slots": {
+        "AREA": 23,
+        "NEGATION": 31,
+        "VALUE": 14
+      },
+      "source_type": {
+        "SYNTHETIC_TEMPLATE": 126
+      },
+      "unknown_control_derived": {
+        "UNKNOWN_EXTERNAL_CONTROL": 3,
+        "UNKNOWN_KNOWN_REGISTRY_OUTSIDE_POC": 7
+      }
+    }
+  },
+  "test_count": 141,
+  "test_family_count": 93,
+  "test_split_group_count": 61,
+  "train_count": 582,
+  "train_family_count": 252,
+  "train_split_group_count": 158,
+  "unknown_control_derived_total": {
+    "UNKNOWN_EXTERNAL_CONTROL": 8,
+    "UNKNOWN_KNOWN_REGISTRY_OUTSIDE_POC": 46
+  },
+  "validation_count": 126,
+  "validation_family_count": 60,
+  "validation_split_group_count": 50
+}

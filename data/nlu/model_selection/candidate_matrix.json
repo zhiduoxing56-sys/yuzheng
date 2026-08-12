@@ -1,0 +1,457 @@
+{
+  "stage": "SYS-014_STAGE_4A",
+  "accuracy_claims_permitted": false,
+  "score_scope": "Architecture/resource/compatibility only; no trained accuracy evidence.",
+  "score_weights": {
+    "chinese_adaptation": 10,
+    "parameters": 7,
+    "weight_disk": 3,
+    "ram": 10,
+    "cpu_p50": 20,
+    "cpu_p95": 25,
+    "token_span_compatibility": 10,
+    "joint_head_compatibility": 5,
+    "transformers_compatibility": 5,
+    "license": 3,
+    "deployment_complexity": 2
+  },
+  "candidates": [
+    {
+      "model_id": "hfl/chinese-electra-180g-small-discriminator",
+      "role": "PRIMARY_CANDIDATE",
+      "revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+      "license": "apache-2.0",
+      "local_cache_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--chinese-electra-180g-small-discriminator\\snapshots\\826a243f3f387450ef8d70de9c3d0706d8d8e924",
+      "tokenizer_fast": true,
+      "loading_info": {
+        "missing_keys": [],
+        "unexpected_keys": [
+          "discriminator_predictions.dense.bias",
+          "discriminator_predictions.dense.weight",
+          "discriminator_predictions.dense_prediction.bias",
+          "discriminator_predictions.dense_prediction.weight"
+        ],
+        "mismatched_keys": [],
+        "error_msgs": []
+      },
+      "architecture": {
+        "model_type": "electra",
+        "hidden_size": 256,
+        "num_hidden_layers": 12,
+        "num_attention_heads": 4,
+        "intermediate_size": 1024,
+        "vocab_size": 21128,
+        "max_position_embeddings": 512
+      },
+      "config": {
+        "transformers_version": "5.14.1",
+        "architectures": [
+          "ElectraForPreTraining"
+        ],
+        "output_hidden_states": false,
+        "return_dict": true,
+        "dtype": null,
+        "chunk_size_feed_forward": 0,
+        "is_encoder_decoder": false,
+        "id2label": {
+          "0": "LABEL_0",
+          "1": "LABEL_1"
+        },
+        "label2id": {
+          "LABEL_0": 0,
+          "LABEL_1": 1
+        },
+        "problem_type": null,
+        "vocab_size": 21128,
+        "embedding_size": 128,
+        "hidden_size": 256,
+        "num_hidden_layers": 12,
+        "num_attention_heads": 4,
+        "intermediate_size": 1024,
+        "hidden_act": "gelu",
+        "hidden_dropout_prob": 0.1,
+        "attention_probs_dropout_prob": 0.1,
+        "max_position_embeddings": 512,
+        "type_vocab_size": 2,
+        "initializer_range": 0.02,
+        "layer_norm_eps": 1e-12,
+        "summary_type": "first",
+        "summary_use_proj": true,
+        "summary_activation": "gelu",
+        "summary_last_dropout": 0.1,
+        "pad_token_id": 0,
+        "use_cache": true,
+        "classifier_dropout": null,
+        "is_decoder": false,
+        "add_cross_attention": false,
+        "bos_token_id": null,
+        "eos_token_id": null,
+        "tie_word_embeddings": true,
+        "_name_or_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--chinese-electra-180g-small-discriminator\\snapshots\\826a243f3f387450ef8d70de9c3d0706d8d8e924",
+        "_num_labels": 2,
+        "model_type": "electra",
+        "output_past": true,
+        "output_attentions": false
+      },
+      "total_parameters": 12280576,
+      "trainable_parameters_pretrained_state": 12280576,
+      "weight_size_bytes": 49439914,
+      "tokenizer_size_bytes": 378634,
+      "weight_files": [
+        {
+          "name": "pytorch_model.bin",
+          "size_bytes": 49439914,
+          "sha256": "45c0a4519ee767bd58ddd3573b9ceebb81a2c0fb65919a8b7513b57ee52009b3"
+        }
+      ],
+      "tokenizer_files": [
+        {
+          "name": "added_tokens.json",
+          "size_bytes": 2,
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        {
+          "name": "special_tokens_map.json",
+          "size_bytes": 112,
+          "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+        },
+        {
+          "name": "tokenizer.json",
+          "size_bytes": 268961,
+          "sha256": "53ff61207898738bbdc000f38abebef01041c8d23b6270c11855fc692d0a3ad6"
+        },
+        {
+          "name": "tokenizer_config.json",
+          "size_bytes": 19,
+          "sha256": "61785aeaba176fba6d6489f27dccfd2ddee6aee2af0e590451cab7d8b57e0874"
+        },
+        {
+          "name": "vocab.txt",
+          "size_bytes": 109540,
+          "sha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c"
+        }
+      ],
+      "ram_delta_mb": 64.391,
+      "token_alignment_failures": 0,
+      "joint_head_compatible": true,
+      "transformers_compatible": true,
+      "p50_tokenize_ms": 0.1942,
+      "p95_tokenize_ms": 0.26247,
+      "p50_encoder_ms": 12.48335,
+      "p95_encoder_ms": 14.26206,
+      "p50_total_ms": 12.53215,
+      "p95_total_ms": 14.78464,
+      "deployment_score_lightweight_only": {
+        "chinese_adaptation": 10.0,
+        "parameters": 7.0,
+        "weight_disk": 3.0,
+        "ram": 10.0,
+        "cpu_p50": 10.2254,
+        "cpu_p95": 13.3301,
+        "token_span_compatibility": 10.0,
+        "joint_head_compatibility": 5.0,
+        "transformers_compatibility": 5.0,
+        "license": 3.0,
+        "deployment_complexity": 2.0,
+        "total": 78.5554
+      }
+    },
+    {
+      "model_id": "hfl/rbt3",
+      "role": "SECONDARY_CANDIDATE",
+      "revision": "0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+      "license": "apache-2.0",
+      "local_cache_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--rbt3\\snapshots\\0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+      "tokenizer_fast": true,
+      "loading_info": {
+        "missing_keys": [],
+        "unexpected_keys": [
+          "cls.predictions.bias",
+          "cls.predictions.decoder.weight",
+          "cls.predictions.transform.LayerNorm.bias",
+          "cls.predictions.transform.LayerNorm.weight",
+          "cls.predictions.transform.dense.bias",
+          "cls.predictions.transform.dense.weight",
+          "cls.seq_relationship.bias",
+          "cls.seq_relationship.weight"
+        ],
+        "mismatched_keys": [],
+        "error_msgs": []
+      },
+      "architecture": {
+        "model_type": "bert",
+        "hidden_size": 768,
+        "num_hidden_layers": 3,
+        "num_attention_heads": 12,
+        "intermediate_size": 3072,
+        "vocab_size": 21128,
+        "max_position_embeddings": 512
+      },
+      "config": {
+        "transformers_version": "5.14.1",
+        "architectures": [
+          "BertForMaskedLM"
+        ],
+        "output_hidden_states": false,
+        "return_dict": true,
+        "dtype": null,
+        "chunk_size_feed_forward": 0,
+        "is_encoder_decoder": false,
+        "id2label": {
+          "0": "LABEL_0",
+          "1": "LABEL_1"
+        },
+        "label2id": {
+          "LABEL_0": 0,
+          "LABEL_1": 1
+        },
+        "problem_type": null,
+        "vocab_size": 21128,
+        "hidden_size": 768,
+        "num_hidden_layers": 3,
+        "num_attention_heads": 12,
+        "intermediate_size": 3072,
+        "hidden_act": "gelu",
+        "hidden_dropout_prob": 0.1,
+        "attention_probs_dropout_prob": 0.1,
+        "max_position_embeddings": 512,
+        "type_vocab_size": 2,
+        "initializer_range": 0.02,
+        "layer_norm_eps": 1e-12,
+        "pad_token_id": 0,
+        "use_cache": true,
+        "classifier_dropout": null,
+        "is_decoder": false,
+        "add_cross_attention": false,
+        "bos_token_id": null,
+        "eos_token_id": null,
+        "tie_word_embeddings": true,
+        "_name_or_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--rbt3\\snapshots\\0aa0527ff4170f29e1dfd3eb6ef60dc67e1bf75c",
+        "model_type": "bert",
+        "directionality": "bidi",
+        "finetuning_task": null,
+        "output_past": true,
+        "pooler_fc_size": 768,
+        "pooler_num_attention_heads": 12,
+        "pooler_num_fc_layers": 3,
+        "pooler_size_per_head": 128,
+        "pooler_type": "first_token_transform",
+        "pruned_heads": {},
+        "torchscript": false,
+        "use_bfloat16": false,
+        "output_attentions": false
+      },
+      "total_parameters": 38476800,
+      "trainable_parameters_pretrained_state": 38476800,
+      "weight_size_bytes": 156380647,
+      "tokenizer_size_bytes": 378634,
+      "weight_files": [
+        {
+          "name": "pytorch_model.bin",
+          "size_bytes": 156380647,
+          "sha256": "3e04f7477f55dffce2a2fbc4d0ba35068415162a9e92e3d5cc74a49781ba4eb0"
+        }
+      ],
+      "tokenizer_files": [
+        {
+          "name": "added_tokens.json",
+          "size_bytes": 2,
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        {
+          "name": "special_tokens_map.json",
+          "size_bytes": 112,
+          "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+        },
+        {
+          "name": "tokenizer.json",
+          "size_bytes": 268961,
+          "sha256": "53ff61207898738bbdc000f38abebef01041c8d23b6270c11855fc692d0a3ad6"
+        },
+        {
+          "name": "tokenizer_config.json",
+          "size_bytes": 19,
+          "sha256": "61785aeaba176fba6d6489f27dccfd2ddee6aee2af0e590451cab7d8b57e0874"
+        },
+        {
+          "name": "vocab.txt",
+          "size_bytes": 109540,
+          "sha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c"
+        }
+      ],
+      "ram_delta_mb": 165.512,
+      "token_alignment_failures": 0,
+      "joint_head_compatible": true,
+      "transformers_compatible": true,
+      "p50_tokenize_ms": 0.19355,
+      "p95_tokenize_ms": 0.2666,
+      "p50_encoder_ms": 5.9542,
+      "p95_encoder_ms": 7.2371,
+      "p50_total_ms": 6.4073,
+      "p95_total_ms": 7.8832,
+      "deployment_score_lightweight_only": {
+        "chinese_adaptation": 10.0,
+        "parameters": 2.2342,
+        "weight_disk": 0.9485,
+        "ram": 3.8904,
+        "cpu_p50": 20.0,
+        "cpu_p95": 25.0,
+        "token_span_compatibility": 10.0,
+        "joint_head_compatibility": 5.0,
+        "transformers_compatibility": 5.0,
+        "license": 3.0,
+        "deployment_complexity": 2.0,
+        "total": 87.073
+      }
+    },
+    {
+      "model_id": "hfl/chinese-macbert-base",
+      "role": "UPPER_BOUND_REFERENCE",
+      "revision": "a986e004d2a7f2a1c2f5a3edef4e20604a974ed1",
+      "license": "apache-2.0",
+      "local_cache_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--chinese-macbert-base\\snapshots\\a986e004d2a7f2a1c2f5a3edef4e20604a974ed1",
+      "tokenizer_fast": true,
+      "loading_info": {
+        "missing_keys": [],
+        "unexpected_keys": [
+          "cls.predictions.bias",
+          "cls.predictions.decoder.bias",
+          "cls.predictions.decoder.weight",
+          "cls.predictions.transform.LayerNorm.bias",
+          "cls.predictions.transform.LayerNorm.weight",
+          "cls.predictions.transform.dense.bias",
+          "cls.predictions.transform.dense.weight",
+          "cls.seq_relationship.bias",
+          "cls.seq_relationship.weight"
+        ],
+        "mismatched_keys": [],
+        "error_msgs": []
+      },
+      "architecture": {
+        "model_type": "bert",
+        "hidden_size": 768,
+        "num_hidden_layers": 12,
+        "num_attention_heads": 12,
+        "intermediate_size": 3072,
+        "vocab_size": 21128,
+        "max_position_embeddings": 512
+      },
+      "config": {
+        "transformers_version": "5.14.1",
+        "architectures": [
+          "BertForMaskedLM"
+        ],
+        "output_hidden_states": false,
+        "return_dict": true,
+        "dtype": null,
+        "chunk_size_feed_forward": 0,
+        "is_encoder_decoder": false,
+        "id2label": {
+          "0": "LABEL_0",
+          "1": "LABEL_1"
+        },
+        "label2id": {
+          "LABEL_0": 0,
+          "LABEL_1": 1
+        },
+        "problem_type": null,
+        "vocab_size": 21128,
+        "hidden_size": 768,
+        "num_hidden_layers": 12,
+        "num_attention_heads": 12,
+        "intermediate_size": 3072,
+        "hidden_act": "gelu",
+        "hidden_dropout_prob": 0.1,
+        "attention_probs_dropout_prob": 0.1,
+        "max_position_embeddings": 512,
+        "type_vocab_size": 2,
+        "initializer_range": 0.02,
+        "layer_norm_eps": 1e-12,
+        "pad_token_id": 0,
+        "use_cache": true,
+        "classifier_dropout": null,
+        "is_decoder": false,
+        "add_cross_attention": false,
+        "bos_token_id": null,
+        "eos_token_id": null,
+        "tie_word_embeddings": true,
+        "_name_or_path": "D:\\语证\\data\\nlu\\model_selection\\hf_cache\\models--hfl--chinese-macbert-base\\snapshots\\a986e004d2a7f2a1c2f5a3edef4e20604a974ed1",
+        "directionality": "bidi",
+        "gradient_checkpointing": false,
+        "model_type": "bert",
+        "pooler_fc_size": 768,
+        "pooler_num_attention_heads": 12,
+        "pooler_num_fc_layers": 3,
+        "pooler_size_per_head": 128,
+        "pooler_type": "first_token_transform",
+        "output_attentions": false
+      },
+      "total_parameters": 102267648,
+      "trainable_parameters_pretrained_state": 102267648,
+      "weight_size_bytes": 411582858,
+      "tokenizer_size_bytes": 378634,
+      "weight_files": [
+        {
+          "name": "pytorch_model.bin",
+          "size_bytes": 411582858,
+          "sha256": "db0506d985574b80c33eec1cf13bd4c130585568753175871095ca13dbad9e23"
+        }
+      ],
+      "tokenizer_files": [
+        {
+          "name": "added_tokens.json",
+          "size_bytes": 2,
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        {
+          "name": "special_tokens_map.json",
+          "size_bytes": 112,
+          "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+        },
+        {
+          "name": "tokenizer.json",
+          "size_bytes": 268961,
+          "sha256": "53ff61207898738bbdc000f38abebef01041c8d23b6270c11855fc692d0a3ad6"
+        },
+        {
+          "name": "tokenizer_config.json",
+          "size_bytes": 19,
+          "sha256": "61785aeaba176fba6d6489f27dccfd2ddee6aee2af0e590451cab7d8b57e0874"
+        },
+        {
+          "name": "vocab.txt",
+          "size_bytes": 109540,
+          "sha256": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c"
+        }
+      ],
+      "ram_delta_mb": 410.652,
+      "token_alignment_failures": 0,
+      "joint_head_compatible": true,
+      "transformers_compatible": true,
+      "p50_tokenize_ms": 0.1905,
+      "p95_tokenize_ms": 0.288345,
+      "p50_encoder_ms": 21.2741,
+      "p95_encoder_ms": 25.76797,
+      "p50_total_ms": 21.3524,
+      "p95_total_ms": 25.763505,
+      "deployment_score_lightweight_only": null
+    }
+  ],
+  "lightweight_ranking": [
+    "hfl/rbt3",
+    "hfl/chinese-electra-180g-small-discriminator"
+  ],
+  "selected": {
+    "primary": "hfl/rbt3",
+    "secondary": "hfl/chinese-electra-180g-small-discriminator",
+    "upper_bound_reference": "hfl/chinese-macbert-base"
+  },
+  "flags": {
+    "JOINT_NLU_ARCHITECTURE_READY": true,
+    "MODEL_SELECTION_READY": true,
+    "READY_FOR_STAGE_4B_TRAINING_DESIGN": true,
+    "READY_FOR_MODEL_TRAINING": false
+  },
+  "DO_NOT_FINE_TUNE_SHARED_HNSW_ENCODER_IN_PLACE": true,
+  "TRAINING_STEPS_EXECUTED": 0
+}

@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from threading import RLock, Thread
+from threading import RLock
 from time import perf_counter
 from typing import Any, Callable
 
 from app.core.config import ConfigurationError, PROJECT_ROOT, load_yaml
+from app.core.performance import mark_stage, set_metric
 from app.models.schemas import (
     AdvancedReasoningResult,
     AudioCommandResponse,
     AuditQualityMetadata,
+    AuditDatabaseRole,
     AuditRecord,
     AuditRecordQuality,
     CurrentEvidenceResponse,
@@ -27,14 +29,19 @@ from app.models.schemas import (
     EvidenceQualityMetrics,
     GateCheck,
     IndexStatus,
+    IndexParametersRequest,
+    IntentEvidenceResolution,
+    OccurrenceLayerNavigation,
     MemoryRelationType,
     PipelineEvent,
     RetrievalMetadata,
     RuntimeCapabilityStatus,
+    RuntimeSafetyContext,
     SafetyGateResult,
     SemanticControlMode,
     TextCommandRequest,
     TextCommandResponse,
+    TrustedRuntimeContext,
     TranscriptionResult,
     TurnTimeline,
     TurnTiming,
@@ -48,19 +55,21 @@ from app.models.schemas import (
     utc_now,
 )
 from app.services.audit.repository import AuditRepository
+from app.services.audit.recall_ai import RecallAIAuditService
 from app.services.audit.effective import EffectiveAuditResolver
 from app.services.authorization.service import AuthorizationTokenError, AuthorizationTokenService
 from app.services.causal.service import CausalCorrectionService
 from app.services.decision.engine import DecisionService
 from app.services.decision.merge import (
-    EvidenceAlignmentRoute,
     apply_merge_outcome,
     merge_decision,
 )
 from app.services.decision.safety_gate import SafetyGateService
 from app.services.evidence.demand import EvidenceDemandService
+from app.services.evidence.demand_registry import EvidenceDemandRegistry
 from app.services.evidence.recall import MandatoryRecallService
 from app.services.evidence.repository import EvidenceRepository
+from app.services.evidence.resolution import project_evidence_resolutions
 from app.services.execution.service import ExecutionService
 from app.services.graph.builder import EvidenceSubgraphBuilder
 from app.services.index.hnsw import HNSWIndexService
@@ -70,7 +79,7 @@ from app.services.memory.service import DualMemoryService
 from app.services.quality.evaluator import EvidenceQualityService
 from app.services.quality.window import EvidenceQualityWindow
 from app.services.review.service import ReviewService
-from app.services.semantic.parser import SemanticFrameParser
+from app.services.semantic.orchestrator import SemanticOrchestratorService
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
@@ -99,8 +108,10 @@ class CommandPipeline:
         *,
         token_secret: bytes | None = None,
         event_broker: PipelineEventBroker | None = None,
+        audit_database_role: AuditDatabaseRole = AuditDatabaseRole.PRODUCTION,
     ) -> None:
         self._command_lock = RLock()
+        audit_database_role = AuditDatabaseRole(audit_database_role)
         quality_config = load_yaml("evidence_quality.yaml")
         self.vehicle_config = load_yaml("vehicle_actions.yaml")
         self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
@@ -129,25 +140,19 @@ class CommandPipeline:
             self.voice_config["zone_permission"]
         )
         self.asr_service = WhisperASRService(self.voice_config["asr"])
-        self.parser = SemanticFrameParser(load_yaml("semantic_rules.yaml"))
+        self.semantic_service = SemanticOrchestratorService()
         self.embedder = build_embedding_service(load_yaml("embedding.yaml"))
+        self.evidence_demand_registry = EvidenceDemandRegistry()
         self.demand_service = EvidenceDemandService(
-            load_yaml("action_evidence_map.yaml"), self.embedder
+            registry=self.evidence_demand_registry,
+            embedder=self.embedder,
         )
-        self.interpreter_service = InterpreterService(
-            self.interpreter_config,
-            self.parser,
-            self.demand_service,
-        )
+        self.interpreter_service = InterpreterService(self.interpreter_config)
         self.evidence_repository = EvidenceRepository(
             quality_config, load_yaml("evidence_retention.yaml")
         )
         safety_config = load_yaml("safety_rules.yaml")
-        self._safety_rule_nodes = self.evidence_repository.ingest_safety_rules(
-            safety_config.get("rules", [])
-        )
         self.index = HNSWIndexService(load_yaml("index.yaml"), self.embedder)
-        self._safety_rule_nodes = self.index.classify_nodes(self._safety_rule_nodes)
         self.runtime_capability_service = RuntimeCapabilityService(self.embedder, self.index)
         self.recall_service = MandatoryRecallService(self.evidence_repository, self.embedder)
         self.quality_service = EvidenceQualityService(quality_config)
@@ -158,14 +163,15 @@ class CommandPipeline:
         memory_config = load_yaml("memory.yaml")
         self.memory_service = DualMemoryService(memory_config)
         self.validation_service = AdvancedValidationService(load_yaml("jailbreak_policy.yaml"))
-        self.causal_service = CausalCorrectionService(
-            load_yaml("causal_policy.yaml"), memory_config=memory_config
-        )
+        self.causal_service = CausalCorrectionService(load_yaml("causal_policy.yaml"))
         self.gate_service = SafetyGateService(safety_config)
         self.decision_service = DecisionService(load_yaml("decision_policy.yaml"))
         self.audit_repository = AuditRepository(
-            database_path or PROJECT_ROOT / "data" / "database" / "yuzheng.db"
+            database_path
+            or PROJECT_ROOT / "data" / "database" / "yuzheng_evidence_v3.db",
+            database_role=audit_database_role,
         )
+        self.recall_ai_audit_service = RecallAIAuditService(self.audit_repository)
         self.effective_audit_resolver = EffectiveAuditResolver(self.audit_repository)
         self.workflow_repository = WorkflowRepository(self.audit_repository.database_path)
         self.authorization_service = AuthorizationTokenService(
@@ -174,93 +180,18 @@ class CommandPipeline:
             secret=token_secret,
             capability_provider=self.runtime_capability,
         )
-        self._causal_rebuild_thread: Thread | None = None
-        self._refresh_causal_model(restore_stable=True)
         self.evidence_repository.begin_turn("SYSTEM_SEED")
         seed_nodes = self.evidence_repository.ingest_vehicle_state(
             self.vehicle.get_state(),
-            {"speaker_role": "driver", "speaker_zone": "driver"},
+            None,
             "SYSTEM_SEED",
         )
-        self.index.build([*self._safety_rule_nodes, *seed_nodes])
+        self.index.build(seed_nodes)
         self.evidence_repository.complete_turn("SYSTEM_SEED")
         self._subgraphs: dict[str, EvidenceSubgraph] = {}
         self._turns: dict[str, TextCommandResponse] = {}
         self.review_service = ReviewService(self, self.review_config)
         self.execution_service = ExecutionService(self)
-
-    def _refresh_causal_model(self, *, restore_stable: bool = False):
-        status = self.audit_repository.learning_status()
-        records = (
-            self.audit_repository.learning_records(
-                self.causal_service.maximum_training_records
-            )
-            if self.audit_repository.verify_chain()
-            else []
-        )
-        stored = self.audit_repository.load_causal_model_metadata() if restore_stable else None
-        if stored is not None:
-            training_ids = {
-                str(value) for value in stored.get("training_record_ids", [])
-            }
-            if training_ids:
-                records = [record for record in records if record.audit_id in training_ids]
-            else:
-                source_count = max(0, int(stored.get("source_audit_count", 0)))
-                records = records[:source_count]
-        rebuilt = self.causal_service.rebuild(
-            records,
-            status.excluded_record_count,
-            restore_metadata=stored,
-            source_audit_count=(
-                int(stored.get("source_audit_count", 0))
-                if stored is not None
-                else status.learning_record_count
-            ),
-        )
-        if stored is None:
-            self.audit_repository.save_causal_model_metadata(
-                self.causal_service.model_metadata()
-            )
-        return rebuilt
-
-    def _run_background_causal_rebuild(self) -> None:
-        try:
-            self._refresh_causal_model()
-        except Exception as exc:
-            self.causal_service.record_rebuild_failure(
-                SensitiveDataRedactor.redact_exception(exc)
-            )
-
-    def _schedule_causal_rebuild(self, audit: AuditRecord) -> bool:
-        quality = audit.audit_quality
-        if (
-            not self.causal_service.auto_rebuild_enabled
-            or quality is None
-            or not quality.eligible_for_learning
-        ):
-            return False
-        learning_count = self.audit_repository.learning_status().learning_record_count
-        status = self.causal_service.status(learning_count)
-        if (
-            status.auto_rebuild_running
-            or status.eligible_audits_since_rebuild
-            < self.causal_service.rebuild_every_eligible_audits
-        ):
-            return False
-        self.causal_service.set_auto_rebuild_running(True)
-        self._causal_rebuild_thread = Thread(
-            target=self._run_background_causal_rebuild,
-            name="causal-model-rebuild",
-            daemon=True,
-        )
-        self._causal_rebuild_thread.start()
-        return True
-
-    def wait_for_causal_rebuild(self, timeout: float = 10.0) -> None:
-        thread = self._causal_rebuild_thread
-        if thread is not None:
-            thread.join(timeout)
 
     def runtime_capability(self) -> RuntimeCapabilityStatus:
         self.runtime_capability_service.embedder = self.embedder
@@ -268,10 +199,9 @@ class CommandPipeline:
         return self.runtime_capability_service.status()
 
     @staticmethod
-    def _candidate_copy(node: EvidenceNode, similarity: float) -> EvidenceNode:
+    def _candidate_copy(node: EvidenceNode) -> EvidenceNode:
         return node.model_copy(
             update={
-                "semantic_similarity": round(similarity, 6),
                 "metadata": {**node.metadata, "retrieval_origin": "semantic_retrieval"},
             }
         )
@@ -288,7 +218,6 @@ class CommandPipeline:
         self,
         decision: DecisionResult,
         gate: SafetyGateResult,
-        evidence_alignment_route: EvidenceAlignmentRoute,
         input_trust: VoiceTrustResult,
         zone_permission: ZonePermissionResult | None,
     ) -> tuple[DecisionResult, SafetyGateResult]:
@@ -397,7 +326,7 @@ class CommandPipeline:
         gate_blocked = gate.blocked
         merged = merge_decision(
             gate,
-            evidence_alignment_route,
+            "EVIDENCE_PASS",
             decision.score_decision,
             review_constraints=review_constraints,
             block_constraints=block_constraints,
@@ -448,7 +377,7 @@ class CommandPipeline:
     def _new_audit_quality(
         self, audit_id: str, *, stage5: bool = False
     ) -> AuditQualityMetadata:
-        test_only = self.audit_repository.database_path.name != "yuzheng.db"
+        test_only = self.audit_repository.database_role == AuditDatabaseRole.TEST
         index_status = self.index.status()
         real_stack = (
             getattr(self.embedder, "model_name", "") == "BAAI/bge-base-zh-v1.5"
@@ -474,6 +403,86 @@ class CommandPipeline:
             schema_version="5.0" if stage5 else "4.1",
         )
 
+    @staticmethod
+    def _authenticated(value: str | bool | None) -> bool | None:
+        if isinstance(value, bool):
+            return value
+        if value is None:
+            return None
+        normalized = str(value).strip().upper()
+        if normalized in {"AUTHENTICATED", "AUTHORIZED"}:
+            return True
+        if normalized in {"UNAUTHENTICATED", "UNAUTHORIZED", "DENIED"}:
+            return False
+        return None
+
+    def _authorization_fact(
+        self,
+        state: VehicleState,
+        intents: list[Any],
+        trusted_context: TrustedRuntimeContext | None,
+        zone_results: list[ZonePermissionResult],
+    ) -> dict[str, Any]:
+        authenticated = self._authenticated(state.authentication_state)
+        trusted_subject = bool(
+            trusted_context is not None
+            and trusted_context.subject_role is not None
+            and trusted_context.subject_zone is not None
+            and trusted_context.subject_source is not None
+            and trusted_context.zone_source is not None
+            and len(zone_results) == len(intents)
+        )
+        authorizations: list[dict[str, Any]] = []
+        if trusted_subject and trusted_context is not None:
+            for intent, permission in zip(intents, zone_results, strict=True):
+                driving = (
+                    intent.control_domain == "驾驶控制"
+                    or intent.action in {"加速", "减速"}
+                )
+                role_permitted = (
+                    trusted_context.subject_role.strip().lower() == "driver"
+                    or not driving
+                )
+                authorized = (
+                    authenticated is True and permission.passed and role_permitted
+                    if authenticated is not None
+                    else None
+                )
+                authorizations.append(
+                    {
+                        "clause_index": intent.clause_index,
+                        "intent_id": intent.intent_id,
+                        "control_domain": intent.control_domain,
+                        "permission_label": (
+                            permission.permission_label.value
+                            if role_permitted
+                            else DecisionLabel.BLOCK.value
+                        ),
+                        "permission_score": (
+                            permission.permission_score if role_permitted else 0.0
+                        ),
+                        "authorized": authorized,
+                    }
+                )
+        request_authorized = (
+            all(item["authorized"] is True for item in authorizations)
+            if authorizations
+            and all(item["authorized"] is not None for item in authorizations)
+            else None
+        )
+        return {
+            "authentication_state": state.authentication_state,
+            "authenticated": authenticated,
+            "subject_role": (
+                trusted_context.subject_role if trusted_subject and trusted_context else None
+            ),
+            "subject_zone": (
+                trusted_context.subject_zone if trusted_subject and trusted_context else None
+            ),
+            "intent_authorizations": authorizations,
+            "authorized_for_request": request_authorized,
+        }
+
     def process_audio_bytes(
         self,
         audio_bytes: bytes,
@@ -483,7 +492,7 @@ class CommandPipeline:
         speaker_role: str = "unknown",
         array_channel: str | None = None,
         channel_index: int | None = None,
-        state_overrides: VehicleStatePatch | None = None,
+        trusted_context: TrustedRuntimeContext | None = None,
         session_id: str | None = None,
         event_sink: Callable[[PipelineEvent], None] | None = None,
     ) -> AudioCommandResponse:
@@ -497,7 +506,7 @@ class CommandPipeline:
         return self._process_decoded_audio(
             decoded,
             speaker_role=speaker_role,
-            state_overrides=state_overrides,
+            trusted_context=trusted_context,
             session_id=session_id,
             event_sink=event_sink,
         )
@@ -509,7 +518,6 @@ class CommandPipeline:
         device: int | str | None,
         speaker_zone: str,
         speaker_role: str,
-        state_overrides: VehicleStatePatch | None = None,
         session_id: str | None = None,
         event_sink: Callable[[PipelineEvent], None] | None = None,
     ) -> AudioCommandResponse:
@@ -521,7 +529,7 @@ class CommandPipeline:
         return self._process_decoded_audio(
             decoded,
             speaker_role=speaker_role,
-            state_overrides=state_overrides,
+            trusted_context=None,
             session_id=session_id,
             event_sink=event_sink,
         )
@@ -531,7 +539,7 @@ class CommandPipeline:
         decoded: DecodedAudio,
         *,
         speaker_role: str,
-        state_overrides: VehicleStatePatch | None,
+        trusted_context: TrustedRuntimeContext | None,
         session_id: str | None,
         event_sink: Callable[[PipelineEvent], None] | None,
     ) -> AudioCommandResponse:
@@ -576,6 +584,28 @@ class CommandPipeline:
             event_started = now
 
         metadata = decoded.audit_metadata()
+        verified_zone = (
+            decoded.speaker_zone
+            if decoded.zone_source.startswith("simulated_array_channel:")
+            else (
+                trusted_context.subject_zone
+                if trusted_context is not None
+                and trusted_context.subject_zone is not None
+                and trusted_context.zone_source is not None
+                else "unknown"
+            )
+        )
+        verified_role = (
+            trusted_context.subject_role
+            if trusted_context is not None
+            and trusted_context.subject_role is not None
+            and trusted_context.subject_source is not None
+            else "unknown"
+        )
+        metadata["declared_speaker_zone"] = decoded.speaker_zone
+        metadata["declared_speaker_role"] = speaker_role
+        metadata["trusted_speaker_zone"] = verified_zone
+        metadata["trusted_speaker_role"] = verified_role
         metadata["asr_semantic_fusion_status"] = (
             "NO_EXPLICIT_ASR_SEMANTIC_FUSION_FORMULA"
         )
@@ -632,8 +662,8 @@ class CommandPipeline:
         trust = self.voice_trust_scorer.score(
             turn_id=turn_id,
             audio_source=decoded.audio_source,
-            speaker_zone=decoded.speaker_zone,
-            speaker_role=speaker_role,
+            speaker_zone=verified_zone,
+            speaker_role=verified_role,
             la_score=la.bonafide_score,
             pa_raw_score=pa.raw_score,
             pa_score=pa.bonafide_score,
@@ -740,8 +770,19 @@ class CommandPipeline:
                 text=transcription.transcribed_text,
                 speaker_zone=decoded.speaker_zone,
                 speaker_role=speaker_role,
-                state_overrides=state_overrides,
                 session_id=session_id,
+            ),
+            trusted_context=(
+                trusted_context
+                or (
+                    TrustedRuntimeContext(
+                        subject_zone=decoded.speaker_zone,
+                        subject_source="verified_audio_array",
+                        zone_source=decoded.zone_source,
+                    )
+                    if decoded.zone_source.startswith("simulated_array_channel:")
+                    else None
+                )
             ),
             root_turn_id=root_turn_id,
             turn_id_override=turn_id,
@@ -749,7 +790,6 @@ class CommandPipeline:
             transcription_override=transcription,
             spectrum_analysis=spectrum,
             audio_input_metadata=metadata,
-            zone_source=decoded.zone_source,
             event_sink=sink,
             event_sequence_start=sequence,
         )
@@ -779,19 +819,8 @@ class CommandPipeline:
     ) -> AudioCommandResponse:
         turn_id = trust.turn_id
         now = utc_now()
-        frame = self.parser.parse(turn_id, "")
-        demand = EvidenceDemand(
-            turn_id=turn_id,
-            action=frame.action,
-            target=frame.target,
-            risk_level=frame.risk_level,
-            query_text="",
-            query_vector=[],
-            required_types=[],
-            optional_types=[],
-            priority=0,
-            retrieval_scope="none_voice_terminal",
-        )
+        frame = self.semantic_service.parse(turn_id, "")
+        demand = self.demand_service.build(frame)
         index_status = self.index.status()
         retrieval = RetrievalMetadata(
             implementation=index_status.implementation,
@@ -937,9 +966,13 @@ class CommandPipeline:
         transcription_override: TranscriptionResult | None = None,
         spectrum_analysis: SpectrumAnalysisResult | None = None,
         audio_input_metadata: dict[str, Any] | None = None,
-        zone_source: str | None = None,
         event_sequence_start: int = 0,
+        trusted_context: TrustedRuntimeContext | None = None,
     ) -> TextCommandResponse:
+        if trusted_context is not None and not isinstance(
+            trusted_context, TrustedRuntimeContext
+        ):
+            trusted_context = TrustedRuntimeContext.model_validate(trusted_context)
         # Preserve Pydantic's fields-set information on VehicleStatePatch: rebuilding
         # the whole request would turn every omitted state field into an explicit null.
         request = request.model_copy(
@@ -952,12 +985,6 @@ class CommandPipeline:
                     if request.session_id
                     else None
                 ),
-                "evidence_overrides": [
-                    item.model_copy(
-                        update=SensitiveDataRedactor.redact(item.model_dump(mode="json"))
-                    )
-                    for item in request.evidence_overrides
-                ],
             }
         )
         turn_id = turn_id_override or make_id("TURN")
@@ -1007,7 +1034,7 @@ class CommandPipeline:
                         **(audio_input_metadata or {}),
                         **({"session_id": request.session_id} if request.session_id else {}),
                     },
-                    zone_source=zone_source,
+                    trusted_context=trusted_context,
                     emit=emit,
                 )
         except Exception as exc:
@@ -1037,16 +1064,18 @@ class CommandPipeline:
         transcription_override: TranscriptionResult | None,
         spectrum_analysis: SpectrumAnalysisResult | None,
         audio_input_metadata: dict[str, Any],
-        zone_source: str | None,
+        trusted_context: TrustedRuntimeContext | None,
         emit: Callable[[str, str, dict[str, Any] | None], None],
     ) -> TextCommandResponse:
         overall_started = perf_counter()
         turn_started_at = utc_now()
         state = (
-            self.vehicle.update_state(request.state_overrides)
-            if request.state_overrides is not None
+            self.vehicle.update_state(trusted_context.state_overrides)
+            if trusted_context is not None
+            and trusted_context.state_overrides is not None
             else self.vehicle.get_state()
         )
+        runtime_safety_context = RuntimeSafetyContext.from_vehicle_state(state)
         input_trust = input_trust_override or VoiceTrustResult(
             turn_id=turn_id,
             audio_source="text_api",
@@ -1083,8 +1112,29 @@ class CommandPipeline:
                 "文本直通，无 ASR 模型推理",
                 {"adapter": transcription.adapter},
             )
-        frame = self.parser.parse(turn_id, request.text)
-        if confirmed and frame.action != "unknown" and frame.target != "unknown":
+        frame = self.semantic_service.parse(turn_id, request.text)
+        if confirmed and frame.intents:
+            confirmed_intents = [
+                intent.model_copy(
+                    update={
+                        "semantic_confidence": max(
+                            float(
+                                self.review_config.get(
+                                    "confirm_semantic_confidence_floor", 0.95
+                                )
+                            ),
+                            intent.semantic_confidence,
+                        ),
+                        "ambiguity_score": intent.ambiguity_score
+                        * float(
+                            self.review_config.get(
+                                "confirm_ambiguity_multiplier", 0.5
+                            )
+                        ),
+                    }
+                )
+                for intent in frame.intents
+            ]
             frame = frame.model_copy(
                 update={
                     "semantic_confidence": max(
@@ -1093,18 +1143,34 @@ class CommandPipeline:
                     ),
                     "ambiguity_score": frame.ambiguity_score
                     * float(self.review_config.get("confirm_ambiguity_multiplier", 0.5)),
+                    "intents": confirmed_intents,
                 }
             )
-        frame, demand = self.demand_service.build(frame)
+        demand = self.demand_service.build(frame)
+        mark_stage("semantic_complete")
         zone_permission: ZonePermissionResult | None = None
-        if zone_source is not None:
-            zone_permission = self.zone_permission_service.evaluate(
-                request.speaker_zone,
-                frame.action,
-                frame.target,
-                zone_source=zone_source,
+        zone_results: list[ZonePermissionResult] = []
+        if (
+            trusted_context is not None
+            and trusted_context.subject_zone is not None
+            and trusted_context.zone_source is not None
+            and frame.intents
+        ):
+            zone_results = [
+                self.zone_permission_service.evaluate(
+                    trusted_context.subject_zone,
+                    intent.action,
+                    intent.target,
+                    zone_source=trusted_context.zone_source,
+                )
+                for intent in frame.intents
+            ]
+            zone_permission = min(
+                zone_results,
+                key=lambda item: (item.permission_score, item.permission_label.value),
             )
             zone_payload = zone_permission.model_dump(mode="json")
+            zone_payload["evaluated_intent_count"] = len(zone_results)
             emit(
                 "ZONE_PERMISSION_CHECKED",
                 "座舱区域权限前置过滤完成",
@@ -1121,7 +1187,20 @@ class CommandPipeline:
         emit(
             "SEMANTIC_PARSED",
             "语义帧已生成",
-            {"action": frame.action, "target": frame.target, "risk_level": frame.risk_level},
+            {
+                "semantic_status": frame.semantic_status,
+                "security_signals": frame.security_signals,
+                "intents": [
+                    {
+                        "clause_index": intent.clause_index,
+                        "intent_id": intent.intent_id,
+                        "action": intent.action,
+                        "target": intent.target,
+                        "risk_level": intent.risk_level,
+                    }
+                    for intent in frame.intents
+                ],
+            },
         )
         capability_payload = runtime_capability.model_dump(mode="json")
         emit(
@@ -1137,21 +1216,80 @@ class CommandPipeline:
             payload=capability_payload,
         )
 
+        authorization_fact = self._authorization_fact(
+            state, frame.intents, trusted_context, zone_results if zone_permission else []
+        )
         snapshot_nodes = self.evidence_repository.ingest_vehicle_state(
-            state,
-            {"speaker_role": request.speaker_role, "speaker_zone": request.speaker_zone},
-            turn_id,
+            state, authorization_fact, turn_id
         )
         state_snapshot_at = max(node.timestamp for node in snapshot_nodes)
         decision_reference_time = state_snapshot_at
         override_nodes = self.evidence_repository.ingest_observations(
-            request.evidence_overrides, turn_id
+            trusted_context.evidence_overrides if trusted_context is not None else [],
+            turn_id,
         )
         self.index.upsert([*snapshot_nodes, *override_nodes])
-        search_results, retrieval_metadata = self.index.search(demand.query_vector)
-        candidate_evidence = [
-            self._candidate_copy(node, similarity) for node, similarity in search_results
-        ]
+        search_batches: list[list[EvidenceNode]] = []
+        similarity_batches: list[dict[str, float]] = []
+        retrieval_batches: list[RetrievalMetadata] = []
+        for intent_demand in demand.intent_demands:
+            search_results, intent_retrieval = self.index.search(
+                intent_demand.query_vector
+            )
+            search_batches.append(
+                [
+                    self._candidate_copy(node)
+                    for node, similarity in search_results
+                ]
+            )
+            similarity_batches.append(
+                {
+                    node.node_id: round(similarity, 6)
+                    for node, similarity in search_results
+                }
+            )
+            retrieval_batches.append(intent_retrieval)
+        if retrieval_batches:
+            retrieval_metadata = retrieval_batches[0].model_copy(
+                update={
+                    "candidate_count": sum(
+                        item.candidate_count for item in retrieval_batches
+                    ),
+                    "duration_ms": round(
+                        sum(item.duration_ms for item in retrieval_batches), 4
+                    ),
+                    "final_top_k_node_ids": list(
+                        dict.fromkeys(
+                            node_id
+                            for item in retrieval_batches
+                            for node_id in item.final_top_k_node_ids
+                        )
+                    ),
+                    "occurrence_layer_navigations": [
+                        OccurrenceLayerNavigation(
+                            clause_index=intent_demand.clause_index,
+                            intent_id=intent_demand.intent_id,
+                            navigation=item.security_layer_navigation,
+                        )
+                        for intent_demand, item in zip(
+                            demand.intent_demands, retrieval_batches
+                        )
+                        if item.security_layer_navigation is not None
+                    ],
+                }
+            )
+        else:
+            _, retrieval_metadata = self.index.search(
+                [0.0] * self.index.status().dimension
+            )
+            retrieval_metadata = retrieval_metadata.model_copy(
+                update={"candidate_count": 0, "final_top_k_node_ids": []}
+            )
+        candidate_by_id: dict[str, EvidenceNode] = {}
+        for batch in search_batches:
+            for node in batch:
+                candidate_by_id.setdefault(node.node_id, node)
+        candidate_evidence = list(candidate_by_id.values())
         emit(
             "EVIDENCE_RETRIEVED",
             "语义候选检索完成",
@@ -1161,24 +1299,41 @@ class CommandPipeline:
                 **self.index.websocket_summary(retrieval_metadata),
             },
         )
-        evidence, recall_records, recalled_types, missing_types = self.recall_service.supplement(
-            candidate_evidence,
-            demand.required_types,
-            demand.query_vector,
-            turn_id,
-            missing_hard_gate=self.demand_service.missing_is_hard_gate(frame),
+        evidence_by_id: dict[str, EvidenceNode] = {}
+        intent_evidence_resolutions: list[IntentEvidenceResolution] = []
+        for intent_demand, intent_candidates, intent_similarities in zip(
+            demand.intent_demands, search_batches, similarity_batches
+        ):
+            intent_evidence, intent_resolution = self.recall_service.resolve(
+                intent_candidates,
+                intent_demand,
+                turn_id,
+                missing_hard_gate=self.demand_service.missing_is_hard_gate(),
+                candidate_similarities=intent_similarities,
+            )
+            for node in intent_evidence:
+                evidence_by_id.setdefault(node.node_id, node)
+            intent_evidence_resolutions.append(intent_resolution)
+        resolution_projection = project_evidence_resolutions(
+            intent_evidence_resolutions
         )
+        recall_records = resolution_projection.mandatory_recall_records
+        recalled_types = resolution_projection.recalled_types_union
+        missing_types = resolution_projection.missing_required_types_union
+        required_types = resolution_projection.required_types_union
+        evidence = list(evidence_by_id.values())
         evidence = self.index.classify_nodes(evidence)
         retrieval_metadata = self.index.finalize_retrieval_metadata(
             retrieval_metadata, recall_records
         )
+        mark_stage("retrieval_complete")
         emit(
             "MANDATORY_SUPPLEMENTED",
             "强制证据覆盖检查完成",
             {"recalled_types": recalled_types, "missing_types": missing_types},
         )
         existing_ids = {node.node_id for node in evidence}
-        for evidence_type in demand.required_types:
+        for evidence_type in required_types:
             # Keep at most two observations per source in this turn's graph so
             # temporal edges remain explainable after canonical HNSW updates.
             # This bounded history is never written back to the global index.
@@ -1189,7 +1344,6 @@ class CommandPipeline:
                     evidence.append(
                         node.model_copy(
                             update={
-                                "mandatory": False,
                                 "metadata": {
                                     **node.metadata,
                                     "runtime_graph_history": True,
@@ -1203,7 +1357,13 @@ class CommandPipeline:
         quality_started = perf_counter()
         evaluated, quality_metrics, physical_conflicts = self.quality_service.evaluate(
             evidence,
-            demand.required_types,
+            required_types,
+            resolution_projection.required_node_ids,
+            (
+                resolution_projection.required_semantic_similarities
+                if required_types
+                else resolution_projection.resolved_semantic_similarities
+            ),
             now=decision_reference_time,
             scene_nodes=[*snapshot_nodes, *override_nodes],
         )
@@ -1216,6 +1376,39 @@ class CommandPipeline:
                 "long_term_availability": self.quality_window.long_term_availability(),
             }
         )
+        quality_metrics_by_occurrence = {}
+        availability_snapshot = {
+            "short_term_availability": quality_metrics.short_term_availability,
+            "long_term_availability": quality_metrics.long_term_availability,
+        }
+        for intent in frame.intents:
+            occurrence = (intent.clause_index, intent.intent_id)
+            if occurrence not in resolution_projection.by_occurrence:
+                continue
+            occurrence_ids = (
+                resolution_projection.resolved_node_ids_by_occurrence[occurrence]
+                | resolution_projection.required_node_ids_by_occurrence[occurrence]
+            )
+            occurrence_nodes = [
+                node for node in evaluated if node.node_id in occurrence_ids
+            ]
+            occurrence_required_types = resolution_projection.required_types_by_occurrence[
+                occurrence
+            ]
+            occurrence_similarities = (
+                resolution_projection.required_semantic_similarities_by_occurrence[occurrence]
+                if occurrence_required_types
+                else resolution_projection.resolved_semantic_similarities_by_occurrence[occurrence]
+            )
+            occurrence_metrics = self.quality_service.evaluate_occurrence(
+                occurrence_nodes,
+                occurrence_required_types,
+                resolution_projection.required_node_ids_by_occurrence[occurrence],
+                occurrence_similarities,
+                scene_nodes=[*snapshot_nodes, *override_nodes],
+                physical_conflicts=physical_conflicts,
+            ).model_copy(update=availability_snapshot)
+            quality_metrics_by_occurrence[occurrence] = occurrence_metrics
         emit(
             "EVIDENCE_QUALITY_EVALUATED",
             "证据质量与独立对齐路由计算完成",
@@ -1236,15 +1429,11 @@ class CommandPipeline:
 
         subgraph = self.graph_builder.build(
             frame,
-            demand,
             evaluated,
-            recall_records,
-            recalled_types,
-            missing_types,
+            intent_evidence_resolutions,
             quality_metrics,
             retrieval_metadata,
             physical_conflicts,
-            self._safety_rule_nodes,
         )
         graph_nodes_by_id = {node.node_id: node for node in subgraph.nodes}
         evaluated_node_ids = list(dict.fromkeys(node.node_id for node in evaluated))
@@ -1262,7 +1451,9 @@ class CommandPipeline:
                 "canonical_nodes": [
                     {
                         "node_id": node.node_id,
-                        "semantic_similarity": node.semantic_similarity,
+                        "semantic_similarity": resolution_projection.semantic_similarity_by_node_id.get(
+                            node.node_id, 0.0
+                        ),
                         "quality_label": node.quality_label.value,
                         "canonicalization_source": node.canonicalization_source,
                     }
@@ -1275,12 +1466,10 @@ class CommandPipeline:
             snapshot_nodes, override_nodes, canonical_evidence
         )
         final_top_k_ids = set(retrieval_metadata.final_top_k_node_ids)
-        recall_origins = {
-            record.recalled_node_id: record.retrieval_origin
-            for record in recall_records
-            if record.recalled_node_id is not None
-        }
-        algorithm2_ids = final_top_k_ids | set(recall_origins)
+        recall_origins = resolution_projection.retrieval_origins_by_node_id
+        algorithm2_ids = final_top_k_ids | set(
+            resolution_projection.resolved_physical_node_ids
+        )
         memory_evidence = [
             node for node in canonical_evidence if node.node_id in algorithm2_ids
         ]
@@ -1288,11 +1477,13 @@ class CommandPipeline:
         for node in memory_evidence:
             from_hnsw = node.node_id in final_top_k_ids
             recall_origin = recall_origins.get(node.node_id)
-            if from_hnsw and recall_origin == "MANDATORY_RECALL":
+            if recall_origin is not None and recall_origin.value == "BOTH":
+                retrieval_origins[node.node_id] = "BOTH"
+            elif from_hnsw and recall_origin is not None and recall_origin.value == "MANDATORY_RECALL":
                 retrieval_origins[node.node_id] = "BOTH"
             elif from_hnsw:
                 retrieval_origins[node.node_id] = "HNSW"
-            elif recall_origin == "MANDATORY_RECALL":
+            elif recall_origin is not None and recall_origin.value == "MANDATORY_RECALL":
                 retrieval_origins[node.node_id] = "MANDATORY_RECALL"
             else:
                 retrieval_origins[node.node_id] = "NONE"
@@ -1300,6 +1491,9 @@ class CommandPipeline:
             memory_evidence,
             frame,
             physical_conflicts,
+            semantic_similarity_by_node_id=(
+                resolution_projection.semantic_similarity_by_node_id
+            ),
             retrieval_origins=retrieval_origins,
         )
         emit(
@@ -1324,13 +1518,11 @@ class CommandPipeline:
             frame,
             memory_evidence,
             memory,
-            availability_by_type=quality_metrics.short_term_availability,
-            availability_source="QUALITY_WINDOW_SHORT_TERM_AT_DECISION",
-            current_turn_id=turn_id,
+            intent_evidence_resolutions=intent_evidence_resolutions,
         )
         emit(
             "CAUSAL_CORRECTED",
-            "因果贝叶斯修正完成",
+            "确定性因果支持修正完成",
             {
                 "model_build_id": (
                     causal.model_snapshot.model_build_id
@@ -1365,10 +1557,13 @@ class CommandPipeline:
         )
         gate = self.gate_service.evaluate(
             frame,
+            demand,
             reasoning_evidence,
+            intent_evidence_resolutions,
             validation,
             memory,
             runtime_capability,
+            runtime_safety_context,
         )
         emit(
             "GATE_CHECKED",
@@ -1376,20 +1571,125 @@ class CommandPipeline:
             gate.model_dump(mode="json"),
         )
         scoring_started = perf_counter()
-        decision = self.decision_service.decide(
+        assessments, aggregate_safety_decision = self.decision_service.assess_intents(
             frame,
             reasoning_evidence,
             gate,
-            quality_metrics.evidence_alignment_route,
             validation,
             causal,
             memory,
             runtime_capability,
+            resolution_projection,
+            quality_metrics_by_occurrence,
         )
+        if assessments:
+            priority = {
+                DecisionLabel.PASS: 0,
+                DecisionLabel.REVIEW: 1,
+                DecisionLabel.BLOCK: 2,
+            }
+            lowest = min(
+                assessments,
+                key=lambda assessment: (assessment.safety_score, assessment.clause_index),
+            )
+            projected_score_decision = max(
+                (assessment.score_decision for assessment in assessments),
+                key=lambda value: priority[value],
+            )
+            final_decision = aggregate_safety_decision or DecisionLabel.REVIEW
+            reason_codes = list(
+                dict.fromkeys(
+                    code
+                    for assessment in assessments
+                    for code in assessment.reason_codes
+                )
+            )
+            decision_sources = list(
+                dict.fromkeys(
+                    source
+                    for assessment in assessments
+                    if assessment.final_safety_decision == aggregate_safety_decision
+                    for source in assessment.decision_sources
+                )
+            )
+            explanations = [
+                "完整 per-intent 安全评价见 intent_safety_assessments。",
+                *[
+                    f"occurrence {assessment.clause_index}:{assessment.intent_id} "
+                    f"安全裁决={assessment.final_safety_decision.value}"
+                    for assessment in assessments
+                ],
+            ]
+            if len(frame.intents) > 1:
+                reason_codes.append("MULTI_INTENT_EXECUTION_UNSUPPORTED")
+                if final_decision == DecisionLabel.PASS:
+                    final_decision = DecisionLabel.REVIEW
+                    explanations.append(
+                        "aggregate safety 为 PASS，但当前执行协议只支持单动作；"
+                        "完整结果见 intent_safety_assessments。"
+                    )
+            if frame.semantic_status == "REVIEW" and final_decision == DecisionLabel.PASS:
+                final_decision = DecisionLabel.REVIEW
+                explanations.append("SemanticFrame 为 REVIEW，整轮最终裁决至少保持 REVIEW。")
+            decision = DecisionResult(
+                turn_id=frame.turn_id,
+                decision=projected_score_decision,
+                score_decision=projected_score_decision,
+                final_decision=final_decision,
+                decision_sources=decision_sources,
+                decision_merge_reason=(
+                    f"Intent safety aggregate={aggregate_safety_decision.value}; "
+                    f"top-level score is conservative projection from "
+                    f"{len(assessments)} occurrence assessments"
+                ),
+                safety_score=lowest.safety_score,
+                soft_safety_score=lowest.safety_score,
+                gate_blocked=gate.blocked,
+                gate_reasons=list(gate.reasons),
+                score_evaluation_mode=(
+                    "diagnostic_after_gate" if gate.blocked else "normal"
+                ),
+                score_factors=lowest.score_factors,
+                explanations=explanations,
+                review_question=(
+                    "请确认是否继续执行当前指令。"
+                    if final_decision == DecisionLabel.REVIEW
+                    else None
+                ),
+                jailbreak_risk=validation.jailbreak_risk,
+                decision_confidence=causal.decision_confidence,
+                reason_codes=reason_codes,
+                causal_correction=causal,
+                memory_propagation=memory,
+                grounding_failures=validation.grounding_failures,
+                conflicts=validation.conflicts,
+                intent_safety_assessments=assessments,
+                aggregate_safety_decision=aggregate_safety_decision,
+            )
+        else:
+            diagnostic_decision = self.decision_service.decide(
+                frame,
+                reasoning_evidence,
+                gate,
+                quality_metrics.evidence_alignment_route,
+                validation,
+                causal,
+                memory,
+                runtime_capability,
+                required_types=resolution_projection.required_types_union,
+                validated_types=resolution_projection.validated_types_union,
+                required_node_ids=resolution_projection.required_node_ids,
+                resolved_node_ids=resolution_projection.resolved_physical_node_ids,
+            )
+            decision = diagnostic_decision.model_copy(
+                update={
+                    "intent_safety_assessments": [],
+                    "aggregate_safety_decision": None,
+                }
+            )
         decision, gate = self._apply_voice_constraints(
             decision,
             gate,
-            quality_metrics.evidence_alignment_route,
             input_trust,
             zone_permission,
         )
@@ -1408,6 +1708,7 @@ class CommandPipeline:
         scoring_ms = (perf_counter() - scoring_started) * 1000
         interpreter = self.interpreter_service.generate(
             frame=frame,
+            demand=demand,
             evidence=canonical_evidence,
             missing_types=missing_types,
             gate=gate,
@@ -1437,16 +1738,28 @@ class CommandPipeline:
             decision_confidence=causal.decision_confidence,
             explanations=decision.explanations,
             recognized_command={
-                "action": frame.action,
-                "target": frame.target,
-                "risk_level": frame.risk_level,
-                "retrieval_scope": demand.retrieval_scope,
+                "semantic_status": frame.semantic_status,
+                "security_signals": frame.security_signals,
+                "intents": [
+                    {
+                        "clause_index": intent.clause_index,
+                        "intent_id": intent.intent_id,
+                        "action": intent.action,
+                        "target": intent.target,
+                        "risk_level": intent.risk_level,
+                    }
+                    for intent in frame.intents
+                ],
+                "retrieval_scopes": [
+                    item.retrieval_scope for item in demand.intent_demands
+                ],
             },
             mandatory_evidence_complete=not missing_types,
             supporting_evidence_ids=[
                 node.node_id
                 for node in canonical_evidence
-                if node.mandatory and node.quality_label.value in {"VALID", "SUSPICIOUS"}
+                if node.node_id in resolution_projection.required_node_ids
+                and node.quality_label.value in {"VALID", "SUSPICIOUS"}
             ],
             conflicting_evidence_ids=sorted(
                 {
@@ -1480,14 +1793,18 @@ class CommandPipeline:
         self._subgraphs[turn_id] = subgraph
 
         completed_at = utc_now()
+        core_decision_ms = round((perf_counter() - overall_started) * 1000, 4)
+        set_metric("core_decision_ms", core_decision_ms)
+        mark_stage("core_decision_complete")
         timing = TurnTiming(
             turn_started_at=turn_started_at,
             state_snapshot_at=state_snapshot_at,
             decision_reference_time=decision_reference_time,
             completed_at=completed_at,
-            end_to_end_ms=round((perf_counter() - overall_started) * 1000, 4),
+            end_to_end_ms=core_decision_ms,
         )
         audit_id = make_id("AUD")
+        audit_build_started = perf_counter()
         audit = AuditRecord(
             audit_id=audit_id,
             turn_id=turn_id,
@@ -1507,18 +1824,22 @@ class CommandPipeline:
                 for node in canonical_evidence
                 if node.node_id in {item.node_id for item in candidate_evidence}
             ],
-            mandatory_supplement_records=[record.model_dump(mode="json") for record in recall_records],
-            vectorization_metadata=demand.vectorization_metadata,
-            query_vector_digest=(demand.vectorization_metadata.vector_digest if demand.vectorization_metadata else ""),
+            vectorization_metadata=[
+                item.vectorization_metadata
+                for item in demand.intent_demands
+                if item.vectorization_metadata is not None
+            ],
+            query_vector_digests=[
+                item.vectorization_metadata.vector_digest
+                for item in demand.intent_demands
+                if item.vectorization_metadata is not None
+            ],
             retrieval_metadata=retrieval_metadata,
-            mandatory_recall_records=recall_records,
-            missing_evidence_types=missing_types,
             evidence_subgraph=subgraph,
             evidence_subgraph_summary={
                 "graph_id": subgraph.graph_id,
                 "node_count": len(subgraph.nodes),
                 "edge_count": len(subgraph.edges),
-                "missing_types": subgraph.missing_types,
                 "canonicalization_source": "FIELD_LEVEL_EVIDENCE_NODE_MERGE",
                 "canonicalization_warning_count": sum(
                     len(node.canonicalization_warnings) for node in canonical_evidence
@@ -1561,16 +1882,26 @@ class CommandPipeline:
             turn_timing=timing,
             runtime_capability=runtime_capability,
         )
+        set_metric(
+            "audit_build_ms", round((perf_counter() - audit_build_started) * 1000, 4)
+        )
+        set_metric("turn_id", turn_id)
+        set_metric("audit_id", audit_id)
+        mark_stage("audit_object_built")
         saved_audit = self.audit_repository.save(audit)
         emit(
             "AUDIT_SAVED",
             "裁决审计已追加保存",
             {"audit_id": saved_audit.audit_id, "current_hash": saved_audit.current_hash},
         )
-        self._schedule_causal_rebuild(saved_audit)
         self.evidence_repository.complete_turn(turn_id)
         actionable = (
-            demand.retrieval_scope == "control_evidence"
+            frame.semantic_status == "OK"
+            and bool(demand.intent_demands)
+            and all(
+                item.retrieval_scope == "control_evidence"
+                for item in demand.intent_demands
+            )
             and runtime_capability.semantic_control_mode == SemanticControlMode.FULL
         )
         if decision.final_decision == DecisionLabel.REVIEW:
@@ -1582,8 +1913,7 @@ class CommandPipeline:
                 payload={
                     "review_question": interpreter.review_question,
                     "candidate_count": len(interpreter.candidate_interpretations),
-                    "action": frame.action,
-                    "target": frame.target,
+                    "intent_ids": [intent.intent_id for intent in frame.intents],
                     "attempt_no": attempt_no,
                 },
             )
@@ -1605,6 +1935,7 @@ class CommandPipeline:
             and self.authorization_service.is_executable(frame)
         ):
             try:
+                token_issue_started = perf_counter()
                 grant = self.authorization_service.issue(
                     root_turn_id=root_turn_id,
                     turn_id=turn_id,
@@ -1614,6 +1945,12 @@ class CommandPipeline:
                 response_decision = decision.model_copy(
                     update={"authorization_token": grant.authorization_token}
                 )
+                set_metric(
+                    "token_issue_ms",
+                    round((perf_counter() - token_issue_started) * 1000, 4),
+                )
+                set_metric("token_was_issued", True)
+                mark_stage("token_issued")
                 emit(
                     "TOKEN_ISSUED",
                     "一次性车辆执行授权已签发",
@@ -1641,21 +1978,20 @@ class CommandPipeline:
             semantic_frame=frame,
             evidence_demand=demand,
             evidence=canonical_evidence,
-            query_vector=demand.query_vector,
+            query_vectors=[item.query_vector for item in demand.intent_demands],
             retrieval_metadata=retrieval_metadata,
             candidate_evidence=[
                 node
                 for node in canonical_evidence
                 if node.node_id in {item.node_id for item in candidate_evidence}
             ],
-            mandatory_recall_records=recall_records,
             evidence_subgraph=subgraph,
             quality_metrics=quality_metrics,
             safety_gate=gate,
             decision=response_decision,
             audit=saved_audit,
             actionable=actionable,
-            retrieval_scope=demand.retrieval_scope,
+            retrieval_scopes=[item.retrieval_scope for item in demand.intent_demands],
             advanced_reasoning=advanced,
             memory_propagation=memory,
             causal_correction=causal,
@@ -1668,6 +2004,7 @@ class CommandPipeline:
             turn_timing=timing,
             runtime_capability=runtime_capability,
         )
+        mark_stage("response_ready")
         # 原始令牌只存在于本次返回对象；内存缓存与 SQLite 均保存去敏版本。
         self._turns[turn_id] = response.model_copy(
             update={
@@ -1698,6 +2035,29 @@ class CommandPipeline:
     def get_turn(self, turn_id: str) -> TextCommandResponse | AuditRecord | None:
         return self._turns.get(turn_id) or self.audit_repository.get_by_turn(turn_id)
 
+    @staticmethod
+    def trusted_context_from_audit(audit: AuditRecord) -> TrustedRuntimeContext | None:
+        nodes = audit.evidence_subgraph.nodes if audit.evidence_subgraph is not None else []
+        authorization = next(
+            (
+                node
+                for node in reversed(nodes)
+                if node.evidence_type == "AUTHORIZATION_STATE"
+                and isinstance(node.value, dict)
+                and node.value.get("subject_role") is not None
+                and node.value.get("subject_zone") is not None
+            ),
+            None,
+        )
+        if authorization is None:
+            return None
+        return TrustedRuntimeContext(
+            subject_role=str(authorization.value["subject_role"]),
+            subject_zone=str(authorization.value["subject_zone"]),
+            subject_source="preserved_audit_authorization",
+            zone_source="preserved_audit_authorization",
+        )
+
     def get_reasoning(self, turn_id: str) -> AdvancedReasoningResult | None:
         turn = self.get_turn(turn_id)
         if turn is None:
@@ -1707,12 +2067,14 @@ class CommandPipeline:
     def rebuild_index(self, exclude_types: list[str] | None = None) -> IndexStatus:
         return self.index.build(self.evidence_repository.all_nodes(), exclude_types)
 
+    def update_index_parameters(self, request: IndexParametersRequest) -> IndexStatus:
+        return self.index.update_parameters(request)
+
     def rebuild_causal(self):
-        return self._refresh_causal_model()
+        return self.causal_service.status()
 
     def causal_status(self):
-        learning_count = self.audit_repository.learning_status().learning_record_count
-        return self.causal_service.status(learning_count)
+        return self.causal_service.status()
 
     def get_vehicle_state(self) -> VehicleState:
         return self.vehicle.get_state()
@@ -1724,10 +2086,7 @@ class CommandPipeline:
             state = self.vehicle.update_state(patch)
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
-                {
-                    "speaker_role": state.occupant_role or "unknown",
-                    "speaker_zone": state.speaker_zone or "unknown",
-                },
+                None,
                 update_turn_id,
             )
             self.index.upsert(nodes)
@@ -1741,7 +2100,7 @@ class CommandPipeline:
             state = self.vehicle.reset()
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
-                {"speaker_role": "driver", "speaker_zone": "driver"},
+                None,
                 reset_turn_id,
             )
             self.index.upsert(nodes)
@@ -1765,7 +2124,7 @@ class CommandPipeline:
             raise KeyError(f"未找到场景: {scenario_id}")
         with self._command_lock:
             self.evidence_repository.clear_explicit_observations()
-            self.index.build([*self._safety_rule_nodes, *self.evidence_repository.current_nodes()])
+            self.index.build(self.evidence_repository.current_nodes())
             self.reset_vehicle_state()
             return self.update_vehicle_state(
                 VehicleStatePatch.model_validate(scenario.get("state", {}))
@@ -1785,9 +2144,15 @@ class CommandPipeline:
                 text=str(scenario.get("text", "")),
                 speaker_role=state.occupant_role or "unknown",
                 speaker_zone=state.speaker_zone or "unknown",
-                evidence_overrides=observations,
                 session_id=session_id,
-            )
+            ),
+            trusted_context=TrustedRuntimeContext(
+                evidence_overrides=observations,
+                subject_role=state.occupant_role or "unknown",
+                subject_zone=state.speaker_zone or "unknown",
+                subject_source="demo_scenario",
+                zone_source="demo_scenario",
+            ),
         )
 
     def timeline(self, turn_id: str) -> TurnTimeline:

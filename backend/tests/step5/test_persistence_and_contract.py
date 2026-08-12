@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from app.core.pipeline import CommandPipeline
 from app.models.schemas import (
+    CausalNodeWeight,
     DecisionLabel,
     ReviewAction,
     ReviewOutcomeRecord,
     ReviewRequest,
     TextCommandRequest,
-    VehicleStatePatch,
 )
 from app.services.presentation.assembler import PresentationAssembler
 
@@ -19,7 +19,6 @@ def _request(*, session_id: str | None = None) -> TextCommandRequest:
     return TextCommandRequest(
         text="可能播放音乐",
         session_id=session_id,
-        state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
     )
 
 
@@ -70,9 +69,110 @@ def test_audit_persists_step5_objects_and_get_assembly_has_no_recomputation(
     assert all(item["audit_id"] == record.audit_id for item in stage_items)
 
 
+def test_node_detail_keeps_all_occurrence_scoped_causal_weights(pipeline) -> None:
+    result = pipeline.process_text(_request())
+    record = pipeline.audit_repository.get_by_turn(result.turn_id)
+    assert record is not None
+    assert record.evidence_subgraph is not None
+    assert record.causal_correction is not None
+    node = pipeline.evidence_repository.all_nodes()[0]
+    node_id = node.node_id
+    record.evidence_subgraph = record.evidence_subgraph.model_copy(
+        update={"nodes": [node]}
+    )
+    record.causal_correction = record.causal_correction.model_copy(
+        update={
+            "node_weights": [
+                CausalNodeWeight(
+                    node_id=node_id,
+                    causal_variable="EVI_SPEED_X",
+                    clause_index=1,
+                    intent_id="WINDOW_OPEN",
+                    prior_probability=0.31,
+                    causal_support=0.7,
+                    corrected_weight=0.41,
+                ),
+                CausalNodeWeight(
+                    node_id=node_id,
+                    causal_variable="EVI_SPEED_X",
+                    clause_index=0,
+                    intent_id="DOOR_OPEN",
+                    prior_probability=0.72,
+                    causal_support=1.0,
+                    corrected_weight=0.83,
+                ),
+            ]
+        }
+    )
+
+    detail = PresentationAssembler(pipeline).node_detail(record, node_id)
+
+    assert detail is not None
+    assert [(item.clause_index, item.intent_id) for item in detail.causal_occurrence_weights] == [
+        (0, "DOOR_OPEN"),
+        (1, "WINDOW_OPEN"),
+    ]
+    assert not {"prior_probability", "causal_support", "corrected_weight"} & set(
+        detail.model_dump()
+    )
+
+
+def test_evidence_detail_api_exposes_all_causal_occurrences(api_client, monkeypatch) -> None:
+    client, pipeline = api_client
+    result = pipeline.process_text(_request())
+    record = pipeline.audit_repository.get_by_turn(result.turn_id)
+    assert record is not None
+    assert record.evidence_subgraph is not None
+    assert record.causal_correction is not None
+    node = pipeline.evidence_repository.all_nodes()[0]
+    node_id = node.node_id
+    record.evidence_subgraph = record.evidence_subgraph.model_copy(
+        update={"nodes": [node]}
+    )
+    record.causal_correction = record.causal_correction.model_copy(
+        update={
+            "node_weights": [
+                CausalNodeWeight(
+                    node_id=node_id,
+                    causal_variable="EVI_SPEED_X",
+                    clause_index=1,
+                    intent_id="WINDOW_OPEN",
+                    prior_probability=0.31,
+                    causal_support=0.7,
+                    corrected_weight=0.41,
+                ),
+                CausalNodeWeight(
+                    node_id=node_id,
+                    causal_variable="EVI_SPEED_X",
+                    clause_index=0,
+                    intent_id="DOOR_OPEN",
+                    prior_probability=0.72,
+                    causal_support=1.0,
+                    corrected_weight=0.83,
+                ),
+            ]
+        }
+    )
+    monkeypatch.setattr(
+        pipeline.audit_repository,
+        "get_by_turn",
+        lambda turn_id: record if turn_id == result.turn_id else None,
+    )
+
+    response = client.get(f"/api/turns/{result.turn_id}/evidence/{node_id}")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert [(item["clause_index"], item["intent_id"]) for item in payload["causal_occurrence_weights"]] == [
+        (0, "DOOR_OPEN"),
+        (1, "WINDOW_OPEN"),
+    ]
+    assert not {"prior_probability", "causal_support", "corrected_weight"} & set(payload)
+
+
 def test_restart_restores_exact_persisted_step5_results(tmp_path) -> None:
     database = tmp_path / "step5-restart.db"
-    first = CommandPipeline(database, token_secret=TEST_SECRET)
+    first = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     response = first.process_text(_request())
     before = first.audit_repository.get_by_turn(response.turn_id)
     assert before is not None
@@ -83,7 +183,7 @@ def test_restart_restores_exact_persisted_step5_results(tmp_path) -> None:
         "record_hash": before.current_hash,
     }
 
-    restarted = CommandPipeline(database, token_secret=TEST_SECRET)
+    restarted = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     after = restarted.audit_repository.get_by_turn(response.turn_id)
     assert after is not None
     after_payload = {

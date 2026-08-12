@@ -10,11 +10,13 @@ import pytest
 from app.core.config import PROJECT_ROOT, load_yaml
 from app.core.pipeline import CommandPipeline
 from app.models.schemas import (
+    AuditDatabaseRole,
     AuthorizationTokenStatus,
     DecisionLabel,
     ReviewAction,
     ReviewRequest,
     TextCommandRequest,
+    TrustedRuntimeContext,
     VehicleStatePatch,
     WorkflowEventType,
 )
@@ -30,7 +32,7 @@ TEST_SECRET = b"stage4-fixed-test-secret-32-bytes"
 
 
 def _pipeline(tmp_path: Path, name: str = "stage4.db") -> CommandPipeline:
-    return CommandPipeline(tmp_path / name, token_secret=TEST_SECRET)
+    return CommandPipeline(tmp_path / name, token_secret=TEST_SECRET, audit_database_role="TEST")
 
 
 def _command(pipeline: CommandPipeline, text: str, **state):
@@ -39,8 +41,13 @@ def _command(pipeline: CommandPipeline, text: str, **state):
             text=text,
             speaker_role=state.get("occupant_role", "driver"),
             speaker_zone=state.get("speaker_zone", "driver"),
+        ),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(**state) if state else None,
-        )
+            subject_role=state.get("occupant_role", "driver"),
+            subject_zone=state.get("speaker_zone", "driver"),
+            subject_source="stage4_test", zone_source="stage4_test",
+        ),
     )
 
 
@@ -48,7 +55,7 @@ def test_frozen_78_audits_remain_byte_identical_and_valid() -> None:
     database = PROJECT_ROOT / "data" / "database" / "yuzheng.db"
     repository = __import__(
         "app.services.audit.repository", fromlist=["AuditRepository"]
-    ).AuditRepository(database)
+    ).AuditRepository(database, database_role=AuditDatabaseRole.PRODUCTION)
     with sqlite3.connect(database) as connection:
         rows = connection.execute(
             "SELECT record_json, current_hash FROM audit_records ORDER BY rowid LIMIT 78"
@@ -91,24 +98,24 @@ def test_workflow_event_chain_is_append_only_and_detects_tampering(tmp_path: Pat
 
 def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_path: Path) -> None:
     pipeline = _pipeline(tmp_path)
-    confirmable = _command(pipeline, "可能播放音乐", vehicle_speed=0, gear_position="P")
-    assert confirmable.semantic_frame.action == "播放"
-    assert confirmable.semantic_frame.target == "音乐"
+    confirmable = _command(pipeline, "打开车窗然后锁车门", vehicle_speed=0, gear_position="P")
+    assert confirmable.semantic_frame.intents[0].action == "打开"
+    assert confirmable.semantic_frame.intents[0].target == "车窗"
     assert confirmable.decision.final_decision == DecisionLabel.REVIEW
     confirm_candidate = confirmable.audit.candidate_interpretations[0]
     confirmed = pipeline.review_service.review(
         confirmable.turn_id,
         ReviewRequest(
             action=ReviewAction.CONFIRM,
-            confirmation_text="确认播放音乐",
+            confirmation_text="确认打开车窗",
             selected_candidate_id=confirm_candidate.candidate_id,
         ),
     )
     assert confirmed.accepted is True
     assert confirmed.related_turn_id != confirmable.turn_id
     assert confirmed.decision.score_decision == DecisionLabel.PASS
-    assert confirmed.decision.final_decision == DecisionLabel.REVIEW
-    assert confirmed.decision.authorization_token is None
+    assert confirmed.decision.final_decision == DecisionLabel.PASS
+    assert confirmed.decision.authorization_token is not None
 
     vague = _command(pipeline, "把那个打开", vehicle_speed=0, gear_position="P")
     assert vague.decision.final_decision == DecisionLabel.REVIEW
@@ -131,8 +138,8 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
     assert corrected.command_result is not None
     assert corrected.command_result.root_turn_id == vague.turn_id
     assert corrected.command_result.parent_turn_id == vague.turn_id
-    assert corrected.command_result.semantic_frame.target == "车窗"
-    assert corrected.command_result.semantic_frame.area == "左侧"
+    assert corrected.command_result.semantic_frame.intents[0].target == "车窗"
+    assert corrected.command_result.semantic_frame.intents[0].area == "unknown"
     assert corrected.decision.final_decision == DecisionLabel.PASS
     assert corrected.decision.authorization_token is not None
     assert pipeline.audit_repository.count() == 4
@@ -222,6 +229,7 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
     assert pipeline.vehicle.get_feedback().execution_id == executed.execution.execution_id
     restarted = CommandPipeline(
         pipeline.audit_repository.database_path, token_secret=TEST_SECRET
+    ,audit_database_role="TEST",
     )
     restored_token = restarted.workflow_repository.latest_token_for_root(passed.turn_id)
     assert restored_token.status == AuthorizationTokenStatus.CONSUMED
@@ -262,7 +270,7 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
     pipeline.authorization_service.ttl_seconds = 30
 
     query = _command(pipeline, "查询当前速度", vehicle_speed=12, gear_position="D")
-    assert query.decision.final_decision == DecisionLabel.PASS
+    assert query.decision.final_decision == DecisionLabel.REVIEW
     assert query.decision.authorization_token is None
     review = _command(pipeline, "把那个打开")
     block = _command(pipeline, "打开车门", vehicle_speed=50, gear_position="D")

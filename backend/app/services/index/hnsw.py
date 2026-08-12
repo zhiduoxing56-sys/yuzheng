@@ -16,6 +16,7 @@ import numpy as np
 from app.models.schemas import (
     EvidenceNode,
     EvidenceStatus,
+    IndexParametersRequest,
     IndexStatus,
     LayerCandidate,
     LayerIndexStatus,
@@ -29,10 +30,10 @@ from app.models.schemas import (
     utc_now,
 )
 from app.services.evidence.repository import EvidenceRepository
+from app.services.evidence.security_classification import EvidenceSecurityClassification
 from app.services.vector.embedding import EmbeddingService
 
 
-EPHEMERAL_EVIDENCE_TYPES = {"evidence_demand", "control_target", "evidence_stream"}
 LAYERING_MODE = "CUMULATIVE_REAL_HNSWLIB_INDICES"
 TRACE_KIND = "SECURITY_LAYER_INDEX_TRACE"
 TRACE_SOURCE = "REAL_HNSWLIB_LAYER_QUERIES"
@@ -209,14 +210,13 @@ class HNSWIndexService:
             self.ef_search,
             int(layering.get("audit_candidates_per_layer", self.ef_search)),
         )
-        self._security_classes = dict(layering.get("security_classes", {}))
-        self._type_mapping = dict(layering.get("evidence_type_mapping", {}))
+        self.security_classification = EvidenceSecurityClassification(config)
         self._config = dict(config)
         self._index_config_digest = _digest(config)
         self._classification_mapping_digest = _digest(
             {
-                "security_classes": self._security_classes,
-                "evidence_type_mapping": self._type_mapping,
+                "security_classes": self.security_classification.security_classes,
+                "evidence_type_mapping": self.security_classification.evidence_type_mapping,
             }
         )
         self._validate_configuration()
@@ -251,7 +251,7 @@ class HNSWIndexService:
             self.degradation_reason = f"hnswlib unavailable: {type(exc).__name__}: {exc}"
 
     def _validate_configuration(self) -> None:
-        if self.max_layer != 3:
+        if self.max_layer < 0:
             raise ValueError("Step2批准配置要求L=3")
         if self.layering_mode != LAYERING_MODE:
             raise ValueError("只允许CUMULATIVE_REAL_HNSWLIB_INDICES")
@@ -262,7 +262,11 @@ class HNSWIndexService:
             "EMERGENCY": 3,
         }
         actual = {
-            name: int(dict(self._security_classes.get(name, {})).get("rank", -1))
+            name: int(
+                dict(self.security_classification.security_classes.get(name, {})).get(
+                    "rank", -1
+                )
+            )
             for name in expected
         }
         if actual != expected:
@@ -277,7 +281,6 @@ class HNSWIndexService:
         return (
             node.quality_label == EvidenceStatus.MISSING
             or node.source == "mandatory_recall"
-            or node.evidence_type in EPHEMERAL_EVIDENCE_TYPES
             or bool(node.metadata.get("ephemeral"))
             or bool(node.metadata.get("derived_conflict"))
         )
@@ -327,30 +330,11 @@ class HNSWIndexService:
         return canonical
 
     def security_class_info(self, evidence_type: str) -> SecurityClassInfo:
-        mapping = dict(self._type_mapping.get(evidence_type, {}))
-        if not mapping:
-            return SecurityClassInfo(
-                name=SecurityClass.UNCLASSIFIED,
-                rank=None,
-                report_label="Unclassified",
-                mapping_source=self.unknown_type_strategy,
-            )
-        security_class = self.normalize_security_class(str(mapping["security_class"]))
-        class_config = dict(self._security_classes[security_class.value])
-        return SecurityClassInfo(
-            name=security_class,
-            rank=int(class_config["rank"]),
-            report_label=str(class_config.get("report_label", security_class.value.title())),
-            mapping_source=str(mapping["source"]),
-        )
+        return self.security_classification.info(evidence_type)
 
     def normalize_security_class(self, value: str) -> SecurityClass:
         if value in SecurityClass._value2member_map_:
             return SecurityClass(value)
-        for name, raw in self._security_classes.items():
-            aliases = {str(item) for item in dict(raw).get("legacy_names", [])}
-            if value in aliases:
-                return SecurityClass(name)
         raise ValueError(f"未知安全类别名称: {value}")
 
     def _stable_uniform(self, stable_identity: str) -> float:
@@ -490,7 +474,9 @@ class HNSWIndexService:
             classes = sorted(
                 {classified[key].security_class for key in keys if classified[key].security_class},
                 key=lambda item: int(
-                    dict(self._security_classes.get(item.value, {})).get("rank", 99)
+                    dict(
+                        self.security_classification.security_classes.get(item.value, {})
+                    ).get("rank", 99)
                 ),
             )
             status_rows.append(
@@ -707,8 +693,6 @@ class HNSWIndexService:
             classification_mapping_digest=self._classification_mapping_digest,
             formula_version=self.formula_version,
             formula_source=self.formula_source,
-            L=self.max_layer,
-            L_source=self.L_source,
             security_mapping_version=self.security_mapping_version,
             security_rank_mapping_source=self.security_rank_mapping_source,
             index_seed_digest=_digest(self.index_seed),
@@ -736,7 +720,11 @@ class HNSWIndexService:
         started = perf_counter()
         with self._lock:
             snapshot = self._snapshot
-        requested_top_k = min(top_k or self.top_k, self.top_k)
+            max_layer = self.max_layer
+            ef_search = self.ef_search
+            audit_candidates_per_layer = self.audit_candidates_per_layer
+            configured_top_k = self.top_k
+        requested_top_k = min(top_k or configured_top_k, configured_top_k)
         if snapshot is None or not snapshot.nodes:
             metadata = self._metadata_base(
                 snapshot,
@@ -782,7 +770,7 @@ class HNSWIndexService:
 
         nonempty_layers = [
             layer
-            for layer in range(self.max_layer, -1, -1)
+            for layer in range(max_layer, -1, -1)
             if snapshot.per_layer_node_count.get(layer, 0) > 0
         ]
         steps: list[LayerSearchStep] = []
@@ -793,7 +781,7 @@ class HNSWIndexService:
         for sequence, layer in enumerate(nonempty_layers, 1):
             layer_started = perf_counter()
             node_count = snapshot.per_layer_node_count[layer]
-            requested = min(self.ef_search, self.audit_candidates_per_layer, node_count)
+            requested = min(ef_search, audit_candidates_per_layer, node_count)
             candidates = self._query_layer(snapshot, layer, query, requested)
             anchor = candidates[0].node_id if candidates else None
             status = snapshot.layer_statuses[layer]
@@ -883,7 +871,7 @@ class HNSWIndexService:
             str(record.recalled_node_id)
             for record in mandatory_records
             if record.recalled_node_id
-            and str(record.retrieval_origin) in {"MANDATORY_RECALL", "NONE"}
+            and record.retrieval_origin.value in {"MANDATORY_RECALL", "NONE"}
         ]
         navigation = metadata.security_layer_navigation
         if navigation is None:
@@ -957,6 +945,81 @@ class HNSWIndexService:
         with self._lock:
             return self._key_labels.get(key)
 
+    def _reconfigured_copy(self, request: IndexParametersRequest) -> "HNSWIndexService":
+        config = dict(self._config)
+        config.update(
+            {
+                "M": request.M,
+                "ef_construction": request.ef_construction,
+                "ef_search": request.ef_search,
+            }
+        )
+        layering = dict(config.get("security_layering", {}))
+        layering["max_layer"] = request.layer_count - 1
+        config["security_layering"] = layering
+        return HNSWIndexService(config, self.embedder)
+
+    def update_parameters(self, request: IndexParametersRequest) -> IndexStatus:
+        """Atomically install a fully built parameter set.
+
+        Structural changes are prepared by an isolated index service. Existing readers
+        keep the current snapshot until the replacement snapshot is complete.
+        """
+
+        with self._build_lock:
+            with self._lock:
+                unchanged = (
+                    request.M == self.M
+                    and request.ef_construction == self.ef_construction
+                    and request.ef_search == self.ef_search
+                    and request.layer_count == self.max_layer + 1
+                )
+                structural_change = (
+                    request.M != self.M
+                    or request.ef_construction != self.ef_construction
+                    or request.layer_count != self.max_layer + 1
+                )
+                current_nodes = (
+                    list(self._snapshot.nodes.values()) if self._snapshot else []
+                )
+                excluded = list(self._excluded_types)
+            if unchanged:
+                return self.status()
+
+            if not structural_change:
+                with self._lock:
+                    for index in (
+                        self._snapshot.indices.values() if self._snapshot else []
+                    ):
+                        index.set_ef(request.ef_search)
+                    self.ef_search = request.ef_search
+                    self.audit_candidates_per_layer = min(
+                        self.ef_search,
+                        int(
+                            dict(self._config.get("security_layering", {})).get(
+                                "audit_candidates_per_layer", self.ef_search
+                            )
+                        ),
+                    )
+                    self._config["ef_search"] = request.ef_search
+                    self._index_config_digest = _digest(self._config)
+                return self.status()
+
+            candidate = self._reconfigured_copy(request)
+            candidate.build(current_nodes, excluded)
+            with self._lock:
+                self.M = candidate.M
+                self.ef_construction = candidate.ef_construction
+                self.ef_search = candidate.ef_search
+                self.max_layer = candidate.max_layer
+                self.L_source = candidate.L_source
+                self.audit_candidates_per_layer = candidate.audit_candidates_per_layer
+                self._config = candidate._config
+                self._index_config_digest = candidate._index_config_digest
+                self._install_snapshot(candidate._snapshot)  # type: ignore[arg-type]
+                self._index_rebuild_count += 1
+            return self.status()
+
     def status(self) -> IndexStatus:
         with self._lock:
             snapshot = self._snapshot
@@ -972,6 +1035,7 @@ class HNSWIndexService:
                 M=self.M,
                 ef_construction=self.ef_construction,
                 ef_search=self.ef_search,
+                layer_count=self.max_layer + 1,
                 top_k=self.top_k,
                 degraded=self.degraded,
                 degradation_reason=self.degradation_reason,
@@ -990,8 +1054,6 @@ class HNSWIndexService:
                 classification_mapping_digest=self._classification_mapping_digest,
                 formula_version=self.formula_version,
                 formula_source=self.formula_source,
-                L=self.max_layer,
-                L_source=self.L_source,
                 security_mapping_version=self.security_mapping_version,
                 security_rank_mapping_source=self.security_rank_mapping_source,
                 index_seed_digest=_digest(self.index_seed),

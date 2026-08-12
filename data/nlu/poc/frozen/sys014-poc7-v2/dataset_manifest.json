@@ -1,0 +1,417 @@
+{
+  "annotation_schema_id": "urn:yuzheng:sys-014:nlu-annotation-stage2.1-draft-2",
+  "created_at": "2026-08-08T16:55:51+08:00",
+  "dataset_name": "SYS-014 7-Intent PoC",
+  "dataset_version": "sys014-poc7-v2",
+  "desired_coverage": {
+    "TEST": {
+      "multi:ACCELERATE": 2,
+      "multi:BRAKE": 2,
+      "multi:DOOR_CLOSE": 2,
+      "multi:DOOR_OPEN": 2,
+      "multi:HEADLIGHT_OFF": 2,
+      "multi:WINDOW_OPEN": 2,
+      "multi:WINDOW_SET_POSITION": 2,
+      "neg:ACCELERATE": 2,
+      "neg:BRAKE": 2,
+      "neg:DOOR_CLOSE": 2,
+      "neg:DOOR_OPEN": 2,
+      "neg:HEADLIGHT_OFF": 2,
+      "neg:WINDOW_OPEN": 2,
+      "neg:WINDOW_SET_POSITION": 2
+    },
+    "TRAIN": {
+      "multi:ACCELERATE": 1,
+      "multi:BRAKE": 1,
+      "multi:DOOR_CLOSE": 1,
+      "multi:DOOR_OPEN": 1,
+      "multi:HEADLIGHT_OFF": 1,
+      "multi:WINDOW_OPEN": 1,
+      "multi:WINDOW_SET_POSITION": 1,
+      "neg:ACCELERATE": 8,
+      "neg:BRAKE": 8,
+      "neg:DOOR_CLOSE": 8,
+      "neg:DOOR_OPEN": 8,
+      "neg:HEADLIGHT_OFF": 8,
+      "neg:WINDOW_OPEN": 8,
+      "neg:WINDOW_SET_POSITION": 8
+    },
+    "VALIDATION": {
+      "multi:ACCELERATE": 2,
+      "multi:BRAKE": 2,
+      "multi:DOOR_CLOSE": 2,
+      "multi:DOOR_OPEN": 2,
+      "multi:HEADLIGHT_OFF": 2,
+      "multi:WINDOW_OPEN": 2,
+      "multi:WINDOW_SET_POSITION": 2,
+      "neg:ACCELERATE": 2,
+      "neg:BRAKE": 2,
+      "neg:DOOR_CLOSE": 2,
+      "neg:DOOR_OPEN": 2,
+      "neg:HEADLIGHT_OFF": 2,
+      "neg:WINDOW_OPEN": 2,
+      "neg:WINDOW_SET_POSITION": 2
+    }
+  },
+  "file_sha256": {
+    "README.md": "c6b84ba8b920d199fec1ac92169f31f20b0817c583f93c3a8ff80b1439a704a0",
+    "data/nlu/poc/candidate_pool.jsonl": "5facede3e3e1d83178d5e4da23c69af949bc5d49bbfda4444ab02fb804560ea9",
+    "data/nlu/poc/safety_gold_candidates.jsonl": "d9d9b597d888ec24c8fec52631b3dd9dabd4b48013a768ef8ff037ffbee77565",
+    "data/nlu/spec/annotation_guidelines.md": "20dba043fae4bb54629a4547b8c6c93eb10ca2750b81f0e28cc7104989c1350c",
+    "data/nlu/spec/annotation_schema.json": "5a67db9562df24aa6ad309b15dd4dda19821f6eecfee37cf652ff97df0146650",
+    "data/nlu/spec/intent_registry_draft.yaml": "e28bed95c2e1456c6ca53c4a7f37814c992998158fd84fd7ae682669f8769fad",
+    "leakage_audit.md": "a2710a5844c809caf4da523c1360298e89e2b83f79d465db2bdb5972918243e7",
+    "safety_gold.jsonl": "87d667321e94c36ce89ce4ceb604fb34205f22d2611838454c3c61ee7416f48c",
+    "split_group_balance_diagnosis.md": "98b5c38f5bcaecbe20c8e225a9d70418e1cd551b49cd9bf07b44b169fba4b1f4",
+    "split_report.md": "7a8dc8e5319f4bb37a7ff87b909c772cd80b89a03a903cc7f9bebad1f4983f2d",
+    "test.jsonl": "813465b8b3667a74c99c519bab85baf1e38e09388979a77ce95d7cb7b99e9d29",
+    "train.jsonl": "dadfee10cd5356c136311d828a22bdb88d37f09853d00c464d6d686c3b44feee",
+    "v1_to_v2_split_diff.md": "3b6ae35d38cae182ca61f2300a03d2af2a4c1b746944bbbe118d5f9c516e9aba",
+    "validation.jsonl": "3edc527eea43d6e075bc2d633b7a601450fdecbc1e0ecac665fd5bd0a4becf9a"
+  },
+  "grouping_strategy": {
+    "algorithm": "DSU connected components after permitted SYNTHETIC_TEMPLATE family refinement",
+    "edges": [
+      "refined_paraphrase_family_id",
+      "template_signature_v1",
+      "mechanical_signature_v1"
+    ],
+    "family_refined_sample_count": 444,
+    "family_refinement_rule": "only over-broad SYNTHETIC_TEMPLATE families; bucket by slot-aware mechanical signature",
+    "split_group_assignment_digest_sha256": "3edffd92d72f25c2884a0c366ecc18e77c1c1d150f4bdcb0a668010c204a6482",
+    "unit": "split_group_id"
+  },
+  "immutable": true,
+  "leakage_audit": {
+    "exact_cross_split_duplicates": 0,
+    "family_leakage_failures": 0,
+    "mechanical_near_duplicate_cross_split_failures": 0,
+    "normalized_cross_split_duplicates": 0,
+    "split_group_leakage_failures": 0,
+    "template_signature_cross_split_duplicates": 0,
+    "test_asset_in_train": 0,
+    "unassigned_count": 0
+  },
+  "minimum_coverage": {
+    "TEST": {
+      "pos:ACCELERATE": 5,
+      "pos:BRAKE": 5,
+      "pos:DOOR_CLOSE": 5,
+      "pos:DOOR_OPEN": 5,
+      "pos:HEADLIGHT_OFF": 5,
+      "pos:WINDOW_OPEN": 5,
+      "pos:WINDOW_SET_POSITION": 5,
+      "scope:AMBIGUOUS_CONTROL": 1,
+      "scope:IN_SCOPE_CONTROL": 1,
+      "scope:NON_CONTROL": 1,
+      "scope:UNKNOWN_CONTROL": 1,
+      "slot:AREA": 1,
+      "slot:NEGATION": 1,
+      "structure:AMBIGUOUS": 1,
+      "structure:MULTI": 1,
+      "structure:SINGLE": 1,
+      "wsp_value": 1
+    },
+    "TRAIN": {
+      "neg:ACCELERATE": 8,
+      "neg:BRAKE": 8,
+      "neg:DOOR_CLOSE": 8,
+      "neg:DOOR_OPEN": 4,
+      "neg:HEADLIGHT_OFF": 8,
+      "neg:WINDOW_OPEN": 8,
+      "neg:WINDOW_SET_POSITION": 8,
+      "pos:ACCELERATE": 30,
+      "pos:BRAKE": 30,
+      "pos:DOOR_CLOSE": 30,
+      "pos:DOOR_OPEN": 30,
+      "pos:HEADLIGHT_OFF": 30,
+      "pos:WINDOW_OPEN": 30,
+      "pos:WINDOW_SET_POSITION": 30,
+      "scope:AMBIGUOUS_CONTROL": 1,
+      "scope:IN_SCOPE_CONTROL": 1,
+      "scope:NON_CONTROL": 1,
+      "scope:UNKNOWN_CONTROL": 1,
+      "slot:AREA": 1,
+      "slot:NEGATION": 1,
+      "structure:AMBIGUOUS": 1,
+      "structure:MULTI": 1,
+      "structure:SINGLE": 1
+    },
+    "VALIDATION": {
+      "pos:ACCELERATE": 5,
+      "pos:BRAKE": 5,
+      "pos:DOOR_CLOSE": 5,
+      "pos:DOOR_OPEN": 5,
+      "pos:HEADLIGHT_OFF": 5,
+      "pos:WINDOW_OPEN": 5,
+      "pos:WINDOW_SET_POSITION": 5,
+      "scope:AMBIGUOUS_CONTROL": 1,
+      "scope:IN_SCOPE_CONTROL": 1,
+      "scope:NON_CONTROL": 1,
+      "scope:UNKNOWN_CONTROL": 1,
+      "slot:AREA": 1,
+      "slot:NEGATION": 1,
+      "structure:AMBIGUOUS": 1,
+      "structure:MULTI": 1,
+      "structure:SINGLE": 1,
+      "wsp_value": 1
+    }
+  },
+  "parent_dataset_version": "sys014-poc7-v1",
+  "parent_integrity_sha256": {
+    "README.md": "81acb89e89fb70d16a948bbba4f839fb4b162332e29557e4bd1bc95af935349f",
+    "dataset_manifest.json": "f9f4d855b76cb88d196375a4bba0e17d23faccce0c1f4b5693da4005059da841",
+    "leakage_audit.md": "ea764ebf224391b62cfbf8d3c0c0300f4365f2b4dda5fd65d671e695b141c74d",
+    "safety_gold.jsonl": "87d667321e94c36ce89ce4ceb604fb34205f22d2611838454c3c61ee7416f48c",
+    "split_report.md": "0b67d8039aee151dba68d6d79ef7c083ec752c9649fabdc84fa964e563e115c4",
+    "test.jsonl": "6646bb29853717719e74790d8f8ba885ab4a473c03435d24f4d9ea0b2cf8d859",
+    "train.jsonl": "c95eccacdc4ca504636e14dfb65d99ebeeabab276a53ce91cf32f5ded8c498de",
+    "validation.jsonl": "051cf9c36471c84fe395185456f46763c2c4ea197f12f020eff210b886ec9607"
+  },
+  "poc_intents": [
+    "DOOR_OPEN",
+    "DOOR_CLOSE",
+    "WINDOW_OPEN",
+    "WINDOW_SET_POSITION",
+    "HEADLIGHT_OFF",
+    "ACCELERATE",
+    "BRAKE"
+  ],
+  "registry_version": "sys-014-stage2.1-draft-2",
+  "safety_gold_count": 60,
+  "safety_gold_policy": "byte-equivalent isolated final safety regression; excluded from split optimization, training, validation and model selection",
+  "source_candidate_count": 849,
+  "source_candidate_version": "sys014-stage3b1-final-849",
+  "source_safety_gold_count": 60,
+  "split_seed": 14032,
+  "split_strategy": "group-aware stratified greedy assignment plus deterministic local improvement; leakage constraints precede balance",
+  "stage_flags": {
+    "POC_DATASET_V2_FROZEN": true,
+    "POC_LEAKAGE_AUDIT_PASS": true,
+    "POC_SPLIT_BALANCE_PASS": true,
+    "POC_SPLIT_REPRODUCIBLE": true,
+    "READY_FOR_MODEL_SELECTION": true,
+    "READY_FOR_MODEL_TRAINING": false
+  },
+  "statistics": {
+    "TEST": {
+      "count": 133,
+      "intent_coverage": {
+        "ACCELERATE": {
+          "multi_segment_mentions": 3,
+          "negated_single": 1,
+          "positive_single": 8
+        },
+        "BRAKE": {
+          "multi_segment_mentions": 3,
+          "negated_single": 0,
+          "positive_single": 8
+        },
+        "DOOR_CLOSE": {
+          "multi_segment_mentions": 12,
+          "negated_single": 0,
+          "positive_single": 8
+        },
+        "DOOR_OPEN": {
+          "multi_segment_mentions": 5,
+          "negated_single": 14,
+          "positive_single": 10
+        },
+        "HEADLIGHT_OFF": {
+          "multi_segment_mentions": 3,
+          "negated_single": 1,
+          "positive_single": 8
+        },
+        "WINDOW_OPEN": {
+          "multi_segment_mentions": 4,
+          "negated_single": 2,
+          "positive_single": 12
+        },
+        "WINDOW_SET_POSITION": {
+          "multi_segment_mentions": 3,
+          "negated_single": 6,
+          "positive_single": 7
+        }
+      },
+      "intent_structure": {
+        "AMBIGUOUS": 3,
+        "MULTI": 23,
+        "SINGLE": 107
+      },
+      "scope": {
+        "AMBIGUOUS_CONTROL": 3,
+        "IN_SCOPE_CONTROL": 95,
+        "NON_CONTROL": 6,
+        "UNKNOWN_CONTROL": 29
+      },
+      "semantic_type": {
+        "mixed_negation_multi": 4,
+        "negated_single": 24,
+        "positive_single": 61
+      },
+      "slots": {
+        "AREA": 29,
+        "NEGATION": 30,
+        "VALUE": 16
+      },
+      "source_type": {
+        "SYNTHETIC_TEMPLATE": 63,
+        "TEST_ASSET": 70
+      },
+      "unknown_control_derived": {
+        "UNKNOWN_EXTERNAL_CONTROL": 1,
+        "UNKNOWN_KNOWN_REGISTRY_OUTSIDE_POC": 28
+      }
+    },
+    "TRAIN": {
+      "count": 587,
+      "intent_coverage": {
+        "ACCELERATE": {
+          "multi_segment_mentions": 24,
+          "negated_single": 12,
+          "positive_single": 55
+        },
+        "BRAKE": {
+          "multi_segment_mentions": 22,
+          "negated_single": 12,
+          "positive_single": 47
+        },
+        "DOOR_CLOSE": {
+          "multi_segment_mentions": 27,
+          "negated_single": 12,
+          "positive_single": 52
+        },
+        "DOOR_OPEN": {
+          "multi_segment_mentions": 25,
+          "negated_single": 4,
+          "positive_single": 51
+        },
+        "HEADLIGHT_OFF": {
+          "multi_segment_mentions": 27,
+          "negated_single": 12,
+          "positive_single": 53
+        },
+        "WINDOW_OPEN": {
+          "multi_segment_mentions": 6,
+          "negated_single": 11,
+          "positive_single": 41
+        },
+        "WINDOW_SET_POSITION": {
+          "multi_segment_mentions": 21,
+          "negated_single": 12,
+          "positive_single": 48
+        }
+      },
+      "intent_structure": {
+        "AMBIGUOUS": 48,
+        "MULTI": 76,
+        "SINGLE": 463
+      },
+      "scope": {
+        "AMBIGUOUS_CONTROL": 48,
+        "IN_SCOPE_CONTROL": 498,
+        "NON_CONTROL": 17,
+        "UNKNOWN_CONTROL": 24
+      },
+      "semantic_type": {
+        "mixed_negation_multi": 1,
+        "negated_single": 75,
+        "positive_single": 347
+      },
+      "slots": {
+        "AREA": 211,
+        "NEGATION": 76,
+        "VALUE": 81
+      },
+      "source_type": {
+        "SYNTHETIC_TEMPLATE": 587
+      },
+      "unknown_control_derived": {
+        "UNKNOWN_EXTERNAL_CONTROL": 7,
+        "UNKNOWN_KNOWN_REGISTRY_OUTSIDE_POC": 17
+      }
+    },
+    "VALIDATION": {
+      "count": 129,
+      "intent_coverage": {
+        "ACCELERATE": {
+          "multi_segment_mentions": 4,
+          "negated_single": 5,
+          "positive_single": 12
+        },
+        "BRAKE": {
+          "multi_segment_mentions": 6,
+          "negated_single": 6,
+          "positive_single": 10
+        },
+        "DOOR_CLOSE": {
+          "multi_segment_mentions": 3,
+          "negated_single": 6,
+          "positive_single": 12
+        },
+        "DOOR_OPEN": {
+          "multi_segment_mentions": 7,
+          "negated_single": 0,
+          "positive_single": 11
+        },
+        "HEADLIGHT_OFF": {
+          "multi_segment_mentions": 6,
+          "negated_single": 5,
+          "positive_single": 11
+        },
+        "WINDOW_OPEN": {
+          "multi_segment_mentions": 2,
+          "negated_single": 2,
+          "positive_single": 7
+        },
+        "WINDOW_SET_POSITION": {
+          "multi_segment_mentions": 6,
+          "negated_single": 0,
+          "positive_single": 13
+        }
+      },
+      "intent_structure": {
+        "AMBIGUOUS": 9,
+        "MULTI": 17,
+        "SINGLE": 103
+      },
+      "scope": {
+        "AMBIGUOUS_CONTROL": 9,
+        "IN_SCOPE_CONTROL": 117,
+        "NON_CONTROL": 2,
+        "UNKNOWN_CONTROL": 1
+      },
+      "semantic_type": {
+        "mixed_negation_multi": 0,
+        "negated_single": 24,
+        "positive_single": 76
+      },
+      "slots": {
+        "AREA": 52,
+        "NEGATION": 24,
+        "VALUE": 19
+      },
+      "source_type": {
+        "SYNTHETIC_TEMPLATE": 129
+      },
+      "unknown_control_derived": {
+        "UNKNOWN_EXTERNAL_CONTROL": 0,
+        "UNKNOWN_KNOWN_REGISTRY_OUTSIDE_POC": 1
+      }
+    }
+  },
+  "target_ratios": {
+    "TEST": 0.15,
+    "TRAIN": 0.7,
+    "VALIDATION": 0.15
+  },
+  "test_count": 133,
+  "test_family_count": 122,
+  "test_split_group_count": 82,
+  "train_count": 587,
+  "train_family_count": 456,
+  "train_split_group_count": 329,
+  "validation_count": 129,
+  "validation_family_count": 96,
+  "validation_split_group_count": 60
+}

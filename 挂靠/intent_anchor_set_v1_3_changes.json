@@ -1,0 +1,1680 @@
+{
+  "source_file": "intent_anchor_set_v1_2.yaml",
+  "source_sha256": "CB54A33A6DC95EC5D02BF648D621AE80303E926A65DEB3DE22E72A612C553DF8",
+  "output_file": "intent_anchor_set_v1_3.yaml",
+  "output_sha256": "B88B4D9DCC9CDFDB27EC6D25038AF6E7E5D3F01FE6937BA4777815987FB65BFF",
+  "strategy": "只处理 v1.2 当前全部 P0/P1 正式意图失败样本；P2/P3/P4、驾驶模式旁路、安全注入均冻结。每个失败锚点做一次语义等价的局部替换，不增不删。",
+  "formal_replacements_count": 46,
+  "additions_count": 0,
+  "deletions_count": 0,
+  "total_anchor_count_before": 1466,
+  "total_anchor_count_after": 1466,
+  "formal_anchor_count_before": 1426,
+  "formal_anchor_count_after": 1426,
+  "p0_replacements": 1,
+  "p1_replacements": 45,
+  "p2_modified": 0,
+  "p3_modified": 0,
+  "p4_modified": 0,
+  "known_control_bypass_modified": false,
+  "security_injection_modified": false,
+  "cross_target_exact_duplicates_after": 0,
+  "changes": [
+    {
+      "intent_id": "MIRROR_HEATING_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 24,
+      "old_anchor": "停止后视镜加热",
+      "new_anchor": "停止外后视镜加热",
+      "v1_2_wrong_top1": "MIRROR_HEATING_ON",
+      "v1_2_correct_target_rank": 2,
+      "reason": "关闭侧两条失败样本被开启侧吸走；保留“停止/关闭”动作，同时补全“外后视镜/除霜功能”对象，使其更贴近本意图现有关闭锚点。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "MIRROR_HEATING_OFF",
+          "top1_similarity": 0.923442,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.923442,
+          "top1_strongest_anchor": "关闭后视镜加热",
+          "correct_target_strongest_anchor": "关闭后视镜加热"
+        },
+        "literal": {
+          "top1_target": "MIRROR_HEATING_ON",
+          "top1_similarity": 0.714286,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.714286,
+          "top1_strongest_anchor": "开启外后视镜加热",
+          "correct_target_strongest_anchor": "关闭外后视镜加热"
+        },
+        "pinyin": {
+          "top1_target": "MIRROR_HEATING_ON",
+          "top1_similarity": 0.857143,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.818182,
+          "top1_strongest_anchor": "启动后视镜加热",
+          "correct_target_strongest_anchor": "麻烦关闭后视镜加热"
+        }
+      }
+    },
+    {
+      "intent_id": "MIRROR_HEATING_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 25,
+      "old_anchor": "后视镜除霜关闭",
+      "new_anchor": "关闭后视镜除霜功能",
+      "v1_2_wrong_top1": "MIRROR_HEATING_ON",
+      "v1_2_correct_target_rank": 2,
+      "reason": "关闭侧两条失败样本被开启侧吸走；保留“停止/关闭”动作，同时补全“外后视镜/除霜功能”对象，使其更贴近本意图现有关闭锚点。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "MIRROR_HEATING_OFF",
+          "top1_similarity": 0.941981,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.941981,
+          "top1_strongest_anchor": "关闭后视镜除霜",
+          "correct_target_strongest_anchor": "关闭后视镜除霜"
+        },
+        "literal": {
+          "top1_target": "MIRROR_HEATING_ON",
+          "top1_similarity": 0.714286,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.714286,
+          "top1_strongest_anchor": "启动外后视镜加热除霜",
+          "correct_target_strongest_anchor": "关闭后视镜除霜"
+        },
+        "pinyin": {
+          "top1_target": "MIRROR_HEATING_ON",
+          "top1_similarity": 0.76,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.76,
+          "top1_strongest_anchor": "启动外后视镜加热除霜",
+          "correct_target_strongest_anchor": "关闭后视镜除霜"
+        }
+      }
+    },
+    {
+      "intent_id": "DEFROST_ON",
+      "priority": "P1",
+      "anchor_index_v1_2": 200,
+      "old_anchor": "开启风挡除霜除雾",
+      "new_anchor": "开启前后风挡除霜除雾",
+      "v1_2_wrong_top1": "DEFROST_OFF",
+      "v1_2_correct_target_rank": 2,
+      "reason": "开启侧与关闭侧存在强对称短句，留一后容易被反向动作吸走；增加前后风挡、后挡、自动除霜等对象/模式信息，减少仅靠“除霜/除雾”公共词竞争。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.943966,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.91512,
+          "top1_strongest_anchor": "关闭风挡除霜除雾",
+          "correct_target_strongest_anchor": "开启前挡风除霜"
+        },
+        "literal": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "开启前后风挡除霜",
+          "correct_target_strongest_anchor": "开启前后风挡除霜"
+        },
+        "pinyin": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.888889,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.814815,
+          "top1_strongest_anchor": "关闭风挡除霜除雾",
+          "correct_target_strongest_anchor": "我想开启风挡除霜"
+        }
+      }
+    },
+    {
+      "intent_id": "DEFROST_ON",
+      "priority": "P1",
+      "anchor_index_v1_2": 202,
+      "old_anchor": "打开后挡除雾",
+      "new_anchor": "开启后挡除雾功能",
+      "v1_2_wrong_top1": "DEFROST_OFF",
+      "v1_2_correct_target_rank": 2,
+      "reason": "开启侧与关闭侧存在强对称短句，留一后容易被反向动作吸走；增加前后风挡、后挡、自动除霜等对象/模式信息，减少仅靠“除霜/除雾”公共词竞争。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.927745,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.874993,
+          "top1_strongest_anchor": "关闭后挡除雾",
+          "correct_target_strongest_anchor": "打开前挡除雾"
+        },
+        "literal": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.833333,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.833333,
+          "top1_strongest_anchor": "打开前挡除雾",
+          "correct_target_strongest_anchor": "打开前挡除雾"
+        },
+        "pinyin": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.823529,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.8,
+          "top1_strongest_anchor": "关闭后挡除雾",
+          "correct_target_strongest_anchor": "打开前挡除雾"
+        }
+      }
+    },
+    {
+      "intent_id": "DEFROST_ON",
+      "priority": "P1",
+      "anchor_index_v1_2": 217,
+      "old_anchor": "把除霜除雾功能打开",
+      "new_anchor": "打开自动除霜除雾",
+      "v1_2_wrong_top1": "DEFROST_OFF",
+      "v1_2_correct_target_rank": 2,
+      "reason": "开启侧与关闭侧存在强对称短句，留一后容易被反向动作吸走；增加前后风挡、后挡、自动除霜等对象/模式信息，减少仅靠“除霜/除雾”公共词竞争。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.882855,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.843565,
+          "top1_strongest_anchor": "把除霜功能切换成关闭状态",
+          "correct_target_strongest_anchor": "要启用前除霜功能以去除雾气干扰"
+        },
+        "literal": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.571429,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.5,
+          "top1_strongest_anchor": "关闭前除雾功能",
+          "correct_target_strongest_anchor": "开启风挡除霜除雾"
+        },
+        "pinyin": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.695652,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.655172,
+          "top1_strongest_anchor": "关闭前除雾功能",
+          "correct_target_strongest_anchor": "要启用前除霜功能以去除雾气干扰"
+        }
+      }
+    },
+    {
+      "intent_id": "DEFROST_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 220,
+      "old_anchor": "关闭风挡除霜除雾",
+      "new_anchor": "关闭前后风挡除霜除雾",
+      "v1_2_wrong_top1": "DEFROST_ON",
+      "v1_2_correct_target_rank": 2,
+      "reason": "关闭侧与开启侧存在强对称短句；将动作写成关闭/停止并补足前后风挡、功能或自动除霜限定，增强关闭簇内部近邻。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.943966,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.903853,
+          "top1_strongest_anchor": "开启风挡除霜除雾",
+          "correct_target_strongest_anchor": "关掉挡风玻璃除霜"
+        },
+        "literal": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "开启风挡除霜除雾",
+          "correct_target_strongest_anchor": "关闭风挡除雾功能"
+        },
+        "pinyin": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.888889,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.851852,
+          "top1_strongest_anchor": "开启风挡除霜除雾",
+          "correct_target_strongest_anchor": "关闭自动除霜除雾"
+        }
+      }
+    },
+    {
+      "intent_id": "DEFROST_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 223,
+      "old_anchor": "关掉挡风玻璃除霜",
+      "new_anchor": "关闭前挡风玻璃除霜功能",
+      "v1_2_wrong_top1": "DEFROST_ON",
+      "v1_2_correct_target_rank": 2,
+      "reason": "关闭侧与开启侧存在强对称短句；将动作写成关闭/停止并补足前后风挡、功能或自动除霜限定，增强关闭簇内部近邻。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.922391,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.903853,
+          "top1_strongest_anchor": "开启挡风玻璃除霜",
+          "correct_target_strongest_anchor": "关闭风挡除霜除雾"
+        },
+        "literal": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.714286,
+          "top1_strongest_anchor": "开启挡风玻璃除霜",
+          "correct_target_strongest_anchor": "关掉前挡风除雾"
+        },
+        "pinyin": {
+          "top1_target": "GEAR_SET",
+          "top1_similarity": 0.857143,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.76,
+          "top1_strongest_anchor": "倒挡",
+          "correct_target_strongest_anchor": "关掉前挡风除雾"
+        }
+      }
+    },
+    {
+      "intent_id": "DEFROST_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 224,
+      "old_anchor": "停止前挡除雾",
+      "new_anchor": "停止前挡风除雾功能",
+      "v1_2_wrong_top1": "DEFROST_ON",
+      "v1_2_correct_target_rank": 2,
+      "reason": "关闭侧与开启侧存在强对称短句；将动作写成关闭/停止并补足前后风挡、功能或自动除霜限定，增强关闭簇内部近邻。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.942165,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.942165,
+          "top1_strongest_anchor": "关闭前挡除雾",
+          "correct_target_strongest_anchor": "关闭前挡除雾"
+        },
+        "literal": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "打开前挡除雾",
+          "correct_target_strongest_anchor": "关闭前挡除雾"
+        },
+        "pinyin": {
+          "top1_target": "GEAR_SET",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.789474,
+          "top1_strongest_anchor": "R挡",
+          "correct_target_strongest_anchor": "关闭前挡除雾"
+        }
+      }
+    },
+    {
+      "intent_id": "DEFROST_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 239,
+      "old_anchor": "把除霜功能切换成关闭状态",
+      "new_anchor": "关闭自动除霜除雾功能",
+      "v1_2_wrong_top1": "DEFROST_ON",
+      "v1_2_correct_target_rank": 4,
+      "reason": "关闭侧与开启侧存在强对称短句；将动作写成关闭/停止并补足前后风挡、功能或自动除霜限定，增强关闭簇内部近邻。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.882855,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.853789,
+          "top1_strongest_anchor": "把除霜除雾功能打开",
+          "correct_target_strongest_anchor": "关闭前挡除霜功能"
+        },
+        "literal": {
+          "top1_target": "DEFROST_ON",
+          "top1_similarity": 0.555556,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.5,
+          "top1_strongest_anchor": "把除霜除雾功能打开",
+          "correct_target_strongest_anchor": "关闭前挡除霜功能"
+        },
+        "pinyin": {
+          "top1_target": "DOOR_CLOSE",
+          "top1_similarity": 0.833333,
+          "correct_target_rank": 17,
+          "correct_target_highest_similarity": 0.611111,
+          "top1_strongest_anchor": "车门关闭",
+          "correct_target_strongest_anchor": "关闭后挡除雾"
+        }
+      }
+    },
+    {
+      "intent_id": "WINDSHIELD_HEATING_ON",
+      "priority": "P1",
+      "anchor_index_v1_2": 243,
+      "old_anchor": "启动后挡风玻璃加热",
+      "new_anchor": "开启后挡风玻璃加热功能",
+      "v1_2_wrong_top1": "WINDSHIELD_HEATING_OFF",
+      "v1_2_correct_target_rank": 2,
+      "reason": "原句与“关闭后挡风玻璃加热”高度镜像；改为“开启…加热功能”，靠近本意图已有开启锚点并保留后挡对象。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "WINDSHIELD_HEATING_OFF",
+          "top1_similarity": 0.914077,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.88298,
+          "top1_strongest_anchor": "关闭后挡风玻璃加热",
+          "correct_target_strongest_anchor": "打开前挡风玻璃加热"
+        },
+        "literal": {
+          "top1_target": "WINDSHIELD_HEATING_OFF",
+          "top1_similarity": 0.777778,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "关闭后挡风玻璃加热",
+          "correct_target_strongest_anchor": "打开前挡风玻璃加热"
+        },
+        "pinyin": {
+          "top1_target": "WINDSHIELD_HEATING_OFF",
+          "top1_similarity": 0.807692,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.769231,
+          "top1_strongest_anchor": "关闭后挡风玻璃加热",
+          "correct_target_strongest_anchor": "打开前挡风玻璃加热"
+        }
+      }
+    },
+    {
+      "intent_id": "ESC_ENABLE",
+      "priority": "P1",
+      "anchor_index_v1_2": 280,
+      "old_anchor": "激活车辆电子稳定系统",
+      "new_anchor": "激活ESC电子稳定系统",
+      "v1_2_wrong_top1": "ESC_DISABLE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "启用/停用两侧在“车辆电子稳定系统”长串上高度重合；显式加入ESC并使用激活/重新启用，增强开启方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "ESC_ENABLE",
+          "top1_similarity": 0.779068,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.779068,
+          "top1_strongest_anchor": "开启电子稳定系统",
+          "correct_target_strongest_anchor": "开启电子稳定系统"
+        },
+        "literal": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "禁用车辆电子稳定系统",
+          "correct_target_strongest_anchor": "开启电子稳定系统"
+        },
+        "pinyin": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.909091,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.833333,
+          "top1_strongest_anchor": "禁用车辆电子稳定系统",
+          "correct_target_strongest_anchor": "开启电子稳定系统"
+        }
+      }
+    },
+    {
+      "intent_id": "ESC_ENABLE",
+      "priority": "P1",
+      "anchor_index_v1_2": 284,
+      "old_anchor": "恢复车身稳定控制功能",
+      "new_anchor": "重新启用ESC车身稳定控制",
+      "v1_2_wrong_top1": "ESC_DISABLE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "启用/停用两侧在“车辆电子稳定系统”长串上高度重合；显式加入ESC并使用激活/重新启用，增强开启方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.844773,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.795572,
+          "top1_strongest_anchor": "停用车身稳定控制功能",
+          "correct_target_strongest_anchor": "启用车身稳定系统"
+        },
+        "literal": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.5,
+          "top1_strongest_anchor": "停用车身稳定控制功能",
+          "correct_target_strongest_anchor": "启用车身稳定系统"
+        },
+        "pinyin": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.852941,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.692308,
+          "top1_strongest_anchor": "停用车身稳定控制功能",
+          "correct_target_strongest_anchor": "启用车身稳定系统"
+        }
+      }
+    },
+    {
+      "intent_id": "ESC_DISABLE",
+      "priority": "P1",
+      "anchor_index_v1_2": 300,
+      "old_anchor": "禁用车辆电子稳定系统",
+      "new_anchor": "禁用ESC电子稳定系统",
+      "v1_2_wrong_top1": "ESC_ENABLE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "启用/停用两侧在长对象词上高度重合；显式加入ESC并固定禁用/停用/关闭方向，增强停用方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.747761,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.747761,
+          "top1_strongest_anchor": "停用车身稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定系统"
+        },
+        "literal": {
+          "top1_target": "ESC_ENABLE",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "激活车辆电子稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定系统"
+        },
+        "pinyin": {
+          "top1_target": "ESC_ENABLE",
+          "top1_similarity": 0.909091,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.741935,
+          "top1_strongest_anchor": "激活车辆电子稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定系统"
+        }
+      }
+    },
+    {
+      "intent_id": "ESC_DISABLE",
+      "priority": "P1",
+      "anchor_index_v1_2": 302,
+      "old_anchor": "停用车身稳定系统",
+      "new_anchor": "停用ESC车身稳定系统",
+      "v1_2_wrong_top1": "ESC_ENABLE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "启用/停用两侧在长对象词上高度重合；显式加入ESC并固定禁用/停用/关闭方向，增强停用方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.906681,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.906681,
+          "top1_strongest_anchor": "停用车身稳定控制功能",
+          "correct_target_strongest_anchor": "停用车身稳定控制功能"
+        },
+        "literal": {
+          "top1_target": "ESC_ENABLE",
+          "top1_similarity": 0.875,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "启用车身稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定控制功能"
+        },
+        "pinyin": {
+          "top1_target": "ESC_ENABLE",
+          "top1_similarity": 0.931035,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.892857,
+          "top1_strongest_anchor": "请启用车身稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定控制功能"
+        }
+      }
+    },
+    {
+      "intent_id": "ESC_DISABLE",
+      "priority": "P1",
+      "anchor_index_v1_2": 305,
+      "old_anchor": "关闭车身稳定系统",
+      "new_anchor": "关闭ESC车身稳定系统",
+      "v1_2_wrong_top1": "ESC_ENABLE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "启用/停用两侧在长对象词上高度重合；显式加入ESC并固定禁用/停用/关闭方向，增强停用方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "ESC_ENABLE",
+          "top1_similarity": 0.850339,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.826369,
+          "top1_strongest_anchor": "请启用车身稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定系统"
+        },
+        "literal": {
+          "top1_target": "ESC_ENABLE",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "启用车身稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定系统"
+        },
+        "pinyin": {
+          "top1_target": "ESC_DISABLE",
+          "top1_similarity": 0.846154,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.846154,
+          "top1_strongest_anchor": "停用车身稳定系统",
+          "correct_target_strongest_anchor": "停用车身稳定系统"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_OPEN",
+      "priority": "P1",
+      "anchor_index_v1_2": 320,
+      "old_anchor": "开启车辆行李厢",
+      "new_anchor": "把后备箱盖打开",
+      "v1_2_wrong_top1": "TRUNK_CLOSE",
+      "v1_2_correct_target_rank": 5,
+      "reason": "原句与关闭侧“关闭车辆行李厢”形成近乎镜像；改为“后备箱盖+打开”，直接靠近本意图“打开后备箱盖”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_CLOSE",
+          "top1_similarity": 0.82999,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.728187,
+          "top1_strongest_anchor": "关闭车辆行李厢",
+          "correct_target_strongest_anchor": "开启后备箱"
+        },
+        "literal": {
+          "top1_target": "TRUNK_CLOSE",
+          "top1_similarity": 0.714286,
+          "correct_target_rank": 18,
+          "correct_target_highest_similarity": 0.4,
+          "top1_strongest_anchor": "关闭车辆行李厢",
+          "correct_target_strongest_anchor": "开启后备箱"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_CLOSE",
+          "top1_similarity": 0.875,
+          "correct_target_rank": 8,
+          "correct_target_highest_similarity": 0.65,
+          "top1_strongest_anchor": "关闭车辆行李厢",
+          "correct_target_strongest_anchor": "开启后备箱"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 340,
+      "old_anchor": "关闭车辆行李厢",
+      "new_anchor": "把后备箱盖合上",
+      "v1_2_wrong_top1": "TRUNK_OPEN",
+      "v1_2_correct_target_rank": 4,
+      "reason": "三条关闭表达分别被打开/锁定吸走；统一改为“合上/关严+后备箱盖/后备厢”，避开“打开”和“上锁”词簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_OPEN",
+          "top1_similarity": 0.82999,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.809361,
+          "top1_strongest_anchor": "开启车辆行李厢",
+          "correct_target_strongest_anchor": "关上后备厢"
+        },
+        "literal": {
+          "top1_target": "WINDOW_CLOSE",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 8,
+          "correct_target_highest_similarity": 0.5,
+          "top1_strongest_anchor": "关闭车窗",
+          "correct_target_strongest_anchor": "关闭尾门"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_OPEN",
+          "top1_similarity": 0.875,
+          "correct_target_rank": 6,
+          "correct_target_highest_similarity": 0.705882,
+          "top1_strongest_anchor": "开启车辆行李厢",
+          "correct_target_strongest_anchor": "关闭后备箱"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 342,
+      "old_anchor": "把后备箱闭合关闭",
+      "new_anchor": "合上后备箱盖",
+      "v1_2_wrong_top1": "TRUNK_OPEN",
+      "v1_2_correct_target_rank": 2,
+      "reason": "三条关闭表达分别被打开/锁定吸走；统一改为“合上/关严+后备箱盖/后备厢”，避开“打开”和“上锁”词簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_CLOSE",
+          "top1_similarity": 0.899846,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.899846,
+          "top1_strongest_anchor": "关闭后备箱",
+          "correct_target_strongest_anchor": "关闭后备箱"
+        },
+        "literal": {
+          "top1_target": "TRUNK_OPEN",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.6,
+          "top1_strongest_anchor": "把后备箱打开",
+          "correct_target_strongest_anchor": "关闭后备箱"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_UNLOCK",
+          "top1_similarity": 0.842105,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.705882,
+          "top1_strongest_anchor": "把后备厢解锁",
+          "correct_target_strongest_anchor": "关闭后备箱"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 345,
+      "old_anchor": "关上后备厢",
+      "new_anchor": "把后备厢关严",
+      "v1_2_wrong_top1": "TRUNK_LOCK",
+      "v1_2_correct_target_rank": 2,
+      "reason": "三条关闭表达分别被打开/锁定吸走；统一改为“合上/关严+后备箱盖/后备厢”，避开“打开”和“上锁”词簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_UNLOCK",
+          "top1_similarity": 0.856127,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.846277,
+          "top1_strongest_anchor": "把后备厢解锁",
+          "correct_target_strongest_anchor": "关闭后备箱"
+        },
+        "literal": {
+          "top1_target": "TRUNK_CLOSE",
+          "top1_similarity": 0.6,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.6,
+          "top1_strongest_anchor": "关闭后备箱",
+          "correct_target_strongest_anchor": "关闭后备箱"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_LOCK",
+          "top1_similarity": 0.9,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.810811,
+          "top1_strongest_anchor": "请锁上后备箱",
+          "correct_target_strongest_anchor": "关闭后备箱"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_SET_POSITION",
+      "priority": "P0",
+      "anchor_index_v1_2": 360,
+      "old_anchor": "设置行李厢开启幅度百分比",
+      "new_anchor": "把后备箱开度调到50%",
+      "v1_2_wrong_top1": "TRUNK_LOCK",
+      "v1_2_correct_target_rank": 9,
+      "reason": "开度意图应突出开度/高度/百分比调节。当前P0及两条P1被打开/锁定吸走，因此改为明确的“开度/开启高度+调节”表达。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DOOR_SET_POSITION",
+          "top1_similarity": 0.74517,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.654604,
+          "top1_strongest_anchor": "调节副驾车门开启幅度百分比",
+          "correct_target_strongest_anchor": "后备箱开度调小一点"
+        },
+        "literal": {
+          "top1_target": "DOOR_SET_POSITION",
+          "top1_similarity": 0.625,
+          "correct_target_rank": 17,
+          "correct_target_highest_similarity": 0.363636,
+          "top1_strongest_anchor": "设置车门开启幅度",
+          "correct_target_strongest_anchor": "尾门开度值调成百分之一"
+        },
+        "pinyin": {
+          "top1_target": "HORN_ACTIVATE",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 29,
+          "correct_target_highest_similarity": 0.541667,
+          "top1_strongest_anchor": "鸣笛",
+          "correct_target_strongest_anchor": "把后备箱开到一半"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_SET_POSITION",
+      "priority": "P1",
+      "anchor_index_v1_2": 366,
+      "old_anchor": "后备箱调太低了",
+      "new_anchor": "把后备箱开启高度调高一点",
+      "v1_2_wrong_top1": "TRUNK_OPEN",
+      "v1_2_correct_target_rank": 2,
+      "reason": "开度意图应突出开度/高度/百分比调节。当前P0及两条P1被打开/锁定吸走，因此改为明确的“开度/开启高度+调节”表达。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_SET_POSITION",
+          "top1_similarity": 0.867186,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.867186,
+          "top1_strongest_anchor": "把后备箱开启高度调低一点",
+          "correct_target_strongest_anchor": "把后备箱开启高度调低一点"
+        },
+        "literal": {
+          "top1_target": "TRUNK_OPEN",
+          "top1_similarity": 0.6,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.571429,
+          "top1_strongest_anchor": "打开后备箱",
+          "correct_target_strongest_anchor": "后备箱开度调小一点"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_OPEN",
+          "top1_similarity": 0.833333,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.730769,
+          "top1_strongest_anchor": "把后备箱打开",
+          "correct_target_strongest_anchor": "后备箱开度调小一点"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_SET_POSITION",
+      "priority": "P1",
+      "anchor_index_v1_2": 368,
+      "old_anchor": "把后备箱开启高度调低一点",
+      "new_anchor": "把后备箱开度调低一点",
+      "v1_2_wrong_top1": "TRUNK_OPEN",
+      "v1_2_correct_target_rank": 2,
+      "reason": "开度意图应突出开度/高度/百分比调节。当前P0及两条P1被打开/锁定吸走，因此改为明确的“开度/开启高度+调节”表达。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_SET_POSITION",
+          "top1_similarity": 0.924418,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.924418,
+          "top1_strongest_anchor": "后备箱开度调小一点",
+          "correct_target_strongest_anchor": "后备箱开度调小一点"
+        },
+        "literal": {
+          "top1_target": "TRUNK_OPEN",
+          "top1_similarity": 0.833333,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.761905,
+          "top1_strongest_anchor": "把后备箱打开",
+          "correct_target_strongest_anchor": "后备箱开度调小一点"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_OPEN",
+          "top1_similarity": 0.888889,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.830769,
+          "top1_strongest_anchor": "把后备箱打开",
+          "correct_target_strongest_anchor": "后备箱开度调小一点"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_LOCK",
+      "priority": "P1",
+      "anchor_index_v1_2": 380,
+      "old_anchor": "给行李厢上锁",
+      "new_anchor": "把行李厢锁上",
+      "v1_2_wrong_top1": "TRUNK_UNLOCK",
+      "v1_2_correct_target_rank": 2,
+      "reason": "原句被解锁侧吸走；将“上锁”置于明确的行李厢对象后，靠近本意图“锁上后备箱/锁定后备厢”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_UNLOCK",
+          "top1_similarity": 0.880879,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.754422,
+          "top1_strongest_anchor": "解除行李厢锁定",
+          "correct_target_strongest_anchor": "锁定后备厢"
+        },
+        "literal": {
+          "top1_target": "TRUNK_UNLOCK",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.571429,
+          "top1_strongest_anchor": "解除行李厢锁定",
+          "correct_target_strongest_anchor": "给后备箱执行上锁"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_LOCK",
+          "top1_similarity": 0.863636,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.863636,
+          "top1_strongest_anchor": "给后备箱执行上锁",
+          "correct_target_strongest_anchor": "给后备箱执行上锁"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_UNLOCK",
+      "priority": "P1",
+      "anchor_index_v1_2": 404,
+      "old_anchor": "解除尾门锁定",
+      "new_anchor": "把后备箱尾门解锁",
+      "v1_2_wrong_top1": "DOOR_UNLOCK",
+      "v1_2_correct_target_rank": 2,
+      "reason": "“尾门”单独出现易与车门解锁混淆，“把后备厢解锁”又受关闭侧拼音影响；补全后备箱对象并改成更接近本意图解锁簇的表述。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_LOCK",
+          "top1_similarity": 0.856822,
+          "correct_target_rank": 6,
+          "correct_target_highest_similarity": 0.76574,
+          "top1_strongest_anchor": "把尾门执行上锁",
+          "correct_target_strongest_anchor": "解除后备厢锁定"
+        },
+        "literal": {
+          "top1_target": "DOOR_UNLOCK",
+          "top1_similarity": 0.714286,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.615385,
+          "top1_strongest_anchor": "解除左前车门锁定",
+          "correct_target_strongest_anchor": "解除行李厢锁定"
+        },
+        "pinyin": {
+          "top1_target": "DOOR_UNLOCK",
+          "top1_similarity": 0.772727,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.744186,
+          "top1_strongest_anchor": "解除所有车门锁定",
+          "correct_target_strongest_anchor": "解除后备箱锁定"
+        }
+      }
+    },
+    {
+      "intent_id": "TRUNK_UNLOCK",
+      "priority": "P1",
+      "anchor_index_v1_2": 419,
+      "old_anchor": "把后备厢解锁",
+      "new_anchor": "把后备厢解锁一下",
+      "v1_2_wrong_top1": "TRUNK_CLOSE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "“尾门”单独出现易与车门解锁混淆，“把后备厢解锁”又受关闭侧拼音影响；补全后备箱对象并改成更接近本意图解锁簇的表述。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_UNLOCK",
+          "top1_similarity": 0.924219,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.924219,
+          "top1_strongest_anchor": "解除后备厢锁定",
+          "correct_target_strongest_anchor": "解除后备厢锁定"
+        },
+        "literal": {
+          "top1_target": "TRUNK_UNLOCK",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "解除后备厢锁定",
+          "correct_target_strongest_anchor": "解除后备厢锁定"
+        },
+        "pinyin": {
+          "top1_target": "TRUNK_CLOSE",
+          "top1_similarity": 0.842105,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.736842,
+          "top1_strongest_anchor": "把后备箱闭合关闭",
+          "correct_target_strongest_anchor": "解除后备箱锁定"
+        }
+      }
+    },
+    {
+      "intent_id": "HOOD_OPEN",
+      "priority": "P1",
+      "anchor_index_v1_2": 422,
+      "old_anchor": "打开发动机舱盖",
+      "new_anchor": "掀开发动机舱盖",
+      "v1_2_wrong_top1": "HOOD_CLOSE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "打开/关闭发动机舱盖形成镜像混淆；开启侧改用“掀开”，与本意图已有“掀开引擎盖”形成同向语义簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "HOOD_CLOSE",
+          "top1_similarity": 0.877833,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.876483,
+          "top1_strongest_anchor": "关闭发动机舱盖",
+          "correct_target_strongest_anchor": "打开前舱盖"
+        },
+        "literal": {
+          "top1_target": "HOOD_CLOSE",
+          "top1_similarity": 0.714286,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "关闭发动机舱盖",
+          "correct_target_strongest_anchor": "打开前舱盖"
+        },
+        "pinyin": {
+          "top1_target": "HOOD_CLOSE",
+          "top1_similarity": 0.85,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.722222,
+          "top1_strongest_anchor": "关闭发动机舱盖",
+          "correct_target_strongest_anchor": "打开前舱盖"
+        }
+      }
+    },
+    {
+      "intent_id": "HOOD_OPEN",
+      "priority": "P1",
+      "anchor_index_v1_2": 423,
+      "old_anchor": "把前舱盖打开",
+      "new_anchor": "把前舱盖掀开",
+      "v1_2_wrong_top1": "HOOD_CLOSE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "打开/关闭发动机舱盖形成镜像混淆；开启侧改用“掀开”，与本意图已有“掀开引擎盖”形成同向语义簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "HOOD_OPEN",
+          "top1_similarity": 0.968744,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.968744,
+          "top1_strongest_anchor": "打开前舱盖",
+          "correct_target_strongest_anchor": "打开前舱盖"
+        },
+        "literal": {
+          "top1_target": "HOOD_CLOSE",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.6,
+          "top1_strongest_anchor": "把前舱盖关上",
+          "correct_target_strongest_anchor": "打开前舱盖"
+        },
+        "pinyin": {
+          "top1_target": "SUNROOF_OPEN",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "把天窗打开",
+          "correct_target_strongest_anchor": "打开前舱盖"
+        }
+      }
+    },
+    {
+      "intent_id": "HOOD_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 442,
+      "old_anchor": "关闭发动机舱盖",
+      "new_anchor": "合上发动机舱盖",
+      "v1_2_wrong_top1": "HOOD_OPEN",
+      "v1_2_correct_target_rank": 2,
+      "reason": "打开/关闭发动机舱盖形成镜像混淆；关闭侧改用“合上”，与本意图已有“合上引擎盖”形成同向语义簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "HOOD_CLOSE",
+          "top1_similarity": 0.891987,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.891987,
+          "top1_strongest_anchor": "关闭前舱盖",
+          "correct_target_strongest_anchor": "关闭前舱盖"
+        },
+        "literal": {
+          "top1_target": "HOOD_OPEN",
+          "top1_similarity": 0.714286,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "打开发动机舱盖",
+          "correct_target_strongest_anchor": "关闭前舱盖"
+        },
+        "pinyin": {
+          "top1_target": "HOOD_OPEN",
+          "top1_similarity": 0.85,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.736842,
+          "top1_strongest_anchor": "打开发动机舱盖",
+          "correct_target_strongest_anchor": "关闭前舱盖"
+        }
+      }
+    },
+    {
+      "intent_id": "HOOD_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 443,
+      "old_anchor": "把前舱盖关上",
+      "new_anchor": "把前舱盖合上",
+      "v1_2_wrong_top1": "HOOD_OPEN",
+      "v1_2_correct_target_rank": 2,
+      "reason": "打开/关闭发动机舱盖形成镜像混淆；关闭侧改用“合上”，与本意图已有“合上引擎盖”形成同向语义簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "HOOD_CLOSE",
+          "top1_similarity": 0.948262,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.948262,
+          "top1_strongest_anchor": "关闭前舱盖一下",
+          "correct_target_strongest_anchor": "关闭前舱盖一下"
+        },
+        "literal": {
+          "top1_target": "HOOD_OPEN",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.6,
+          "top1_strongest_anchor": "把前舱盖打开",
+          "correct_target_strongest_anchor": "关闭前舱盖"
+        },
+        "pinyin": {
+          "top1_target": "SUNROOF_CLOSE",
+          "top1_similarity": 0.837209,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.705882,
+          "top1_strongest_anchor": "把天窗关上",
+          "correct_target_strongest_anchor": "关闭前舱盖"
+        }
+      }
+    },
+    {
+      "intent_id": "SUNROOF_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 605,
+      "old_anchor": "把天窗完全关闭",
+      "new_anchor": "把天窗彻底关上",
+      "v1_2_wrong_top1": "SUNROOF_OPEN",
+      "v1_2_correct_target_rank": 2,
+      "reason": "“完全关闭”被“全开”类锚点吸走；改成“彻底关上”，保留全关闭语义并贴近“把天窗关上”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "SUNROOF_CLOSE",
+          "top1_similarity": 0.905054,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.905054,
+          "top1_strongest_anchor": "把天窗关上",
+          "correct_target_strongest_anchor": "把天窗关上"
+        },
+        "literal": {
+          "top1_target": "SUNROOF_OPEN",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.769231,
+          "top1_strongest_anchor": "把天窗全开",
+          "correct_target_strongest_anchor": "请把天窗关闭"
+        },
+        "pinyin": {
+          "top1_target": "SUNROOF_OPEN",
+          "top1_similarity": 0.842105,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.837209,
+          "top1_strongest_anchor": "把天窗全开",
+          "correct_target_strongest_anchor": "天窗全关"
+        }
+      }
+    },
+    {
+      "intent_id": "CRUISE_DISABLE",
+      "priority": "P1",
+      "anchor_index_v1_2": 668,
+      "old_anchor": "取消当前巡航控制",
+      "new_anchor": "取消巡航模式",
+      "v1_2_wrong_top1": "CRUISE_ENABLE",
+      "v1_2_correct_target_rank": 2,
+      "reason": "“取消当前巡航控制”被开启巡航吸走；恢复更简洁且与“退出巡航模式/关闭巡航模式”同簇的“取消巡航模式”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "CRUISE_DISABLE",
+          "top1_similarity": 0.865607,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.865607,
+          "top1_strongest_anchor": "关闭巡航功能",
+          "correct_target_strongest_anchor": "关闭巡航功能"
+        },
+        "literal": {
+          "top1_target": "CRUISE_ENABLE",
+          "top1_similarity": 0.5,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.5,
+          "top1_strongest_anchor": "启用巡航",
+          "correct_target_strongest_anchor": "关闭巡航"
+        },
+        "pinyin": {
+          "top1_target": "GEAR_SET",
+          "top1_similarity": 0.857143,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.769231,
+          "top1_strongest_anchor": "倒挡",
+          "correct_target_strongest_anchor": "关闭巡航"
+        }
+      }
+    },
+    {
+      "intent_id": "LOW_BEAM_ON",
+      "priority": "P1",
+      "anchor_index_v1_2": 828,
+      "old_anchor": "开启车辆近光照明",
+      "new_anchor": "开启车辆近光灯",
+      "v1_2_wrong_top1": "LOW_BEAM_OFF",
+      "v1_2_correct_target_rank": 4,
+      "reason": "近光与远光的“车辆…照明”表达高度重合；改为显式“近光灯”，强化目标对象。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "HIGH_BEAM_ON",
+          "top1_similarity": 0.896531,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.863305,
+          "top1_strongest_anchor": "启用车辆远光照明",
+          "correct_target_strongest_anchor": "开启近光灯"
+        },
+        "literal": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.615385,
+          "top1_strongest_anchor": "关闭车辆近光照明",
+          "correct_target_strongest_anchor": "开启近光灯"
+        },
+        "pinyin": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.896552,
+          "correct_target_rank": 10,
+          "correct_target_highest_similarity": 0.655172,
+          "top1_strongest_anchor": "关闭车辆近光照明",
+          "correct_target_strongest_anchor": "帮我开一下车里的近光灯"
+        }
+      }
+    },
+    {
+      "intent_id": "LOW_BEAM_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 848,
+      "old_anchor": "关闭车辆近光照明",
+      "new_anchor": "关闭车辆近光灯",
+      "v1_2_wrong_top1": "HIGH_BEAM_OFF",
+      "v1_2_correct_target_rank": 3,
+      "reason": "关闭近光同时受到远光关闭和近光开启干扰；统一显式“近光灯”对象，并用关闭/停用/关掉强化方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "HIGH_BEAM_OFF",
+          "top1_similarity": 0.960568,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.894282,
+          "top1_strongest_anchor": "关闭车辆远光照明",
+          "correct_target_strongest_anchor": "关闭近光灯"
+        },
+        "literal": {
+          "top1_target": "HIGH_BEAM_OFF",
+          "top1_similarity": 0.875,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "关闭车辆远光照明",
+          "correct_target_strongest_anchor": "取消近光照明"
+        },
+        "pinyin": {
+          "top1_target": "HIGH_BEAM_OFF",
+          "top1_similarity": 0.918033,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.818182,
+          "top1_strongest_anchor": "关闭车辆远光照明",
+          "correct_target_strongest_anchor": "取消近光照明"
+        }
+      }
+    },
+    {
+      "intent_id": "LOW_BEAM_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 849,
+      "old_anchor": "取消近光照明",
+      "new_anchor": "停用车辆近光灯",
+      "v1_2_wrong_top1": "HIGH_BEAM_OFF",
+      "v1_2_correct_target_rank": 3,
+      "reason": "关闭近光同时受到远光关闭和近光开启干扰；统一显式“近光灯”对象，并用关闭/停用/关掉强化方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "HIGH_BEAM_OFF",
+          "top1_similarity": 0.936805,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.888146,
+          "top1_strongest_anchor": "取消远光照明",
+          "correct_target_strongest_anchor": "关掉近光灯"
+        },
+        "literal": {
+          "top1_target": "HIGH_BEAM_OFF",
+          "top1_similarity": 0.833333,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "取消远光照明",
+          "correct_target_strongest_anchor": "关闭车辆近光照明"
+        },
+        "pinyin": {
+          "top1_target": "HIGH_BEAM_OFF",
+          "top1_similarity": 0.888889,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.818182,
+          "top1_strongest_anchor": "取消远光照明",
+          "correct_target_strongest_anchor": "关闭车辆近光照明"
+        }
+      }
+    },
+    {
+      "intent_id": "LOW_BEAM_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 850,
+      "old_anchor": "近光灯关掉",
+      "new_anchor": "把近光灯关掉",
+      "v1_2_wrong_top1": "LOW_BEAM_ON",
+      "v1_2_correct_target_rank": 2,
+      "reason": "关闭近光同时受到远光关闭和近光开启干扰；统一显式“近光灯”对象，并用关闭/停用/关掉强化方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.967619,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.967619,
+          "top1_strongest_anchor": "关掉近光灯",
+          "correct_target_strongest_anchor": "关掉近光灯"
+        },
+        "literal": {
+          "top1_target": "LOW_BEAM_ON",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.6,
+          "top1_strongest_anchor": "开近光灯",
+          "correct_target_strongest_anchor": "关闭近光灯"
+        },
+        "pinyin": {
+          "top1_target": "LOW_BEAM_ON",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.7,
+          "top1_strongest_anchor": "开近光灯",
+          "correct_target_strongest_anchor": "关闭近光灯一下"
+        }
+      }
+    },
+    {
+      "intent_id": "HIGH_BEAM_ON",
+      "priority": "P1",
+      "anchor_index_v1_2": 870,
+      "old_anchor": "启用车辆远光照明",
+      "new_anchor": "启用车辆远光灯",
+      "v1_2_wrong_top1": "LOW_BEAM_ON",
+      "v1_2_correct_target_rank": 4,
+      "reason": "近远光开启表达高度重合；改为显式“远光灯”，强化对象区别。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "LOW_BEAM_ON",
+          "top1_similarity": 0.896531,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.830449,
+          "top1_strongest_anchor": "开启车辆近光照明",
+          "correct_target_strongest_anchor": "开启远光灯"
+        },
+        "literal": {
+          "top1_target": "LOW_BEAM_ON",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.5,
+          "top1_strongest_anchor": "开启车辆近光照明",
+          "correct_target_strongest_anchor": "开远光灯"
+        },
+        "pinyin": {
+          "top1_target": "HIGH_BEAM_OFF",
+          "top1_similarity": 0.83871,
+          "correct_target_rank": 9,
+          "correct_target_highest_similarity": 0.625,
+          "top1_strongest_anchor": "关闭车辆远光照明",
+          "correct_target_strongest_anchor": "开远光灯"
+        }
+      }
+    },
+    {
+      "intent_id": "HIGH_BEAM_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 888,
+      "old_anchor": "关闭车辆远光照明",
+      "new_anchor": "关闭车辆远光灯",
+      "v1_2_wrong_top1": "LOW_BEAM_OFF",
+      "v1_2_correct_target_rank": 3,
+      "reason": "近远光关闭表达高度重合；改为显式“远光灯”，并保留关闭/停用方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.960568,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.909274,
+          "top1_strongest_anchor": "关闭车辆近光照明",
+          "correct_target_strongest_anchor": "关闭远光灯"
+        },
+        "literal": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.875,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "关闭车辆近光照明",
+          "correct_target_strongest_anchor": "取消远光照明"
+        },
+        "pinyin": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.918033,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.826087,
+          "top1_strongest_anchor": "关闭车辆近光照明",
+          "correct_target_strongest_anchor": "取消远光照明"
+        }
+      }
+    },
+    {
+      "intent_id": "HIGH_BEAM_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 889,
+      "old_anchor": "取消远光照明",
+      "new_anchor": "停用车辆远光灯",
+      "v1_2_wrong_top1": "LOW_BEAM_OFF",
+      "v1_2_correct_target_rank": 3,
+      "reason": "近远光关闭表达高度重合；改为显式“远光灯”，并保留关闭/停用方向。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.936805,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.918747,
+          "top1_strongest_anchor": "取消近光照明",
+          "correct_target_strongest_anchor": "把远光照明关掉"
+        },
+        "literal": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.833333,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "取消近光照明",
+          "correct_target_strongest_anchor": "关闭车辆远光照明"
+        },
+        "pinyin": {
+          "top1_target": "LOW_BEAM_OFF",
+          "top1_similarity": 0.888889,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.826087,
+          "top1_strongest_anchor": "取消近光照明",
+          "correct_target_strongest_anchor": "关闭车辆远光照明"
+        }
+      }
+    },
+    {
+      "intent_id": "FOG_LIGHT_OFF",
+      "priority": "P1",
+      "anchor_index_v1_2": 931,
+      "old_anchor": "找到后雾灯开关设置并关闭",
+      "new_anchor": "关闭后雾灯开关",
+      "v1_2_wrong_top1": "FOG_LIGHT_ON",
+      "v1_2_correct_target_rank": 2,
+      "reason": "原长句在拼音通道被开启雾灯吸走；压缩成明确对象+关闭动作的“关闭后雾灯开关”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "FOG_LIGHT_OFF",
+          "top1_similarity": 0.877916,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.877916,
+          "top1_strongest_anchor": "后雾灯的开关找出来并且给我关掉",
+          "correct_target_strongest_anchor": "后雾灯的开关找出来并且给我关掉"
+        },
+        "literal": {
+          "top1_target": "DEFROST_OFF",
+          "top1_similarity": 0.6,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.6,
+          "top1_strongest_anchor": "后除雾关掉",
+          "correct_target_strongest_anchor": "关闭后雾灯"
+        },
+        "pinyin": {
+          "top1_target": "FOG_LIGHT_ON",
+          "top1_similarity": 0.785714,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.764706,
+          "top1_strongest_anchor": "打开后雾灯",
+          "correct_target_strongest_anchor": "关掉后雾灯"
+        }
+      }
+    },
+    {
+      "intent_id": "WINDOW_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 1014,
+      "old_anchor": "所有车窗全部关闭",
+      "new_anchor": "全车车窗全部关上",
+      "v1_2_wrong_top1": "WINDOW_OPEN",
+      "v1_2_correct_target_rank": 2,
+      "reason": "“所有车窗全部关闭”与开启侧“所有车窗全部打开”高度镜像；改用“全车车窗全部关上”靠近关闭簇。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "WINDOW_CLOSE",
+          "top1_similarity": 0.919525,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.919525,
+          "top1_strongest_anchor": "把全车车窗全部关闭",
+          "correct_target_strongest_anchor": "把全车车窗全部关闭"
+        },
+        "literal": {
+          "top1_target": "WINDOW_OPEN",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "所有车窗全部打开",
+          "correct_target_strongest_anchor": "把全车车窗全部关闭"
+        },
+        "pinyin": {
+          "top1_target": "WINDOW_OPEN",
+          "top1_similarity": 0.867925,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.814815,
+          "top1_strongest_anchor": "所有车窗全部打开",
+          "correct_target_strongest_anchor": "把全车车窗全部关闭"
+        }
+      }
+    },
+    {
+      "intent_id": "WINDOW_SET_POSITION",
+      "priority": "P1",
+      "anchor_index_v1_2": 1029,
+      "old_anchor": "右后车窗开到50%",
+      "new_anchor": "右后车窗开度调到50%",
+      "v1_2_wrong_top1": "DOOR_SET_POSITION",
+      "v1_2_correct_target_rank": 3,
+      "reason": "两条位置样本分别被车门开度与车窗打开吸走；显式加入“车窗开度+调到百分比”，强化位置调节属性。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "WINDOW_SET_POSITION",
+          "top1_similarity": 0.813799,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.813799,
+          "top1_strongest_anchor": "左前车窗开到30%",
+          "correct_target_strongest_anchor": "左前车窗开到30%"
+        },
+        "literal": {
+          "top1_target": "DOOR_SET_POSITION",
+          "top1_similarity": 0.777778,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "把右后车门开到70%",
+          "correct_target_strongest_anchor": "左前车窗开到30%"
+        },
+        "pinyin": {
+          "top1_target": "DOOR_SET_POSITION",
+          "top1_similarity": 0.765957,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "把右后车门开到70%",
+          "correct_target_strongest_anchor": "左前车窗开到30%"
+        }
+      }
+    },
+    {
+      "intent_id": "WINDOW_SET_POSITION",
+      "priority": "P1",
+      "anchor_index_v1_2": 1030,
+      "old_anchor": "把车窗开启幅度调到70%",
+      "new_anchor": "把车窗开度调到70%",
+      "v1_2_wrong_top1": "WINDOW_OPEN",
+      "v1_2_correct_target_rank": 3,
+      "reason": "两条位置样本分别被车门开度与车窗打开吸走；显式加入“车窗开度+调到百分比”，强化位置调节属性。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DOOR_SET_POSITION",
+          "top1_similarity": 0.846191,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.824114,
+          "top1_strongest_anchor": "把左后车门开启幅度调到50%",
+          "correct_target_strongest_anchor": "设置车窗开度"
+        },
+        "literal": {
+          "top1_target": "WINDOW_OPEN",
+          "top1_similarity": 0.8,
+          "correct_target_rank": 7,
+          "correct_target_highest_similarity": 0.571429,
+          "top1_strongest_anchor": "把车窗打开",
+          "correct_target_strongest_anchor": "把车窗开到一半"
+        },
+        "pinyin": {
+          "top1_target": "WINDOW_OPEN",
+          "top1_similarity": 0.875,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.727273,
+          "top1_strongest_anchor": "把车窗打开",
+          "correct_target_strongest_anchor": "把车窗开到一半"
+        }
+      }
+    },
+    {
+      "intent_id": "DOOR_CLOSE",
+      "priority": "P1",
+      "anchor_index_v1_2": 1080,
+      "old_anchor": "关闭车辆电动侧门",
+      "new_anchor": "关闭车辆电动侧滑门",
+      "v1_2_wrong_top1": "WINDOW_CLOSE",
+      "v1_2_correct_target_rank": 3,
+      "reason": "“电动侧门”对象不够稳定，被车窗/尾门关闭吸走；明确为“电动侧滑门”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "TRUNK_CLOSE",
+          "top1_similarity": 0.853488,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.818319,
+          "top1_strongest_anchor": "关闭电动尾门",
+          "correct_target_strongest_anchor": "电动门关闭"
+        },
+        "literal": {
+          "top1_target": "WINDOW_CLOSE",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "关闭车窗",
+          "correct_target_strongest_anchor": "关闭车门"
+        },
+        "pinyin": {
+          "top1_target": "HORN_ACTIVATE",
+          "top1_similarity": 0.833333,
+          "correct_target_rank": 5,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "鸣笛",
+          "correct_target_strongest_anchor": "关闭车门"
+        }
+      }
+    },
+    {
+      "intent_id": "DOOR_SET_POSITION",
+      "priority": "P1",
+      "anchor_index_v1_2": 1089,
+      "old_anchor": "把左后车门开启幅度调到50%",
+      "new_anchor": "把左后车门开度调到50%",
+      "v1_2_wrong_top1": "WINDOW_SET_POSITION",
+      "v1_2_correct_target_rank": 2,
+      "reason": "车门与车窗位置表达高度相似；保留左后车门对象，并将核心控制属性统一为“车门开度”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DOOR_SET_POSITION",
+          "top1_similarity": 0.886188,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.886188,
+          "top1_strongest_anchor": "把左前车门开到50%",
+          "correct_target_strongest_anchor": "把左前车门开到50%"
+        },
+        "literal": {
+          "top1_target": "WINDOW_SET_POSITION",
+          "top1_similarity": 0.769231,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "把车窗开启幅度调到70%",
+          "correct_target_strongest_anchor": "设置车门开启幅度"
+        },
+        "pinyin": {
+          "top1_target": "DOOR_OPEN",
+          "top1_similarity": 0.764706,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.761905,
+          "top1_strongest_anchor": "打开左后车门",
+          "correct_target_strongest_anchor": "设置车门开启幅度"
+        }
+      }
+    },
+    {
+      "intent_id": "DOOR_UNLOCK",
+      "priority": "P1",
+      "anchor_index_v1_2": 1129,
+      "old_anchor": "解除左前车门锁定",
+      "new_anchor": "把左前车门解锁",
+      "v1_2_wrong_top1": "DOOR_LOCK",
+      "v1_2_correct_target_rank": 2,
+      "reason": "“解除…锁定”更容易靠近锁定簇；改为直接的“把左前车门解锁”，贴近本意图大量解锁锚点。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "DOOR_LOCK",
+          "top1_similarity": 0.897902,
+          "correct_target_rank": 4,
+          "correct_target_highest_similarity": 0.816476,
+          "top1_strongest_anchor": "给左前车门上锁",
+          "correct_target_strongest_anchor": "解除所有车门锁定"
+        },
+        "literal": {
+          "top1_target": "DOOR_LOCK",
+          "top1_similarity": 0.75,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.75,
+          "top1_strongest_anchor": "车门上锁",
+          "correct_target_strongest_anchor": "解除所有车门锁定"
+        },
+        "pinyin": {
+          "top1_target": "DOOR_UNLOCK",
+          "top1_similarity": 0.823529,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.823529,
+          "top1_strongest_anchor": "解除所有车门锁定",
+          "correct_target_strongest_anchor": "解除所有车门锁定"
+        }
+      }
+    },
+    {
+      "intent_id": "PARKING_BRAKE_RELEASE",
+      "priority": "P1",
+      "anchor_index_v1_2": 1210,
+      "old_anchor": "松开手刹释放制动",
+      "new_anchor": "松开手刹",
+      "v1_2_wrong_top1": "PARKING_BRAKE_APPLY",
+      "v1_2_correct_target_rank": 2,
+      "reason": "原句同时含“手刹/制动”，容易被施加驻车制动吸走；保留最直接的释放表达“松开手刹”。",
+      "v1_2_channels": {
+        "semantic": {
+          "top1_target": "PARKING_BRAKE_RELEASE",
+          "top1_similarity": 0.819168,
+          "correct_target_rank": 1,
+          "correct_target_highest_similarity": 0.819168,
+          "top1_strongest_anchor": "松开并释放电子手刹",
+          "correct_target_strongest_anchor": "松开并释放电子手刹"
+        },
+        "literal": {
+          "top1_target": "PARKING_BRAKE_APPLY",
+          "top1_similarity": 0.666667,
+          "correct_target_rank": 2,
+          "correct_target_highest_similarity": 0.666667,
+          "top1_strongest_anchor": "拉手刹",
+          "correct_target_strongest_anchor": "释放驻车制动"
+        },
+        "pinyin": {
+          "top1_target": "PARKING_BRAKE_APPLY",
+          "top1_similarity": 0.888889,
+          "correct_target_rank": 3,
+          "correct_target_highest_similarity": 0.7,
+          "top1_strongest_anchor": "拉手刹",
+          "correct_target_strongest_anchor": "释放驻车制动"
+        }
+      }
+    }
+  ]
+}

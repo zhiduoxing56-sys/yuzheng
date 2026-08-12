@@ -1,0 +1,4333 @@
+{
+  "metadata": {
+    "collected_at": "2026-08-07T10:21:49.270640",
+    "client_version": "0.9.16",
+    "server_version": "0.9.16",
+    "map": "Carla/Maps/Town10HD_Opt",
+    "ego_vehicle_id": 32,
+    "ego_vehicle_type": "vehicle.tesla.model3"
+  },
+  "说明": {
+    "实际能力判定": "以本机运行时蓝图库 sensor.* 枚举结果为准",
+    "真实样本含义": "本轮能够实际创建并收到的数据",
+    "未触发含义": "存在对应能力，但当前场景没有产生事件或缺少配对条件",
+    "官方参考": "附带卡拉0.9.16标准传感器目录，用于识别特殊能力"
+  },
+  "official_reference_catalog": {
+    "sensor.other.collision": {
+      "类别": "碰撞检测",
+      "数据类型": "carla.CollisionEvent",
+      "产生方式": "事件触发"
+    },
+    "sensor.camera.depth": {
+      "类别": "深度摄像头",
+      "数据类型": "carla.Image",
+      "产生方式": "周期"
+    },
+    "sensor.other.gnss": {
+      "类别": "卫星定位",
+      "数据类型": "carla.GnssMeasurement",
+      "产生方式": "周期"
+    },
+    "sensor.other.imu": {
+      "类别": "惯性测量",
+      "数据类型": "carla.IMUMeasurement",
+      "产生方式": "周期"
+    },
+    "sensor.other.lane_invasion": {
+      "类别": "车道侵入检测",
+      "数据类型": "carla.LaneInvasionEvent",
+      "产生方式": "事件触发"
+    },
+    "sensor.lidar.ray_cast": {
+      "类别": "激光雷达",
+      "数据类型": "carla.LidarMeasurement",
+      "产生方式": "周期"
+    },
+    "sensor.other.obstacle": {
+      "类别": "障碍物检测",
+      "数据类型": "carla.ObstacleDetectionEvent",
+      "产生方式": "事件或周期检测"
+    },
+    "sensor.other.radar": {
+      "类别": "毫米波雷达",
+      "数据类型": "carla.RadarMeasurement",
+      "产生方式": "周期"
+    },
+    "sensor.camera.rgb": {
+      "类别": "彩色摄像头",
+      "数据类型": "carla.Image",
+      "产生方式": "周期"
+    },
+    "sensor.other.rss": {
+      "类别": "责任敏感安全",
+      "数据类型": "carla.RssResponse",
+      "产生方式": "特殊客户端能力",
+      "备注": "默认关闭，需要专门构建支持"
+    },
+    "sensor.lidar.ray_cast_semantic": {
+      "类别": "语义激光雷达",
+      "数据类型": "carla.SemanticLidarMeasurement",
+      "产生方式": "周期"
+    },
+    "sensor.camera.semantic_segmentation": {
+      "类别": "语义分割摄像头",
+      "数据类型": "carla.Image",
+      "产生方式": "周期"
+    },
+    "sensor.camera.instance_segmentation": {
+      "类别": "实例分割摄像头",
+      "数据类型": "carla.Image",
+      "产生方式": "周期"
+    },
+    "sensor.camera.dvs": {
+      "类别": "事件摄像头",
+      "数据类型": "carla.DVSEventArray",
+      "产生方式": "周期/亮度变化事件"
+    },
+    "sensor.camera.optical_flow": {
+      "类别": "光流摄像头",
+      "数据类型": "carla.OpticalFlowImage",
+      "产生方式": "周期"
+    },
+    "sensor.other.v2x": {
+      "类别": "车联万物协同感知消息",
+      "数据类型": "carla.CAMEvent",
+      "产生方式": "通信触发",
+      "备注": "至少需要两个同类传感器"
+    },
+    "sensor.other.v2x_custom": {
+      "类别": "车联万物自定义消息",
+      "数据类型": "carla.CustomV2XEvent",
+      "产生方式": "send调用后触发",
+      "备注": "至少需要发送端和接收端"
+    }
+  },
+  "installed_sensor_blueprints": [
+    {
+      "id": "sensor.camera.cosmos_visualization",
+      "tags": [
+        "cosmos_visualization",
+        "sensor",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": null
+    },
+    {
+      "id": "sensor.camera.depth",
+      "tags": [
+        "depth",
+        "sensor",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "深度摄像头",
+        "数据类型": "carla.Image",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.camera.dvs",
+      "tags": [
+        "dvs",
+        "sensor",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "refractory_period_ns",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=refractory_period_ns,type=int,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0"
+          ]
+        },
+        {
+          "id": "sigma_negative_threshold",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sigma_negative_threshold,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "sigma_positive_threshold",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sigma_positive_threshold,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "negative_threshold",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=negative_threshold,type=float,value=0.3)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.3"
+          ]
+        },
+        {
+          "id": "positive_threshold",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=positive_threshold,type=float,value=0.3)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.3"
+          ]
+        },
+        {
+          "id": "chromatic_aberration_offset",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=chromatic_aberration_offset,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "chromatic_aberration_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=chromatic_aberration_intensity,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "black_clip",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=black_clip,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "log_eps",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=log_eps,type=float,value=0.001)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.001"
+          ]
+        },
+        {
+          "id": "shoulder",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=shoulder,type=float,value=0.26)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.26"
+          ]
+        },
+        {
+          "id": "slope",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=slope,type=float,value=0.88)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.88"
+          ]
+        },
+        {
+          "id": "blade_count",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=blade_count,type=int,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5"
+          ]
+        },
+        {
+          "id": "focal_distance",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=focal_distance,type=float,value=1000)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1000.0"
+          ]
+        },
+        {
+          "id": "exposure_speed_down",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_speed_down,type=float,value=1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "calibration_constant",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=calibration_constant,type=float,value=16)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "16.0"
+          ]
+        },
+        {
+          "id": "lens_flare_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_flare_intensity,type=float,value=0.1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.1"
+          ]
+        },
+        {
+          "id": "blur_amount",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=blur_amount,type=float,value=1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "exposure_max_bright",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_max_bright,type=float,value=12)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "12.0"
+          ]
+        },
+        {
+          "id": "gamma",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=gamma,type=float,value=2.2)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "fstop",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fstop,type=float,value=1.4)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.4"
+          ]
+        },
+        {
+          "id": "iso",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=iso,type=float,value=100)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "100.0"
+          ]
+        },
+        {
+          "id": "blur_radius",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=blur_radius,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "shutter_speed",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=shutter_speed,type=float,value=200)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "200.0"
+          ]
+        },
+        {
+          "id": "exposure_speed_up",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_speed_up,type=float,value=3)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "3.0"
+          ]
+        },
+        {
+          "id": "motion_blur_min_object_screen_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=motion_blur_min_object_screen_size,type=float,value=0.1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.1"
+          ]
+        },
+        {
+          "id": "motion_blur_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=motion_blur_intensity,type=float,value=0.45)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.45"
+          ]
+        },
+        {
+          "id": "exposure_compensation",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_compensation,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "exposure_mode",
+          "type": "String",
+          "current_value": "histogram",
+          "is_modifiable": true,
+          "recommended_values": [
+            "histogram",
+            "manual"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "toe",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=toe,type=float,value=0.55)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.55"
+          ]
+        },
+        {
+          "id": "bloom_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=bloom_intensity,type=float,value=0.675)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.675"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "motion_blur_max_distortion",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=motion_blur_max_distortion,type=float,value=0.35)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.35"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "tint",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=tint,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "temp",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=temp,type=float,value=6500)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "6500.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "use_log",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=use_log,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "True"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "white_clip",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=white_clip,type=float,value=0.04)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.04"
+          ]
+        },
+        {
+          "id": "enable_postprocess_effects",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=enable_postprocess_effects,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "min_fstop",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=min_fstop,type=float,value=1.2)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.2"
+          ]
+        },
+        {
+          "id": "exposure_min_bright",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_min_bright,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "事件摄像头",
+        "数据类型": "carla.DVSEventArray",
+        "产生方式": "周期/亮度变化事件"
+      }
+    },
+    {
+      "id": "sensor.camera.instance_segmentation",
+      "tags": [
+        "instance_segmentation",
+        "sensor",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "实例分割摄像头",
+        "数据类型": "carla.Image",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.camera.normals",
+      "tags": [
+        "normals",
+        "sensor",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": null
+    },
+    {
+      "id": "sensor.camera.optical_flow",
+      "tags": [
+        "sensor",
+        "optical_flow",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "光流摄像头",
+        "数据类型": "carla.OpticalFlowImage",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.camera.rgb",
+      "tags": [
+        "rgb",
+        "sensor",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "tint",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=tint,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "blur_amount",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=blur_amount,type=float,value=1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "min_fstop",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=min_fstop,type=float,value=1.2)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.2"
+          ]
+        },
+        {
+          "id": "chromatic_aberration_offset",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=chromatic_aberration_offset,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "slope",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=slope,type=float,value=0.88)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.88"
+          ]
+        },
+        {
+          "id": "focal_distance",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=focal_distance,type=float,value=1000)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1000.0"
+          ]
+        },
+        {
+          "id": "exposure_speed_down",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_speed_down,type=float,value=1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "exposure_speed_up",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_speed_up,type=float,value=3)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "3.0"
+          ]
+        },
+        {
+          "id": "motion_blur_min_object_screen_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=motion_blur_min_object_screen_size,type=float,value=0.1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.1"
+          ]
+        },
+        {
+          "id": "lens_flare_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_flare_intensity,type=float,value=0.1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.1"
+          ]
+        },
+        {
+          "id": "motion_blur_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=motion_blur_intensity,type=float,value=0.45)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.45"
+          ]
+        },
+        {
+          "id": "exposure_min_bright",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_min_bright,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "gamma",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=gamma,type=float,value=2.2)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "blade_count",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=blade_count,type=int,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5"
+          ]
+        },
+        {
+          "id": "enable_postprocess_effects",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=enable_postprocess_effects,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "calibration_constant",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=calibration_constant,type=float,value=16)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "16.0"
+          ]
+        },
+        {
+          "id": "exposure_compensation",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_compensation,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "exposure_mode",
+          "type": "String",
+          "current_value": "histogram",
+          "is_modifiable": true,
+          "recommended_values": [
+            "histogram",
+            "manual"
+          ]
+        },
+        {
+          "id": "exposure_max_bright",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=exposure_max_bright,type=float,value=12)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "12.0"
+          ]
+        },
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "chromatic_aberration_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=chromatic_aberration_intensity,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fstop",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fstop,type=float,value=1.4)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.4"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "toe",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=toe,type=float,value=0.55)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.55"
+          ]
+        },
+        {
+          "id": "motion_blur_max_distortion",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=motion_blur_max_distortion,type=float,value=0.35)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.35"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "bloom_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=bloom_intensity,type=float,value=0.675)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.675"
+          ]
+        },
+        {
+          "id": "shutter_speed",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=shutter_speed,type=float,value=200)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "200.0"
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "temp",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=temp,type=float,value=6500)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "6500.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "white_clip",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=white_clip,type=float,value=0.04)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.04"
+          ]
+        },
+        {
+          "id": "shoulder",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=shoulder,type=float,value=0.26)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.26"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "blur_radius",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=blur_radius,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "iso",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=iso,type=float,value=100)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "100.0"
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "black_clip",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=black_clip,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "彩色摄像头",
+        "数据类型": "carla.Image",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.camera.semantic_segmentation",
+      "tags": [
+        "semantic_segmentation",
+        "sensor",
+        "camera"
+      ],
+      "attributes": [
+        {
+          "id": "lens_x_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_x_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_circle_multiplier",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_multiplier,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lens_y_size",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_y_size,type=float,value=0.08)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.08"
+          ]
+        },
+        {
+          "id": "lens_kcube",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_kcube,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "image_size_y",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_y,type=int,value=600)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "600"
+          ]
+        },
+        {
+          "id": "lens_circle_falloff",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_circle_falloff,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "image_size_x",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=image_size_x,type=int,value=800)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "800"
+          ]
+        },
+        {
+          "id": "lens_k",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lens_k,type=float,value=-1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-1.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=fov,type=float,value=90)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "90.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "语义分割摄像头",
+        "数据类型": "carla.Image",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.lidar.ray_cast",
+      "tags": [
+        "ray_cast",
+        "sensor",
+        "lidar"
+      ],
+      "attributes": [
+        {
+          "id": "dropoff_zero_intensity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=dropoff_zero_intensity,type=float,value=0.4)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.4"
+          ]
+        },
+        {
+          "id": "dropoff_intensity_limit",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=dropoff_intensity_limit,type=float,value=0.8)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.8"
+          ]
+        },
+        {
+          "id": "dropoff_general_rate",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=dropoff_general_rate,type=float,value=0.45)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.45"
+          ]
+        },
+        {
+          "id": "atmosphere_attenuation_rate",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=atmosphere_attenuation_rate,type=float,value=0.004)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.004"
+          ]
+        },
+        {
+          "id": "horizontal_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=horizontal_fov,type=float,value=360)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "360.0"
+          ]
+        },
+        {
+          "id": "rotation_frequency",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=rotation_frequency,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "range",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=range,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "noise_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "lower_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lower_fov,type=float,value=-30)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-30.0"
+          ]
+        },
+        {
+          "id": "upper_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=upper_fov,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "points_per_second",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=points_per_second,type=int,value=56000)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "56000"
+          ]
+        },
+        {
+          "id": "channels",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=channels,type=int,value=32)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "32"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "noise_seed",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=noise_seed,type=int,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0"
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "激光雷达",
+        "数据类型": "carla.LidarMeasurement",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.lidar.ray_cast_semantic",
+      "tags": [
+        "ray_cast_semantic",
+        "sensor",
+        "lidar"
+      ],
+      "attributes": [
+        {
+          "id": "horizontal_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=horizontal_fov,type=float,value=360)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "360.0"
+          ]
+        },
+        {
+          "id": "upper_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=upper_fov,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "rotation_frequency",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=rotation_frequency,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "lower_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=lower_fov,type=float,value=-30)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-30.0"
+          ]
+        },
+        {
+          "id": "points_per_second",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=points_per_second,type=int,value=56000)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "56000"
+          ]
+        },
+        {
+          "id": "range",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=range,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "channels",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=channels,type=int,value=32)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "32"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "语义激光雷达",
+        "数据类型": "carla.SemanticLidarMeasurement",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.other.collision",
+      "tags": [
+        "collision",
+        "sensor",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "碰撞检测",
+        "数据类型": "carla.CollisionEvent",
+        "产生方式": "事件触发"
+      }
+    },
+    {
+      "id": "sensor.other.gnss",
+      "tags": [
+        "gnss",
+        "sensor",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "noise_alt_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_alt_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_lon_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lon_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_seed",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=noise_seed,type=int,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0"
+          ]
+        },
+        {
+          "id": "noise_alt_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_alt_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_lon_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lon_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "noise_lat_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lat_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_lat_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lat_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "default",
+          "is_modifiable": true,
+          "recommended_values": [
+            "default"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "卫星定位",
+        "数据类型": "carla.GnssMeasurement",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.other.imu",
+      "tags": [
+        "imu",
+        "sensor",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "noise_gyro_bias_y",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_gyro_bias_y,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_gyro_bias_x",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_gyro_bias_x,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_gyro_stddev_z",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_gyro_stddev_z,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_gyro_stddev_y",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_gyro_stddev_y,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_gyro_stddev_x",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_gyro_stddev_x,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_accel_stddev_z",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_accel_stddev_z,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_accel_stddev_y",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_accel_stddev_y,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_accel_stddev_x",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_accel_stddev_x,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_seed",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=noise_seed,type=int,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "noise_gyro_bias_z",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_gyro_bias_z,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "default",
+          "is_modifiable": true,
+          "recommended_values": [
+            "default"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "惯性测量",
+        "数据类型": "carla.IMUMeasurement",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.other.lane_invasion",
+      "tags": [
+        "lane_invasion",
+        "sensor",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "车道侵入检测",
+        "数据类型": "carla.LaneInvasionEvent",
+        "产生方式": "事件触发"
+      }
+    },
+    {
+      "id": "sensor.other.obstacle",
+      "tags": [
+        "obstacle",
+        "sensor",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "only_dynamics",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=only_dynamics,type=bool,value=False)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "false"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "debug_linetrace",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=debug_linetrace,type=bool,value=False)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "false"
+          ]
+        },
+        {
+          "id": "hit_radius",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=hit_radius,type=float,value=0.5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.5"
+          ]
+        },
+        {
+          "id": "distance",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=distance,type=float,value=5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.0"
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "障碍物检测",
+        "数据类型": "carla.ObstacleDetectionEvent",
+        "产生方式": "事件或周期检测"
+      }
+    },
+    {
+      "id": "sensor.other.radar",
+      "tags": [
+        "radar",
+        "sensor",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "points_per_second",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=points_per_second,type=int,value=1500)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1500"
+          ]
+        },
+        {
+          "id": "range",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=range,type=float,value=100)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "100"
+          ]
+        },
+        {
+          "id": "vertical_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=vertical_fov,type=float,value=30)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "30"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "noise_seed",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=noise_seed,type=int,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0"
+          ]
+        },
+        {
+          "id": "horizontal_fov",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=horizontal_fov,type=float,value=30)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "30"
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "default",
+          "is_modifiable": true,
+          "recommended_values": [
+            "default"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "毫米波雷达",
+        "数据类型": "carla.RadarMeasurement",
+        "产生方式": "周期"
+      }
+    },
+    {
+      "id": "sensor.other.rss",
+      "tags": [
+        "sensor",
+        "rss",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "front",
+          "is_modifiable": true,
+          "recommended_values": [
+            "front",
+            "back",
+            "left",
+            "right",
+            "front_left",
+            "front_right",
+            "back_left",
+            "back_right"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "责任敏感安全",
+        "数据类型": "carla.RssResponse",
+        "产生方式": "特殊客户端能力",
+        "备注": "默认关闭，需要专门构建支持"
+      }
+    },
+    {
+      "id": "sensor.other.v2x",
+      "tags": [
+        "sensor",
+        "v2x",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "noise_vel_stddev_x",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_vel_stddev_x,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_head_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_head_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_alt_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_alt_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_alt_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_alt_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_lon_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lon_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_lat_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lat_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "fixed_rate",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=fixed_rate,type=bool,value=False)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "false"
+          ]
+        },
+        {
+          "id": "noise_yawrate_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_yawrate_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "gen_cam_max",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=gen_cam_max,type=float,value=1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "noise_lat_bias",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lat_bias,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "gen_cam_min",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=gen_cam_min,type=float,value=0.1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.1"
+          ]
+        },
+        {
+          "id": "custom_fading_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=custom_fading_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "use_etsi_fading",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=use_etsi_fading,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "noise_accel_stddev_y",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_accel_stddev_y,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_head_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_head_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "filter_distance",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=filter_distance,type=float,value=500)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "500.0"
+          ]
+        },
+        {
+          "id": "path_loss_exponent",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=path_loss_exponent,type=float,value=2.7)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "2.7"
+          ]
+        },
+        {
+          "id": "d_ref",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=d_ref,type=float,value=1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "path_loss_model",
+          "type": "String",
+          "current_value": "winner",
+          "is_modifiable": true,
+          "recommended_values": [
+            "winner",
+            "geometric"
+          ]
+        },
+        {
+          "id": "noise_yawrate_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_yawrate_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "noise_lon_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_lon_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "scenario",
+          "type": "String",
+          "current_value": "highway",
+          "is_modifiable": true,
+          "recommended_values": [
+            "highway",
+            "rural",
+            "urban"
+          ]
+        },
+        {
+          "id": "combined_antenna_gain",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=combined_antenna_gain,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "receiver_sensitivity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=receiver_sensitivity,type=float,value=-99)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-99.0"
+          ]
+        },
+        {
+          "id": "noise_accel_stddev_z",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_accel_stddev_z,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "transmit_power",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=transmit_power,type=float,value=21.5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "21.5"
+          ]
+        },
+        {
+          "id": "noise_seed",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=noise_seed,type=int,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0"
+          ]
+        },
+        {
+          "id": "frequency_ghz",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=frequency_ghz,type=float,value=5.9)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.9"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "noise_accel_stddev_x",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=noise_accel_stddev_x,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "default",
+          "is_modifiable": true,
+          "recommended_values": [
+            "default"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "车联万物协同感知消息",
+        "数据类型": "carla.CAMEvent",
+        "产生方式": "通信触发",
+        "备注": "至少需要两个同类传感器"
+      }
+    },
+    {
+      "id": "sensor.other.v2x_custom",
+      "tags": [
+        "sensor",
+        "v2x_custom",
+        "other"
+      ],
+      "attributes": [
+        {
+          "id": "custom_fading_stddev",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=custom_fading_stddev,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "use_etsi_fading",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=use_etsi_fading,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "d_ref",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=d_ref,type=float,value=1)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "path_loss_exponent",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=path_loss_exponent,type=float,value=2.7)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "2.7"
+          ]
+        },
+        {
+          "id": "combined_antenna_gain",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=combined_antenna_gain,type=float,value=10)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "10.0"
+          ]
+        },
+        {
+          "id": "frequency_ghz",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=frequency_ghz,type=float,value=5.9)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "5.9"
+          ]
+        },
+        {
+          "id": "receiver_sensitivity",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=receiver_sensitivity,type=float,value=-99)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "-99.0"
+          ]
+        },
+        {
+          "id": "noise_seed",
+          "type": "Int",
+          "current_value": "ActorAttribute(id=noise_seed,type=int,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0"
+          ]
+        },
+        {
+          "id": "sensor_tick",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=sensor_tick,type=float,value=0)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "0.0"
+          ]
+        },
+        {
+          "id": "filter_distance",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=filter_distance,type=float,value=500)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "500.0"
+          ]
+        },
+        {
+          "id": "scenario",
+          "type": "String",
+          "current_value": "highway",
+          "is_modifiable": true,
+          "recommended_values": [
+            "highway",
+            "rural",
+            "urban"
+          ]
+        },
+        {
+          "id": "ros_publish_tf",
+          "type": "Bool",
+          "current_value": "ActorAttribute(id=ros_publish_tf,type=bool,value=True)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "true"
+          ]
+        },
+        {
+          "id": "ros_frame_id",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "path_loss_model",
+          "type": "String",
+          "current_value": "winner",
+          "is_modifiable": true,
+          "recommended_values": [
+            "winner",
+            "geometric"
+          ]
+        },
+        {
+          "id": "ros_name",
+          "type": "String",
+          "current_value": "",
+          "is_modifiable": true,
+          "recommended_values": [
+            ""
+          ]
+        },
+        {
+          "id": "transmit_power",
+          "type": "Float",
+          "current_value": "ActorAttribute(id=transmit_power,type=float,value=21.5)",
+          "is_modifiable": true,
+          "recommended_values": [
+            "21.5"
+          ]
+        },
+        {
+          "id": "role_name",
+          "type": "String",
+          "current_value": "default",
+          "is_modifiable": true,
+          "recommended_values": [
+            "default"
+          ]
+        }
+      ],
+      "official_reference": {
+        "类别": "车联万物自定义消息",
+        "数据类型": "carla.CustomV2XEvent",
+        "产生方式": "send调用后触发",
+        "备注": "至少需要发送端和接收端"
+      }
+    }
+  ],
+  "vehicle_state": {
+    "id": 32,
+    "type_id": "vehicle.tesla.model3",
+    "transform": {
+      "location": {
+        "x": -24.06130599975586,
+        "y": -64.74552917480469,
+        "z": 0.002066116314381361
+      },
+      "rotation": {
+        "pitch": -0.01422045286744833,
+        "yaw": -179.40359497070312,
+        "roll": -6.1035138060105965e-05
+      }
+    },
+    "velocity": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "speed_kmh": 0.0,
+    "acceleration": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "angular_velocity": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "control": {
+      "throttle": 0.0,
+      "steer": 0.0,
+      "brake": 1.0,
+      "hand_brake": false,
+      "reverse": false,
+      "gear": 1,
+      "manual_gear_shift": false
+    },
+    "speed_limit_kmh": 30.0,
+    "light_state": "NONE",
+    "at_traffic_light": true,
+    "traffic_light_state": "Red",
+    "traffic_light_actor": {
+      "id": 11,
+      "type_id": "traffic.traffic_light"
+    },
+    "road": {
+      "road_id": 7,
+      "section_id": 0,
+      "lane_id": 1,
+      "s": 3.7027683727388685,
+      "lane_width": 3.5,
+      "lane_type": "Driving",
+      "is_junction": false
+    }
+  },
+  "world_state": {
+    "map": "Carla/Maps/Town10HD_Opt",
+    "weather": {
+      "cloudiness": 20.0,
+      "dust_storm": 0.0,
+      "fog_density": 2.0,
+      "fog_distance": 0.75,
+      "fog_falloff": 0.10000000149011612,
+      "mie_scattering_scale": 0.029999999329447746,
+      "precipitation": 0.0,
+      "precipitation_deposits": 0.0,
+      "rayleigh_scattering_scale": 0.03310000151395798,
+      "scattering_intensity": 1.0,
+      "sun_altitude_angle": 45.0,
+      "sun_azimuth_angle": 300.0,
+      "wetness": 0.0,
+      "wind_intensity": 10.0
+    },
+    "vehicle_count": 1,
+    "walker_count": 0,
+    "traffic_light_count": 15,
+    "traffic_lights": [
+      {
+        "id": 23,
+        "state": "Red",
+        "location": {
+          "x": -31.636356353759766,
+          "y": 33.58928680419922,
+          "z": 0.2542538344860077
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 22,
+        "state": "Red",
+        "location": {
+          "x": -62.09930419921875,
+          "y": 123.75550842285156,
+          "z": 0.28308558464050293
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 21,
+        "state": "Green",
+        "location": {
+          "x": -58.71535873413086,
+          "y": 145.82456970214844,
+          "z": 0.2541879117488861
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 20,
+        "state": "Green",
+        "location": {
+          "x": -119.2381820678711,
+          "y": 19.00446891784668,
+          "z": 0.2542526125907898
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 19,
+        "state": "Green",
+        "location": {
+          "x": -59.24224853515625,
+          "y": -51.49837112426758,
+          "z": 0.2542538344860077
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 18,
+        "state": "Red",
+        "location": {
+          "x": -94.92822265625,
+          "y": 20.334821701049805,
+          "z": 0.2542559802532196
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 17,
+        "state": "Red",
+        "location": {
+          "x": -62.35206985473633,
+          "y": 20.196908950805664,
+          "z": 0.2542538344860077
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 16,
+        "state": "Green",
+        "location": {
+          "x": -64.26419067382812,
+          "y": 7.063309192657471,
+          "z": 0.2542538344860077
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 15,
+        "state": "Red",
+        "location": {
+          "x": -31.93084144592285,
+          "y": 20.30195426940918,
+          "z": 0.2542538344860077
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 14,
+        "state": "Red",
+        "location": {
+          "x": 89.79188537597656,
+          "y": 20.92214584350586,
+          "z": 0.25420013070106506
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 13,
+        "state": "Green",
+        "location": {
+          "x": 114.45188903808594,
+          "y": 21.196002960205078,
+          "z": 0.25420013070106506
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 12,
+        "state": "Red",
+        "location": {
+          "x": -34.449153900146484,
+          "y": -51.02048873901367,
+          "z": 0.2542550563812256
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 11,
+        "state": "Red",
+        "location": {
+          "x": -46.17157745361328,
+          "y": -73.5566177368164,
+          "z": 0.2542538344860077
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 10,
+        "state": "Red",
+        "location": {
+          "x": 115.4498291015625,
+          "y": 35.044944763183594,
+          "z": 0.222725972533226
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      },
+      {
+        "id": 9,
+        "state": "Red",
+        "location": {
+          "x": -119.23003387451172,
+          "y": 5.093152046203613,
+          "z": 0.26276955008506775
+        },
+        "green_time": 10.0,
+        "yellow_time": 3.0,
+        "red_time": 2.0
+      }
+    ]
+  },
+  "sensor_probe_results": {
+    "sensor.camera.cosmos_visualization": {
+      "sensor_id": "sensor.camera.cosmos_visualization",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "Image",
+        "fov": 90.0,
+        "frame": 375111,
+        "frame_number": 375111,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 57600,
+          "first_64_bytes_hex": "000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff"
+        },
+        "timestamp": 2414.401059139498,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 14400,
+          "sample": [
+            "Color(0,0,0,255)",
+            "Color(0,0,0,255)",
+            "Color(0,0,0,255)",
+            "Color(0,0,0,255)",
+            "Color(0,0,0,255)"
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.camera.depth": {
+      "sensor_id": "sensor.camera.depth",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "Image",
+        "fov": 90.0,
+        "frame": 375123,
+        "frame_number": 375123,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 57600,
+          "first_64_bytes_hex": "099548ff09bda6ff09dc65ff09f681ff0a18a2ff0a36fcff0a5093ff0a84d3ff0aaaf6ff0ad22eff0b049bff0b240eff0b4736ff0b7863ff0ba84bff0bd737ff"
+        },
+        "timestamp": 2414.638500432462,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 14400,
+          "sample": [
+            "Color(72,149,9,255)",
+            "Color(166,189,9,255)",
+            "Color(101,220,9,255)",
+            "Color(129,246,9,255)",
+            "Color(162,24,10,255)"
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.camera.dvs": {
+      "sensor_id": "sensor.camera.dvs",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "DVSEventArray",
+        "fov": 90.0,
+        "frame": 375182,
+        "frame_number": 375182,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 15106,
+          "first_64_bytes_hex": "52001a007c415142320200000052001b0021645d42320200000074000400f856b04232020000008a000900f856b042320200000041001d00f856b04232020000"
+        },
+        "timestamp": 2415.077969504964,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 1162,
+          "sample": [
+            {
+              "x": 82,
+              "y": 26,
+              "pol": false,
+              "t": 2414884241788
+            },
+            {
+              "x": 82,
+              "y": 27,
+              "pol": false,
+              "t": 2414885037089
+            },
+            {
+              "x": 116,
+              "y": 4,
+              "pol": false,
+              "t": 2414890473208
+            },
+            {
+              "x": 138,
+              "y": 9,
+              "pol": false,
+              "t": 2414890473208
+            },
+            {
+              "x": 65,
+              "y": 29,
+              "pol": false,
+              "t": 2414890473208
+            }
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.camera.instance_segmentation": {
+      "sensor_id": "sensor.camera.instance_segmentation",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "Image",
+        "fov": 90.0,
+        "frame": 375216,
+        "frame_number": 375216,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 57600,
+          "first_64_bytes_hex": "8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff8d8003ff"
+        },
+        "timestamp": 2415.310160116038,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 14400,
+          "sample": [
+            "Color(3,128,141,255)",
+            "Color(3,128,141,255)",
+            "Color(3,128,141,255)",
+            "Color(3,128,141,255)",
+            "Color(3,128,141,255)"
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.camera.normals": {
+      "sensor_id": "sensor.camera.normals",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "Image",
+        "fov": 90.0,
+        "frame": 375248,
+        "frame_number": 375248,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 57600,
+          "first_64_bytes_hex": "7dff81ff80ff7eff7a7fffff7eff81ff78ff81ff7bff7eff42ef7eff7cff82ff80ff86ff80ff81ff7880ffff81ff83ff7eff82ff7fff83ff80ff7fff7dff82ff"
+        },
+        "timestamp": 2415.5439898827826,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 14400,
+          "sample": [
+            "Color(129,255,125,255)",
+            "Color(126,255,128,255)",
+            "Color(255,127,122,255)",
+            "Color(129,255,126,255)",
+            "Color(129,255,120,255)"
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.camera.optical_flow": {
+      "sensor_id": "sensor.camera.optical_flow",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "OpticalFlowImage",
+        "fov": 90.0,
+        "frame": 375277,
+        "frame_number": 375277,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 115200,
+          "first_64_bytes_hex": "000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba000080ba"
+        },
+        "timestamp": 2415.781376429346,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 14400,
+          "sample": [
+            {
+              "x": -0.0009765625,
+              "y": -0.0009765625
+            },
+            {
+              "x": -0.0009765625,
+              "y": -0.0009765625
+            },
+            {
+              "x": -0.0009765625,
+              "y": -0.0009765625
+            },
+            {
+              "x": -0.0009765625,
+              "y": -0.0009765625
+            },
+            {
+              "x": -0.0009765625,
+              "y": -0.0009765625
+            }
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.camera.rgb": {
+      "sensor_id": "sensor.camera.rgb",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "Image",
+        "fov": 90.0,
+        "frame": 375312,
+        "frame_number": 375312,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 57600,
+          "first_64_bytes_hex": "6c696cff6d6a6eff6a696dff686369ff717077ff716c72ff454047ff5f5b60ff716e76ff737278ff716e72ff68666eff6e6c71ff898383ff938d8cff696669ff"
+        },
+        "timestamp": 2416.011841277337,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 14400,
+          "sample": [
+            "Color(108,105,108,255)",
+            "Color(110,106,109,255)",
+            "Color(109,105,106,255)",
+            "Color(105,99,104,255)",
+            "Color(119,112,113,255)"
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.camera.semantic_segmentation": {
+      "sensor_id": "sensor.camera.semantic_segmentation",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "Image",
+        "fov": 90.0,
+        "frame": 375345,
+        "frame_number": 375345,
+        "height": 90,
+        "raw_data": {
+          "byte_length": 57600,
+          "first_64_bytes_hex": "000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff000003ff"
+        },
+        "timestamp": 2416.244900384663,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "width": 160,
+        "iterable_summary": {
+          "count": 14400,
+          "sample": [
+            "Color(3,0,0,255)",
+            "Color(3,0,0,255)",
+            "Color(3,0,0,255)",
+            "Color(3,0,0,255)",
+            "Color(3,0,0,255)"
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.lidar.ray_cast": {
+      "sensor_id": "sensor.lidar.ray_cast",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "LidarMeasurement",
+        "channels": 16,
+        "frame": 375381,
+        "frame_number": 375381,
+        "horizontal_angle": 0.0,
+        "raw_data": {
+          "byte_length": 304,
+          "first_64_bytes_hex": "caa98341290818c1c2aaffbf70296d3f05a7864157240dc1bea7ffbfa6296d3f5cd13941cdc5c2c046d2ffbfb4c5723fa6a23d41ae6cb3c05bd0ffbfccc5723f"
+        },
+        "timestamp": 2416.4790997260498,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "iterable_summary": {
+          "count": 19,
+          "sample": [
+            {
+              "point": {
+                "x": 16.457904815673828,
+                "y": -9.501992225646973,
+                "z": -1.9973986148834229
+              },
+              "intensity": 0.9264135360717773
+            },
+            {
+              "point": {
+                "x": 16.831552505493164,
+                "y": -8.821372032165527,
+                "z": -1.9973065853118896
+              },
+              "intensity": 0.9264167547225952
+            },
+            {
+              "point": {
+                "x": 11.61361312866211,
+                "y": -6.086645603179932,
+                "z": -1.9986045360565186
+              },
+              "intensity": 0.9483292102813721
+            },
+            {
+              "point": {
+                "x": 11.852209091186523,
+                "y": -5.607016563415527,
+                "z": -1.9985460042953491
+              },
+              "intensity": 0.9483306407928467
+            },
+            {
+              "point": {
+                "x": 8.639067649841309,
+                "y": -4.987758636474609,
+                "z": -1.9993441104888916
+              },
+              "intensity": 0.9601212739944458
+            }
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.lidar.ray_cast_semantic": {
+      "sensor_id": "sensor.lidar.ray_cast_semantic",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "SemanticLidarMeasurement",
+        "channels": 16,
+        "frame": 375415,
+        "frame_number": 375415,
+        "horizontal_angle": 0.06271347403526306,
+        "raw_data": {
+          "byte_length": 240,
+          "first_64_bytes_hex": "caa98341290818c1c2aaffbf6783d63d0000000001000000b0b0354147ccd1c05cd4ffbf34851a3e00000000010000009f390a41b89b9fc082eaffbf0b73493e"
+        },
+        "timestamp": 2416.6909955797964,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "iterable_summary": {
+          "count": 10,
+          "sample": [
+            {
+              "point": {
+                "x": 16.457904815673828,
+                "y": -9.501992225646973,
+                "z": -1.9973986148834229
+              },
+              "cos_inc_angle": 0.10474281758069992,
+              "object_idx": 0,
+              "object_tag": 1
+            },
+            {
+              "point": {
+                "x": 11.355636596679688,
+                "y": -6.556186199188232,
+                "z": -1.9986681938171387
+              },
+              "cos_inc_angle": 0.1508987545967102,
+              "object_idx": 0,
+              "object_tag": 1
+            },
+            {
+              "point": {
+                "x": 8.639067649841309,
+                "y": -4.987758636474609,
+                "z": -1.9993441104888916
+              },
+              "cos_inc_angle": 0.19672791659832,
+              "object_idx": 0,
+              "object_tag": 1
+            },
+            {
+              "point": {
+                "x": 6.946064472198486,
+                "y": -4.010307312011719,
+                "z": -1.9997652769088745
+              },
+              "cos_inc_angle": 0.24213089048862457,
+              "object_idx": 0,
+              "object_tag": 1
+            },
+            {
+              "point": {
+                "x": 5.7856125831604,
+                "y": -3.340327024459839,
+                "z": -2.000054121017456
+              },
+              "cos_inc_angle": 0.28700968623161316,
+              "object_idx": 0,
+              "object_tag": 1
+            }
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.other.collision": {
+      "sensor_id": "sensor.other.collision",
+      "spawn_status": "成功",
+      "sample_status": "本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件",
+      "sample": null,
+      "error": null
+    },
+    "sensor.other.gnss": {
+      "sensor_id": "sensor.other.gnss",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "GnssMeasurement",
+        "altitude": 2.0016937255859375,
+        "frame": 375921,
+        "frame_number": 375921,
+        "latitude": -0.000581992005850108,
+        "longitude": -0.00022971672339588736,
+        "timestamp": 2419.9196454754347,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        }
+      },
+      "error": null
+    },
+    "sensor.other.imu": {
+      "sensor_id": "sensor.other.imu",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "IMUMeasurement",
+        "accelerometer": {
+          "x": -0.002434906316921115,
+          "y": 1.0450241461512633e-05,
+          "z": 9.8100004196167
+        },
+        "compass": 4.7227983474731445,
+        "frame": 375954,
+        "frame_number": 375954,
+        "gyroscope": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "timestamp": 2420.133376280988,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        }
+      },
+      "error": null
+    },
+    "sensor.other.lane_invasion": {
+      "sensor_id": "sensor.other.lane_invasion",
+      "spawn_status": "成功",
+      "sample_status": "本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件",
+      "sample": null,
+      "error": null
+    },
+    "sensor.other.obstacle": {
+      "sensor_id": "sensor.other.obstacle",
+      "spawn_status": "成功",
+      "sample_status": "本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件",
+      "sample": null,
+      "error": null
+    },
+    "sensor.other.radar": {
+      "sensor_id": "sensor.other.radar",
+      "spawn_status": "成功",
+      "sample_status": "取得真实样本",
+      "sample": {
+        "python_type": "RadarMeasurement",
+        "frame": 376925,
+        "frame_number": 376925,
+        "raw_data": {
+          "byte_length": 128,
+          "first_64_bytes_hex": "473bdfc5f9e5863ed8f4c7bdc5dba3418b608cc55046ccbb93e98fbd1840e3411256b4c5d56ffa3de29212be131c604124ef00c69941c73ee37f19bdc009b341"
+        },
+        "timestamp": 2426.4334006921636,
+        "transform": {
+          "location": {
+            "x": -25.56171989440918,
+            "y": -64.76113891601562,
+            "z": 2.0016937255859375
+          },
+          "rotation": {
+            "pitch": -0.01422045286744833,
+            "yaw": -179.40359497070312,
+            "roll": -6.1035138060105965e-05
+          }
+        },
+        "iterable_summary": {
+          "count": 8,
+          "sample": [
+            {
+              "depth": 20.482309341430664,
+              "velocity": -7143.40966796875,
+              "azimuth": 0.2634733021259308,
+              "altitude": -0.09763497114181519
+            },
+            {
+              "depth": 28.406295776367188,
+              "velocity": -4492.06787109375,
+              "azimuth": -0.006233967840671539,
+              "altitude": -0.07026972621679306
+            },
+            {
+              "depth": 14.006854057312012,
+              "velocity": -5770.7587890625,
+              "azimuth": 0.12228361517190933,
+              "altitude": -0.14313843846321106
+            },
+            {
+              "depth": 22.3797607421875,
+              "velocity": -8251.78515625,
+              "azimuth": 0.38917234539985657,
+              "altitude": -0.037475477904081345
+            },
+            {
+              "depth": 10.74025821685791,
+              "velocity": -1328.92236328125,
+              "azimuth": -0.28896191716194153,
+              "altitude": -0.18721190094947815
+            }
+          ]
+        }
+      },
+      "error": null
+    },
+    "sensor.other.rss": {
+      "sensor_id": "sensor.other.rss",
+      "spawn_status": "跳过",
+      "sample_status": "特殊客户端能力",
+      "sample": null,
+      "error": null
+    },
+    "sensor.other.v2x": {
+      "sensor_id": "sensor.other.v2x",
+      "spawn_status": "成功",
+      "sample_status": "本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件",
+      "sample": null,
+      "error": null
+    },
+    "sensor.other.v2x_custom": {
+      "sensor_id": "sensor.other.v2x_custom",
+      "spawn_status": "成功",
+      "sample_status": "本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件",
+      "sample": null,
+      "error": null
+    }
+  }
+}

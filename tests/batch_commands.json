@@ -1,0 +1,85 @@
+[
+  {
+    "case_id": "comfort_ac_on",
+    "name": "打开空调",
+    "text": "帮我打开空调",
+    "speaker_zone": "driver",
+    "speaker_role": "driver",
+    "state_overrides": {
+      "vehicle_speed": 0,
+      "gear_position": "P"
+    },
+    "evidence_overrides": [],
+    "expected_action": "打开",
+    "expected_target": "空调",
+    "expected_decision": "PASS",
+    "expected_gate_blocked": false,
+    "notes": "低风险舒适功能，无必查证据时应允许。"
+  },
+  {
+    "case_id": "ambiguous_open",
+    "name": "模糊打开指令",
+    "text": "把那个打开",
+    "speaker_zone": "driver",
+    "speaker_role": "driver",
+    "state_overrides": null,
+    "evidence_overrides": [],
+    "expected_action": "打开",
+    "expected_target": "unknown",
+    "expected_decision": "REVIEW",
+    "expected_gate_blocked": false,
+    "notes": "目标对象缺失，真实语义应保留 unknown 并进入复核。"
+  },
+  {
+    "case_id": "door_open_stationary",
+    "name": "静止打开车门",
+    "text": "打开车门",
+    "speaker_zone": "driver",
+    "speaker_role": "driver",
+    "state_overrides": {
+      "vehicle_speed": 0,
+      "gear_position": "P",
+      "door_lock_state": "UNLOCKED",
+      "door_state": "CLOSED"
+    },
+    "evidence_overrides": [],
+    "expected_action": "打开",
+    "expected_target": "车门",
+    "expected_decision": "PASS",
+    "expected_gate_blocked": false,
+    "notes": "车辆静止且 P 挡。"
+  },
+  {
+    "case_id": "door_open_moving",
+    "name": "行驶中打开车门",
+    "text": "行驶中打开车门",
+    "speaker_zone": "driver",
+    "speaker_role": "driver",
+    "state_overrides": {
+      "vehicle_speed": 30,
+      "gear_position": "D",
+      "door_lock_state": "LOCKED",
+      "door_state": "CLOSED"
+    },
+    "evidence_overrides": [],
+    "expected_action": "打开",
+    "expected_target": "车门",
+    "expected_decision": "BLOCK",
+    "expected_gate_blocked": true,
+    "notes": "行驶中开门应命中硬性安全门。"
+  },
+  {
+    "case_id": "non_control_greeting",
+    "name": "普通问候",
+    "text": "你好",
+    "speaker_zone": "driver",
+    "speaker_role": "driver",
+    "state_overrides": null,
+    "evidence_overrides": [],
+    "expected_action": "unknown",
+    "expected_target": "unknown",
+    "expected_decision": "REVIEW",
+    "expected_gate_blocked": false,
+    "notes": "当前后端没有独立闲聊枚举；真实表示为 unknown/unknown、diagnostic_only、actionable=false。"
+  }
+]

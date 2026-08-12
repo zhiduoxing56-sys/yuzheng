@@ -1,0 +1,71 @@
+{
+  "manifest_version": "full_nlu_baseline_manifest_v1",
+  "status": "FROZEN_CANONICAL_RAW_BASELINE_NO_SPLIT_NO_TRAINING",
+  "registry_version": "sys-014-semantic-hardening-r3",
+  "registry_sha256": "c3c5338af148d24aa58b702e579abf615af1dffc3c1568c09ed2fcdc88164e06",
+  "schema_version": "full_nlu_sample_schema_v1",
+  "mapping_rule_version": "nlu_mapping_v2",
+  "manual_override_rule_version": "manual_override_v1",
+  "conversion_version": "full_nlu_baseline_v1",
+  "raw_sources_immutable_verified": true,
+  "SCHEMA_COMPLIANCE_RATE": "100.000000%",
+  "sample_counts": {
+    "mac_raw": 20542,
+    "mac_canonical": 20540,
+    "weak_seed": 162,
+    "safety_boundary": 197,
+    "combined": 20899
+  },
+  "generated_files": [
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\full_nlu_canonical_raw_pool_v1.jsonl",
+      "sha256": "939e8172c2b4cd82dff1ce1aa7251fc79a597e312c4d8a8081c0de0e062845a2",
+      "bytes": 11051202
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\full_nlu_mapping_report_v1.json",
+      "sha256": "560f0e51eb8a1d800b44eb6fe91cf5f2cf9d703cd7126bdf1866fcbb857573ab",
+      "bytes": 26689
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\full_nlu_mapping_report_v1.md",
+      "sha256": "798cc128b78d54bb6e11301f37ca797385f1ae55e5e9cf235e1a0bf23ac4181c",
+      "bytes": 6159
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\mac_exact_duplicates_v1.json",
+      "sha256": "961f506104b233ec199f48a110af146a63b7d56db3bfd71a79fe15eeff68c897",
+      "bytes": 925
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\mac_raw_label_slot_statistics_v1.json",
+      "sha256": "2ca10ee2d52aa42a28d5ae0cc20920ff688500f7914b7d3f2fb58ae8a2885ad7",
+      "bytes": 217467
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\mac_slu_canonical_pool_v1.jsonl",
+      "sha256": "1ec0ceae6e9d5461b925fe9502e8418ff4d313a472864f04f9746e3957b1f968",
+      "bytes": 10822601
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\safety_boundary_pool_v1.jsonl",
+      "sha256": "dcfcf79e26bb4551e0834ce17c295e9b335d210ec5fa713f31c72385c811ab52",
+      "bytes": 123234
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\sample_mapping_metadata_v1.jsonl",
+      "sha256": "7fe5e962accf6fe9779560b1700f64da3299a6f62acc882db6d04c9022325de6",
+      "bytes": 3007206
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\source_provenance_v1.jsonl",
+      "sha256": "aa7625c82e6cb733f903da844ab1b954b566fa35cfb484096498cda3e9a39139",
+      "bytes": 10359891
+    },
+    {
+      "path": "data\\nlu\\full\\baseline_v1\\weak_seed_pool_v1.jsonl",
+      "sha256": "9778bc82e859d12ab13bff1bca2992ec4f9709d392d67e6989c79472423ec992",
+      "bytes": 105367
+    }
+  ]
+}

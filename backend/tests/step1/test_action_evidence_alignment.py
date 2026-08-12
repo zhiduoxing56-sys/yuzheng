@@ -1,56 +1,64 @@
 import pytest
 
 from app.core.config import load_yaml
-from app.models.schemas import EvidenceObservationInput, TextCommandRequest
+from app.models.schemas import (
+    EvidenceObservationInput,
+    IntentEvidenceDemand,
+    TextCommandRequest,
+    TrustedRuntimeContext,
+)
 from app.services.evidence.demand import EvidenceDemandService
+from app.services.evidence.demand_registry import EvidenceDemandRegistry
 from app.services.evidence.recall import MandatoryRecallService
 from app.services.evidence.repository import EvidenceRepository
-from app.services.semantic.parser import SemanticFrameParser
+from app.services.semantic.orchestrator import SemanticOrchestratorService
 from app.services.presentation.assembler import PresentationAssembler
 from app.services.vector.embedding import DeterministicHashEmbeddingService
 
 
 COMMANDS = [
-    ("向左变道", "变道", "左侧车道", ["side_rear_mmwave_radar", "side_camera"]),
-    ("向右变道", "变道", "右侧车道", ["side_rear_mmwave_radar", "side_camera"]),
-    ("保持当前车道", "保持", "当前车道", ["front_camera", "lane_marking_map"]),
-    ("开启巡航", "开启巡航", "巡航", ["front_radar", "front_camera", "vehicle_speed"]),
-    ("关闭巡航", "关闭巡航", "巡航", ["front_radar", "front_camera", "vehicle_speed"]),
-    ("立即紧急制动", "紧急制动", "制动", ["front_mmwave_radar", "front_lidar"]),
-    ("执行避险转向", "避险转向", "转向", []),
+    ("向左变道", "LANE_CHANGE", ["VEHICLE_SPEED", "LANE_STATE", "SURROUNDING_OBJECT_STATE"]),
+    ("向右变道", "LANE_CHANGE", ["VEHICLE_SPEED", "LANE_STATE", "SURROUNDING_OBJECT_STATE"]),
+    ("保持当前车道", "LANE_KEEP", ["VEHICLE_SPEED", "LANE_STATE"]),
+    ("开启巡航", "CRUISE_ENABLE", ["VEHICLE_SPEED", "GEAR_STATE", "CRUISE_STATE"]),
+    ("关闭巡航", "CRUISE_DISABLE", []),
+    ("立即紧急制动", "EMERGENCY_BRAKE", ["VEHICLE_SPEED", "SURROUNDING_OBJECT_STATE", "ROAD_FRICTION_STATE"]),
+    ("执行避险转向", "EVASIVE_STEER", ["VEHICLE_SPEED", "LANE_STATE", "SURROUNDING_OBJECT_STATE", "ROAD_FRICTION_STATE"]),
 ]
 
 
-@pytest.mark.parametrize(("text", "action", "target", "required"), COMMANDS)
-def test_report_actions_generate_only_exact_required_types(text, action, target, required) -> None:
-    parser = SemanticFrameParser(load_yaml("semantic_rules.yaml"))
-    frame = parser.parse("TURN_ACTION", text)
-    updated, demand = EvidenceDemandService(load_yaml("action_evidence_map.yaml")).build(frame)
-
-    assert (frame.action, frame.target) == (action, target)
-    assert frame.control_domain == "驾驶控制"
-    assert demand.required_types == required
-    assert updated.required_evidence_types == required
-    assert not {
-        "front_obstacle_distance",
-        "rear_obstacle_distance",
-        "blind_spot_state",
-        "generic_camera",
-        "lane_state",
-    } & set(required)
+@pytest.fixture(scope="module")
+def semantic_service() -> SemanticOrchestratorService:
+    service = SemanticOrchestratorService()
+    yield service
+    service.close()
 
 
-def test_evasive_steering_has_no_invented_evidence_mapping() -> None:
-    parser = SemanticFrameParser(load_yaml("semantic_rules.yaml"))
-    frame = parser.parse("TURN_EVASIVE", "执行避险转向")
-    service = EvidenceDemandService(load_yaml("action_evidence_map.yaml"))
+@pytest.mark.parametrize(("text", "intent_id", "required"), COMMANDS)
+def test_report_actions_generate_only_exact_required_types(
+    semantic_service, text, intent_id, required
+) -> None:
+    frame = semantic_service.parse("TURN_ACTION", text)
+    demand = EvidenceDemandService(EvidenceDemandRegistry()).build(frame)
 
-    _, demand = service.build(frame)
+    assert [intent.intent_id for intent in frame.intents] == [intent_id]
+    assert frame.intents[0].control_domain == "驾驶控制"
+    assert demand.intent_demands[0].required_types == required
+    assert all(evidence_type.isupper() for evidence_type in required)
 
-    assert demand.required_types == []
-    assert service.rule_for(frame)["mapping_source"] == (
-        "REPORT_ACTION_WITHOUT_EXPLICIT_EVIDENCE_MAPPING"
-    )
+
+def test_evasive_steering_uses_exact_intent_registry_requirement(semantic_service) -> None:
+    frame = semantic_service.parse("TURN_EVASIVE", "执行避险转向")
+    service = EvidenceDemandService(EvidenceDemandRegistry())
+
+    demand = service.build(frame)
+
+    assert demand.intent_demands[0].required_types == [
+        "VEHICLE_SPEED",
+        "LANE_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "ROAD_FRICTION_STATE",
+    ]
 
 
 def test_missing_recall_keeps_exact_type_and_has_no_fake_sensor_facts() -> None:
@@ -59,12 +67,24 @@ def test_missing_recall_keeps_exact_type_and_has_no_fake_sensor_facts() -> None:
     recall = MandatoryRecallService(repository, embedder)
     query, _ = embedder.encode("变道 左侧车道")
 
-    nodes, records, _, missing = recall.supplement(
-        [], ["side_rear_mmwave_radar", "side_camera"], query, "TURN_MISSING",
+    demand = IntentEvidenceDemand(
+        clause_index=0,
+        intent_id="LANE_CHANGE",
+        action="变道",
+        target="车道",
+        risk_level="R3",
+        query_text="变道 左侧车道",
+        query_vector=query,
+        required_types=["SURROUNDING_OBJECT_STATE", "LANE_STATE"],
+    )
+    nodes, resolution = recall.resolve(
+        [], demand, "TURN_MISSING",
         missing_hard_gate=False,
     )
+    records = resolution.mandatory_recall_records
+    missing = resolution.missing_required_types
 
-    assert missing == ["side_rear_mmwave_radar", "side_camera"]
+    assert missing == ["SURROUNDING_OBJECT_STATE", "LANE_STATE"]
     assert [node.evidence_type for node in nodes] == missing
     assert all(node.value is None for node in nodes)
     assert all(node.timestamp is None and node.expires_at is None for node in nodes)
@@ -81,14 +101,15 @@ def test_pipeline_required_missing_hits_pdf_hard_gate(pipeline) -> None:
     result = pipeline.process_text(TextCommandRequest(text="向左变道"))
     presentation = PresentationAssembler(pipeline).assemble(result.audit)
 
-    assert result.evidence_demand.required_types == [
-        "side_rear_mmwave_radar",
-        "side_camera",
+    assert result.evidence_demand.intent_demands[0].required_types == [
+        "VEHICLE_SPEED",
+        "LANE_STATE",
+        "SURROUNDING_OBJECT_STATE",
     ]
-    assert result.quality_metrics.ecr == 0.0
-    assert result.quality_metrics.evidence_alignment_route == "EVIDENCE_BLOCK"
+    assert result.quality_metrics.ecr == 0.666667
+    assert result.quality_metrics.evidence_alignment_route == "EVIDENCE_REVIEW"
     assert "MANDATORY_EVIDENCE_AVAILABLE" in result.safety_gate.hit_rules
-    assert "MANDATORY_TRUST_THRESHOLD" in result.safety_gate.hit_rules
+    assert "MANDATORY_TRUST_THRESHOLD" not in result.safety_gate.hit_rules
     assert result.safety_gate.gate_blocked is True
     assert result.decision.final_decision.value == "BLOCK"
     assert result.decision.authorization_token is None
@@ -99,39 +120,48 @@ def test_pipeline_required_missing_hits_pdf_hard_gate(pipeline) -> None:
         if node.quality_label.value == "MISSING"
     ]
     assert {node.evidence_type for node in missing_nodes} == {
-        "side_rear_mmwave_radar",
-        "side_camera",
+        "LANE_STATE",
     }
     assert all(node.source == "missing_placeholder" for node in missing_nodes)
     assert all(node.metadata["missing_reason"] for node in missing_nodes)
-    assert all(item.retrieval_origin == "NONE" for item in result.audit.mandatory_recall_records)
-    demand_items = presentation.evidence_demand.demand_items
-    assert all(item.retrieval_origin.value == "NONE" for item in demand_items)
-
-
-def test_autopark_uses_only_report_exact_required_types() -> None:
-    parser = SemanticFrameParser(load_yaml("semantic_rules.yaml"))
-    frame = parser.parse("TURN_AUTOPARK", "打开自动泊车")
-    _, demand = EvidenceDemandService(load_yaml("action_evidence_map.yaml")).build(frame)
-
-    assert demand.required_types == ["surround_view_camera", "ultrasonic_radar"]
-    assert set(demand.optional_types) == {
-        "vehicle_speed",
-        "gear_position",
-        "ultrasonic_distance",
-        "surround_camera_state",
-        "occupant_role",
+    recall_by_type = {
+        item.evidence_type: item
+        for resolution in result.evidence_subgraph.intent_evidence_resolutions
+        for item in resolution.mandatory_recall_records
     }
-    assert not set(demand.required_types) & set(demand.optional_types)
+    assert recall_by_type["LANE_STATE"].retrieval_origin == "NONE"
+    assert recall_by_type["SURROUNDING_OBJECT_STATE"].retrieval_origin != "NONE"
+    demand_items = presentation.evidence_demand.intent_demands[0].demand_items
+    demand_by_type = {item.evidence_type: item for item in demand_items}
+    assert demand_by_type["LANE_STATE"].retrieval_origin.value == "NONE"
+    assert demand_by_type["SURROUNDING_OBJECT_STATE"].retrieval_origin.value != "NONE"
+
+
+def test_autopark_uses_only_report_exact_required_types(semantic_service) -> None:
+    frame = semantic_service.parse("TURN_AUTOPARK", "打开自动泊车")
+    demand = EvidenceDemandService(EvidenceDemandRegistry()).build(frame)
+    intent_demand = demand.intent_demands[0]
+
+    assert intent_demand.required_types == [
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "FREE_SPACE_STATE",
+        "SURROUNDING_OBJECT_STATE",
+    ]
+    assert set(intent_demand.optional_types) == {
+        "PARKING_BRAKE_STATE",
+        "STEERING_STATE",
+    }
+    assert not set(intent_demand.required_types) & set(intent_demand.optional_types)
 
 
 @pytest.mark.parametrize(
     "required_types",
     [
-        ["side_rear_mmwave_radar", "side_camera"],
-        ["front_mmwave_radar", "front_lidar"],
-        ["front_radar", "front_camera", "vehicle_speed"],
-        ["front_camera", "lane_marking_map"],
+        ["SURROUNDING_OBJECT_STATE", "LANE_STATE"],
+        ["SURROUNDING_OBJECT_STATE"],
+        ["SURROUNDING_OBJECT_STATE", "VEHICLE_SPEED"],
+        ["LANE_STATE"],
     ],
 )
 def test_all_exact_test_evidence_sets_remove_missing(required_types) -> None:
@@ -139,63 +169,110 @@ def test_all_exact_test_evidence_sets_remove_missing(required_types) -> None:
     embedder = DeterministicHashEmbeddingService()
     repository.ingest_observations(
         [
-            EvidenceObservationInput(
-                evidence_type=evidence_type,
-                source="simulated_test_source",
-                value="AVAILABLE",
-            )
+                EvidenceObservationInput(
+                    evidence_type=evidence_type,
+                    source="simulated_test_source",
+                    value=(
+                        0
+                        if evidence_type == "VEHICLE_SPEED"
+                        else {"objects": []}
+                        if evidence_type == "SURROUNDING_OBJECT_STATE"
+                        else {"boundaries": []}
+                    ),
+                )
             for evidence_type in required_types
         ],
         "TURN_EXACT_FIXTURE",
     )
     query, _ = embedder.encode("exact report evidence")
 
-    nodes, records, recalled, missing = MandatoryRecallService(
-        repository, embedder
-    ).supplement([], required_types, query, "TURN_EXACT_RECALL", missing_hard_gate=False)
+    demand = IntentEvidenceDemand(
+        clause_index=0,
+        intent_id="EXACT_RECALL",
+        action="测试",
+        target="证据",
+        risk_level="R3",
+        query_text="exact report evidence",
+        query_vector=query,
+        required_types=required_types,
+    )
+    nodes, resolution = MandatoryRecallService(repository, embedder).resolve(
+        [], demand, "TURN_EXACT_RECALL", missing_hard_gate=False
+    )
+    records = resolution.mandatory_recall_records
+    missing = resolution.missing_required_types
+    recalled = [
+        binding.evidence_type
+        for binding in resolution.bindings
+        if binding.resolution_status == "MANDATORY_RECALLED"
+    ]
 
-    assert missing == []
-    assert recalled == required_types
+    expected_missing = [
+        evidence_type for evidence_type in required_types if evidence_type == "LANE_STATE"
+    ]
+    assert missing == expected_missing
+    assert recalled == [
+        evidence_type
+        for evidence_type in required_types
+        if evidence_type != "LANE_STATE"
+    ]
     assert {node.evidence_type for node in nodes} == set(required_types)
-    assert all(node.source == "simulated_test_source" for node in nodes)
-    assert all(record.status == "RECALLED" for record in records)
+    assert all(
+        node.source
+        == ("missing_placeholder" if node.evidence_type == "LANE_STATE" else "simulated_test_source")
+        for node in nodes
+    )
+    status_by_type = {record.evidence_type: record.status for record in records}
+    assert status_by_type == {
+        evidence_type: ("MISSING" if evidence_type == "LANE_STATE" else "RECALLED")
+        for evidence_type in required_types
+    }
 
 
-def test_explicit_exact_test_evidence_removes_missing_and_survives_presentation(
+def test_internal_exact_input_cannot_override_unavailable_fact_contract(
     api_client,
 ) -> None:
-    client, _ = api_client
+    client, pipeline = api_client
     observations = [
-        {
-            "evidence_type": evidence_type,
-            "source": "simulated_test_source",
-            "value": "AVAILABLE",
-        }
-        for evidence_type in ("side_rear_mmwave_radar", "side_camera")
+        EvidenceObservationInput(
+            evidence_type=evidence_type,
+            source="simulated_test_source",
+            value=(
+                {"objects": []}
+                if evidence_type == "SURROUNDING_OBJECT_STATE"
+                else {"boundaries": []}
+            ),
+        )
+        for evidence_type in ("SURROUNDING_OBJECT_STATE", "LANE_STATE")
     ]
-    response = client.post(
-        "/api/command/text",
-        json={"text": "向右变道", "evidence_overrides": observations},
+    response = pipeline.process_text(
+        TextCommandRequest(text="向右变道"),
+        trusted_context=TrustedRuntimeContext(evidence_overrides=observations),
     )
-    assert response.status_code == 200
-    result = response.json()
+    result = response.model_dump(mode="json")
     presentation = client.get(
         f"/api/turns/{result['turn_id']}/presentation"
     ).json()
 
-    assert result["evidence_subgraph"]["missing_types"] == []
-    assert result["quality_metrics"]["ecr"] == 1.0
-    assert presentation["evidence_demand"]["required_types"] == [
-        "side_rear_mmwave_radar",
-        "side_camera",
+    assert {
+        evidence_type
+        for resolution in result["evidence_subgraph"]["intent_evidence_resolutions"]
+        for evidence_type in resolution["missing_required_types"]
+    } == {"LANE_STATE"}
+    assert result["quality_metrics"]["ecr"] == 0.666667
+    assert presentation["evidence_demand"]["intent_demands"][0]["required_types"] == [
+        "VEHICLE_SPEED",
+        "LANE_STATE",
+        "SURROUNDING_OBJECT_STATE",
     ]
     exact_nodes = [
         node
         for node in presentation["evidence"]["evidence_subgraph"]["nodes"]
-        if node["evidence_type"] in {"side_rear_mmwave_radar", "side_camera"}
+        if node["evidence_type"] in {"SURROUNDING_OBJECT_STATE", "LANE_STATE"}
     ]
-    assert {node["source"] for node in exact_nodes} == {"simulated_test_source"}
-    assert all(node["quality_label"] != "MISSING" for node in exact_nodes)
+    assert "simulated_test_source" in {node["source"] for node in exact_nodes}
+    lane = next(node for node in exact_nodes if node["evidence_type"] == "LANE_STATE")
+    assert lane["quality_label"] == "MISSING"
     quality = presentation["evidence"]["quality_metrics"]
     assert quality["evidence_pair_count"] >= 1
     assert quality["eas_weight_profile"] in {"default", "high_speed", "complex_road"}

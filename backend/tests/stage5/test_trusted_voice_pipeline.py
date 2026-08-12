@@ -19,6 +19,8 @@ from app.models.schemas import (
     ReviewAction,
     ReviewRequest,
     TranscriptionResult,
+    TrustedRuntimeContext,
+    VoiceTrustResult,
 )
 from app.services.voice.antispoof import (
     ASVspoofLADetector,
@@ -48,6 +50,7 @@ def stage5_pipeline(tmp_path_factory: pytest.TempPathFactory) -> CommandPipeline
     return CommandPipeline(
         database_path=tmp_path_factory.mktemp("stage5") / "stage5.db",
         token_secret=b"stage5-fixed-test-secret-at-least-32-bytes",
+    audit_database_role="TEST",
     )
 
 
@@ -316,6 +319,10 @@ def test_human_audio_is_not_fixed_block_and_continues_into_existing_pipeline(
         audio_source="test_wav",
         speaker_zone="driver",
         speaker_role="driver",
+        trusted_context=TrustedRuntimeContext(
+            subject_role="driver", subject_zone="driver",
+            subject_source="voice_test", zone_source="voice_test",
+        ),
     )
     assert result.voice_trust.input_trust_label != DecisionLabel.BLOCK.value
     assert result.asr_result is not None and result.asr_result.transcribed_text
@@ -333,12 +340,70 @@ def test_real_synthetic_audio_enters_review_and_cannot_issue_token(
         audio_source="test_wav",
         speaker_zone="driver",
         speaker_role="driver",
+        trusted_context=TrustedRuntimeContext(
+            subject_role="driver", subject_zone="driver",
+            subject_source="voice_test", zone_source="voice_test",
+        ),
     )
     assert result.voice_trust.input_trust_label == DecisionLabel.REVIEW.value
     assert result.asr_result is not None and result.asr_result.model_inference_performed
-    assert result.semantic_frame.action == "打开"
-    assert result.semantic_frame.target == "车门"
+    assert result.semantic_frame.intents == []
     assert result.decision.final_decision == DecisionLabel.REVIEW
+    assert result.decision.authorization_token is None
+
+
+def test_low_trust_audio_air_conditioning_still_requires_review(
+    stage5_pipeline: CommandPipeline,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def review_trust(**kwargs: object) -> VoiceTrustResult:
+        return VoiceTrustResult(
+            turn_id=str(kwargs["turn_id"]),
+            audio_source=str(kwargs["audio_source"]),
+            speaker_zone=str(kwargs["speaker_zone"]),
+            speaker_role=str(kwargs["speaker_role"]),
+            la_score=0.6,
+            pa_raw_score=0.0,
+            pa_score=0.6,
+            replay_risk=0.4,
+            synthetic_risk=0.4,
+            zone_risk=0.0,
+            trust_score=0.6,
+            input_trust_label=DecisionLabel.REVIEW.value,
+            audio_fingerprint=str(kwargs["audio_fingerprint"]),
+            spectrum_anomaly_score=0.0,
+            model_metadata={"test_condition": "low_trust_regression"},
+        )
+
+    def transcribe_air_conditioning(
+        turn_id: str, *_: object
+    ) -> TranscriptionResult:
+        return TranscriptionResult(
+            turn_id=turn_id,
+            text="帮我打开空调",
+            confidence=0.7,
+            adapter="regression_asr",
+            model_inference_performed=True,
+            model_name="regression_asr",
+            inference_duration=0.0,
+        )
+
+    monkeypatch.setattr(stage5_pipeline.voice_trust_scorer, "score", review_trust)
+    monkeypatch.setattr(stage5_pipeline.asr_service, "transcribe", transcribe_air_conditioning)
+    result = stage5_pipeline.process_audio_bytes(
+        (ASSETS / "edge_tts_open_door.wav").read_bytes(),
+        audio_source="test_wav",
+        speaker_zone="driver",
+        speaker_role="driver",
+    )
+
+    assert result.semantic_frame is not None
+    assert result.semantic_frame.intents == []
+    assert result.pipeline is not None
+    assert result.pipeline.quality_metrics.evidence_alignment_route == "EVIDENCE_PASS"
+    assert result.voice_trust.input_trust_label == DecisionLabel.REVIEW.value
+    assert result.decision.final_decision == DecisionLabel.REVIEW
+    assert "VOICE_TRUST_REVIEW" in result.decision.reason_codes
     assert result.decision.authorization_token is None
 
 
@@ -350,26 +415,23 @@ def test_acoustic_review_confirmation_preserves_voice_risk_and_cannot_issue_toke
         audio_source="test_wav",
         speaker_zone="driver",
         speaker_role="driver",
+        trusted_context=TrustedRuntimeContext(
+            subject_role="driver", subject_zone="driver",
+            subject_source="voice_test", zone_source="voice_test",
+        ),
     )
-    candidate = result.audit.candidate_interpretations[0]
+    assert result.audit.candidate_interpretations == []
     reviewed = stage5_pipeline.review_service.review(
         result.turn_id,
         ReviewRequest(
             action=ReviewAction.CONFIRM,
             confirmation_text="确认打开车门",
-            selected_candidate_id=candidate.candidate_id,
         ),
     )
-    assert reviewed.accepted is True
+    assert reviewed.accepted is False
     assert reviewed.decision is not None
     assert reviewed.decision.final_decision == DecisionLabel.REVIEW
     assert reviewed.decision.authorization_token is None
-    latest = stage5_pipeline.audit_repository.get_by_turn(reviewed.related_turn_id)
-    assert latest is not None
-    assert latest.input_trust_result.turn_id == reviewed.related_turn_id
-    assert latest.transcription_result.turn_id == reviewed.related_turn_id
-    assert latest.input_trust_result.input_trust_label == DecisionLabel.REVIEW.value
-    assert latest.input_trust_result.audio_fingerprint == result.voice_trust.audio_fingerprint
 
 
 def test_real_speaker_replay_enters_review_or_block(
@@ -459,7 +521,7 @@ def test_voice_websocket_event_sequence_comes_from_real_processing_points(
         "PA_CHECKED",
         "VOICE_TRUST_DECIDED",
         "ASR_COMPLETED",
-        "ZONE_PERMISSION_CHECKED",
+        "SEMANTIC_PARSED",
     ]
     assert [event.stage for event in events[:7]] == expected
     assert [event.sequence for event in events] == list(range(1, len(events) + 1))
@@ -566,7 +628,7 @@ def test_websocket_delivers_required_voice_events_in_order(
         "PA_CHECKED",
         "VOICE_TRUST_DECIDED",
         "ASR_COMPLETED",
-        "ZONE_PERMISSION_CHECKED",
+        "SEMANTIC_PARSED",
     ]
     assert [event["sequence"] for event in events] == list(range(1, 8))
     assert len({event["turn_id"] for event in events}) == 1
@@ -580,6 +642,19 @@ def test_passenger_zone_block_overrides_soft_pipeline_result(
     human = real_sample_results["public_human_zh.wav"]
     monkeypatch.setattr(stage5_pipeline.la_detector, "score", lambda *_args, **_kwargs: human["la"])
     monkeypatch.setattr(stage5_pipeline.pa_detector, "score", lambda *_args, **_kwargs: human["pa"])
+
+    def transcribe_open_door(turn_id: str, *_: object) -> TranscriptionResult:
+        return TranscriptionResult(
+            turn_id=turn_id,
+            text="打开车门",
+            confidence=0.9,
+            adapter="zone_permission_test_asr",
+            model_inference_performed=True,
+            model_name="zone_permission_test_asr",
+            inference_duration=0.0,
+        )
+
+    monkeypatch.setattr(stage5_pipeline.asr_service, "transcribe", transcribe_open_door)
     result = stage5_pipeline.process_audio_bytes(
         (ASSETS / "edge_tts_open_door.wav").read_bytes(),
         audio_source="simulated_vehicle_array",

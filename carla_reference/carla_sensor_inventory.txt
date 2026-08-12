@@ -1,0 +1,401 @@
+卡拉客户端版本：0.9.16
+卡拉服务器版本：0.9.16
+地图：Carla/Maps/Town10HD_Opt
+运行时发现传感器蓝图数量：19
+
+sensor.camera.cosmos_visualization
+  创建：成功
+  采样：取得真实样本
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.camera.depth
+  创建：成功
+  采样：取得真实样本
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.camera.dvs
+  创建：成功
+  采样：取得真实样本
+  属性：refractory_period_ns=ActorAttribute(id=refractory_period_ns,type=int,value=0) 类型=Int 可修改=True 推荐值=['0']
+  属性：sigma_negative_threshold=ActorAttribute(id=sigma_negative_threshold,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：sigma_positive_threshold=ActorAttribute(id=sigma_positive_threshold,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：negative_threshold=ActorAttribute(id=negative_threshold,type=float,value=0.3) 类型=Float 可修改=True 推荐值=['0.3']
+  属性：positive_threshold=ActorAttribute(id=positive_threshold,type=float,value=0.3) 类型=Float 可修改=True 推荐值=['0.3']
+  属性：chromatic_aberration_offset=ActorAttribute(id=chromatic_aberration_offset,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：chromatic_aberration_intensity=ActorAttribute(id=chromatic_aberration_intensity,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：black_clip=ActorAttribute(id=black_clip,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：log_eps=ActorAttribute(id=log_eps,type=float,value=0.001) 类型=Float 可修改=True 推荐值=['0.001']
+  属性：shoulder=ActorAttribute(id=shoulder,type=float,value=0.26) 类型=Float 可修改=True 推荐值=['0.26']
+  属性：slope=ActorAttribute(id=slope,type=float,value=0.88) 类型=Float 可修改=True 推荐值=['0.88']
+  属性：blade_count=ActorAttribute(id=blade_count,type=int,value=5) 类型=Int 可修改=True 推荐值=['5']
+  属性：focal_distance=ActorAttribute(id=focal_distance,type=float,value=1000) 类型=Float 可修改=True 推荐值=['1000.0']
+  属性：exposure_speed_down=ActorAttribute(id=exposure_speed_down,type=float,value=1) 类型=Float 可修改=True 推荐值=['1.0']
+  属性：calibration_constant=ActorAttribute(id=calibration_constant,type=float,value=16) 类型=Float 可修改=True 推荐值=['16.0']
+  属性：lens_flare_intensity=ActorAttribute(id=lens_flare_intensity,type=float,value=0.1) 类型=Float 可修改=True 推荐值=['0.1']
+  属性：blur_amount=ActorAttribute(id=blur_amount,type=float,value=1) 类型=Float 可修改=True 推荐值=['1.0']
+  属性：exposure_max_bright=ActorAttribute(id=exposure_max_bright,type=float,value=12) 类型=Float 可修改=True 推荐值=['12.0']
+  属性：gamma=ActorAttribute(id=gamma,type=float,value=2.2) 类型=Float 可修改=True 推荐值=['2.2']
+  属性：fstop=ActorAttribute(id=fstop,type=float,value=1.4) 类型=Float 可修改=True 推荐值=['1.4']
+  属性：iso=ActorAttribute(id=iso,type=float,value=100) 类型=Float 可修改=True 推荐值=['100.0']
+  属性：blur_radius=ActorAttribute(id=blur_radius,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：shutter_speed=ActorAttribute(id=shutter_speed,type=float,value=200) 类型=Float 可修改=True 推荐值=['200.0']
+  属性：exposure_speed_up=ActorAttribute(id=exposure_speed_up,type=float,value=3) 类型=Float 可修改=True 推荐值=['3.0']
+  属性：motion_blur_min_object_screen_size=ActorAttribute(id=motion_blur_min_object_screen_size,type=float,value=0.1) 类型=Float 可修改=True 推荐值=['0.1']
+  属性：motion_blur_intensity=ActorAttribute(id=motion_blur_intensity,type=float,value=0.45) 类型=Float 可修改=True 推荐值=['0.45']
+  属性：exposure_compensation=ActorAttribute(id=exposure_compensation,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：exposure_mode=histogram 类型=String 可修改=True 推荐值=['histogram', 'manual']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：toe=ActorAttribute(id=toe,type=float,value=0.55) 类型=Float 可修改=True 推荐值=['0.55']
+  属性：bloom_intensity=ActorAttribute(id=bloom_intensity,type=float,value=0.675) 类型=Float 可修改=True 推荐值=['0.675']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：motion_blur_max_distortion=ActorAttribute(id=motion_blur_max_distortion,type=float,value=0.35) 类型=Float 可修改=True 推荐值=['0.35']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：tint=ActorAttribute(id=tint,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：temp=ActorAttribute(id=temp,type=float,value=6500) 类型=Float 可修改=True 推荐值=['6500.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：use_log=ActorAttribute(id=use_log,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['True']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：white_clip=ActorAttribute(id=white_clip,type=float,value=0.04) 类型=Float 可修改=True 推荐值=['0.04']
+  属性：enable_postprocess_effects=ActorAttribute(id=enable_postprocess_effects,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：min_fstop=ActorAttribute(id=min_fstop,type=float,value=1.2) 类型=Float 可修改=True 推荐值=['1.2']
+  属性：exposure_min_bright=ActorAttribute(id=exposure_min_bright,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.camera.instance_segmentation
+  创建：成功
+  采样：取得真实样本
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.camera.normals
+  创建：成功
+  采样：取得真实样本
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.camera.optical_flow
+  创建：成功
+  采样：取得真实样本
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.camera.rgb
+  创建：成功
+  采样：取得真实样本
+  属性：tint=ActorAttribute(id=tint,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：blur_amount=ActorAttribute(id=blur_amount,type=float,value=1) 类型=Float 可修改=True 推荐值=['1.0']
+  属性：min_fstop=ActorAttribute(id=min_fstop,type=float,value=1.2) 类型=Float 可修改=True 推荐值=['1.2']
+  属性：chromatic_aberration_offset=ActorAttribute(id=chromatic_aberration_offset,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：slope=ActorAttribute(id=slope,type=float,value=0.88) 类型=Float 可修改=True 推荐值=['0.88']
+  属性：focal_distance=ActorAttribute(id=focal_distance,type=float,value=1000) 类型=Float 可修改=True 推荐值=['1000.0']
+  属性：exposure_speed_down=ActorAttribute(id=exposure_speed_down,type=float,value=1) 类型=Float 可修改=True 推荐值=['1.0']
+  属性：exposure_speed_up=ActorAttribute(id=exposure_speed_up,type=float,value=3) 类型=Float 可修改=True 推荐值=['3.0']
+  属性：motion_blur_min_object_screen_size=ActorAttribute(id=motion_blur_min_object_screen_size,type=float,value=0.1) 类型=Float 可修改=True 推荐值=['0.1']
+  属性：lens_flare_intensity=ActorAttribute(id=lens_flare_intensity,type=float,value=0.1) 类型=Float 可修改=True 推荐值=['0.1']
+  属性：motion_blur_intensity=ActorAttribute(id=motion_blur_intensity,type=float,value=0.45) 类型=Float 可修改=True 推荐值=['0.45']
+  属性：exposure_min_bright=ActorAttribute(id=exposure_min_bright,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：gamma=ActorAttribute(id=gamma,type=float,value=2.2) 类型=Float 可修改=True 推荐值=['2.2']
+  属性：blade_count=ActorAttribute(id=blade_count,type=int,value=5) 类型=Int 可修改=True 推荐值=['5']
+  属性：enable_postprocess_effects=ActorAttribute(id=enable_postprocess_effects,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：calibration_constant=ActorAttribute(id=calibration_constant,type=float,value=16) 类型=Float 可修改=True 推荐值=['16.0']
+  属性：exposure_compensation=ActorAttribute(id=exposure_compensation,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：exposure_mode=histogram 类型=String 可修改=True 推荐值=['histogram', 'manual']
+  属性：exposure_max_bright=ActorAttribute(id=exposure_max_bright,type=float,value=12) 类型=Float 可修改=True 推荐值=['12.0']
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：chromatic_aberration_intensity=ActorAttribute(id=chromatic_aberration_intensity,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fstop=ActorAttribute(id=fstop,type=float,value=1.4) 类型=Float 可修改=True 推荐值=['1.4']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：toe=ActorAttribute(id=toe,type=float,value=0.55) 类型=Float 可修改=True 推荐值=['0.55']
+  属性：motion_blur_max_distortion=ActorAttribute(id=motion_blur_max_distortion,type=float,value=0.35) 类型=Float 可修改=True 推荐值=['0.35']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：bloom_intensity=ActorAttribute(id=bloom_intensity,type=float,value=0.675) 类型=Float 可修改=True 推荐值=['0.675']
+  属性：shutter_speed=ActorAttribute(id=shutter_speed,type=float,value=200) 类型=Float 可修改=True 推荐值=['200.0']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：temp=ActorAttribute(id=temp,type=float,value=6500) 类型=Float 可修改=True 推荐值=['6500.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：white_clip=ActorAttribute(id=white_clip,type=float,value=0.04) 类型=Float 可修改=True 推荐值=['0.04']
+  属性：shoulder=ActorAttribute(id=shoulder,type=float,value=0.26) 类型=Float 可修改=True 推荐值=['0.26']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：blur_radius=ActorAttribute(id=blur_radius,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：iso=ActorAttribute(id=iso,type=float,value=100) 类型=Float 可修改=True 推荐值=['100.0']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：black_clip=ActorAttribute(id=black_clip,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.camera.semantic_segmentation
+  创建：成功
+  采样：取得真实样本
+  属性：lens_x_size=ActorAttribute(id=lens_x_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_circle_multiplier=ActorAttribute(id=lens_circle_multiplier,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lens_y_size=ActorAttribute(id=lens_y_size,type=float,value=0.08) 类型=Float 可修改=True 推荐值=['0.08']
+  属性：lens_kcube=ActorAttribute(id=lens_kcube,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：image_size_y=ActorAttribute(id=image_size_y,type=int,value=600) 类型=Int 可修改=True 推荐值=['600']
+  属性：lens_circle_falloff=ActorAttribute(id=lens_circle_falloff,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：image_size_x=ActorAttribute(id=image_size_x,type=int,value=800) 类型=Int 可修改=True 推荐值=['800']
+  属性：lens_k=ActorAttribute(id=lens_k,type=float,value=-1) 类型=Float 可修改=True 推荐值=['-1.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fov=ActorAttribute(id=fov,type=float,value=90) 类型=Float 可修改=True 推荐值=['90.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.lidar.ray_cast
+  创建：成功
+  采样：取得真实样本
+  属性：dropoff_zero_intensity=ActorAttribute(id=dropoff_zero_intensity,type=float,value=0.4) 类型=Float 可修改=True 推荐值=['0.4']
+  属性：dropoff_intensity_limit=ActorAttribute(id=dropoff_intensity_limit,type=float,value=0.8) 类型=Float 可修改=True 推荐值=['0.8']
+  属性：dropoff_general_rate=ActorAttribute(id=dropoff_general_rate,type=float,value=0.45) 类型=Float 可修改=True 推荐值=['0.45']
+  属性：atmosphere_attenuation_rate=ActorAttribute(id=atmosphere_attenuation_rate,type=float,value=0.004) 类型=Float 可修改=True 推荐值=['0.004']
+  属性：horizontal_fov=ActorAttribute(id=horizontal_fov,type=float,value=360) 类型=Float 可修改=True 推荐值=['360.0']
+  属性：rotation_frequency=ActorAttribute(id=rotation_frequency,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：range=ActorAttribute(id=range,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：noise_stddev=ActorAttribute(id=noise_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：lower_fov=ActorAttribute(id=lower_fov,type=float,value=-30) 类型=Float 可修改=True 推荐值=['-30.0']
+  属性：upper_fov=ActorAttribute(id=upper_fov,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：points_per_second=ActorAttribute(id=points_per_second,type=int,value=56000) 类型=Int 可修改=True 推荐值=['56000']
+  属性：channels=ActorAttribute(id=channels,type=int,value=32) 类型=Int 可修改=True 推荐值=['32']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：noise_seed=ActorAttribute(id=noise_seed,type=int,value=0) 类型=Int 可修改=True 推荐值=['0']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.lidar.ray_cast_semantic
+  创建：成功
+  采样：取得真实样本
+  属性：horizontal_fov=ActorAttribute(id=horizontal_fov,type=float,value=360) 类型=Float 可修改=True 推荐值=['360.0']
+  属性：upper_fov=ActorAttribute(id=upper_fov,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：rotation_frequency=ActorAttribute(id=rotation_frequency,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：lower_fov=ActorAttribute(id=lower_fov,type=float,value=-30) 类型=Float 可修改=True 推荐值=['-30.0']
+  属性：points_per_second=ActorAttribute(id=points_per_second,type=int,value=56000) 类型=Int 可修改=True 推荐值=['56000']
+  属性：range=ActorAttribute(id=range,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：channels=ActorAttribute(id=channels,type=int,value=32) 类型=Int 可修改=True 推荐值=['32']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.other.collision
+  创建：成功
+  采样：本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.other.gnss
+  创建：成功
+  采样：取得真实样本
+  属性：noise_alt_bias=ActorAttribute(id=noise_alt_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_lon_bias=ActorAttribute(id=noise_lon_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_seed=ActorAttribute(id=noise_seed,type=int,value=0) 类型=Int 可修改=True 推荐值=['0']
+  属性：noise_alt_stddev=ActorAttribute(id=noise_alt_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_lon_stddev=ActorAttribute(id=noise_lon_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：noise_lat_bias=ActorAttribute(id=noise_lat_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_lat_stddev=ActorAttribute(id=noise_lat_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=default 类型=String 可修改=True 推荐值=['default']
+
+sensor.other.imu
+  创建：成功
+  采样：取得真实样本
+  属性：noise_gyro_bias_y=ActorAttribute(id=noise_gyro_bias_y,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_gyro_bias_x=ActorAttribute(id=noise_gyro_bias_x,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_gyro_stddev_z=ActorAttribute(id=noise_gyro_stddev_z,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_gyro_stddev_y=ActorAttribute(id=noise_gyro_stddev_y,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_gyro_stddev_x=ActorAttribute(id=noise_gyro_stddev_x,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_accel_stddev_z=ActorAttribute(id=noise_accel_stddev_z,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_accel_stddev_y=ActorAttribute(id=noise_accel_stddev_y,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_accel_stddev_x=ActorAttribute(id=noise_accel_stddev_x,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_seed=ActorAttribute(id=noise_seed,type=int,value=0) 类型=Int 可修改=True 推荐值=['0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：noise_gyro_bias_z=ActorAttribute(id=noise_gyro_bias_z,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=default 类型=String 可修改=True 推荐值=['default']
+
+sensor.other.lane_invasion
+  创建：成功
+  采样：本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.other.obstacle
+  创建：成功
+  采样：本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件
+  属性：only_dynamics=ActorAttribute(id=only_dynamics,type=bool,value=False) 类型=Bool 可修改=True 推荐值=['false']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：debug_linetrace=ActorAttribute(id=debug_linetrace,type=bool,value=False) 类型=Bool 可修改=True 推荐值=['false']
+  属性：hit_radius=ActorAttribute(id=hit_radius,type=float,value=0.5) 类型=Float 可修改=True 推荐值=['0.5']
+  属性：distance=ActorAttribute(id=distance,type=float,value=5) 类型=Float 可修改=True 推荐值=['5.0']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.other.radar
+  创建：成功
+  采样：取得真实样本
+  属性：points_per_second=ActorAttribute(id=points_per_second,type=int,value=1500) 类型=Int 可修改=True 推荐值=['1500']
+  属性：range=ActorAttribute(id=range,type=float,value=100) 类型=Float 可修改=True 推荐值=['100']
+  属性：vertical_fov=ActorAttribute(id=vertical_fov,type=float,value=30) 类型=Float 可修改=True 推荐值=['30']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：noise_seed=ActorAttribute(id=noise_seed,type=int,value=0) 类型=Int 可修改=True 推荐值=['0']
+  属性：horizontal_fov=ActorAttribute(id=horizontal_fov,type=float,value=30) 类型=Float 可修改=True 推荐值=['30']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=default 类型=String 可修改=True 推荐值=['default']
+
+sensor.other.rss
+  创建：跳过
+  采样：特殊客户端能力
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=front 类型=String 可修改=True 推荐值=['front', 'back', 'left', 'right', 'front_left', 'front_right', 'back_left', 'back_right']
+
+sensor.other.v2x
+  创建：成功
+  采样：本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件
+  属性：noise_vel_stddev_x=ActorAttribute(id=noise_vel_stddev_x,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_head_bias=ActorAttribute(id=noise_head_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_alt_bias=ActorAttribute(id=noise_alt_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_alt_stddev=ActorAttribute(id=noise_alt_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_lon_bias=ActorAttribute(id=noise_lon_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_lat_stddev=ActorAttribute(id=noise_lat_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：fixed_rate=ActorAttribute(id=fixed_rate,type=bool,value=False) 类型=Bool 可修改=True 推荐值=['false']
+  属性：noise_yawrate_bias=ActorAttribute(id=noise_yawrate_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：gen_cam_max=ActorAttribute(id=gen_cam_max,type=float,value=1) 类型=Float 可修改=True 推荐值=['1.0']
+  属性：noise_lat_bias=ActorAttribute(id=noise_lat_bias,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：gen_cam_min=ActorAttribute(id=gen_cam_min,type=float,value=0.1) 类型=Float 可修改=True 推荐值=['0.1']
+  属性：custom_fading_stddev=ActorAttribute(id=custom_fading_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：use_etsi_fading=ActorAttribute(id=use_etsi_fading,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：noise_accel_stddev_y=ActorAttribute(id=noise_accel_stddev_y,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_head_stddev=ActorAttribute(id=noise_head_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：filter_distance=ActorAttribute(id=filter_distance,type=float,value=500) 类型=Float 可修改=True 推荐值=['500.0']
+  属性：path_loss_exponent=ActorAttribute(id=path_loss_exponent,type=float,value=2.7) 类型=Float 可修改=True 推荐值=['2.7']
+  属性：d_ref=ActorAttribute(id=d_ref,type=float,value=1) 类型=Float 可修改=True 推荐值=['1.0']
+  属性：path_loss_model=winner 类型=String 可修改=True 推荐值=['winner', 'geometric']
+  属性：noise_yawrate_stddev=ActorAttribute(id=noise_yawrate_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：noise_lon_stddev=ActorAttribute(id=noise_lon_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：scenario=highway 类型=String 可修改=True 推荐值=['highway', 'rural', 'urban']
+  属性：combined_antenna_gain=ActorAttribute(id=combined_antenna_gain,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：receiver_sensitivity=ActorAttribute(id=receiver_sensitivity,type=float,value=-99) 类型=Float 可修改=True 推荐值=['-99.0']
+  属性：noise_accel_stddev_z=ActorAttribute(id=noise_accel_stddev_z,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：transmit_power=ActorAttribute(id=transmit_power,type=float,value=21.5) 类型=Float 可修改=True 推荐值=['21.5']
+  属性：noise_seed=ActorAttribute(id=noise_seed,type=int,value=0) 类型=Int 可修改=True 推荐值=['0']
+  属性：frequency_ghz=ActorAttribute(id=frequency_ghz,type=float,value=5.9) 类型=Float 可修改=True 推荐值=['5.9']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：noise_accel_stddev_x=ActorAttribute(id=noise_accel_stddev_x,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：role_name=default 类型=String 可修改=True 推荐值=['default']
+
+sensor.other.v2x_custom
+  创建：成功
+  采样：本次未产生数据；可能属于事件触发型、需要其他参与者，或当前场景没有满足触发条件
+  属性：custom_fading_stddev=ActorAttribute(id=custom_fading_stddev,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：use_etsi_fading=ActorAttribute(id=use_etsi_fading,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：d_ref=ActorAttribute(id=d_ref,type=float,value=1) 类型=Float 可修改=True 推荐值=['1.0']
+  属性：path_loss_exponent=ActorAttribute(id=path_loss_exponent,type=float,value=2.7) 类型=Float 可修改=True 推荐值=['2.7']
+  属性：combined_antenna_gain=ActorAttribute(id=combined_antenna_gain,type=float,value=10) 类型=Float 可修改=True 推荐值=['10.0']
+  属性：frequency_ghz=ActorAttribute(id=frequency_ghz,type=float,value=5.9) 类型=Float 可修改=True 推荐值=['5.9']
+  属性：receiver_sensitivity=ActorAttribute(id=receiver_sensitivity,type=float,value=-99) 类型=Float 可修改=True 推荐值=['-99.0']
+  属性：noise_seed=ActorAttribute(id=noise_seed,type=int,value=0) 类型=Int 可修改=True 推荐值=['0']
+  属性：sensor_tick=ActorAttribute(id=sensor_tick,type=float,value=0) 类型=Float 可修改=True 推荐值=['0.0']
+  属性：filter_distance=ActorAttribute(id=filter_distance,type=float,value=500) 类型=Float 可修改=True 推荐值=['500.0']
+  属性：scenario=highway 类型=String 可修改=True 推荐值=['highway', 'rural', 'urban']
+  属性：ros_publish_tf=ActorAttribute(id=ros_publish_tf,type=bool,value=True) 类型=Bool 可修改=True 推荐值=['true']
+  属性：ros_frame_id= 类型=String 可修改=True 推荐值=['']
+  属性：path_loss_model=winner 类型=String 可修改=True 推荐值=['winner', 'geometric']
+  属性：ros_name= 类型=String 可修改=True 推荐值=['']
+  属性：transmit_power=ActorAttribute(id=transmit_power,type=float,value=21.5) 类型=Float 可修改=True 推荐值=['21.5']
+  属性：role_name=default 类型=String 可修改=True 推荐值=['default']
+

@@ -1,0 +1,47 @@
+frozen_components:
+  recall_config: ../../test-results/intent-recall-v1_1/config_v1_1.yaml
+  model_config: ../intent_judge_3b_minimal/config.yaml
+
+asr_review:
+  require_fused_top1_rank_one_in_all_channels: true
+  best_pinyin_anchor:
+    min_pinyin_score: 0.69
+    max_literal_score: 0.51
+    min_pinyin_literal_gain: 0.18
+  high_similarity_target_anchor:
+    min_pinyin_score: 0.95
+    max_literal_score: 0.81
+    min_pinyin_literal_gain: 0.18
+
+direct_accept:
+  require_fused_top1_rank_one_in_all_channels: true
+  strong_consensus:
+    min_semantic_score: 0.70
+    min_literal_score: 0.75
+    min_pinyin_score: 0.80
+    min_semantic_first_second_gap: 0.03
+    min_literal_first_second_gap: 0.10
+    min_pinyin_first_second_gap: 0.05
+  exact_lexical_consensus:
+    min_semantic_score: 0.60
+    min_literal_score: 0.99
+    min_pinyin_score: 0.99
+    min_literal_first_second_gap: 0.20
+    min_pinyin_first_second_gap: 0.15
+
+open_set_no_match:
+  max_semantic_channel_winner_score: 0.55
+  max_literal_channel_winner_score: 0.50
+  max_semantic_first_second_gap: 0.025
+
+model_consistency:
+  require_fused_top1_selected: true
+  strong_channel_rank_max: 3
+  min_strong_channel_count_per_selected_target: 2
+
+paths:
+  diagnostic_samples: ../../test-results/intent-hybrid-gate/diagnostic/sample-evidence.json
+  diagnostic_summary: ../../test-results/intent-hybrid-gate/diagnostic/diagnostic-summary.json
+  calibration_cases: ../intent_judge_v1/acceptance_cases.yaml
+  frozen_3b_case_results: ../../test-results/intent-judge-3b-minimal/case-results.json
+  calibration_output: ../../test-results/intent-hybrid-gate/calibration

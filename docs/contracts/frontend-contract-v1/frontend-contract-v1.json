@@ -128,10 +128,10 @@
       "LEGACY_NOT_RECORDED": "由生产定义 app.models.schemas.LayerNavigationAvailability 约束"
     },
     "RetrievalOrigin": {
-      "BOTH": "由生产定义 app.models.frontend_contract.RetrievalOrigin 约束",
-      "HNSW": "由生产定义 app.models.frontend_contract.RetrievalOrigin 约束",
-      "MANDATORY_RECALL": "由生产定义 app.models.frontend_contract.RetrievalOrigin 约束",
-      "NONE": "由生产定义 app.models.frontend_contract.RetrievalOrigin 约束"
+      "BOTH": "由生产定义 app.models.schemas.RetrievalOrigin 约束",
+      "HNSW": "由生产定义 app.models.schemas.RetrievalOrigin 约束",
+      "MANDATORY_RECALL": "由生产定义 app.models.schemas.RetrievalOrigin 约束",
+      "NONE": "由生产定义 app.models.schemas.RetrievalOrigin 约束"
     },
     "ReviewAction": {
       "CANCEL": "由生产定义 app.models.schemas.ReviewAction 约束",
@@ -193,7 +193,7 @@
     "EvidenceStatus": "app.models.schemas.EvidenceStatus",
     "GenerationMode": "app.models.schemas.InterpreterGenerationMetadata.generation_mode",
     "LayerNavigationAvailability": "app.models.schemas.LayerNavigationAvailability",
-    "RetrievalOrigin": "app.models.frontend_contract.RetrievalOrigin",
+    "RetrievalOrigin": "app.models.schemas.RetrievalOrigin",
     "ReviewAction": "app.models.schemas.ReviewAction",
     "ReviewCandidateValidationStatus": "app.models.schemas.ReviewCandidateInterpretation.validation_status",
     "SecurityClass": "app.models.schemas.SecurityClass",
@@ -1170,6 +1170,7 @@
       "insufficiency_reason"
     ],
     "DecisionResultPresentation": [
+      "aggregate_safety_decision",
       "decision_explanation"
     ],
     "EvidenceNodeDetail": [
@@ -1186,10 +1187,7 @@
       "initial_memory_confidence",
       "memory_initial_confidence",
       "final_memory_confidence",
-      "canonicalization_source",
-      "prior_probability",
-      "causal_support",
-      "corrected_weight"
+      "canonicalization_source"
     ],
     "EvidencePresentation": [
       "evidence_subgraph",
@@ -1422,7 +1420,10 @@
         "fields": [
           "blocked",
           "overall_status",
-          "checks"
+          "checks",
+          "hit_rules",
+          "reasons",
+          "observed"
         ],
         "model": "GateResultPresentation",
         "required": [
@@ -1479,6 +1480,8 @@
           "explanation",
           "review_required",
           "execution_allowed",
+          "aggregate_safety_decision",
+          "intent_safety_assessments",
           "decision_explanation"
         ],
         "model": "DecisionResultPresentation",
@@ -1605,26 +1608,12 @@
         "fields": [
           "demand_id",
           "turn_id",
-          "action",
-          "target",
-          "risk_level",
-          "query_text",
-          "required_types",
-          "optional_types",
-          "priority",
-          "retrieval_scope",
-          "demand_items"
+          "intent_demands"
         ],
         "model": "EvidenceDemandPresentation",
         "required": [
           "demand_id",
-          "turn_id",
-          "action",
-          "target",
-          "risk_level",
-          "query_text",
-          "priority",
-          "retrieval_scope"
+          "turn_id"
         ]
       },
       {
@@ -1637,6 +1626,8 @@
           "embedding_dimension",
           "degraded",
           "candidates",
+          "layers",
+          "mandatory_recall_count",
           "mandatory_recall",
           "missing_types",
           "index_build_id",
@@ -1718,6 +1709,8 @@
       {
         "fields": [
           "availability",
+          "mode",
+          "corrected_weights_projection",
           "model_build_id",
           "history_sample_count",
           "dag_edges",
@@ -1746,8 +1739,6 @@
           "freshness",
           "consistency",
           "availability",
-          "semantic_similarity",
-          "mandatory",
           "quality_label",
           "integrity_hash",
           "metadata",
@@ -1770,9 +1761,7 @@
           "canonicalization_warnings",
           "incoming_propagation",
           "causal_parents",
-          "prior_probability",
-          "causal_support",
-          "corrected_weight"
+          "causal_occurrence_weights"
         ],
         "model": "EvidenceNodeDetail",
         "required": [
@@ -1787,8 +1776,6 @@
           "freshness",
           "consistency",
           "availability",
-          "semantic_similarity",
-          "mandatory",
           "quality_label",
           "integrity_hash"
         ]
@@ -1881,7 +1868,7 @@
     ]
   },
   "pending_steps": [],
-  "production_schema_digest": "b63a7fcb4169e9c56f25b71c1241fec80d05a9ab363ecc53aa7957b304f355de",
+  "production_schema_digest": "1f33e6fab1a959eb5d70d35adf5da0d1b3a27ac640a41782c300eca24f198a12",
   "review_semantics": {
     "CANCEL": "追加 ReviewOutcome 有效终态 BLOCK，不重跑原指令",
     "CONFIRM": "必须选择原轮次持久化 VALID candidate，并创建 child turn 完整重跑",

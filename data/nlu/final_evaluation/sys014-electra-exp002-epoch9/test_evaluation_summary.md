@@ -1,0 +1,84 @@
+# SYS-014 Stage 4D-A Locked Test 评估
+
+## 结论
+
+- Locked Test 已一次性打开并完成单次 forward-only dataset pass。
+- `TEST_FROZEN_SAFETY_GATE_PASS=NO`
+- `GENERALIZATION_DEGRADATION_WARNING=YES`
+- `DEPLOYABLE=false`：Safety Gold 与 runtime integration 尚未完成。
+- 无训练、无 backward、无 optimizer/scheduler step，模型参数未变化。
+
+## 核心指标
+
+| Metric | Result |
+|---|---:|
+| Test samples | 133 |
+| Intent Macro F1 | 0.791474 |
+| Scope Macro F1 | 0.502429 |
+| Structure Macro F1 | 0.743081 |
+| AREA Span F1 | 0.896552 |
+| VALUE Span F1 | 0.250000 |
+| NEGATION Span F1 | 0.830769 |
+| Overall Slot Span F1 | 0.735484 |
+| Sentence NEGATED F1 | 0.837209 |
+| NEGATED Recall | 0.750000 |
+| RAW Test UFAR | 0.479167 |
+
+## Safety
+
+| Category | Support | False accepts | Rate |
+|---|---:|---:|---:|
+| NON_CONTROL | 6 | 4 | 0.6666666666666666 |
+| UNKNOWN_CONTROL | 29 | 17 | 0.5862068965517241 |
+| AMBIGUOUS_CONTROL | 3 | 1 | 0.3333333333333333 |
+| MULTI | 23 | 3 | 0.13043478260869565 |
+| AMBIGUOUS | 3 | 1 | 0.3333333333333333 |
+
+Frozen gate 保持不变：UFAR ≤ 0.05、MULTI false accepts=0、AMBIGUOUS false accepts=0。
+
+## Sentence Negation false negatives
+
+- `SYS014-POC-0528` 不要把副驾驶车窗再开小一点；intent=`WINDOW_SET_POSITION`；NEGATED probability=`0.380220`；Slot detected=`YES`；Slot exact=`YES`。
+- `SYS014-POC-0529` 别把副驾驶车窗再开小一点；intent=`WINDOW_SET_POSITION`；NEGATED probability=`0.300539`；Slot detected=`YES`；Slot exact=`YES`。
+- `SYS014-POC-0530` 先别把副驾驶车窗再开小一点；intent=`WINDOW_SET_POSITION`；NEGATED probability=`0.352017`；Slot detected=`YES`；Slot exact=`YES`。
+- `SYS014-POC-0531` 不用把副驾驶车窗再开小一点；intent=`WINDOW_SET_POSITION`；NEGATED probability=`0.383826`；Slot detected=`YES`；Slot exact=`YES`。
+- `SYS014-POC-0532` 请勿把副驾驶车窗再开小一点；intent=`WINDOW_SET_POSITION`；NEGATED probability=`0.336556`；Slot detected=`YES`；Slot exact=`YES`。
+- `SYS014-POC-0533` 暂时别把副驾驶车窗再开小一点；intent=`WINDOW_SET_POSITION`；NEGATED probability=`0.413896`；Slot detected=`YES`；Slot exact=`YES`。
+
+## 最终字段
+
+```text
+LOCKED_MODEL_ID=hfl/chinese-electra-180g-small-discriminator
+LOCKED_EXPERIMENT=sys014-poc7-electra-exp002
+LOCKED_EPOCH=9
+LOCKED_CHECKPOINT_SHA256=dc2670a0351a219f71ba728f805242393769af8c1564bc4eb3f224f795444f68
+LOCKED_TEST_OPENED=YES
+TEST_SAMPLE_COUNT=133
+TEST_INTENT_MACRO_F1=0.791474
+TEST_SCOPE_MACRO_F1=0.502429
+TEST_STRUCTURE_MACRO_F1=0.743081
+TEST_AREA_F1=0.896552
+TEST_VALUE_F1=0.250000
+TEST_NEGATION_SPAN_F1=0.830769
+TEST_SLOT_OVERALL_F1=0.735484
+TEST_SENTENCE_NEGATION_F1=0.837209
+TEST_NEGATED_RECALL=0.750000
+TEST_RAW_UFAR=0.479167
+TEST_AMBIGUOUS_FALSE_ACCEPT_COUNT=1
+TEST_MULTI_FALSE_ACCEPT_COUNT=3
+TEST_UNKNOWN_FALSE_ACCEPT_COUNT=17
+TEST_NON_CONTROL_FALSE_ACCEPT_COUNT=4
+TEST_FROZEN_SAFETY_GATE_PASS=NO
+SENTENCE_NEGATION_FN_COUNT=6
+SENTENCE_NEGATION_FN_WITH_CORRECT_SLOT_SIGNAL=6
+UNKNOWN_CONTROL_TEST_SUPPORT=29
+GENERALIZATION_DEGRADATION_WARNING=YES
+MODEL_PARAMETERS_CHANGED=NO
+TRAINING_STEPS_EXECUTED_THIS_STAGE=0
+TEST_EVALUATION_EXECUTED=YES
+SAFETY_GOLD_EVALUATION_EXECUTED=NO
+STAGE_4D_A_LOCKED_TEST_COMPLETE=YES
+READY_FOR_STAGE_4D_B_SAFETY_GOLD=YES
+```
+
+无论本结果如何，当前 Test 不得用于重选模型、调参、错误驱动训练或新的 threshold calibration。

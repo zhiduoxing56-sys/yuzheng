@@ -1,0 +1,2535 @@
+{
+  "validation_VALUE_sample_count": 19,
+  "VALUE_ERROR_BREAKDOWN": {
+    "1_NO_VALUE_OUTPUT": 17,
+    "2_OUTPUT_AS_AREA": 0,
+    "3_OUTPUT_AS_NEGATION": 0,
+    "4_VALUE_SPAN_BOUNDARY_ERROR": 2,
+    "5_BIO_CONTINUITY_ERROR": 0,
+    "6_TOKENIZER_SUBWORD_PROBLEM": 0
+  },
+  "coverage_terms": {
+    "一半": [
+      "SYS014-POC-0205",
+      "SYS014-POC-0254",
+      "SYS014-POC-0598",
+      "SYS014-POC-0599",
+      "SYS014-POC-0628",
+      "SYS014-POC-0629",
+      "SYS014-POC-0658",
+      "SYS014-POC-0659"
+    ],
+    "30%": [
+      "SYS014-POC-0211",
+      "SYS014-POC-0260"
+    ],
+    "50%": [
+      "SYS014-POC-0207",
+      "SYS014-POC-0256"
+    ],
+    "三成": [
+      "SYS014-POC-0209",
+      "SYS014-POC-0258"
+    ],
+    "一点": [
+      "SYS014-POC-0216",
+      "SYS014-POC-0218",
+      "SYS014-POC-0220"
+    ],
+    "小一点": [
+      "SYS014-POC-0218"
+    ],
+    "最大": [
+      "SYS014-POC-0213",
+      "SYS014-POC-0262"
+    ]
+  },
+  "diagnosis": "VALUE head never produces an exact Validation span; errors are dominated by missing VALUE output rather than annotation projection, BIO continuity, or tokenizer coverage.",
+  "cases": [
+    {
+      "sample_id": "SYS014-POC-0205",
+      "text": "把车窗开到一半",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 5,
+          "char_end": 7,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "把",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "车",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "窗",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "到",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "一",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "半",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0207",
+      "text": "把车窗开到50%",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 5,
+          "char_end": 8,
+          "text": "50%",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 6,
+          "token_end": 7,
+          "char_start": 5,
+          "char_end": 7,
+          "text": "50"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "把",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "车",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "窗",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "到",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "50",
+          "offset": [
+            5,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "B-VALUE"
+        },
+        {
+          "token_index": 7,
+          "token": "%",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "4_VALUE_SPAN_BOUNDARY_ERROR"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0209",
+      "text": "把车窗开到三成",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 5,
+          "char_end": 7,
+          "text": "三成",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "把",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "车",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "窗",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "到",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "三",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "成",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0211",
+      "text": "把车窗开到30%",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 5,
+          "char_end": 8,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "VALUE",
+          "token_start": 6,
+          "token_end": 7,
+          "char_start": 5,
+          "char_end": 7,
+          "text": "30"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "把",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "车",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "窗",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "到",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "30",
+          "offset": [
+            5,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "B-VALUE"
+        },
+        {
+          "token_index": 7,
+          "token": "%",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "4_VALUE_SPAN_BOUNDARY_ERROR"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0213",
+      "text": "把车窗开到最大",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 5,
+          "char_end": 7,
+          "text": "最大",
+          "canonical_value": "100%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "把",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "车",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "窗",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "到",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "最",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "大",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0216",
+      "text": "车窗再开一点",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 4,
+          "char_end": 6,
+          "text": "一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_slot_spans": [],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "车",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "窗",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "再",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "一",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "点",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0218",
+      "text": "车窗再开小一点",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 4,
+          "char_end": 7,
+          "text": "小一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_slot_spans": [],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "车",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "窗",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "再",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "小",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "一",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "点",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0220",
+      "text": "车窗再开大一点",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 4,
+          "char_end": 7,
+          "text": "大一点",
+          "canonical_value": null,
+          "normalization_status": "RAW_ONLY"
+        }
+      ],
+      "predicted_slot_spans": [],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "车",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 2,
+          "token": "窗",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "再",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "开",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "大",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "一",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "点",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0254",
+      "text": "司机这边的窗开到一半",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 10,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 5,
+          "char_start": 0,
+          "char_end": 4,
+          "text": "司机这边"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "司",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "机",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 3,
+          "token": "这",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 4,
+          "token": "边",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 5,
+          "token": "的",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "窗",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "开",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "到",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "一",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "半",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0256",
+      "text": "司机这边的窗开到50%",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "50%",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 5,
+          "char_start": 0,
+          "char_end": 4,
+          "text": "司机这边"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "司",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "机",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 3,
+          "token": "这",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 4,
+          "token": "边",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 5,
+          "token": "的",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "窗",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "开",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "到",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "50",
+          "offset": [
+            8,
+            10
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "%",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0258",
+      "text": "司机这边的窗开到三成",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 10,
+          "text": "三成",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 5,
+          "char_start": 0,
+          "char_end": 4,
+          "text": "司机这边"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "司",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "机",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 3,
+          "token": "这",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 4,
+          "token": "边",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 5,
+          "token": "的",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "窗",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "开",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "到",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "三",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "成",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0260",
+      "text": "司机这边的窗开到30%",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 11,
+          "text": "30%",
+          "canonical_value": "30%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 5,
+          "char_start": 0,
+          "char_end": 4,
+          "text": "司机这边"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "司",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "机",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 3,
+          "token": "这",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 4,
+          "token": "边",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 5,
+          "token": "的",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "窗",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "开",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "到",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "30",
+          "offset": [
+            8,
+            10
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "%",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0262",
+      "text": "司机这边的窗开到最大",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 8,
+          "char_end": 10,
+          "text": "最大",
+          "canonical_value": "100%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 5,
+          "char_start": 0,
+          "char_end": 4,
+          "text": "司机这边"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "司",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "机",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 3,
+          "token": "这",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 4,
+          "token": "边",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 5,
+          "token": "的",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "窗",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "开",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "到",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "最",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "大",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0598",
+      "text": "左后车窗开到一半然后把前照灯关了",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "左"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "左",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "后",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "车",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "窗",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "开",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "到",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "一",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "半",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "然",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "后",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 11,
+          "token": "把",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 12,
+          "token": "前",
+          "offset": [
+            11,
+            12
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 13,
+          "token": "照",
+          "offset": [
+            12,
+            13
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 14,
+          "token": "灯",
+          "offset": [
+            13,
+            14
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 15,
+          "token": "关",
+          "offset": [
+            14,
+            15
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 16,
+          "token": "了",
+          "offset": [
+            15,
+            16
+          ],
+          "gold": "O",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0599",
+      "text": "左后车窗开到一半然后再提点速度",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "左"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "左",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "后",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "车",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "窗",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "开",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "到",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "一",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "半",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "然",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "后",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 11,
+          "token": "再",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 12,
+          "token": "提",
+          "offset": [
+            11,
+            12
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 13,
+          "token": "点",
+          "offset": [
+            12,
+            13
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 14,
+          "token": "速",
+          "offset": [
+            13,
+            14
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 15,
+          "token": "度",
+          "offset": [
+            14,
+            15
+          ],
+          "gold": "O",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0628",
+      "text": "左后车窗开到一半再把前照灯关了",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "左"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "左",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "后",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "车",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "窗",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "开",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "到",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "一",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "半",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "再",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "把",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 11,
+          "token": "前",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 12,
+          "token": "照",
+          "offset": [
+            11,
+            12
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 13,
+          "token": "灯",
+          "offset": [
+            12,
+            13
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 14,
+          "token": "关",
+          "offset": [
+            13,
+            14
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 15,
+          "token": "了",
+          "offset": [
+            14,
+            15
+          ],
+          "gold": "O",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0629",
+      "text": "左后车窗开到一半再提点速度",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "左后"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "左",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "后",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 3,
+          "token": "车",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "窗",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "开",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "到",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "一",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "半",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "再",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "提",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 11,
+          "token": "点",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 12,
+          "token": "速",
+          "offset": [
+            11,
+            12
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 13,
+          "token": "度",
+          "offset": [
+            12,
+            13
+          ],
+          "gold": "O",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0658",
+      "text": "左后车窗开到一半接着把前照灯关了",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 2,
+          "char_start": 0,
+          "char_end": 1,
+          "text": "左"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "左",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "后",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "O"
+        },
+        {
+          "token_index": 3,
+          "token": "车",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "窗",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "开",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "到",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "一",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "半",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "接",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "着",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 11,
+          "token": "把",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 12,
+          "token": "前",
+          "offset": [
+            11,
+            12
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 13,
+          "token": "照",
+          "offset": [
+            12,
+            13
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 14,
+          "token": "灯",
+          "offset": [
+            13,
+            14
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 15,
+          "token": "关",
+          "offset": [
+            14,
+            15
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 16,
+          "token": "了",
+          "offset": [
+            15,
+            16
+          ],
+          "gold": "O",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    },
+    {
+      "sample_id": "SYS014-POC-0659",
+      "text": "左后车窗开到一半接着再提点速度",
+      "gold_VALUE_spans": [
+        {
+          "slot_type": "VALUE",
+          "char_start": 6,
+          "char_end": 8,
+          "text": "一半",
+          "canonical_value": "50%",
+          "normalization_status": "NORMALIZED"
+        }
+      ],
+      "predicted_slot_spans": [
+        {
+          "slot_type": "AREA",
+          "token_start": 1,
+          "token_end": 3,
+          "char_start": 0,
+          "char_end": 2,
+          "text": "左后"
+        }
+      ],
+      "token_level_predictions": [
+        {
+          "token_index": 1,
+          "token": "左",
+          "offset": [
+            0,
+            1
+          ],
+          "gold": "B-AREA",
+          "predicted": "B-AREA"
+        },
+        {
+          "token_index": 2,
+          "token": "后",
+          "offset": [
+            1,
+            2
+          ],
+          "gold": "I-AREA",
+          "predicted": "I-AREA"
+        },
+        {
+          "token_index": 3,
+          "token": "车",
+          "offset": [
+            2,
+            3
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 4,
+          "token": "窗",
+          "offset": [
+            3,
+            4
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 5,
+          "token": "开",
+          "offset": [
+            4,
+            5
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 6,
+          "token": "到",
+          "offset": [
+            5,
+            6
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 7,
+          "token": "一",
+          "offset": [
+            6,
+            7
+          ],
+          "gold": "B-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 8,
+          "token": "半",
+          "offset": [
+            7,
+            8
+          ],
+          "gold": "I-VALUE",
+          "predicted": "O"
+        },
+        {
+          "token_index": 9,
+          "token": "接",
+          "offset": [
+            8,
+            9
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 10,
+          "token": "着",
+          "offset": [
+            9,
+            10
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 11,
+          "token": "再",
+          "offset": [
+            10,
+            11
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 12,
+          "token": "提",
+          "offset": [
+            11,
+            12
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 13,
+          "token": "点",
+          "offset": [
+            12,
+            13
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 14,
+          "token": "速",
+          "offset": [
+            13,
+            14
+          ],
+          "gold": "O",
+          "predicted": "O"
+        },
+        {
+          "token_index": 15,
+          "token": "度",
+          "offset": [
+            14,
+            15
+          ],
+          "gold": "O",
+          "predicted": "O"
+        }
+      ],
+      "raw_bio_continuity_error_indices": [],
+      "error_types": [
+        "1_NO_VALUE_OUTPUT"
+      ],
+      "tokenizer_subword_problem": false
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+# R4 Full → Final Candidate Diff
+
+- Full SHA256: `393de4203c2cb93b0162724b336cb29a2cc67fba1c73b1cbc1fe62bb642f4f21`
+- Final SHA256: `55bbb90780a969cb249f73833d7d34d9e464d99c65e1a6352ead15aa34db4440`
+- Validator: **PASS**
+- Intent count: **154 → 162**
+- Known unsupported: **83 → 91**
+- Formal intents: **71（ID 与顺序冻结）**
+
+## Approved new intent IDs
+
+- `AIR_PURIFIER_SET_FAN_SPEED` — raw MAC evidence: **8**
+- `DISPLAY_SET_MODE` — raw MAC evidence: **32**
+- `READING_LIGHT_SET_MODE` — raw MAC evidence: **2**
+- `REFRIGERATOR_SET_MODE` — raw MAC evidence: **10**
+- `FRAGRANCE_SET_SCENT` — raw MAC evidence: **5**
+- `INTERIOR_LIGHT_SET_BRIGHTNESS` — raw MAC evidence: **26**
+- `INTERIOR_LIGHT_SET_COLOR` — raw MAC evidence: **2**
+- `INTERIOR_LIGHT_SET_MODE` — raw MAC evidence: **8**
+
+## VALUE contract repairs
+
+- `AMBIENT_LIGHT_SET_BRIGHTNESS` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `AMBIENT_LIGHT_SET_COLOR` → `SOURCE_COLOR_REQUIRED`; `VALUE` required
+- `ARMREST_SET_POSITION` → `SOURCE_POSITION_REQUIRED`; `VALUE` required
+- `DISPLAY_SET_BRIGHTNESS` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `DISPLAY_SET_POSITION` → `SOURCE_POSITION_REQUIRED`; `VALUE` required
+- `FRAGRANCE_SET_LEVEL` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `GLASS_ROOF_SET_TRANSPARENCY` → `SOURCE_TRANSPARENCY_REQUIRED`; `VALUE` required
+- `HVAC_SET_AIRFLOW_DIRECTION` → `SOURCE_AIRFLOW_DIRECTION_REQUIRED`; `VALUE` required
+- `HVAC_SET_FAN_SPEED` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `HVAC_SET_TEMPERATURE` → `SOURCE_TEMPERATURE_REQUIRED`; `VALUE` required
+- `MEDIA_VOLUME_SET` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `READING_LIGHT_SET_BRIGHTNESS` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `REFRIGERATOR_SET_TEMPERATURE` → `SOURCE_TEMPERATURE_REQUIRED`; `VALUE` required
+- `SEAT_HEATING_SET_LEVEL` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `SEAT_MASSAGE_SET_LEVEL` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+- `SEAT_VENTILATION_SET_LEVEL` → `SOURCE_LEVEL_REQUIRED`; `VALUE` required
+
+## Family AREA union
+
+- `HVAC`: `['LEFT_FRONT', 'RIGHT_FRONT', 'LEFT_REAR', 'RIGHT_REAR', 'FRONT_ROW', 'REAR_ROW', 'RIGHT_SIDE', 'ALL', 'FRONT', 'REAR']`; pending raw areas: **9**
+- `READING_LIGHT`: `['LEFT_FRONT', 'RIGHT_REAR', 'FRONT_ROW', 'REAR_ROW', 'ALL']`; pending raw areas: **0**
+- `INTERIOR_LIGHT`: `['LEFT_FRONT', 'RIGHT_FRONT', 'REAR_ROW', 'ALL']`; pending raw areas: **2**
+- `AMBIENT_LIGHT`: `['RIGHT_FRONT', 'FRONT_ROW', 'REAR_ROW', 'ALL', 'FRONT', 'REAR']`; pending raw areas: **1**
+- `DISPLAY`: `['LEFT_FRONT', 'RIGHT_FRONT', 'LEFT_REAR', 'RIGHT_REAR', 'FRONT_ROW', 'REAR_ROW', 'ALL', 'REAR']`; pending raw areas: **1**
+- `SEAT_HEATING`: `['LEFT_FRONT', 'RIGHT_FRONT', 'LEFT_REAR', 'RIGHT_REAR', 'FRONT_ROW', 'REAR_ROW', 'RIGHT_SIDE', 'ALL']`; pending raw areas: **6**
+- `SEAT_VENTILATION`: `['LEFT_FRONT', 'RIGHT_FRONT', 'LEFT_REAR', 'RIGHT_REAR', 'FRONT_ROW', 'REAR_ROW', 'RIGHT_SIDE', 'ALL']`; pending raw areas: **2**
+- `SEAT_MASSAGE`: `['LEFT_FRONT', 'RIGHT_FRONT', 'RIGHT_REAR', 'FRONT_ROW', 'REAR_ROW', 'LEFT_SIDE', 'ALL']`; pending raw areas: **2**
+- `SHADE`: `['FRONT_ROW', 'REAR_ROW', 'ALL']`; pending raw areas: **1**
+
+## MODE cleanup
+
+- MEDIA accepted modes: `['三维', '典雅旋律', '剧场', '原声模式', '古典之韵', '平坦', '标准', '歌剧院', '流行', '流行律动', '爵士', '爵士乐章', '现场音乐会', '超重低音', '酒吧', '雅马哈', '音乐厅']`
+- MEDIA pending groups: **23**
+- CAMERA accepted modes: `['延时摄影', '录视频', '拍动图', '缩录']`
+- camera_action_pending samples: **30**
+
+## Changed semantic paths
+
+- `annotation_guidance.camera_mode_routing`
+- `annotation_guidance.family_area_semantic_policy`
+- `annotation_guidance.interior_lighting_lexical_boundary`
+- `annotation_guidance.media_sound_effect_mode_routing`
+- `annotation_guidance.registry_version`
+- `annotation_guidance.trunk_frunk_hood_routing.FRUNK.pending_operations`
+- `annotation_guidance.trunk_frunk_hood_routing.FRUNK.proven_operations`
+- `annotation_guidance.version`
+- `capability_families.PROJECT_AIR_PURIFIER_KNOWN_CONTROL.intents`
+- `capability_families.PROJECT_DISPLAY_KNOWN_CONTROL.intents`
+- `capability_families.PROJECT_FRAGRANCE_KNOWN_CONTROL.intents`
+- `capability_families.PROJECT_INTERIOR_LIGHT_KNOWN_CONTROL.intents`
+- `capability_families.PROJECT_READING_LIGHT_KNOWN_CONTROL.intents`
+- `capability_families.PROJECT_REFRIGERATOR_KNOWN_CONTROL.intents`
+- `final_semantic_consistency_patch`
+- `intents.AIR_PURIFIER_SET_FAN_SPEED`
+- `intents.AMBIENT_LIGHT_OFF.allowed_areas`
+- `intents.AMBIENT_LIGHT_OFF.optional_slots`
+- `intents.AMBIENT_LIGHT_ON.allowed_areas`
+- `intents.AMBIENT_LIGHT_SET_BRIGHTNESS.allowed_areas`
+- `intents.AMBIENT_LIGHT_SET_BRIGHTNESS.optional_slots`
+- `intents.AMBIENT_LIGHT_SET_BRIGHTNESS.required_slots`
+- `intents.AMBIENT_LIGHT_SET_BRIGHTNESS.value_contract`
+- `intents.AMBIENT_LIGHT_SET_COLOR.allowed_areas`
+- `intents.AMBIENT_LIGHT_SET_COLOR.optional_slots`
+- `intents.AMBIENT_LIGHT_SET_COLOR.required_slots`
+- `intents.AMBIENT_LIGHT_SET_COLOR.value_contract`
+- `intents.AMBIENT_LIGHT_SET_MODE.allowed_areas`
+- `intents.AMBIENT_LIGHT_SET_MODE.optional_slots`
+- `intents.ARMREST_SET_POSITION.optional_slots`
+- `intents.ARMREST_SET_POSITION.required_slots`
+- `intents.ARMREST_SET_POSITION.value_contract`
+- `intents.DISPLAY_OFF.allowed_areas`
+- `intents.DISPLAY_ON.allowed_areas`
+- `intents.DISPLAY_ON.optional_slots`
+- `intents.DISPLAY_SET_BRIGHTNESS.allowed_areas`
+- `intents.DISPLAY_SET_BRIGHTNESS.optional_slots`
+- `intents.DISPLAY_SET_BRIGHTNESS.required_slots`
+- `intents.DISPLAY_SET_BRIGHTNESS.value_contract`
+- `intents.DISPLAY_SET_MODE`
+- `intents.DISPLAY_SET_POSITION.allowed_areas`
+- `intents.DISPLAY_SET_POSITION.optional_slots`
+- `intents.DISPLAY_SET_POSITION.required_slots`
+- `intents.DISPLAY_SET_POSITION.value_contract`
+- `intents.DRIVING_MODE_SET.chinese_name`
+- `intents.FRAGRANCE_SET_LEVEL.optional_slots`
+- `intents.FRAGRANCE_SET_LEVEL.required_slots`
+- `intents.FRAGRANCE_SET_LEVEL.value_contract`
+- `intents.FRAGRANCE_SET_SCENT`
+- `intents.GLASS_ROOF_SET_TRANSPARENCY.optional_slots`
+- `intents.GLASS_ROOF_SET_TRANSPARENCY.required_slots`
+- `intents.GLASS_ROOF_SET_TRANSPARENCY.value_contract`
+- `intents.HVAC_OFF.allowed_areas`
+- `intents.HVAC_ON.allowed_areas`
+- `intents.HVAC_SET_AIRFLOW_DIRECTION.allowed_areas`
+- `intents.HVAC_SET_AIRFLOW_DIRECTION.optional_slots`
+- `intents.HVAC_SET_AIRFLOW_DIRECTION.required_slots`
+- `intents.HVAC_SET_AIRFLOW_DIRECTION.value_contract`
+- `intents.HVAC_SET_FAN_SPEED.allowed_areas`
+- `intents.HVAC_SET_FAN_SPEED.optional_slots`
+- `intents.HVAC_SET_FAN_SPEED.required_slots`
+- `intents.HVAC_SET_FAN_SPEED.value_contract`
+- `intents.HVAC_SET_MODE.allowed_areas`
+- `intents.HVAC_SET_MODE.optional_slots`
+- `intents.HVAC_SET_TEMPERATURE.allowed_areas`
+- `intents.HVAC_SET_TEMPERATURE.optional_slots`
+- `intents.HVAC_SET_TEMPERATURE.required_slots`
+- `intents.HVAC_SET_TEMPERATURE.value_contract`
+- `intents.INTERIOR_LIGHT_OFF.allowed_areas`
+- `intents.INTERIOR_LIGHT_ON.allowed_areas`
+- `intents.INTERIOR_LIGHT_SET_BRIGHTNESS`
+- `intents.INTERIOR_LIGHT_SET_COLOR`
+- `intents.INTERIOR_LIGHT_SET_MODE`
+- `intents.MEDIA_VOLUME_SET.optional_slots`
+- `intents.MEDIA_VOLUME_SET.required_slots`
+- `intents.MEDIA_VOLUME_SET.value_contract`
+- `intents.READING_LIGHT_OFF.allowed_areas`
+- `intents.READING_LIGHT_ON.allowed_areas`
+- `intents.READING_LIGHT_SET_BRIGHTNESS.allowed_areas`
+- `intents.READING_LIGHT_SET_BRIGHTNESS.optional_slots`
+- `intents.READING_LIGHT_SET_BRIGHTNESS.required_slots`
+- `intents.READING_LIGHT_SET_BRIGHTNESS.value_contract`
+- `intents.READING_LIGHT_SET_MODE`
+- `intents.REFRIGERATOR_SET_MODE`
+- `intents.REFRIGERATOR_SET_TEMPERATURE.optional_slots`
+- `intents.REFRIGERATOR_SET_TEMPERATURE.required_slots`
+- `intents.REFRIGERATOR_SET_TEMPERATURE.value_contract`
+- `intents.SEAT_HEATING_OFF.allowed_areas`
+- `intents.SEAT_HEATING_ON.allowed_areas`
+- `intents.SEAT_HEATING_SET_LEVEL.allowed_areas`
+- `intents.SEAT_HEATING_SET_LEVEL.optional_slots`
+- `intents.SEAT_HEATING_SET_LEVEL.required_slots`
+- `intents.SEAT_HEATING_SET_LEVEL.value_contract`
+- `intents.SEAT_HEATING_SET_MODE.allowed_areas`
+- `intents.SEAT_MASSAGE_OFF.allowed_areas`
+- `intents.SEAT_MASSAGE_ON.allowed_areas`
+- `intents.SEAT_MASSAGE_SET_LEVEL.allowed_areas`
+- `intents.SEAT_MASSAGE_SET_LEVEL.optional_slots`
+- `intents.SEAT_MASSAGE_SET_LEVEL.required_slots`
+- `intents.SEAT_MASSAGE_SET_LEVEL.value_contract`
+- `intents.SEAT_MASSAGE_SET_MODE.allowed_areas`
+- `intents.SEAT_VENTILATION_OFF.allowed_areas`
+- `intents.SEAT_VENTILATION_ON.allowed_areas`
+- `intents.SEAT_VENTILATION_SET_LEVEL.allowed_areas`
+- `intents.SEAT_VENTILATION_SET_LEVEL.optional_slots`
+- `intents.SEAT_VENTILATION_SET_LEVEL.required_slots`
+- `intents.SEAT_VENTILATION_SET_LEVEL.value_contract`
+- `intents.SEAT_VENTILATION_SET_MODE.allowed_areas`
+- `intents.SEAT_VENTILATION_SET_MODE.optional_slots`
+- `intents.SHADE_CLOSE.allowed_areas`
+- `intents.SHADE_CLOSE.optional_slots`
+- `intents.SHADE_OPEN.allowed_areas`
+- `intents.SHADE_SET_POSITION.allowed_areas`
+- `intents.SHADE_SET_POSITION.optional_slots`
+- `intents.STEERING_WHEEL_HEATING_ON.allowed_areas`
+- `intents.STEERING_WHEEL_HEATING_ON.optional_slots`
+- `known_unsupported_control_intent_ids`
+- `mode_contracts.KNOWN_CAMERA_SOURCE_MODE`
+- `mode_contracts.KNOWN_DISPLAY_SOURCE_MODE`
+- `mode_contracts.KNOWN_INTERIOR_LIGHT_SOURCE_MODE`
+- `mode_contracts.KNOWN_MEDIA_SOURCE_MODE`
+- `mode_contracts.KNOWN_READING_LIGHT_SOURCE_MODE`
+- `mode_contracts.KNOWN_REFRIGERATOR_SOURCE_MODE`
+- `parent_registry.inheritance_rule`
+- `parent_registry.path`
+- `parent_registry.registry_version`
+- `parent_registry.sha256`
+- `registry_version`
+- `semantic_freeze_status`
+- `semantic_ontology.control_attributes`
+- `statistics.intent_count`
+- `statistics.known_unsupported_control_intent_count`
+- `statistics.project_native_intent_count`
+- `statistics.semantic_intent_count`
+- `value_contracts.SOURCE_AIRFLOW_DIRECTION_REQUIRED`
+- `value_contracts.SOURCE_COLOR_REQUIRED`
+- `value_contracts.SOURCE_LEVEL_REQUIRED`
+- `value_contracts.SOURCE_POSITION_REQUIRED`
+- `value_contracts.SOURCE_SCENT_REQUIRED`
+- `value_contracts.SOURCE_TEMPERATURE_REQUIRED`
+- `value_contracts.SOURCE_TRANSPARENCY_REQUIRED`

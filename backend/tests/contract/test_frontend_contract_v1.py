@@ -11,7 +11,15 @@ from fastapi.testclient import TestClient
 from app.core.pipeline import CommandPipeline
 from app.main import create_app
 from app.models.frontend_contract import ReviewSubmission
-from app.models.schemas import PipelineEvent, ReviewAction, ReviewRequest
+from app.models.schemas import (
+    EvidenceObservationInput,
+    PipelineEvent,
+    ReviewAction,
+    ReviewRequest,
+    TextCommandRequest,
+    TrustedRuntimeContext,
+    VehicleStatePatch,
+)
 from app.services.review.adapter import adapt_review_submission
 from app.websocket.broker import PipelineEventBroker
 
@@ -23,41 +31,45 @@ ASSET = Path(__file__).resolve().parents[1] / "assets" / "stage5" / "public_huma
 @pytest.fixture(scope="module")
 def contract_context(tmp_path_factory: pytest.TempPathFactory):
     database = tmp_path_factory.mktemp("frontend-contract-v1") / "contract.db"
-    app = create_app(database_path=database, token_secret=TEST_SECRET)
+    app = create_app(database_path=database, token_secret=TEST_SECRET, audit_database_role="TEST")
     with TestClient(app) as client:
         yield client, app.state.pipeline, database
 
 
 @pytest.fixture(scope="module")
 def prepared(contract_context):
-    client, _, _ = contract_context
-    passed = client.post("/api/scenarios/parked_open_door/run").json()
+    client, pipeline, _ = contract_context
+    passed = client.post("/api/command/text", json={"text": "关闭前照灯"}).json()
     reviewable = client.post(
         "/api/command/text",
-        json={
-            "text": "可能播放音乐",
-            "state_overrides": {"vehicle_speed": 0, "gear_position": "P"},
-        },
+        json={"text": "关车门然后锁车门"},
     ).json()
     ambiguous = client.post("/api/command/text", json={"text": "把那个打开"}).json()
     cancelled = client.post("/api/command/text", json={"text": "把那个打开"}).json()
-    client.patch("/api/state", json={"vehicle_speed": None, "gear_position": "P"})
-    missing = client.post("/api/command/text", json={"text": "打开车门"}).json()
-    client.post("/api/state/reset")
-    tampered = client.post(
-        "/api/command/text",
-        json={
-            "text": "打开车门",
-            "evidence_overrides": [
-                {
-                    "evidence_type": "vehicle_speed",
-                    "source": "contract_tampered_sensor",
-                    "value": 0,
-                    "integrity_valid": False,
-                }
+    missing = pipeline.process_text(
+        TextCommandRequest(text="打开车门"),
+        trusted_context=TrustedRuntimeContext(
+            state_overrides=VehicleStatePatch(vehicle_speed=None, gear_position="P"),
+            subject_role="driver", subject_zone="driver",
+            subject_source="contract_test", zone_source="contract_test",
+        ),
+    ).model_dump(mode="json")
+    pipeline.reset_vehicle_state()
+    tampered = pipeline.process_text(
+        TextCommandRequest(text="打开车门"),
+        trusted_context=TrustedRuntimeContext(
+            evidence_overrides=[
+                EvidenceObservationInput(
+                    evidence_type="VEHICLE_SPEED",
+                    source="contract_tampered_sensor",
+                    value=0,
+                    integrity_valid=False,
+                )
             ],
-        },
-    ).json()
+            subject_role="driver", subject_zone="driver",
+            subject_source="contract_test", zone_source="contract_test",
+        ),
+    ).model_dump(mode="json")
     blocked = client.post("/api/scenarios/moving_open_door/run").json()
     return {
         "passed": passed,
@@ -187,7 +199,7 @@ def test_10_review_confirm_reexecutes_full_flow(contract_context, prepared):
     assert body["accepted"] is True
     assert body["review_turn_id"] != original
     assert body["decision"]["score_decision"] == "PASS"
-    assert body["new_decision"] == "REVIEW"
+    assert body["new_decision"] == "PASS"
     assert body["token_issued"] is False
 
 

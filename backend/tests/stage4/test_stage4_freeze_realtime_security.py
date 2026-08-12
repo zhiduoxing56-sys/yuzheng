@@ -19,6 +19,7 @@ from app.models.schemas import (
     ExecuteRequest,
     PipelineEvent,
     TextCommandRequest,
+    TrustedRuntimeContext,
     VehicleStatePatch,
     WorkflowEventType,
 )
@@ -68,12 +69,16 @@ def _tail(events: list[dict]) -> list[str]:
 
 
 def test_adapter_execution_failure(tmp_path: Path) -> None:
-    pipeline = CommandPipeline(tmp_path / "adapter-failure.db", token_secret=TEST_SECRET)
+    pipeline = CommandPipeline(tmp_path / "adapter-failure.db", token_secret=TEST_SECRET, audit_database_role="TEST")
     command = pipeline.process_text(
         TextCommandRequest(
             text="打开车门",
+        ),
+        trusted_context=TrustedRuntimeContext(
             state_overrides=VehicleStatePatch(vehicle_speed=0, gear_position="P"),
-        )
+            subject_role="driver", subject_zone="driver",
+            subject_source="stage4_test", zone_source="stage4_test",
+        ),
     )
     token = command.decision.authorization_token
     pipeline.vehicle = DeterministicFailingAdapter(
@@ -92,7 +97,7 @@ def test_adapter_execution_failure(tmp_path: Path) -> None:
     with pytest.raises(AuthorizationTokenError, match="CONSUMED"):
         pipeline.execution_service.execute(command.turn_id, token)
     next_command = pipeline.process_text(TextCommandRequest(text="查询当前速度"))
-    assert next_command.decision.final_decision.value == "PASS"
+    assert next_command.decision.final_decision.value == "REVIEW"
 
 
 def test_websocket_success_sequence(api_client) -> None:
@@ -133,10 +138,10 @@ def test_websocket_failure_sequence(api_client) -> None:
 
 
 def test_websocket_precheck_failure_stops_execution(api_client) -> None:
-    client, _ = api_client
+    client, pipeline = api_client
     command = client.post("/api/scenarios/parked_open_door/run").json()
     token = command["decision"]["authorization_token"]
-    client.patch("/api/state", json={"vehicle_speed": 80, "gear_position": "D"})
+    pipeline.update_vehicle_state(VehicleStatePatch(vehicle_speed=80, gear_position="D"))
     response, events = _capture_execution(client, command["turn_id"], token, "ws-precheck-failed")
     assert response.json()["accepted"] is False
     assert _tail(events) == ["VEHICLE_PRECHECKED", "AUDIT_SAVED"]
@@ -236,7 +241,7 @@ def test_simulator_epoch_reset(api_client, tmp_path: Path) -> None:
     initial = client.get("/api/state").json()
     assert initial["state_epoch_id"]
     assert initial["reset_count"] == 0
-    reset = client.post("/api/state/reset").json()
+    reset = pipeline.reset_vehicle_state().model_dump(mode="json")
     assert reset["state_epoch_id"] != initial["state_epoch_id"]
     assert reset["reset_count"] == 1
     assert reset["last_reset_at"]
@@ -251,7 +256,7 @@ def test_simulator_epoch_reset(api_client, tmp_path: Path) -> None:
     assert executed["accepted"] is True
     historical_epoch = executed["execution"]["after_state"]["state_epoch_id"]
     database = pipeline.audit_repository.database_path
-    restarted = CommandPipeline(database, token_secret=TEST_SECRET)
+    restarted = CommandPipeline(database, token_secret=TEST_SECRET, audit_database_role="TEST")
     timeline = restarted.timeline(command["turn_id"])
     assert timeline.historical_execution_state
     assert timeline.historical_execution_state[0].after_state.state_epoch_id == historical_epoch

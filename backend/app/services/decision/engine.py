@@ -10,7 +10,9 @@ from app.models.schemas import (
     DecisionScoreFactors,
     DecisionSource,
     EvidenceNode,
+    EvidenceQualityMetrics,
     EvidenceStatus,
+    IntentSafetyAssessment,
     MemoryPropagationResult,
     RuntimeCapabilityStatus,
     SafetyGateResult,
@@ -19,12 +21,14 @@ from app.models.schemas import (
     SemanticFrame,
 )
 from app.services.decision.merge import EvidenceAlignmentRoute, merge_decision
+from app.services.evidence.resolution import EvidenceResolutionProjection, OccurrenceKey
 from app.services.evidence.trust import (
     PDF_EVIDENCE_TRUST_VALUES,
     evidence_trust_value,
     select_canonical_evidence,
     trust_trace,
 )
+from app.services.evidence.value_contract import is_finite_number
 
 
 class DecisionService:
@@ -59,16 +63,32 @@ class DecisionService:
     def _clamp(value: float) -> float:
         return max(0.0, min(1.0, value))
 
+    @staticmethod
+    def aggregate_safety_decision(
+        assessments: list[IntentSafetyAssessment],
+    ) -> DecisionLabel | None:
+        """Conservatively aggregate resolved occurrence safety outcomes."""
+        if not assessments:
+            return None
+        priority = {
+            DecisionLabel.PASS: 0,
+            DecisionLabel.REVIEW: 1,
+            DecisionLabel.BLOCK: 2,
+        }
+        return max(
+            (assessment.final_safety_decision for assessment in assessments),
+            key=lambda decision: priority[decision],
+        )
+
     def _trust(
         self,
-        frame: SemanticFrame,
+        validated_types: list[str],
         evidence: list[EvidenceNode],
+        resolved_node_ids: frozenset[str],
     ) -> tuple[float | None, bool, str, list[dict[str, object]]]:
-        validated_types = [
-            *frame.required_evidence_types,
-            *frame.optional_evidence_types,
-        ]
-        nodes = select_canonical_evidence(validated_types, evidence)
+        nodes = select_canonical_evidence(
+            validated_types, evidence, allowed_node_ids=resolved_node_ids
+        )
         if not nodes:
             return None, False, "无适用 validated evidence，可信因子不适用", []
         value = sum(evidence_trust_value(node.quality_label) for node in nodes) / len(nodes)
@@ -85,6 +105,12 @@ class DecisionService:
             return value
         return str(value).upper() in {"TRUE", "1", "YES", "ACTIVE", "DETECTED"}
 
+    @staticmethod
+    def _field(node: EvidenceNode | None, name: str) -> Any:
+        if node is None or not isinstance(node.value, dict):
+            return None
+        return node.value.get(name)
+
     def _necessity_score(
         self, frame: SemanticFrame, evidence: list[EvidenceNode]
     ) -> tuple[float, str]:
@@ -100,19 +126,21 @@ class DecisionService:
             ):
                 latest[node.evidence_type] = node
 
-        emergency_node = latest.get("emergency_flag")
+        emergency_node = latest.get("SERVICE_BRAKE_STATE")
+        emergency_value = self._field(emergency_node, "emergency_braking_detected")
         emergency_score = (
             float(self.necessity.get("emergency_flag_score", 1.0))
-            if emergency_node is not None and self._truthy(emergency_node.value)
+            if emergency_node is not None and self._truthy(emergency_value)
             else 0.0
         )
-        collision_node = latest.get("collision_state")
+        collision_node = latest.get("SURROUNDING_OBJECT_STATE")
+        collision_value = self._field(collision_node, "collision_state")
         collision_states = {
             str(value).upper() for value in self.necessity.get("collision_states", [])
         }
         collision_supported = collision_node is not None and (
-            self._truthy(collision_node.value)
-            or str(collision_node.value).upper() in collision_states
+            self._truthy(collision_value)
+            or str(collision_value).upper() in collision_states
         )
         if collision_supported:
             emergency_score = max(
@@ -120,30 +148,39 @@ class DecisionService:
                 float(self.necessity.get("collision_state_score", 1.0)),
             )
 
-        action_key = f"{frame.action}|{frame.target}"
         critical_actions = self.necessity.get("safety_critical_actions", {})
-        action_cap = float(critical_actions.get(action_key, 0.0))
+        action_cap = max(
+            (
+                float(
+                    critical_actions.get(f"{intent.action}|{intent.target}", 0.0)
+                )
+                for intent in frame.intents
+            ),
+            default=0.0,
+        )
         safety_evidence_score = 0.0
         evidence_reasons: list[str] = []
         if action_cap > 0:
-            obstacle = latest.get("front_obstacle_distance")
+            obstacle = latest.get("SURROUNDING_OBJECT_STATE")
+            obstacle_value = self._field(obstacle, "front_obstacle_distance")
             threshold = float(self.necessity.get("front_obstacle_threshold_m", 5.0))
             if (
                 obstacle is not None
-                and isinstance(obstacle.value, (int, float))
-                and obstacle.value <= threshold
+                and is_finite_number(obstacle_value)
+                and obstacle_value <= threshold
             ):
                 safety_evidence_score = max(
                     safety_evidence_score,
                     float(self.necessity.get("front_obstacle_score", 0.9)),
                 )
                 evidence_reasons.append("前方障碍距离达到制动必要性阈值")
-            brake = latest.get("brake_state")
+            brake = latest.get("SERVICE_BRAKE_STATE")
+            brake_value = self._field(brake, "brake_state")
             required_states = {
                 str(value).upper()
                 for value in self.necessity.get("brake_required_states", [])
             }
-            if brake is not None and str(brake.value).upper() in required_states:
+            if brake is not None and str(brake_value).upper() in required_states:
                 safety_evidence_score = max(
                     safety_evidence_score,
                     float(self.necessity.get("brake_required_score", 0.9)),
@@ -159,6 +196,134 @@ class DecisionService:
             reasons.append("没有真实紧急、碰撞、障碍或制动必要性证据")
         return score, "；".join(reasons)
 
+    @staticmethod
+    def _gate_slice(gate: SafetyGateResult, key: OccurrenceKey) -> SafetyGateResult:
+        """Project the canonical turn gate into one occurrence without re-evaluating it."""
+        selected: list[Any] = []
+        for check in gate.checks:
+            observed = check.observed
+            if observed.get("global_scene"):
+                selected.append(check)
+                continue
+            intent_results = observed.get("intent_results")
+            if isinstance(intent_results, list):
+                item = next(
+                    (
+                        value
+                        for value in intent_results
+                        if value.get("clause_index") == key[0]
+                        and value.get("intent_id") == key[1]
+                    ),
+                    None,
+                )
+                if item is not None and item.get("hit"):
+                    item_observed = dict(item)
+                    item_observed.pop("hit", None)
+                    item_observed.pop("supporting_evidence_ids", None)
+                    selected.append(
+                        check.model_copy(
+                            update={
+                                "observed": item_observed,
+                                "supporting_evidence_ids": list(
+                                    item.get("supporting_evidence_ids", [])
+                                ),
+                            }
+                        )
+                    )
+                continue
+            if (
+                check.hit
+                and observed.get("clause_index") == key[0]
+                and observed.get("intent_id") == key[1]
+            ):
+                selected.append(check)
+        reasons: list[str] = []
+        for check in selected:
+            if check.reason not in reasons:
+                reasons.append(check.reason)
+        hit_rules = [check.rule_id for check in selected if check.hit]
+        return SafetyGateResult(
+            blocked=bool(hit_rules),
+            gate_blocked=bool(hit_rules),
+            mandatory_evidence_missing="MANDATORY_EVIDENCE_AVAILABLE" in hit_rules,
+            checks=selected,
+            reasons=reasons,
+            hit_rules=hit_rules,
+            observed_values={check.rule_id: check.observed for check in selected},
+            supporting_evidence_ids=sorted(
+                {
+                    node_id
+                    for check in selected
+                    for node_id in check.supporting_evidence_ids
+                }
+            ),
+        )
+
+    def assess_intents(
+        self,
+        frame: SemanticFrame,
+        evidence: list[EvidenceNode],
+        gate: SafetyGateResult,
+        validation: AdvancedValidationResult,
+        causal: CausalCorrectionResult,
+        memory: MemoryPropagationResult,
+        runtime_capability: RuntimeCapabilityStatus | None,
+        resolution_projection: EvidenceResolutionProjection,
+        quality_metrics_by_occurrence: dict[OccurrenceKey, EvidenceQualityMetrics],
+    ) -> tuple[list[IntentSafetyAssessment], DecisionLabel | None]:
+        assessments: list[IntentSafetyAssessment] = []
+        for intent in frame.intents:
+            key = (intent.clause_index, intent.intent_id)
+            metrics = quality_metrics_by_occurrence.get(key)
+            if metrics is None or key not in resolution_projection.by_occurrence:
+                continue
+            occurrence_gate = self._gate_slice(gate, key)
+            scoped_frame = frame.model_copy(
+                update={
+                    "intents": [intent],
+                    "semantic_status": "OK",
+                    "semantic_confidence": intent.semantic_confidence,
+                    "ambiguity_score": intent.ambiguity_score,
+                }
+            )
+            score_result = self.decide(
+                scoped_frame,
+                evidence,
+                occurrence_gate,
+                metrics.evidence_alignment_route or "EVIDENCE_PASS",
+                validation,
+                causal,
+                memory,
+                runtime_capability,
+                required_types=resolution_projection.required_types_by_occurrence[key],
+                validated_types=resolution_projection.validated_types_by_occurrence[key],
+                required_node_ids=resolution_projection.required_node_ids_by_occurrence[key],
+                resolved_node_ids=resolution_projection.resolved_node_ids_by_occurrence[key],
+            )
+            assessments.append(
+                IntentSafetyAssessment(
+                    clause_index=intent.clause_index,
+                    intent_id=intent.intent_id,
+                    quality_metrics=metrics,
+                    gate_blocked=occurrence_gate.blocked,
+                    gate_hit_rules=occurrence_gate.hit_rules,
+                    gate_reasons=occurrence_gate.reasons,
+                    gate_observed=occurrence_gate.observed_values,
+                    supporting_evidence_ids=occurrence_gate.supporting_evidence_ids,
+                    score_factors=score_result.score_factors,
+                    safety_score=score_result.safety_score,
+                    score_decision=score_result.score_decision,
+                    final_safety_decision=score_result.final_decision,
+                    decision_sources=score_result.decision_sources,
+                    decision_merge_reason=score_result.decision_merge_reason,
+                    reason_codes=score_result.reason_codes,
+                    explanations=score_result.explanations,
+                )
+            )
+        if not assessments:
+            return [], None
+        return assessments, self.aggregate_safety_decision(assessments)
+
     def decide(
         self,
         frame: SemanticFrame,
@@ -169,24 +334,32 @@ class DecisionService:
         causal: CausalCorrectionResult | None = None,
         memory: MemoryPropagationResult | None = None,
         runtime_capability: RuntimeCapabilityStatus | None = None,
+        *,
+        required_types: list[str],
+        validated_types: list[str],
+        required_node_ids: frozenset[str],
+        resolved_node_ids: frozenset[str],
     ) -> DecisionResult:
         validation = validation or AdvancedValidationResult()
         causal = causal or CausalCorrectionResult()
-        incomplete = frame.action == "unknown" or frame.target == "unknown"
+        occurrence_evidence = [
+            node for node in evidence if node.node_id in resolved_node_ids
+        ]
+        incomplete = frame.semantic_status != "OK"
         csem = self._clamp(
             frame.semantic_confidence
             * (1.0 - self.semantic_ambiguity_beta * frame.ambiguity_score)
         )
-        required_count = len(frame.required_evidence_types)
+        required_count = len(required_types)
         covered = {
             node.evidence_type
             for node in evidence
-            if node.mandatory
+            if node.node_id in required_node_ids
             and node.quality_label in {EvidenceStatus.VALID, EvidenceStatus.SUSPICIOUS}
         }
         ccov = len(covered) / required_count if required_count else None
         ctrust, trust_applicable, trust_reason, validated_trust_values = self._trust(
-            frame, evidence
+            validated_types, evidence, resolved_node_ids
         )
         cjb = self._clamp(1.0 - validation.jailbreak_risk)
         cnec, necessity_reason = self._necessity_score(frame, evidence)
@@ -229,7 +402,11 @@ class DecisionService:
         score = round(self._clamp(score), 4)
 
         explanations = [
-            f"识别动作={frame.action}，对象={frame.target}",
+            "识别子意图="
+            + ",".join(
+                f"{intent.intent_id}({intent.action}|{intent.target})"
+                for intent in frame.intents
+            ),
             (
                 f"强制证据覆盖 {len(covered)}/{required_count}"
                 if required_count
@@ -241,21 +418,17 @@ class DecisionService:
         review_question: str | None = None
         if incomplete:
             score_decision = DecisionLabel.REVIEW
-            missing_slot = (
-                "动作和对象"
-                if frame.action == frame.target == "unknown"
-                else "动作"
-                if frame.action == "unknown"
-                else "目标对象"
-            )
-            explanations.append(f"语义帧缺少{missing_slot}，仅允许诊断检索")
-            review_question = (
-                "您想打开哪个设备？请明确说出车门、车窗、灯光或其他目标。"
-                if frame.action == "打开" and frame.target == "unknown"
-                else f"请明确指令的{missing_slot}。"
-            )
+            if len(frame.intents) > 1:
+                explanations.append("当前执行与授权接口仍为单动作契约，多子意图轮次仅允许复核")
+            else:
+                explanations.append(
+                    "冻结语义状态为"
+                    f"{frame.semantic_status}，仅允许诊断或复核流程"
+                )
+            review_question = "请根据语义复核原因确认或重新描述指令。"
         elif validation.conflicts or any(
-            node.quality_label == EvidenceStatus.SUSPICIOUS for node in evidence
+            node.quality_label == EvidenceStatus.SUSPICIOUS
+            for node in occurrence_evidence
         ):
             score_decision = DecisionLabel.REVIEW if score >= float(self.thresholds["review"]) else DecisionLabel.BLOCK
             explanations.append("存在声明或多源证据冲突，不能直接放行")
@@ -276,8 +449,11 @@ class DecisionService:
         restricted_executable = (
             runtime_capability is not None
             and runtime_capability.semantic_control_mode != SemanticControlMode.FULL
-            and frame.action != "查询"
-            and frame.target != "unknown"
+            and bool(frame.intents)
+            and all(
+                intent.action != "查询" and intent.target != "unknown"
+                for intent in frame.intents
+            )
         )
         review_constraints: list[DecisionSource] = []
         if restricted_executable and not gate.blocked and score_decision == DecisionLabel.PASS:

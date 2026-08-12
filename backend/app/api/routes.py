@@ -19,6 +19,7 @@ from app.models.schemas import (
     ExecuteResult,
     HealthResponse,
     IndexRebuildRequest,
+    IndexParametersRequest,
     IndexStatus,
     LearningAuditStatus,
     MicrophoneCommandRequest,
@@ -29,7 +30,6 @@ from app.models.schemas import (
     TurnTimeline,
     TurnWorkflowStatus,
     VehicleState,
-    VehicleStatePatch,
     WorkflowChainVerification,
     DecisionLabel,
 )
@@ -43,6 +43,17 @@ from app.models.frontend_contract import (
     ReviewSubmission,
     ReviewSubmissionResponse,
     TurnPresentationResponse,
+    MandatoryRecallEvidencePresentation,
+    RecallAuditRecentItem,
+    RecallAuditRecentResponse,
+    RecallAIAuditResponse,
+)
+from app.models.read_models import (
+    CompactAuditListItem,
+    CompactAuditListResponse,
+    CompactIntegritySummary,
+    CompactTimelineItem,
+    CompactTimelineResponse,
 )
 from app.api.errors import ContractError
 from app.services.authorization.service import AuthorizationTokenError
@@ -51,19 +62,33 @@ from app.services.review.service import ReviewWorkflowError
 from app.services.voice.antispoof import AntiSpoofModelError
 from app.services.voice.audio import AudioInputError
 from app.core.redaction import SensitiveDataRedactor
+from app.core.performance import mark_stage
 from app.services.presentation.assembler import PresentationAssembler
 from app.services.review.adapter import adapt_review_submission
+from app.services.read_cache import BoundedSingleFlightCache
 
 
 def build_router(pipeline: CommandPipeline) -> APIRouter:
     router = APIRouter(prefix="/api")
     presentation = PresentationAssembler(pipeline)
+    read_cache: BoundedSingleFlightCache[object] = BoundedSingleFlightCache(128)
     contract_errors = {
         404: {"model": ErrorResponse},
         409: {"model": ErrorResponse},
         422: {"model": ErrorResponse},
         500: {"model": ErrorResponse},
     }
+
+    def invalidate_turn_reads(turn_id: str) -> None:
+        for prefix in ("presentation", "workflow", "timeline-summary"):
+            read_cache.invalidate(f"{prefix}:{turn_id}")
+
+    def invalidate_workflow_reads(turn_id: str) -> None:
+        root = pipeline.audit_repository.root_turn_id_for_turn(turn_id) or turn_id
+        for related_turn_id in pipeline.audit_repository.turn_ids_for_root(root):
+            invalidate_turn_reads(related_turn_id)
+        for audit_id in pipeline.audit_repository.audit_ids_for_root(root):
+            read_cache.invalidate(f"audit-detail:{audit_id}")
 
     @router.get("/health", response_model=HealthResponse)
     def health() -> HealthResponse:
@@ -93,13 +118,16 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.post("/command/text", response_model=TextCommandResponse)
     def command_text(request: TextCommandRequest) -> TextCommandResponse:
         result = pipeline.process_text(request)
-        return result.model_copy(
+        invalidate_turn_reads(result.turn_id)
+        response = result.model_copy(
             update={
                 "websocket_channel": (
                     f"/ws/pipeline/{request.session_id}" if request.session_id else None
                 )
             }
         )
+        mark_stage("service_returned")
+        return response
 
     @router.post("/command/audio", response_model=AudioCommandResponse)
     async def command_audio(
@@ -124,13 +152,16 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                     session_id=session_id,
                 )
             )
-            return result.model_copy(
+            invalidate_turn_reads(result.turn_id)
+            response = result.model_copy(
                 update={
                     "websocket_channel": (
                         f"/ws/pipeline/{session_id}" if session_id else None
                     )
                 }
             )
+            mark_stage("service_returned")
+            return response
         except AudioInputError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         except (AntiSpoofModelError, ASRModelError) as exc:
@@ -147,11 +178,11 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                     device=request.device,
                     speaker_zone=request.speaker_zone,
                     speaker_role=request.speaker_role,
-                    state_overrides=request.state_overrides,
                     session_id=request.session_id,
                 )
             )
-            return result.model_copy(
+            invalidate_turn_reads(result.turn_id)
+            response = result.model_copy(
                 update={
                     "websocket_channel": (
                         f"/ws/pipeline/{request.session_id}"
@@ -160,6 +191,8 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                     )
                 }
             )
+            mark_stage("service_returned")
+            return response
         except AudioInputError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         except (AntiSpoofModelError, ASRModelError) as exc:
@@ -168,18 +201,6 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.get("/state", response_model=VehicleState)
     def state_get() -> VehicleState:
         return pipeline.get_vehicle_state()
-
-    @router.patch("/state", response_model=VehicleState)
-    def state_patch(patch: VehicleStatePatch) -> VehicleState:
-        if pipeline.vehicle.adapter_name != "simulator":
-            raise HTTPException(status_code=403, detail="仅模拟器模式允许修改车辆状态")
-        return pipeline.update_vehicle_state(patch)
-
-    @router.post("/state/reset", response_model=VehicleState)
-    def state_reset() -> VehicleState:
-        if pipeline.vehicle.adapter_name != "simulator":
-            raise HTTPException(status_code=403, detail="仅模拟器模式允许重置车辆状态")
-        return pipeline.reset_vehicle_state()
 
     @router.get("/evidence/current", response_model=CurrentEvidenceResponse)
     def evidence_current() -> CurrentEvidenceResponse:
@@ -200,6 +221,41 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     def index_status() -> IndexStatus:
         return pipeline.index.status()
 
+    @router.patch("/index/parameters", response_model=IndexStatus)
+    def index_parameters(request: IndexParametersRequest) -> IndexStatus:
+        return pipeline.update_index_parameters(request)
+
+    @router.get("/recall-audits/recent", response_model=RecallAuditRecentResponse)
+    def recent_recall_audits(limit: int = Query(default=20, ge=1, le=20)) -> RecallAuditRecentResponse:
+        rows = pipeline.audit_repository.recent_recall_audits(limit)
+        return RecallAuditRecentResponse(
+            items=[
+                RecallAuditRecentItem(
+                    turn_id=row.record.turn_id,
+                    created_at=row.record.created_at,
+                    instruction=row.record.transcription_result.text,
+                    mandatory_recall_evidence=[
+                        MandatoryRecallEvidencePresentation(**item)
+                        for item in pipeline.recall_ai_audit_service.mandatory_evidence(
+                            row.record
+                        )
+                    ],
+                    ai_audit_available=row.ai_audit_available,
+                )
+                for row in rows
+            ]
+        )
+
+    @router.post("/recall-audits/{turn_id}/analyze", response_model=RecallAIAuditResponse)
+    def analyze_recall_audit(turn_id: str) -> RecallAIAuditResponse:
+        try:
+            return RecallAIAuditResponse(
+                turn_id=turn_id,
+                **pipeline.recall_ai_audit_service.analyze(turn_id),
+            )
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="turn not found") from exc
+
     @router.get("/turns/{turn_id}", response_model=AuditRecord)
     def turn_detail(turn_id: str) -> AuditRecord:
         record = pipeline.audit_repository.get_by_turn(turn_id)
@@ -214,7 +270,15 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     )
     def turn_presentation(turn_id: str) -> TurnPresentationResponse:
         try:
-            record = pipeline.audit_repository.get_by_turn(turn_id)
+            record = read_cache.get_or_compute(
+                f"presentation:{turn_id}",
+                lambda: (
+                    presentation.assemble(found)
+                    if (found := pipeline.audit_repository.get_by_turn(turn_id))
+                    is not None
+                    else None
+                ),
+            )
             if record is None:
                 raise ContractError(
                     404,
@@ -222,7 +286,9 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                     "未找到指定轮次",
                     turn_id=turn_id,
                 )
-            return presentation.assemble(record)
+            return record.model_copy(
+                update={"voice_trust_mode": pipeline.voice_trust_mode}
+            )  # type: ignore[union-attr,return-value]
         except ContractError:
             raise
         except sqlite3.Error as exc:
@@ -281,6 +347,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                 turn_id, adapt_review_submission(request)
             )
         except ReviewWorkflowError as exc:
+            invalidate_workflow_reads(turn_id)
             message = SensitiveDataRedactor.redact_exception(exc)
             if "未找到轮次" in message:
                 code, status_code = ErrorCode.TURN_NOT_FOUND, 404
@@ -291,6 +358,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             raise ContractError(
                 status_code, code, message, turn_id=turn_id
             ) from exc
+        invalidate_workflow_reads(turn_id)
         if not result.accepted:
             try:
                 code = ErrorCode(result.rejection_code or ErrorCode.REVIEW_NOT_ALLOWED.value)
@@ -332,9 +400,11 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.post("/turns/{turn_id}/execute", response_model=ExecuteResult)
     def turn_execute(turn_id: str, request: ExecuteRequest) -> ExecuteResult:
         try:
-            return pipeline.execution_service.execute(
+            result = pipeline.execution_service.execute(
                 turn_id, request.authorization_token, session_id=request.session_id
             )
+            invalidate_workflow_reads(turn_id)
+            return result
         except (AuthorizationTokenError, ValueError) as exc:
             raise HTTPException(
                 status_code=409, detail=SensitiveDataRedactor.redact_exception(exc)
@@ -347,10 +417,56 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         except ReviewWorkflowError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
+    @router.get(
+        "/turns/{turn_id}/timeline-summary",
+        response_model=CompactTimelineResponse,
+    )
+    def turn_timeline_summary(turn_id: str) -> CompactTimelineResponse:
+        def compute() -> CompactTimelineResponse:
+            root = pipeline.review_service.root_for_turn(turn_id)
+            audit_items = [
+                CompactTimelineItem(
+                    event_id=None,
+                    turn_id=item.turn_id,
+                    parent_turn_id=None,
+                    stage="AUDIT_SAVED",
+                    status=item.decision,
+                    timestamp=datetime.fromisoformat(item.created_at),
+                    duration_ms=None,
+                    summary=item.instruction_summary,
+                )
+                for item in pipeline.audit_repository.compact_audits_for_root(root)
+            ]
+            workflow_items = [
+                CompactTimelineItem.model_validate(
+                    {**item, "timestamp": datetime.fromisoformat(item["timestamp"])}
+                )
+                for item in pipeline.workflow_repository.compact_events(root)
+            ]
+            items = [*audit_items, *workflow_items]
+            items.sort(
+                key=lambda item: (
+                    item.timestamp,
+                    0 if item.stage == "AUDIT_SAVED" else 1,
+                    item.event_id or "",
+                )
+            )
+            return CompactTimelineResponse(root_turn_id=root, items=items)
+
+        try:
+            return read_cache.get_or_compute(
+                f"timeline-summary:{turn_id}", compute
+            )  # type: ignore[return-value]
+        except ReviewWorkflowError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
     @router.get("/turns/{turn_id}/workflow-status", response_model=TurnWorkflowStatus)
     def turn_workflow_status(turn_id: str) -> TurnWorkflowStatus:
         try:
-            return pipeline.review_service.status(turn_id)
+            return read_cache.get_or_compute(
+                f"workflow:{turn_id}",
+                lambda: pipeline.review_service.status(turn_id),
+            )  # type: ignore[return-value]
         except ReviewWorkflowError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -395,8 +511,71 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     def audits_verify_chain() -> dict[str, bool]:
         return {"valid": pipeline.audit_repository.verify_chain()}
 
+    @router.get("/audits/compact", response_model=CompactAuditListResponse)
+    def audits_compact(
+        page: int = Query(default=1, ge=1),
+        page_size: int = Query(default=20, ge=1, le=100),
+        decision: DecisionLabel | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+    ) -> CompactAuditListResponse:
+        if start_time and end_time and start_time.timestamp() > end_time.timestamp():
+            raise ContractError(
+                422, ErrorCode.INVALID_FILTER, "start_time 涓嶈兘鏅氫簬 end_time"
+            )
+        compact = pipeline.audit_repository.list_compact_summaries(
+            page=page,
+            page_size=page_size,
+            decision=decision.value if decision is not None else None,
+            start_time=start_time.isoformat() if start_time is not None else None,
+            end_time=end_time.isoformat() if end_time is not None else None,
+        )
+        statuses = pipeline.workflow_repository.compact_statuses(
+            [item.root_turn_id for item in compact.items]
+        )
+        chain_valid = pipeline.audit_repository.cached_chain_valid()
+        verification_status = (
+            "NOT_CHECKED"
+            if chain_valid is None
+            else ("CACHED_VALID" if chain_valid else "CACHED_INVALID")
+        )
+        return CompactAuditListResponse(
+            items=[
+                CompactAuditListItem(
+                    audit_id=item.audit_id,
+                    turn_id=item.turn_id,
+                    created_at=datetime.fromisoformat(item.created_at),
+                    instruction_summary=item.instruction_summary,
+                    action=item.action,
+                    target=item.target,
+                    decision=DecisionLabel(item.decision),
+                    review_status=(
+                        "REVIEW_REQUIRED"
+                        if item.decision == DecisionLabel.REVIEW.value
+                        and statuses[item.root_turn_id]["review_status"]
+                        == "NOT_REQUIRED"
+                        else statuses[item.root_turn_id]["review_status"]
+                    ),
+                    authorization_status=statuses[item.root_turn_id][
+                        "authorization_status"
+                    ],
+                    execution_status=statuses[item.root_turn_id]["execution_status"],
+                    integrity_summary=CompactIntegritySummary(
+                        record_hash=item.record_hash,
+                        verification_status=verification_status,
+                    ),
+                )
+                for item in compact.items
+            ],
+            total=compact.total,
+            page=page,
+            page_size=page_size,
+        )
+
     @router.get(
-        "/audits", response_model=AuditListResponse, responses=contract_errors
+        "/audits",
+        response_model=AuditListResponse,
+        responses=contract_errors,
     )
     def audits_list(
         request: Request,
@@ -410,54 +589,39 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             raise ContractError(
                 422, ErrorCode.INVALID_FILTER, "start_time 不能晚于 end_time"
             )
-        records = pipeline.audit_repository.all_records()
-        if start_time is not None:
-            records = [item for item in records if item.created_at >= start_time]
-        if end_time is not None:
-            records = [item for item in records if item.created_at <= end_time]
-        resolved = [pipeline.effective_audit_resolver.resolve(item) for item in records]
         compatibility_filters = {
             "action": request.query_params.get("action"),
             "target": request.query_params.get("target"),
             "risk_type": request.query_params.get("risk_type"),
         }
-        if compatibility_filters["action"] is not None:
-            resolved = [
-                item
-                for item in resolved
-                if item.original.semantic_frame.action
-                == compatibility_filters["action"]
-            ]
-        if compatibility_filters["target"] is not None:
-            resolved = [
-                item
-                for item in resolved
-                if item.original.semantic_frame.target
-                == compatibility_filters["target"]
-            ]
-        if compatibility_filters["risk_type"] is not None:
-            resolved = [
-                item
-                for item in resolved
-                if compatibility_filters["risk_type"]
-                in item.original.semantic_frame.risk_tags
-            ]
-        if decision is not None:
-            resolved = [
-                item
-                for item in resolved
-                if item.effective_decision.final_decision == decision
-            ]
-        resolved.sort(
-            key=lambda item: (item.original.created_at, item.original.audit_id),
-            reverse=True,
+        summaries = pipeline.audit_repository.list_summaries(
+            page=page,
+            page_size=page_size,
+            decision=decision.value if decision is not None else None,
+            action=compatibility_filters["action"],
+            target=compatibility_filters["target"],
+            risk_type=compatibility_filters["risk_type"],
+            start_time=start_time.isoformat() if start_time is not None else None,
+            end_time=end_time.isoformat() if end_time is not None else None,
         )
-        total = len(resolved)
-        offset = (page - 1) * page_size
-        page_items = resolved[offset : offset + page_size]
+        outcomes = pipeline.audit_repository.outcomes_for_originals(
+            item.audit_id for item in summaries.items
+        )
+        execution_statuses = pipeline.workflow_repository.latest_execution_statuses(
+            [item.root_turn_id for item in summaries.items]
+        )
         return AuditListResponse(
-            items=[presentation.audit_list_item(item.original) for item in page_items],
-            total=total,
+            items=[
+                presentation.audit_list_summary_item(
+                    item,
+                    outcome=outcomes.get(item.audit_id),
+                    execution_status=execution_statuses.get(
+                        item.root_turn_id, "NOT_EXECUTED"
+                    ),
+                )
+                for item in summaries.items
+            ],
+            total=summaries.total,
             page=page,
             page_size=page_size,
         )
@@ -468,10 +632,30 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         responses=contract_errors,
     )
     def audit_detail(audit_id: str) -> AuditDetailResponse:
-        resolution = pipeline.effective_audit_resolver.resolve_by_audit_id(audit_id)
+        def compute_audit_detail() -> AuditDetailResponse | None:
+            found = pipeline.effective_audit_resolver.resolve_by_audit_id(audit_id)
+            if found is None:
+                return None
+            turn_view = read_cache.get_or_compute(
+                f"presentation:{found.original.turn_id}",
+                lambda: presentation.assemble(found.original),
+            )
+            return presentation.audit_detail(
+                found.original,
+                turn_view,  # type: ignore[arg-type]
+            )
+
+        resolution = read_cache.get_or_compute(
+            f"audit-detail:{audit_id}",
+            compute_audit_detail,
+        )
         if resolution is None:
             raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
-        return presentation.audit_detail(resolution.original)
+        return resolution  # type: ignore[return-value]
+
+    @router.get("/read-cache/stats")
+    def read_cache_stats() -> dict[str, int]:
+        return read_cache.stats().__dict__
 
     @router.get(
         "/audits/{audit_id}/verify",
@@ -548,7 +732,9 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.post("/scenarios/{scenario_id}/run", response_model=TextCommandResponse)
     def scenario_run(scenario_id: str, session_id: str | None = None) -> TextCommandResponse:
         try:
-            return pipeline.run_scenario(scenario_id, session_id=session_id)
+            result = pipeline.run_scenario(scenario_id, session_id=session_id)
+            invalidate_turn_reads(result.turn_id)
+            return result
         except KeyError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 

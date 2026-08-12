@@ -1,0 +1,84 @@
+{
+  "report_type": "LOCAL_ENVIRONMENT_REPORT",
+  "audited_at_local": "2026-08-08T17:42:21+0800",
+  "python": {
+    "version": "3.11.15 | packaged by Anaconda, Inc. | (main, Jun 11 2026, 15:12:53) [MSC v.1942 64 bit (AMD64)]",
+    "executable": "D:\\software\\anaconda\\envs\\yuzheng311\\python.exe",
+    "required_executable_match": true
+  },
+  "packages": {
+    "torch": "2.13.0+cpu",
+    "transformers": "5.14.1",
+    "tokenizers": "0.22.2",
+    "sentence_transformers": "5.6.1",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "psutil": null
+  },
+  "compute": {
+    "torch_cuda_available": false,
+    "cuda_device": null,
+    "cpu_model": "Intel(R) Core(TM) i9-14900HX",
+    "physical_cores": 24,
+    "logical_cores": 32,
+    "torch_num_threads": 24,
+    "torch_num_interop_threads": 24,
+    "thread_policy": "UNCHANGED_ENVIRONMENT_DEFAULT",
+    "cpu_state_note": "Interactive host; power mode and unrelated background load were not controlled."
+  },
+  "memory": {
+    "total_physical_bytes": 102860972032,
+    "available_physical_bytes_at_audit": 74109636608,
+    "memory_load_percent_at_audit": 27
+  },
+  "platform": "Windows-10-10.0.26200-SP0",
+  "cache_environment": {
+    "HF_HOME": null,
+    "HUGGINGFACE_HUB_CACHE": null,
+    "TRANSFORMERS_CACHE": null,
+    "SENTENCE_TRANSFORMERS_HOME": null,
+    "stage4a_isolated_cache": "D:\\语证\\data\\nlu\\model_selection\\hf_cache"
+  },
+  "existing_local_references": [
+    {
+      "model_id": "BAAI/bge-base-zh-v1.5",
+      "cached": true,
+      "cache_path": "C:\\Users\\tengx\\.cache\\huggingface\\hub\\models--BAAI--bge-base-zh-v1.5",
+      "snapshot_revisions": [
+        "b034223b74fa1f0984ea672da37ef94e92c0ef2a",
+        "f03589ceff5aac7111bd60cfc7d497ca17ecac65"
+      ],
+      "role": "EXISTING_LOCAL_BASELINE_REFERENCE"
+    },
+    {
+      "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "cached": true,
+      "cache_path": "C:\\Users\\tengx\\.cache\\huggingface\\hub\\models--sentence-transformers--paraphrase-multilingual-MiniLM-L12-v2",
+      "snapshot_revisions": [
+        "e8f8c211226b894fcb81acc59f3b34ba3efd5f42"
+      ],
+      "role": "EXISTING_LOCAL_BASELINE_REFERENCE"
+    },
+    {
+      "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+      "cached": true,
+      "cache_path": "C:\\Users\\tengx\\.cache\\huggingface\\hub\\models--sentence-transformers--all-MiniLM-L6-v2",
+      "snapshot_revisions": [
+        "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
+      ],
+      "role": "EXISTING_LOCAL_BASELINE_REFERENCE"
+    }
+  ],
+  "dependency_policy": {
+    "automatic_install_performed": false,
+    "missing_optional_dependencies": [
+      "psutil"
+    ],
+    "special_candidate_dependencies_required": []
+  },
+  "flags": {
+    "LOCAL_ENVIRONMENT_AUDITED": true,
+    "DO_NOT_FINE_TUNE_SHARED_HNSW_ENCODER_IN_PLACE": true,
+    "TRAINING_STEPS_EXECUTED": 0
+  }
+}

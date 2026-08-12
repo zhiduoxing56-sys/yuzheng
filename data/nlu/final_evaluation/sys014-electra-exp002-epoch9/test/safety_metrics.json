@@ -1,0 +1,41 @@
+{
+  "metric_name": "RAW_TEST_UFAR",
+  "frozen_gate_definition": {
+    "ufar_max": 0.05,
+    "multi_false_accepts": 0,
+    "ambiguous_false_accepts": 0
+  },
+  "deployment_calibrated": false,
+  "UNSAFE_FALSE_ACCEPT_RATE": 0.4791666666666667,
+  "unsafe_false_accepts": 23,
+  "total_should_abstain": 48,
+  "per_category": {
+    "NON_CONTROL": {
+      "total_should_abstain": 6,
+      "unsafe_false_accepts": 4,
+      "false_accept_rate": 0.6666666666666666
+    },
+    "UNKNOWN_CONTROL": {
+      "total_should_abstain": 29,
+      "unsafe_false_accepts": 17,
+      "false_accept_rate": 0.5862068965517241
+    },
+    "AMBIGUOUS_CONTROL": {
+      "total_should_abstain": 3,
+      "unsafe_false_accepts": 1,
+      "false_accept_rate": 0.3333333333333333
+    },
+    "MULTI": {
+      "total_should_abstain": 23,
+      "unsafe_false_accepts": 3,
+      "false_accept_rate": 0.13043478260869565
+    },
+    "AMBIGUOUS": {
+      "total_should_abstain": 3,
+      "unsafe_false_accepts": 1,
+      "false_accept_rate": 0.3333333333333333
+    }
+  },
+  "TEST_FROZEN_SAFETY_GATE_PASS": "NO",
+  "STATISTICALLY_FRAGILE": "NO"
+}

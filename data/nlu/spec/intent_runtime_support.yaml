@@ -1,0 +1,473 @@
+document_status: DYNAMIC_RUNTIME_SUPPORT_NOT_SEMANTIC_REGISTRY
+registry_version: sys-014-semantic-hardening-r2
+intent_count: 93
+support_status:
+- FULL
+- PARTIAL
+- NONE
+intents:
+  MIRROR_HEATING_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  MIRROR_HEATING_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  MIRROR_ADJUSTMENT_LOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  MIRROR_ADJUSTMENT_UNLOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SEAT_LONGITUDINAL_SET_POSITION:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SEAT_TILT_SET_ANGLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SEAT_BACKREST_SET_ANGLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SEAT_HEIGHT_SET_POSITION:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SEAT_LUMBAR_SET_HEIGHT:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SEAT_LUMBAR_SET_SUPPORT:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  STEERING_WHEEL_SET_EXTENSION:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  STEERING_WHEEL_SET_TILT:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  DEFROST_ON:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: NONE
+    execution_support: NONE
+  DEFROST_OFF:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: NONE
+    execution_support: NONE
+  WINDSHIELD_HEATING_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  WINDSHIELD_HEATING_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  ABS_ENABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  ABS_DISABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TCS_ENABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TCS_DISABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  EBD_ENABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  EBD_DISABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  EBA_ENABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  EBA_DISABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  ESC_ENABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  ESC_DISABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TRUNK_OPEN:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TRUNK_CLOSE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TRUNK_SET_POSITION:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TRUNK_LOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TRUNK_UNLOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HOOD_OPEN:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HOOD_CLOSE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HOOD_SET_POSITION:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  LOW_RANGE_ENABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  LOW_RANGE_DISABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TORQUE_DISTRIBUTION_SET:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TRANSMISSION_PERFORMANCE_MODE_SET:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  DIFFERENTIAL_LOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  DIFFERENTIAL_UNLOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  GEAR_SET:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  ELECTRIC_POWERTRAIN_ENGAGE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  ELECTRIC_POWERTRAIN_DISENGAGE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  CLUTCH_SET_ENGAGEMENT:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  GEAR_CHANGE_MODE_SET:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARK_LOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARK_UNLOCK:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HORN_ACTIVATE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  MIRROR_FOLD:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  MIRROR_UNFOLD:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  MIRROR_SET_ANGLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SUNROOF_OPEN:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SUNROOF_CLOSE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  SUNROOF_SET_TILT:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  CRUISE_ENABLE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: NONE
+    execution_support: NONE
+  CRUISE_DISABLE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: NONE
+    execution_support: NONE
+  CRUISE_SET_SPEED:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  CRUISE_SET_GAP:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HEADLIGHT_SET_MODE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HAZARD_LIGHT_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HAZARD_LIGHT_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TURN_INDICATOR_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  TURN_INDICATOR_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  LOW_BEAM_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  LOW_BEAM_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HIGH_BEAM_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  HIGH_BEAM_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  FOG_LIGHT_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  FOG_LIGHT_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARKING_LIGHT_ON:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARKING_LIGHT_OFF:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  WINDOW_OPEN:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: FULL
+    execution_support: FULL
+  WINDOW_CLOSE:
+    semantic_support: FULL
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  WINDOW_SET_POSITION:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  DOOR_OPEN:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: FULL
+    execution_support: FULL
+  DOOR_CLOSE:
+    semantic_support: FULL
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  DOOR_SET_POSITION:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  DOOR_LOCK:
+    semantic_support: FULL
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  DOOR_UNLOCK:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: FULL
+    execution_support: FULL
+  WIPER_SET_MODE:
+    semantic_support: PARTIAL
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  WIPER_SET_SENSITIVITY:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARKING_BRAKE_APPLY:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARKING_BRAKE_RELEASE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARKING_BRAKE_AUTO_APPLY_ENABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  PARKING_BRAKE_AUTO_APPLY_DISABLE:
+    semantic_support: NONE
+    evidence_support: NONE
+    authorization_support: NONE
+    execution_support: NONE
+  ACCELERATE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: FULL
+    execution_support: FULL
+  DECELERATE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: FULL
+    execution_support: FULL
+  BRAKE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: FULL
+    execution_support: FULL
+  EMERGENCY_BRAKE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: NONE
+    execution_support: NONE
+  LANE_CHANGE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: NONE
+    execution_support: NONE
+  LANE_KEEP:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: NONE
+    execution_support: NONE
+  EVASIVE_STEER:
+    semantic_support: FULL
+    evidence_support: PARTIAL
+    authorization_support: NONE
+    execution_support: NONE
+  AUTO_PARK_ENABLE:
+    semantic_support: FULL
+    evidence_support: FULL
+    authorization_support: FULL
+    execution_support: FULL

@@ -16,29 +16,22 @@ relation_priority:
   TEMPORAL_SYNCHRONIZATION: 1
 
 semantic_complement_rules:
-  - {from_type: side_rear_mmwave_radar, to_type: side_camera, relation: ACTION_EVIDENCE_DEPENDENCY, source: ACTION_EVIDENCE_DEPENDENCY}
-  - {from_type: front_mmwave_radar, to_type: front_lidar, relation: ACTION_EVIDENCE_DEPENDENCY, source: ACTION_EVIDENCE_DEPENDENCY}
-  - {from_type: front_radar, to_type: front_camera, relation: ACTION_EVIDENCE_DEPENDENCY, source: ACTION_EVIDENCE_DEPENDENCY}
-  - {from_type: front_camera, to_type: lane_marking_map, relation: ACTION_EVIDENCE_DEPENDENCY, source: ACTION_EVIDENCE_DEPENDENCY}
-  - {from_type: surround_view_camera, to_type: ultrasonic_radar, relation: ACTION_EVIDENCE_DEPENDENCY, source: ACTION_EVIDENCE_DEPENDENCY}
-  - {from_type: vehicle_speed, to_type: gear_position, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
-  - {from_type: door_state, to_type: door_lock_state, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
-  - {from_type: ambient_light, to_type: headlight_state, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
-  - {from_type: navigation_active, to_type: display_state, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
-  - {from_type: occupant_role, to_type: authentication_state, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
+  - {from_type: SURROUNDING_OBJECT_STATE, to_type: LANE_STATE, relation: ACTION_EVIDENCE_DEPENDENCY, source: ACTION_EVIDENCE_DEPENDENCY}
+  - {from_type: VEHICLE_SPEED, to_type: GEAR_STATE, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
+  - {from_type: VEHICLE_SPEED, to_type: SERVICE_BRAKE_STATE, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
+  - {from_type: DOOR_STATE, to_type: DOOR_LOCK_STATE, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
+  - {from_type: ENVIRONMENT_CONDITIONS, to_type: LIGHTING_STATE, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
+  - {from_type: OCCUPANT_STATE, to_type: AUTHORIZATION_STATE, relation: EXISTING_GRAPH_RULE, source: EXISTING_GRAPH_RULE}
 
 sensor_topology:
-  - {from_type: side_rear_mmwave_radar, to_type: side_camera, relation: SIDE_ENVIRONMENT_CROSS_SENSOR, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: front_mmwave_radar, to_type: front_lidar, relation: FRONT_ENVIRONMENT_CROSS_SENSOR, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: front_radar, to_type: front_camera, relation: FRONT_ENVIRONMENT_CROSS_SENSOR, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: surround_view_camera, to_type: ultrasonic_radar, relation: PARKING_CROSS_SENSOR, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: vehicle_speed, to_type: gear_position, relation: VEHICLE_DYNAMICS_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: vehicle_speed, to_type: brake_state, relation: VEHICLE_DYNAMICS_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: vehicle_speed, to_type: vehicle_mode, relation: VEHICLE_DYNAMICS_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: door_state, to_type: door_lock_state, relation: DOOR_ACTUATOR_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: ambient_light, to_type: headlight_state, relation: LIGHTING_SENSOR_ACTUATOR, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: occupant_role, to_type: speaker_zone, relation: CABIN_IDENTITY_ZONE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
-  - {from_type: occupant_role, to_type: authentication_state, relation: CABIN_IDENTITY_AUTH, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: SURROUNDING_OBJECT_STATE, to_type: LANE_STATE, relation: ENVIRONMENT_PERCEPTION_TOPOLOGY, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: FREE_SPACE_STATE, to_type: SURROUNDING_OBJECT_STATE, relation: PARKING_ENVIRONMENT_TOPOLOGY, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: VEHICLE_SPEED, to_type: GEAR_STATE, relation: VEHICLE_DYNAMICS_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: VEHICLE_SPEED, to_type: SERVICE_BRAKE_STATE, relation: VEHICLE_DYNAMICS_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: VEHICLE_SPEED, to_type: SYSTEM_MODE, relation: VEHICLE_DYNAMICS_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: DOOR_STATE, to_type: DOOR_LOCK_STATE, relation: DOOR_ACTUATOR_STATE, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: ENVIRONMENT_CONDITIONS, to_type: LIGHTING_STATE, relation: LIGHTING_SENSOR_ACTUATOR, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
+  - {from_type: OCCUPANT_STATE, to_type: AUTHORIZATION_STATE, relation: CABIN_IDENTITY_AUTH, direction: BIDIRECTIONAL, source: ENGINEERING_CONFIG}
 
 layers:
   L3_EMERGENCY: 3
@@ -59,12 +52,12 @@ horizontal:
   support_coefficient: 0.08
   conflict_penalty: 0.25
   functional_pairs:
-    - [vehicle_speed, gear_position]
-    - [door_state, door_lock_state]
-    - [ambient_light, headlight_state]
-    - [navigation_active, display_state]
-    - [reverse_camera_active, display_state]
-    - [occupant_role, authentication_state]
+    - [VEHICLE_SPEED, GEAR_STATE]
+    - [VEHICLE_SPEED, SERVICE_BRAKE_STATE]
+    - [DOOR_STATE, DOOR_LOCK_STATE]
+    - [ENVIRONMENT_CONDITIONS, LIGHTING_STATE]
+    - [FREE_SPACE_STATE, SYSTEM_MODE]
+    - [OCCUPANT_STATE, AUTHORIZATION_STATE]
 
 vertical:
   alpha: 0.30
@@ -75,7 +68,6 @@ vertical:
   final_formula: "after = clamp(before + support_adjustment + risk_adjustment, 0, 1)"
   direction: "higher_safety_layer_to_lower_safety_layer_only"
   allowed_support_paths:
-    - [safety_rule, display_state]
-    - [vehicle_mode, display_state]
-    - [vehicle_speed, door_lock_state]
-    - [authentication_state, door_lock_state]
+    - [SYSTEM_MODE, LIGHTING_STATE]
+    - [VEHICLE_SPEED, DOOR_LOCK_STATE]
+    - [AUTHORIZATION_STATE, DOOR_LOCK_STATE]

@@ -1,0 +1,198 @@
+{
+  "exp001": {
+    "model_id": "hfl/chinese-electra-180g-small-discriminator",
+    "model_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "dataset_version": "sys014-poc7-v2",
+    "registry_version": "sys-014-stage2.1-draft-2",
+    "seed": 14031,
+    "selected_max_length": 32,
+    "actual_batch_size": 16,
+    "optimizer_name": "AdamW",
+    "optimizer_parameter_group_count": 1,
+    "baseline_learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "gradient_clip_norm": 1.0,
+    "baseline_epochs": 10,
+    "early_stopping_patience": 3,
+    "loss_weights": {
+      "scope": 1.0,
+      "structure": 1.0,
+      "intent": 1.0,
+      "slot": 1.0,
+      "negation": 1.0
+    },
+    "scope_class_weight_policy": "SQRT_INVERSE_FREQ",
+    "structure_class_weight_policy": "SQRT_INVERSE_FREQ",
+    "intent_class_weight_policy": "NONE",
+    "slot_class_weight_policy": "NONE",
+    "slot_class_weight_vector": null,
+    "negation_class_weight_policy": "SQRT_INVERSE_FREQ",
+    "class_weight_cap": 3.0,
+    "quality_score_weights": {
+      "intent_macro_f1": 0.3,
+      "scope_macro_f1": 0.2,
+      "structure_macro_f1": 0.2,
+      "slot_span_f1": 0.2,
+      "negation_f1": 0.1
+    },
+    "safety_gates": {
+      "ufar_max": 0.05,
+      "multi_false_accept_rate_max": 0.0,
+      "ambiguous_false_accept_rate_max": 0.0
+    },
+    "label_mapping": {
+      "IGNORE_INDEX": -100,
+      "scope": {
+        "IN_SCOPE_CONTROL": 0,
+        "NON_CONTROL": 1,
+        "UNKNOWN_CONTROL": 2,
+        "AMBIGUOUS_CONTROL": 3
+      },
+      "structure": {
+        "SINGLE": 0,
+        "MULTI": 1,
+        "AMBIGUOUS": 2
+      },
+      "intent": {
+        "DOOR_OPEN": 0,
+        "DOOR_CLOSE": 1,
+        "WINDOW_OPEN": 2,
+        "WINDOW_SET_POSITION": 3,
+        "HEADLIGHT_OFF": 4,
+        "ACCELERATE": 5,
+        "BRAKE": 6
+      },
+      "slot_bio": {
+        "O": 0,
+        "B-AREA": 1,
+        "I-AREA": 2,
+        "B-VALUE": 3,
+        "I-VALUE": 4,
+        "B-NEGATION": 5,
+        "I-NEGATION": 6
+      },
+      "sentence_negation": {
+        "NOT_NEGATED": 0,
+        "NEGATED": 1
+      },
+      "intent_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND intent!=null",
+      "negation_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND negated is boolean"
+    }
+  },
+  "exp002": {
+    "model_id": "hfl/chinese-electra-180g-small-discriminator",
+    "model_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "dataset_version": "sys014-poc7-v2",
+    "registry_version": "sys-014-stage2.1-draft-2",
+    "seed": 14031,
+    "selected_max_length": 32,
+    "actual_batch_size": 16,
+    "optimizer_name": "AdamW",
+    "optimizer_parameter_group_count": 1,
+    "baseline_learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "gradient_clip_norm": 1.0,
+    "baseline_epochs": 10,
+    "early_stopping_patience": 3,
+    "loss_weights": {
+      "scope": 1.0,
+      "structure": 1.0,
+      "intent": 1.0,
+      "slot": 1.0,
+      "negation": 1.0
+    },
+    "scope_class_weight_policy": "SQRT_INVERSE_FREQ",
+    "structure_class_weight_policy": "SQRT_INVERSE_FREQ",
+    "intent_class_weight_policy": "NONE",
+    "slot_class_weight_policy": "SQRT_INVERSE_FREQ_CAP_3",
+    "slot_class_weight_vector": {
+      "O": 0.19794488,
+      "B-AREA": 0.8355972,
+      "I-AREA": 0.71646876,
+      "B-VALUE": 1.34863894,
+      "I-VALUE": 1.30130344,
+      "B-NEGATION": 1.39229546,
+      "I-NEGATION": 1.20775131
+    },
+    "negation_class_weight_policy": "SQRT_INVERSE_FREQ",
+    "class_weight_cap": 3.0,
+    "quality_score_weights": {
+      "intent_macro_f1": 0.3,
+      "scope_macro_f1": 0.2,
+      "structure_macro_f1": 0.2,
+      "slot_span_f1": 0.2,
+      "negation_f1": 0.1
+    },
+    "safety_gates": {
+      "ufar_max": 0.05,
+      "multi_false_accept_rate_max": 0.0,
+      "ambiguous_false_accept_rate_max": 0.0
+    },
+    "label_mapping": {
+      "IGNORE_INDEX": -100,
+      "scope": {
+        "IN_SCOPE_CONTROL": 0,
+        "NON_CONTROL": 1,
+        "UNKNOWN_CONTROL": 2,
+        "AMBIGUOUS_CONTROL": 3
+      },
+      "structure": {
+        "SINGLE": 0,
+        "MULTI": 1,
+        "AMBIGUOUS": 2
+      },
+      "intent": {
+        "DOOR_OPEN": 0,
+        "DOOR_CLOSE": 1,
+        "WINDOW_OPEN": 2,
+        "WINDOW_SET_POSITION": 3,
+        "HEADLIGHT_OFF": 4,
+        "ACCELERATE": 5,
+        "BRAKE": 6
+      },
+      "slot_bio": {
+        "O": 0,
+        "B-AREA": 1,
+        "I-AREA": 2,
+        "B-VALUE": 3,
+        "I-VALUE": 4,
+        "B-NEGATION": 5,
+        "I-NEGATION": 6
+      },
+      "sentence_negation": {
+        "NOT_NEGATED": 0,
+        "NEGATED": 1
+      },
+      "intent_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND intent!=null",
+      "negation_eligibility": "scope=IN_SCOPE_CONTROL AND structure=SINGLE AND negated is boolean"
+    }
+  },
+  "differences": [
+    {
+      "field": "slot_class_weight_policy",
+      "exp001": "NONE",
+      "exp002": "SQRT_INVERSE_FREQ_CAP_3"
+    },
+    {
+      "field": "slot_class_weight_vector",
+      "exp001": null,
+      "exp002": {
+        "O": 0.19794488,
+        "B-AREA": 0.8355972,
+        "I-AREA": 0.71646876,
+        "B-VALUE": 1.34863894,
+        "I-VALUE": 1.30130344,
+        "B-NEGATION": 1.39229546,
+        "I-NEGATION": 1.20775131
+      }
+    }
+  ],
+  "allowed_difference_fields": [
+    "slot_class_weight_policy",
+    "slot_class_weight_vector"
+  ],
+  "unexpected_differences": [],
+  "ISOLATED_VARIABLE_CHECK_PASS": true
+}

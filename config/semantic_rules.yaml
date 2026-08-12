@@ -65,6 +65,9 @@ uncertainty_markers: [可能, 也许, 大概]
 uncertainty_ambiguity: 0.8
 uncertainty_confidence_penalty: 0.6
 
+action_negation_markers: [不要, 别, 禁止, 不用, 无需, 不必, 勿]
+action_negation_modifiers: [再, 继续, 现在, 就, 不]
+
 explicit_command_patterns:
   - patterns: [向左变道]
     action: 变道
@@ -96,6 +99,7 @@ actions:
   关闭: [关闭, 关掉, 关上]
   调高: [调高, 增大, 升高]
   调低: [调低, 减小, 降低]
+  调节: [调节, 调整]
   加速: [加速, 提速, 快点]
   减速: [减速, 降速, 慢点]
   锁定: [锁定, 上锁, 锁上]
@@ -122,6 +126,9 @@ targets:
   所有灯光: [所有灯光, 全部灯光]
   大屏: [大屏, 中控屏]
   空调: [空调]
+  温度: [温度]
+  风量: [风量, 风速]
+  前挡风除雾: [前挡风除雾, 前挡风玻璃除雾, 前风挡除雾, 除雾]
   音乐: [音乐, 音响]
   雨刮: [雨刮, 雨刷]
   速度: [速度, 车速]
@@ -138,7 +145,7 @@ areas:
 
 domains:
   车身控制: [车门, 门锁, 车窗, 前照灯, 阅读灯, 所有灯光, 雨刮]
-  座舱控制: [大屏, 空调]
+  座舱控制: [大屏, 空调, 温度, 风量, 前挡风除雾]
   娱乐控制: [音乐]
   驾驶控制: [速度, 驾驶模式, 自动泊车, 巡航, 制动, 左侧车道, 右侧车道, 当前车道, 转向]
 
@@ -188,6 +195,36 @@ risk_profiles:
   打开|制动:
     level: R3
     tags: [紧急制动, 驾驶控制]
+  打开|空调:
+    level: R1
+    tags: [舒适功能]
+  关闭|空调:
+    level: R1
+    tags: [舒适功能]
+  调节|温度:
+    level: R1
+    tags: [舒适功能]
+  调高|温度:
+    level: R1
+    tags: [舒适功能]
+  调低|温度:
+    level: R1
+    tags: [舒适功能]
+  调节|风量:
+    level: R1
+    tags: [舒适功能]
+  调高|风量:
+    level: R1
+    tags: [舒适功能]
+  调低|风量:
+    level: R1
+    tags: [舒适功能]
+  打开|前挡风除雾:
+    level: R2
+    tags: [驾驶视野, 除雾安全]
+  关闭|前挡风除雾:
+    level: R3
+    tags: [驾驶视野, 除雾安全]
   default:
     level: R1
     tags: []

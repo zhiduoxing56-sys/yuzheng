@@ -1,0 +1,157 @@
+{
+  "implementation": {
+    "slot_head_uses_full_last_hidden_state": true,
+    "attention_mask_forwarded_to_backbone": true,
+    "slot_loss_flattens_logits_and_labels": true,
+    "ignore_index": -100,
+    "slot_logits_shape_audit": [
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        16,
+        12,
+        7
+      ],
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        16,
+        11,
+        7
+      ],
+      [
+        16,
+        18,
+        7
+      ],
+      [
+        16,
+        18,
+        7
+      ],
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        1,
+        13,
+        7
+      ]
+    ],
+    "electra_hidden_size": 256
+  },
+  "pipeline": {
+    "train_token_distribution": {
+      "O": 3760,
+      "B-AREA": 211,
+      "I-AREA": 287,
+      "B-VALUE": 81,
+      "I-VALUE": 87,
+      "B-NEGATION": 76,
+      "I-NEGATION": 101
+    },
+    "train_projection_failures": 0,
+    "validation_projection_failures": 0,
+    "TOKEN_PROJECTION_FAILURES": 0,
+    "SLOT_LABEL_MAPPING_BUG": false,
+    "mapping": {
+      "O": 0,
+      "B-AREA": 1,
+      "I-AREA": 2,
+      "B-VALUE": 3,
+      "I-VALUE": 4,
+      "B-NEGATION": 5,
+      "I-NEGATION": 6
+    },
+    "sample_count_by_entity": {
+      "AREA": 10,
+      "VALUE": 10,
+      "NEGATION": 10
+    },
+    "special_tokens_ignore_index": true,
+    "padding_ignore_index_and_attention_zero": true,
+    "true_slot_tokens_not_masked": true,
+    "sample_projection_failures": [],
+    "all_projection_failures": []
+  },
+  "forward": {
+    "checkpoint_revision": "826a243f3f387450ef8d70de9c3d0706d8d8e924",
+    "slot_logits_shapes": [
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        16,
+        12,
+        7
+      ],
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        16,
+        11,
+        7
+      ],
+      [
+        16,
+        18,
+        7
+      ],
+      [
+        16,
+        18,
+        7
+      ],
+      [
+        16,
+        13,
+        7
+      ],
+      [
+        1,
+        13,
+        7
+      ]
+    ],
+    "last_hidden_size": 256,
+    "expected_slot_class_count": 7,
+    "state_digest_before_forward": "30f3bcb9330f367d8427cc08a628204a5659cf663e440058f5e3e811b242b10e",
+    "state_digest_after_forward": "30f3bcb9330f367d8427cc08a628204a5659cf663e440058f5e3e811b242b10e",
+    "parameters_unchanged": true,
+    "backbone_hashes_before": {
+      "embeddings.word_embeddings.weight": "4a9a5e55ed7f96fee62a16c552c69194cbc5117b9c29f374a16409d1bfec6e53",
+      "encoder.layer.1.attention.self.value.bias": "d182b363f916febcf8f9a9674d2603959d3bf2effd7c3677e0518b828a5da3c6",
+      "encoder.layer.3.attention.self.key.weight": "1f0310bc9bb78760fd8879e07597382a13169de53c18f8b967ff05a3fcc4f85c",
+      "encoder.layer.4.output.LayerNorm.weight": "6e1ff0ef8a362d1482351d3b4a187ccf94c08bffa6be714ea7615bdca8892378",
+      "encoder.layer.6.intermediate.dense.weight": "fdff14f934e471ea1d1f6194304169f21955b6b95a01b2ec0e24abd49835d793",
+      "encoder.layer.8.attention.output.dense.weight": "b25957972a99870069adae75fd7d3cd9ff61429dafb34264a0aeac9ac6a77e44",
+      "encoder.layer.10.attention.self.key.bias": "1c8cfadbad6e2e7979262c06b6718ac9a1cb6aeff3804386bfdf67fb1064c3d6",
+      "encoder.layer.11.output.LayerNorm.bias": "5bf217d8791a44e6cc750be82db327acf28445a98f7a3d94ed1d68f2b56b5b39"
+    },
+    "gradients_created": false,
+    "TRAINING_STEPS_EXECUTED_THIS_STAGE": 0
+  }
+}

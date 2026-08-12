@@ -1,0 +1,22 @@
+{
+  "manifest_id": "SYS-014-FULL-REGISTRY-SEMANTIC-FREEZE-1",
+  "registry_file": "data/nlu/spec/intent_registry_draft.yaml",
+  "registry_version": "sys-014-stage2.1-draft-3",
+  "registry_sha256": "0127af1d64b33a9e517537ccd458905fcc6af3414cc70701fc362474a4ec2739",
+  "intent_count": 93,
+  "vss_intent_count": 85,
+  "project_native_intent_count": 8,
+  "approved_capability_count": 44,
+  "human_decision_source": "data/nlu/spec/review/full_registry_change_review.json",
+  "human_decision_source_sha256": "68cdff481b15822d0e5cc7adcc69c5618efa8ec8f8faa62b5ff65a2e28e0f4fe",
+  "timestamp": "2026-08-09T09:17:53+08:00",
+  "status": "FROZEN_FOR_FULL_DATASET_BUILD",
+  "runtime_loading_allowed": false,
+  "registry_consistency_pass": true,
+  "post_approval_audit": "data/nlu/spec/audits/full_registry_post_approval_audit.json",
+  "historical_poc_rewrite_performed": false,
+  "consistency_linkage_repairs": [
+    "WIPER_SET_SENSITIVITY: mode_contract=WIPER"
+  ],
+  "safety_gold_opened": false
+}

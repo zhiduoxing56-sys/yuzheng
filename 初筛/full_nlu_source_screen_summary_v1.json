@@ -1,0 +1,73 @@
+{
+  "版本": "full_nlu_source_screen_summary_v1",
+  "合并方式": "机械合并；仅按screen_index升序排列；未重新判断语义；未修改shard结果",
+  "输入shard数": 11,
+  "硬校验": {
+    "总数": 20899,
+    "总数等于20899": true,
+    "screen_index": {
+      "最小值": 1,
+      "最大值": 20899,
+      "连续1到20899": true,
+      "重复数": 0,
+      "缺失数": 0,
+      "缺失值": []
+    },
+    "sample_id": {
+      "来源字段": "样本编号",
+      "唯一数": 20899,
+      "重复数": 0,
+      "缺失数": 0
+    },
+    "必需字段缺失数": 0,
+    "记录内容改写数": 0,
+    "全部通过": true
+  },
+  "统计": {
+    "六种初筛总分类": {
+      "DROP_MALFORMED": 31,
+      "HIGH_CONFIDENCE_CANDIDATE": 8905,
+      "SOURCE_CLEAR_BASELINE_WRONG": 6831,
+      "SOURCE_CLEAR_R4_PENDING": 3544,
+      "SOURCE_CONFLICT_REVIEW": 274,
+      "TRUE_BOUNDARY_CANDIDATE": 1314
+    },
+    "五种结构候选": {
+      "AMBIGUOUS_TEXT": 196,
+      "CLEAR_MULTI": 3345,
+      "CLEAR_SINGLE": 16522,
+      "MALFORMED_TEXT": 59,
+      "POSSIBLY_INCOMPLETE": 777
+    },
+    "四种源annotation状态": {
+      "SOURCE_CONFLICT": 266,
+      "SOURCE_CONSISTENT": 14904,
+      "SOURCE_NONE_OR_MALFORMED": 412,
+      "SOURCE_PARTIAL": 5317
+    },
+    "四种baseline映射状态": {
+      "BASELINE_CONSISTENT": 11065,
+      "BASELINE_MAPPING_ERROR": 6903,
+      "BASELINE_PARTIAL": 1099,
+      "BASELINE_UNVERIFIABLE": 1832
+    },
+    "三种R4依赖状态": {
+      "R4_CONTRACT_CHECK": 702,
+      "R4_NOT_REQUIRED": 14498,
+      "R4_REQUIRED": 5699
+    },
+    "三种置信度": {
+      "HIGH": 13558,
+      "LOW": 157,
+      "MEDIUM": 7184
+    }
+  },
+  "重点数量": {
+    "BASELINE_MAPPING_ERROR": 6903,
+    "BASELINE_PARTIAL": 1099,
+    "CLEAR_MULTI": 3345,
+    "SOURCE_CONFLICT_REVIEW": 274,
+    "SOURCE_CLEAR_R4_PENDING": 3544,
+    "TRUE_BOUNDARY_CANDIDATE": 1314
+  }
+}
