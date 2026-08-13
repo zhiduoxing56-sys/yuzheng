@@ -4051,4 +4051,4 @@ exclusions:
   quarantine_record_count: 289
   unapproved_hash_candidate_count: 1402
   legacy_known_control_bypass_active: false
-source_registry_sha256: 54e18d5e748412ad9f5d3ea7f9bc6eea7a92d7ea98408cbc99cba36799b4c52c
+source_registry_sha256: 67ff5015145bc5aaad07ce1063417dcf6332696de70b77c36ca5e8cb240b8121

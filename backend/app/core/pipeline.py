@@ -63,6 +63,7 @@ from app.services.audit.effective import EffectiveAuditResolver
 from app.services.audit.explanation import AuditExplanationService
 from app.services.authorization.service import AuthorizationTokenError, AuthorizationTokenService
 from app.services.causal.service import CausalCorrectionService
+from app.services.claim.service import ClaimCheckResult, ContextClaimService
 from app.services.clarification.service import ClarificationService
 from app.services.decision.engine import DecisionService
 from app.services.decision.merge import (
@@ -86,6 +87,7 @@ from app.services.quality.evaluator import EvidenceQualityService
 from app.services.quality.window import EvidenceQualityWindow
 from app.services.review.service import ReviewService
 from app.services.semantic.orchestrator import SemanticOrchestratorService
+from app.services.semantic.area import allowed_areas_for_intent
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.carla import CarlaVehicleAdapter
@@ -169,6 +171,7 @@ class CommandPipeline:
         )
         self.asr_service = WhisperASRService(self.voice_config["asr"])
         self.semantic_service = SemanticOrchestratorService()
+        self.claim_service = ContextClaimService()
         self.embedder = build_embedding_service(load_yaml("embedding.yaml"))
         self.evidence_demand_registry = EvidenceDemandRegistry()
         self.demand_service = EvidenceDemandService(
@@ -1980,6 +1983,75 @@ class CommandPipeline:
             input_trust,
             zone_permission,
         )
+        # 区域歧义检查：对车门/车窗这类「区域语义关键」的意图，若用户未指定哪一侧
+        # （area=unknown），即使安全裁决为 PASS，也应要求用户选择具体区域后再执行。
+        # 限定 DOOR/WINDOW 两个目标族，避免座椅/空调/灯光等指令过度弹窗。
+        if decision.final_decision == DecisionLabel.PASS:
+            area_ambiguous = [
+                intent.intent_id
+                for intent in frame.intents
+                if intent.area in (None, "unknown")
+                and intent.target in ("车门", "车窗")
+                and any(
+                    area in allowed_areas_for_intent(intent.intent_id)
+                    for area in ("LEFT_FRONT", "RIGHT_FRONT", "LEFT_REAR", "RIGHT_REAR")
+                )
+            ]
+            if area_ambiguous:
+                decision = decision.model_copy(
+                    update={
+                        "final_decision": DecisionLabel.REVIEW,
+                        "reason_codes": list(
+                            dict.fromkeys([*decision.reason_codes, "AREA_AMBIGUOUS"])
+                        ),
+                        "explanations": [
+                            *decision.explanations,
+                            "指令未指定具体操作区域（如哪一侧车门/车窗），需用户选择后再执行。",
+                        ],
+                    }
+                )
+                emit(
+                    "AREA_AMBIGUOUS_REVIEW",
+                    "操作区域未指定，需澄清",
+                    {"intent_ids": area_ambiguous},
+                )
+        # 最终一致性复核层：用户对车辆现状的状态声明 与 本次裁决已取得的证据核验。
+        # 仅在 base_decision 为 PASS 时参与；声明冲突将 PASS 提升为 REVIEW，
+        # 原 REVIEW/BLOCK 保持不变（BLOCK > REVIEW > PASS 顺序永不破坏）。
+        claim_check: ClaimCheckResult | None = None
+        if decision.final_decision == DecisionLabel.PASS and frame.intents:
+            claim_check = self.claim_service.check(frame.raw_text, canonical_evidence)
+            if claim_check.has_conflict:
+                conflict_items = claim_check.conflict_items
+                decision = decision.model_copy(
+                    update={
+                        "final_decision": DecisionLabel.REVIEW,
+                        "reason_codes": list(
+                            dict.fromkeys([*decision.reason_codes, "CONTEXT_CLAIM_CONFLICT"])
+                        ),
+                        "explanations": [
+                            *decision.explanations,
+                            "用户对车辆现状的状态声明与本次裁决的可信证据冲突，"
+                            "PASS 降级为 REVIEW（冲突声明："
+                            + "、".join(f"“{item.matched_span}”" for item in conflict_items)
+                            + "）。",
+                        ],
+                    }
+                )
+                emit(
+                    "CLAIM_CONFLICT",
+                    "用户状态声明与车辆证据冲突",
+                    {
+                        "conflict_items": [
+                            {
+                                "claim_type": item.claim_type.value,
+                                "matched_span": item.matched_span,
+                                "evidence_type": item.evidence_type,
+                            }
+                            for item in conflict_items
+                        ],
+                    },
+                )
         emit(
             "DECISION_COMPLETED",
             "最终裁决完成",

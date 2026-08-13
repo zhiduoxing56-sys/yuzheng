@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import unicodedata
+from pathlib import Path
 from threading import RLock
 from typing import TYPE_CHECKING, Any
 import re
+
+import yaml
 
 from app.models.schemas import (
     AuditRecord,
@@ -34,6 +38,46 @@ _CONTINUOUS_VALUE_CUE = re.compile(
 )
 
 
+def _normalize_for_cmp(text: str) -> str:
+    return "".join(unicodedata.normalize("NFKC", text).strip().lower().split())
+_UNIFIED_INTENT_REGISTRY = (
+    Path(__file__).resolve().parents[4]
+    / "data"
+    / "nlu"
+    / "spec"
+    / "intent_registry_unified_v1.yaml"
+)
+_UNIFIED_ANCHOR_SET = (
+    Path(__file__).resolve().parents[4]
+    / "挂靠"
+    / "intent_anchor_set_unified_v1.yaml"
+)
+_intent_chinese_names: dict[str, str] | None = None
+_intent_anchors: dict[str, list[str]] | None = None
+
+# 对 chinese_name 不完整（缺 required 槽位）且锚点首句也可能 REVIEW 的意图，
+# 指定一个「确认后能闭环」的首选候选句。其余意图回退到锚点句。
+_CANDIDATE_PREFERRED_EXECUTABLE = {
+    "HEADLIGHT_SET_MODE": "打开前照灯",
+}
+
+# 区域歧义澄清：把内部 area 转成可读的区域词，用于生成候选指令。
+_AREA_LABELS = {
+    "LEFT_FRONT": "左前",
+    "RIGHT_FRONT": "右前",
+    "LEFT_REAR": "左后",
+    "RIGHT_REAR": "右后",
+    "FRONT_ROW": "前排",
+    "REAR_ROW": "后排",
+    "LEFT_SIDE": "左侧",
+    "RIGHT_SIDE": "右侧",
+    "ALL": "全部",
+    "FRONT": "前部",
+    "REAR": "后部",
+}
+_SPECIFIC_AREA_LABELS = ("LEFT_FRONT", "RIGHT_FRONT", "LEFT_REAR", "RIGHT_REAR")
+
+
 class ClarificationWorkflowError(ValueError):
     pass
 
@@ -55,6 +99,48 @@ class ClarificationService:
         ) is not None:
             return None
         return request
+
+    @classmethod
+    def _readable_intent_name(cls, intent_id: str) -> str:
+        """把内部 intent_id 转成一个「可重新执行」的人类可读指令。
+
+        不能直接返回 chinese_name：对 required_slots 非空（如 HEADLIGHT_SET_MODE 需
+        MODE）的意图，chinese_name（如「设置主灯模式」）是不完整指令，用户确认后
+        重新处理仍会 REVIEW，造成弹窗无限循环。因此优先取该意图锚点里第一个
+        「完整动作句」（跳过与 chinese_name 相同的锚点），确保确认后能闭环。
+        """
+        if not _INTERNAL_IDENTIFIER.fullmatch(intent_id):
+            return intent_id
+        global _intent_chinese_names, _intent_anchors
+        if _intent_chinese_names is None or _intent_anchors is None:
+            raw = yaml.safe_load(_UNIFIED_INTENT_REGISTRY.read_text(encoding="utf-8"))
+            definitions = raw.get("intents", []) if isinstance(raw, dict) else []
+            _intent_chinese_names = {
+                str(definition.get("intent_id")): str(definition.get("chinese_name", ""))
+                for definition in definitions
+                if isinstance(definition, dict) and definition.get("intent_id")
+            }
+            try:
+                anchor_root = yaml.safe_load(_UNIFIED_ANCHOR_SET.read_text(encoding="utf-8"))
+                anchor_intents = anchor_root.get("intents", {}) if isinstance(anchor_root, dict) else {}
+                _intent_anchors = {
+                    str(key): [str(item) for item in (value.get("anchors", []) if isinstance(value, dict) else [])]
+                    for key, value in anchor_intents.items()
+                }
+            except Exception:
+                _intent_anchors = {}
+        chinese_name = _intent_chinese_names.get(intent_id, intent_id)
+        preferred = _CANDIDATE_PREFERRED_EXECUTABLE.get(intent_id)
+        if preferred and _normalize_for_cmp(preferred) != _normalize_for_cmp(chinese_name):
+            return preferred
+        anchors = _intent_anchors.get(intent_id, [])
+        if anchors:
+            normalized_cn = _normalize_for_cmp(chinese_name)
+            for anchor in anchors:
+                if _normalize_for_cmp(anchor) == normalized_cn:
+                    continue
+                return anchor
+        return chinese_name
 
     @staticmethod
     def _occurrence_candidate_id(record: AuditRecord, intent: Any) -> str:
@@ -172,6 +258,26 @@ class ClarificationService:
                     intent.semantic_confidence,
                 )
             )
+        # 未指定侧的车门/车窗等区域歧义：生成具体区域候选（如 打开左前车门）。
+        # 仅当意图允许具体区域（LEFT_FRONT 等）且当前 area 未解析时才生成。
+        if not values and intent.area in (None, "unknown"):
+            specific = [a for a in _SPECIFIC_AREA_LABELS if a in allowed]
+            if specific:
+                target_label = intent.target or ""
+                action_label = intent.action or ""
+                for area in specific:
+                    area_label = _AREA_LABELS.get(area, "")
+                    candidate = f"{action_label}{area_label}{target_label}".strip()
+                    if not candidate:
+                        continue
+                    values.append(
+                        (
+                            candidate,
+                            ClarificationCandidateSource.SLOT_COMPLETION,
+                            len(values) + 1,
+                            intent.semantic_confidence,
+                        )
+                    )
         return values
 
     def build_for_audit(self, record: AuditRecord) -> ClarificationRequest | None:
@@ -237,11 +343,13 @@ class ClarificationService:
                 )
             )
         else:
+            area_ambiguous = "AREA_AMBIGUOUS" in record.final_decision.reason_codes
             semantic_language_review = bool(
                 frame.semantic_status != "OK"
                 or frame.review_reasons
                 or frame.review_candidates
                 or frame.unresolved_clauses
+                or area_ambiguous
             )
             low_asr_confidence = (
                 is_audio
@@ -271,7 +379,7 @@ class ClarificationService:
                 if not continuous_value_missing:
                     raw_candidates.extend(
                         (
-                            text,
+                            self._readable_intent_name(text),
                             ClarificationCandidateSource.SEMANTIC_REVIEW_CANDIDATE,
                             rank,
                             frame.semantic_confidence,
@@ -471,6 +579,18 @@ class ClarificationService:
                     trusted_context=self.pipeline.trusted_context_from_audit(source),
                 )
                 child_turn_id = command_result.turn_id
+
+                # 防无限循环：确认的候选若本身不完整，重新处理后又产生「原文相同」
+                # 的澄清（如候选「设置主灯模式」缺 MODE，处理后仍 REVIEW 又弹同样
+                # 候选），则抑制 child 的澄清弹窗，让用户重新描述，避免死循环。
+                child_clarification = command_result.clarification_request
+                if (
+                    child_clarification is not None
+                    and child_clarification.original_text == selected_text
+                ):
+                    command_result = command_result.model_copy(
+                        update={"clarification_request": None}
+                    )
 
             resolution = ClarificationResolutionRecord(
                 clarification_id=clarification_id,

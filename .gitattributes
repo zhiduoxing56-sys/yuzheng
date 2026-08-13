@@ -1,0 +1,7 @@
+# 统一语义运行时冻结配置：强制 LF 行尾，保证 sha256 冻结校验跨平台可复现
+backend/intent_hybrid_gate/gate_config.yaml text eol=lf
+backend/intent_judge_3b_minimal/config.yaml text eol=lf
+backend/intent_recall_v1/config.yaml text eol=lf
+data/nlu/spec/intent_registry_unified_v1.yaml text eol=lf
+挂靠/intent_cards_unified_v1.yaml text eol=lf
+挂靠/intent_anchor_set_unified_v1.yaml text eol=lf

@@ -162,11 +162,27 @@ class RecallAIAuditService:
             raise KeyError(turn_id)
         try:
             result = self._call_deepseek(self.historical_input(record))
-        except Exception:
-            self.repository.save_recall_ai_audit_failure(turn_id, "审计失败，可重试")
+        except RuntimeError as exc:
+            message = str(exc)
+            audit_comment = (
+                "未配置 DEEPSEEK_API_KEY，请在后端启动环境设置该变量后重试"
+                if "DEEPSEEK_API_KEY" in message
+                else f"审计失败，可重试：{message}"
+            )
+            self.repository.save_recall_ai_audit_failure(turn_id, audit_comment)
             return {
                 "attention_required": None,
-                "audit_comment": "审计失败，可重试",
+                "audit_comment": audit_comment,
+                "potential_missing_evidence": [],
+                "cached": False,
+                "status": "FAILED",
+            }
+        except Exception as exc:
+            audit_comment = f"审计失败，可重试：{exc.__class__.__name__}"
+            self.repository.save_recall_ai_audit_failure(turn_id, audit_comment)
+            return {
+                "attention_required": None,
+                "audit_comment": audit_comment,
                 "potential_missing_evidence": [],
                 "cached": False,
                 "status": "FAILED",
