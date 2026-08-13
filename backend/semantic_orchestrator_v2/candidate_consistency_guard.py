@@ -26,8 +26,6 @@ class CandidateConsistencyGuard:
             if intent_id not in fused or intent_id not in rows:
                 reasons.append(f"NOT_IN_STAGE1_TOP8:{intent_id}")
         if run.gate_path == "MODEL_ACCEPT" and selected_ids:
-            if self.config["require_fused_top1_selected"] and fused[0] not in selected_ids:
-                reasons.append("FUSED_TOP1_NOT_SELECTED")
             max_rank = int(self.config["strong_channel_rank_max"])
             min_count = int(self.config["min_strong_channel_count_per_selected_target"])
             for intent_id in selected_ids:

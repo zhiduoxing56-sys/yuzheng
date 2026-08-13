@@ -1,0 +1,544 @@
+{
+  "artifact_status": "AUDIT_NOT_RUNTIME",
+  "artifact_version": "known-non-executable-semantic-freeze-audit-v1",
+  "created_date": "2026-08-12",
+  "source_files": [
+    "data\\nlu\\spec\\audits\\known_non_executable_intents_candidate.yaml",
+    "data\\nlu\\spec\\known_control_reference_archive_r4.yaml",
+    "data\\nlu\\spec\\intent_registry_r4_final.yaml",
+    "挂靠\\intent_anchor_set_v1_3.yaml"
+  ],
+  "contract_completeness": {
+    "complete_without_pending_review": 68,
+    "status_counts": {
+      "BOUNDARY_REVIEW": 8,
+      "NEEDS_ANCHOR_REVIEW": 13,
+      "READY": 68,
+      "NEEDS_SCHEMA_REVIEW": 2
+    },
+    "schema_issues": {
+      "TORQUE_DISTRIBUTION_SET": [
+        "历史合同同时允许带符号百分比和值方向槽，可能双重编码前/后轴方向；迁移前需确定唯一规范化表示。"
+      ],
+      "DRIVING_MODE_SET": [
+        "历史 mode_contract 与已确认旁路表达覆盖不完全一致；运动/经济/雪地/越野等驾驶模式枚举需在统一注册表迁移前人工确认。"
+      ]
+    },
+    "duplicate_capability_with_formal_count": 0,
+    "duplicate_capability_conclusion": "未发现与 71 个 Formal 真正重复的完整能力；10 个相邻类别均为共享词面/目标但控制属性或能力不同。"
+  },
+  "original_22_missing_anchor_results": [
+    {
+      "intent_id": "MIRROR_ADJUSTMENT_LOCK",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "BOUNDARY_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "BOUNDARY_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "ABS_ENABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 2,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "ABS_DISABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 2,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "TCS_ENABLE",
+      "missing_reason": "B_OR_C_RECOVERY_ASSOCIATION_MISSED",
+      "recovered_historical_anchor_count": 2,
+      "generated_review_required_count": 0,
+      "readiness": "READY",
+      "registry_entry_condition": "YES"
+    },
+    {
+      "intent_id": "TCS_DISABLE",
+      "missing_reason": "B_OR_C_RECOVERY_ASSOCIATION_MISSED",
+      "recovered_historical_anchor_count": 3,
+      "generated_review_required_count": 0,
+      "readiness": "READY",
+      "registry_entry_condition": "YES"
+    },
+    {
+      "intent_id": "EBD_ENABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 2,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "EBD_DISABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 2,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "EBA_ENABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 2,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "EBA_DISABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 2,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "HOOD_SET_POSITION",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "BOUNDARY_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "LOW_RANGE_ENABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "BOUNDARY_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "LOW_RANGE_DISABLE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "BOUNDARY_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "TORQUE_DISTRIBUTION_SET",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 2,
+      "readiness": "NEEDS_SCHEMA_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "TRANSMISSION_PERFORMANCE_MODE_SET",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "BOUNDARY_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "DIFFERENTIAL_LOCK",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "DIFFERENTIAL_UNLOCK",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "ELECTRIC_POWERTRAIN_ENGAGE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "ELECTRIC_POWERTRAIN_DISENGAGE",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "CLUTCH_SET_ENGAGEMENT",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "PARK_LOCK",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    },
+    {
+      "intent_id": "PARK_UNLOCK",
+      "missing_reason": "A_NO_NATURAL_LANGUAGE_FOUND_IN_SEARCHED_HISTORY",
+      "recovered_historical_anchor_count": 0,
+      "generated_review_required_count": 3,
+      "readiness": "NEEDS_ANCHOR_REVIEW",
+      "registry_entry_condition": "YES_AFTER_REVIEW"
+    }
+  ],
+  "neighbor_boundary_reviews": [
+    {
+      "known_intent_id": "MIRROR_ADJUSTMENT_LOCK",
+      "formal": [
+        "MIRROR_HEATING_ON",
+        "MIRROR_HEATING_OFF",
+        "MIRROR_FOLD",
+        "MIRROR_UNFOLD",
+        "MIRROR_SET_ANGLE"
+      ],
+      "shared": "外后视镜/后视镜",
+      "difference": "锁定的是调节权限/调节锁状态；Formal 分别控制加热、折叠和镜面角度。",
+      "formal_examples": [
+        "打开后视镜加热",
+        "折叠后视镜",
+        "把后视镜往下调"
+      ],
+      "known_examples": [
+        "锁定外后视镜调节",
+        "别让右侧后视镜再被调节"
+      ],
+      "ambiguous": [
+        "把后视镜锁住"
+      ],
+      "guard": "必须同时识别锁定动作与‘调节/权限’属性；仅出现折叠、加热或角度时不得路由至本意图。"
+    },
+    {
+      "known_intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+      "formal": [
+        "MIRROR_HEATING_ON",
+        "MIRROR_HEATING_OFF",
+        "MIRROR_FOLD",
+        "MIRROR_UNFOLD",
+        "MIRROR_SET_ANGLE"
+      ],
+      "shared": "外后视镜/后视镜",
+      "difference": "解锁的是调节权限；Formal 控制加热、展开或实际角度。",
+      "formal_examples": [
+        "关闭后视镜加热",
+        "展开后视镜",
+        "调高后视镜角度"
+      ],
+      "known_examples": [
+        "解锁外后视镜调节",
+        "允许右侧后视镜继续调节"
+      ],
+      "ambiguous": [
+        "把后视镜解锁"
+      ],
+      "guard": "要求解锁动作和调节权限属性共现；‘展开’不能等同于‘解锁调节’。"
+    },
+    {
+      "known_intent_id": "HOOD_SET_POSITION",
+      "formal": [
+        "HOOD_OPEN",
+        "HOOD_CLOSE"
+      ],
+      "shared": "前舱盖/引擎盖/开",
+      "difference": "本意图设置部分开度 VALUE；Formal 只表达完全打开或完全关闭。",
+      "formal_examples": [
+        "打开前舱盖",
+        "关闭引擎盖"
+      ],
+      "known_examples": [
+        "前舱盖开到一半",
+        "引擎盖开度调到30%"
+      ],
+      "ambiguous": [
+        "前舱盖开一点"
+      ],
+      "guard": "出现明确百分比/部分开度时归本意图；无开度值的开/关归 Formal；相对模糊开度进入复核。"
+    },
+    {
+      "known_intent_id": "LOW_RANGE_ENABLE",
+      "formal": [
+        "GEAR_SET",
+        "GEAR_CHANGE_MODE_SET"
+      ],
+      "shared": "挡/模式/变速箱/传动",
+      "difference": "本意图启用低速传动范围；Formal 分别设置 P/R/N/D 目标挡位或手动/自动换挡工作模式。",
+      "formal_examples": [
+        "挂D挡",
+        "切换自动换挡模式"
+      ],
+      "known_examples": [
+        "挂上低速挡",
+        "启用低速四驱"
+      ],
+      "ambiguous": [
+        "切到低速模式"
+      ],
+      "guard": "检查 LOW_RANGE/低速四驱语义，不可仅凭‘挡’或‘模式’路由。"
+    },
+    {
+      "known_intent_id": "LOW_RANGE_DISABLE",
+      "formal": [
+        "GEAR_SET",
+        "GEAR_CHANGE_MODE_SET"
+      ],
+      "shared": "挡/模式/变速箱/传动",
+      "difference": "本意图退出低速传动范围；Formal 不控制低速范围开关。",
+      "formal_examples": [
+        "挂N挡",
+        "切换手动换挡模式"
+      ],
+      "known_examples": [
+        "退出低速挡",
+        "关闭低速四驱"
+      ],
+      "ambiguous": [
+        "退出低速模式"
+      ],
+      "guard": "要求低速范围目标和停用动作；手动/自动/P/R/N/D 明示时归 Formal。"
+    },
+    {
+      "known_intent_id": "TORQUE_DISTRIBUTION_SET",
+      "formal": [
+        "GEAR_SET",
+        "GEAR_CHANGE_MODE_SET"
+      ],
+      "shared": "传动/动力/变速箱",
+      "difference": "本意图分配前后轴扭矩比例；Formal 只选挡位或换挡工作模式。",
+      "formal_examples": [
+        "挂R挡",
+        "换成自动换挡"
+      ],
+      "known_examples": [
+        "前轴扭矩分配到60%",
+        "后轴扭矩分配到60%"
+      ],
+      "ambiguous": [
+        "动力往后调一点"
+      ],
+      "guard": "必须识别轴向目标与比例；只有传动/动力词而无轴向和分配动作时进入复核。"
+    },
+    {
+      "known_intent_id": "TRANSMISSION_PERFORMANCE_MODE_SET",
+      "formal": [
+        "GEAR_SET",
+        "GEAR_CHANGE_MODE_SET"
+      ],
+      "shared": "变速箱/传动/模式",
+      "difference": "本意图设置变速箱性能标定（运动/经济/雪地等）；Formal 换挡模式仅为手动/自动。",
+      "formal_examples": [
+        "挂P挡",
+        "换成手动换挡模式"
+      ],
+      "known_examples": [
+        "变速箱切到运动性能模式",
+        "变速器性能模式调成经济"
+      ],
+      "ambiguous": [
+        "变速箱切换模式"
+      ],
+      "guard": "模式值为 MANUAL/AUTOMATIC 时归 GEAR_CHANGE_MODE_SET；性能/路况值且明确变速箱目标时归本意图。"
+    },
+    {
+      "known_intent_id": "DRIVING_MODE_SET",
+      "formal": [
+        "GEAR_CHANGE_MODE_SET"
+      ],
+      "shared": "模式/切换",
+      "difference": "DRIVING_MODE_SET 控制整车驾驶风格或路况模式（运动、经济、雪地、越野等）；GEAR_CHANGE_MODE_SET 仅控制手动/自动换挡工作模式。",
+      "formal_examples": [
+        "切换到手动换挡模式",
+        "变成自动换挡"
+      ],
+      "known_examples": [
+        "打开运动模式",
+        "驾驶模式切到经济",
+        "切换到雪地模式"
+      ],
+      "ambiguous": [
+        "切换模式",
+        "换成运动模式（未说明整车还是变速箱）"
+      ],
+      "guard": "同时检查目标层级和模式枚举；MANUAL/AUTOMATIC 只归换挡模式，驾驶风格/路况值归驾驶模式，目标缺失时复核。"
+    },
+    {
+      "known_intent_id": "STEERING_WHEEL_HEATING_OFF",
+      "formal": [
+        "STEERING_WHEEL_SET_EXTENSION",
+        "STEERING_WHEEL_SET_TILT"
+      ],
+      "shared": "方向盘/调节",
+      "difference": "本意图关闭方向盘加热；Formal 调整方向盘前后伸缩或上下倾斜。",
+      "formal_examples": [
+        "方向盘往前调",
+        "方向盘往下调"
+      ],
+      "known_examples": [
+        "关闭方向盘加热",
+        "方向盘加热关掉"
+      ],
+      "ambiguous": [
+        "方向盘太热了"
+      ],
+      "guard": "必须识别 HEATING 属性；位置方向词归几何调节，只有状态抱怨而无动作时复核。"
+    },
+    {
+      "known_intent_id": "STEERING_WHEEL_HEATING_ON",
+      "formal": [
+        "STEERING_WHEEL_SET_EXTENSION",
+        "STEERING_WHEEL_SET_TILT"
+      ],
+      "shared": "方向盘/调节",
+      "difference": "本意图开启方向盘加热；Formal 调整方向盘几何位置。",
+      "formal_examples": [
+        "方向盘拉近一点",
+        "方向盘抬高一点"
+      ],
+      "known_examples": [
+        "打开方向盘加热",
+        "方向盘加热开一下"
+      ],
+      "ambiguous": [
+        "方向盘有点冷"
+      ],
+      "guard": "必须识别 HEATING 属性和开启动作；伸缩/倾斜方向词不得触发本意图。"
+    }
+  ],
+  "expression_purity": {
+    "historical_assignment_count": 2388,
+    "unique_exact_expression_count": 2356,
+    "unique_normalized_expression_count": 2356,
+    "cross_known_normalized_duplicate_expression_count": 27,
+    "formal_exact_overlap_expression_count": 6,
+    "quarantined_assignment_count": 89,
+    "quarantine_reason_counts": {
+      "CROSS_KNOWN_INTENT_DUPLICATE": 59,
+      "WRONG_TARGET_OR_CONTROL_ATTRIBUTE": 19,
+      "FRAGMENT_OR_UNINTERPRETABLE": 5,
+      "EXACT_FORMAL_ANCHOR_OVERLAP": 6,
+      "TARGET_ONLY_NO_ACTION": 7,
+      "NON_VEHICLE_OR_WRONG_DOMAIN": 4
+    },
+    "garbled_or_control_character_count": 0,
+    "stable_dual_intent_expression_findings": [
+      {
+        "text_family": "香氛位置调到2/3",
+        "candidate_intents": [
+          "FRAGRANCE_SET_LEVEL",
+          "FRAGRANCE_SET_SCENT"
+        ],
+        "guard_requirement": "必须区分强度/等级与香型编号；缺少‘档/级/味道/香型’消歧信息时进入复核。"
+      },
+      {
+        "text_family": "空气净化开最大",
+        "candidate_intents": [
+          "AIR_PURIFIER_ON",
+          "AIR_PURIFIER_SET_FAN_SPEED"
+        ],
+        "guard_requirement": "显式‘最大’优先解析为风量并允许隐含开启；仅开/关动作归状态意图。"
+      }
+    ],
+    "other_duplicate_assignments_conclusion": "其余跨意图重复多为明显错误挂靠或多目标污染，并非稳定双指向；全部仅隔离、未删除源资产。",
+    "sampling_method": "程序全量检查精确/标准化重复及 Formal 锚点交叉；对全部冲突组人工复核，并抽查短文本、单目标词、乱码与宽泛表达。"
+  },
+  "migration_read_only_impact": [
+    {
+      "path": "挂靠/intent_cards_v1.yaml",
+      "reason": "统一注册表/卡片需表达 91 个稳定语义合同及执行类别。"
+    },
+    {
+      "path": "挂靠/intent_anchor_set_v1_3.yaml",
+      "reason": "人工批准后接收历史锚点和通过审核的新增锚点；当前不得写入。"
+    },
+    {
+      "path": "backend/intent_recall_v1/config.yaml",
+      "reason": "召回器统一注册表/锚点路径及类别配置。"
+    },
+    {
+      "path": "backend/intent_recall_v1/recaller.py",
+      "reason": "召回结果需保留 Formal 与 KNOWN_NON_EXECUTABLE 身份，不再压成旁路标签。"
+    },
+    {
+      "path": "backend/intent_judge_3b_minimal/config.yaml",
+      "reason": "判定输出与候选提示需支持统一语义身份。"
+    },
+    {
+      "path": "backend/intent_judge_3b_minimal/judge.py",
+      "reason": "语义通过与执行资格分离。"
+    },
+    {
+      "path": "backend/semantic_orchestrator_v2/orchestrator.py",
+      "reason": "编排层需让 Known 语义成功通过但禁止授权、令牌与车辆调用。"
+    },
+    {
+      "path": "backend/semantic_orchestrator_v2/action_direction_guard.py",
+      "reason": "新增动作/方向边界与冲突表达守卫。"
+    },
+    {
+      "path": "backend/semantic_orchestrator_v2/candidate_consistency_guard.py",
+      "reason": "Formal/Known 候选一致性和双指向复核。"
+    },
+    {
+      "path": "backend/semantic_orchestrator_v2_1/object_family_guard.py",
+      "reason": "补齐 Known 对象族与控制属性边界。"
+    },
+    {
+      "path": "backend/semantic_orchestrator_v2_1/orchestrator.py",
+      "reason": "v2.1 同步统一身份与非执行语义。"
+    },
+    {
+      "path": "相关 recall/judge/orchestrator tests 与 acceptance cases",
+      "reason": "覆盖 91 数量、22 锚点、10 边界、非授权和非调用行为。"
+    }
+  ],
+  "automated_checks": {
+    "formal_intent_count_is_71": true,
+    "known_non_executable_count_is_91": true,
+    "known_intent_ids_globally_unique": true,
+    "formal_and_known_intent_ids_zero_overlap": true,
+    "all_known_marked_non_executable": true,
+    "all_known_execution_forbidden": true,
+    "all_known_intent_ids_non_empty": true,
+    "historical_and_generated_anchor_sources_distinguishable": true,
+    "unapproved_hash_candidate_usage_is_zero": true,
+    "unapproved_1402_candidate_source_usage_is_zero": true,
+    "current_bypass_anchor_count_is_20": true,
+    "current_bypass_unique_mapping_is_20_of_20": true,
+    "all_91_have_control_domain": true,
+    "all_91_have_action_target_and_parameter_schema": true,
+    "all_91_have_formal_boundary": true,
+    "no_production_runtime_file_modified_by_generation": true
+  },
+  "protected_file_sha256": {
+    "data\\nlu\\spec\\intent_registry_r4_final.yaml": "6d7f1c8f7a7e3ad8c380e446d66071f38dcd84fef24621ba1d1968162ad196bb",
+    "挂靠\\intent_anchor_set_v1_3.yaml": "b88b4d9dcc9cdfdb27ec6d25038af6e7e5d3f01fe6937ba4777815987fb65bff",
+    "挂靠\\intent_cards_v1.yaml": "574f93dfcf885fba0d083cf84e68572bbc5ab74d9014d7578d3157b2ac19c171",
+    "backend\\intent_recall_v1\\recaller.py": "a3a96a43eabbb01e2da96f9139abd396b7244b1bbc2b1e462120207bab76e71c",
+    "backend\\semantic_orchestrator_v2\\orchestrator.py": "c6e8ec02c699dca5408597e14a009d195969fcffb244a08b93ad656cba303212",
+    "backend\\intent_judge_3b_minimal\\judge.py": "dd8064aa712f355debfc52689eb04013e76bc9a5b2f851a5ab86307d3f9a25d4"
+  },
+  "worktree_status_delta": [],
+  "unexpected_worktree_status_delta": []
+}

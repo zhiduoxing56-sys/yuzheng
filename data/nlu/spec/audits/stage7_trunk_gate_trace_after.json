@@ -1,0 +1,209 @@
+{
+  "phase": "after",
+  "input": "把后备箱上锁",
+  "gate_config_sha256": "adcea6314205568bdb907d83336290009ed75e6528754692d0e2cd8dd252d081",
+  "fused_top8": [
+    "TRUNK_CLOSE",
+    "TRUNK_LOCK",
+    "TRUNK_OPEN",
+    "TRUNK_UNLOCK",
+    "TRUNK_SET_POSITION",
+    "DOOR_LOCK",
+    "DOOR_CLOSE",
+    "WINDOW_CLOSE"
+  ],
+  "channel_summary": {
+    "semantic": {
+      "first_target": "TRUNK_LOCK",
+      "first_score": 0.947631,
+      "second_target": "TRUNK_CLOSE",
+      "second_score": 0.886321,
+      "first_second_gap": 0.06131
+    },
+    "literal": {
+      "first_target": "TRUNK_CLOSE",
+      "first_score": 0.769231,
+      "second_target": "TRUNK_LOCK",
+      "second_score": 0.714286,
+      "first_second_gap": 0.054945
+    },
+    "pinyin": {
+      "first_target": "TRUNK_CLOSE",
+      "first_score": 0.818182,
+      "second_target": "TRUNK_OPEN",
+      "second_score": 0.789474,
+      "first_second_gap": 0.028708
+    }
+  },
+  "targets": {
+    "TRUNK_CLOSE": {
+      "fused_top8_rank": 1,
+      "channels": {
+        "semantic": {
+          "rank": 2,
+          "score": 0.886321,
+          "anchor": "把后备箱盖合上"
+        },
+        "literal": {
+          "rank": 1,
+          "score": 0.769231,
+          "anchor": "把后备箱盖合上"
+        },
+        "pinyin": {
+          "rank": 1,
+          "score": 0.818182,
+          "anchor": "把后备箱盖合上"
+        }
+      },
+      "channel_support_count": 3
+    },
+    "TRUNK_LOCK": {
+      "fused_top8_rank": 2,
+      "channels": {
+        "semantic": {
+          "rank": 1,
+          "score": 0.947631,
+          "anchor": "锁上后备箱一下"
+        },
+        "literal": {
+          "rank": 2,
+          "score": 0.714286,
+          "anchor": "给后备箱执行上锁"
+        },
+        "pinyin": {
+          "rank": 5,
+          "score": 0.76,
+          "anchor": "给后备箱执行上锁"
+        }
+      },
+      "channel_support_count": 2
+    },
+    "TRUNK_UNLOCK": {
+      "fused_top8_rank": 4,
+      "channels": {
+        "semantic": {
+          "rank": 3,
+          "score": 0.885803,
+          "anchor": "把后备箱尾门解锁"
+        },
+        "literal": {
+          "rank": 3,
+          "score": 0.714286,
+          "anchor": "把后备箱尾门解锁"
+        },
+        "pinyin": {
+          "rank": 4,
+          "score": 0.761905,
+          "anchor": "把后备厢解锁一下"
+        }
+      },
+      "channel_support_count": 2
+    },
+    "TRUNK_OPEN": {
+      "fused_top8_rank": 3,
+      "channels": {
+        "semantic": {
+          "rank": 4,
+          "score": 0.87757,
+          "anchor": "把后备箱打开"
+        },
+        "literal": {
+          "rank": 4,
+          "score": 0.666667,
+          "anchor": "把后备箱盖打开"
+        },
+        "pinyin": {
+          "rank": 2,
+          "score": 0.789474,
+          "anchor": "把后备箱弹开"
+        }
+      },
+      "channel_support_count": 1
+    }
+  },
+  "raw_model_output": "{\"intent_ids\":[\"TRUNK_LOCK\"]}",
+  "model_intent_ids": [
+    "TRUNK_LOCK"
+  ],
+  "validation_errors": [],
+  "model_consistency_checks": {
+    "require_fused_top1_selected_check": "REMOVED",
+    "fused_top1": "TRUNK_CLOSE",
+    "selected_targets": [
+      {
+        "intent_id": "TRUNK_LOCK",
+        "in_fused_top8": true,
+        "fused_top8_rank": 2,
+        "fused_top1_selected": false,
+        "selected_target_strong_channel_count": 2,
+        "strong_channel_rank_max": 3,
+        "min_strong_channel_count_per_selected_target": 2,
+        "strong_channel_requirement_passed": true
+      }
+    ],
+    "failure_reasons": [],
+    "final_model_consistent": true
+  },
+  "gate_path": "MODEL_ACCEPT",
+  "guard_triggers": [],
+  "semantic_status": "OK",
+  "review_reasons": [],
+  "final_intent": "TRUNK_LOCK",
+  "guard_details": {
+    "action_direction": [
+      {
+        "intent_id": "TRUNK_LOCK",
+        "conflict": false,
+        "requested_families": [
+          "LOCK"
+        ],
+        "selected_family": "LOCK",
+        "compatible_candidates": [
+          "TRUNK_LOCK",
+          "DOOR_LOCK"
+        ]
+      }
+    ],
+    "object_family": {
+      "explicit_families": [
+        "TRUNK"
+      ],
+      "selected_families": [
+        "TRUNK"
+      ],
+      "requested_action_families": [
+        "LOCK"
+      ],
+      "matching_candidates": [],
+      "final_intent_ids": [
+        "TRUNK_LOCK"
+      ],
+      "corrected_from": [],
+      "corrected_to": null,
+      "correction": false,
+      "conflict": false
+    }
+  },
+  "guard_observation_source": "live SemanticOrchestratorV2_1.run",
+  "evidence_demand_generated": true,
+  "evidence_required_types": [
+    []
+  ],
+  "safety_gate_invoked": true,
+  "safety_gate_hit_rules": [],
+  "decision": "PASS",
+  "capability_supported": false,
+  "authorization_token": null,
+  "vehicle_state_before": {
+    "door_state": "CLOSED",
+    "door_lock_state": "UNLOCKED",
+    "window_state": "CLOSED"
+  },
+  "vehicle_state_after": {
+    "door_state": "CLOSED",
+    "door_lock_state": "UNLOCKED",
+    "window_state": "CLOSED"
+  },
+  "vehicle_state_changed": false,
+  "workflow_chain_valid": true
+}

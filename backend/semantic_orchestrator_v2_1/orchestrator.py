@@ -38,7 +38,7 @@ class SemanticOrchestratorV2_1(SemanticOrchestratorV2):
     def __init__(self) -> None:
         super().__init__()
         cards_root = yaml.safe_load(INTENT_CARDS.read_text(encoding="utf-8"))
-        cards = cards_root.get("正式意图", {})
+        cards = cards_root.get("intents", {})
         self.object_guard = ObjectFamilyGuard(cards, self.direction_guard)
         self.security_guard = SecurityClaimGuard()
 
@@ -59,6 +59,12 @@ class SemanticOrchestratorV2_1(SemanticOrchestratorV2):
         result["guard_details"]["object_family"] = _decision_dict(decision)
         if decision.correction:
             result["accepted_intent_ids"] = list(decision.final_intent_ids)
+            result["resolved_params"] = {
+                intent_id: dict(
+                    self.semantic_contract_guard.check(clause, intent_id).params
+                )
+                for intent_id in decision.final_intent_ids
+            }
             result["audit_triggers"].append("OBJECT_FAMILY_CORRECTION")
         elif decision.conflict:
             result["guard_triggers"] = _unique(

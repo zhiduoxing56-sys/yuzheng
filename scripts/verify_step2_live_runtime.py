@@ -290,7 +290,7 @@ def audio_summary(client: httpx.Client) -> dict[str, Any]:
         "index_build_id": presentation["retrieval_summary"]["index_build_id"],
         "layering_mode": presentation["retrieval_summary"]["layering_mode"],
         "node_security_class": node["security_class"],
-        "audit_detail_build_id": detail["retrieval_summary"]["index_build_id"],
+        "audit_detail_decision": detail["decision_summary"]["final_decision"],
         "timeline_item_count": len(timeline["items"]),
         "audit_chain_valid": verification["audit_chain_valid"],
         "workflow_chain_valid": verification["workflow_chain_valid"],

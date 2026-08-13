@@ -18,7 +18,7 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from app.main import create_app  # noqa: E402
 from app.models.frontend_contract import (  # noqa: E402
-    AuditDetailResponse,
+    AuditDetailView,
     AuditListResponse,
     AuditVerificationResponse,
     AuthorizationPresentation,
@@ -62,6 +62,7 @@ from app.models.schemas import (  # noqa: E402
     PipelineEvent,
     ReviewAction,
     ReviewCandidateInterpretation,
+    SemanticFrame,
     SecurityClass,
     WorkflowEventType,
 )
@@ -79,6 +80,7 @@ PUBLIC_OPERATIONS = (
     ("GET", "/api/turns/{turn_id}/timeline"),
     ("GET", "/api/audits"),
     ("GET", "/api/audits/{audit_id}"),
+    ("GET", "/api/audits/{audit_id}/semantic-frame"),
     ("GET", "/api/audits/{audit_id}/verify"),
 )
 PUBLIC_PATHS = tuple(path for _, path in PUBLIC_OPERATIONS)
@@ -93,6 +95,7 @@ _OPERATION_SIDE_EFFECTS = {
     ("GET", "/api/turns/{turn_id}/timeline"): "READ_ONLY",
     ("GET", "/api/audits"): "READ_ONLY",
     ("GET", "/api/audits/{audit_id}"): "READ_ONLY",
+    ("GET", "/api/audits/{audit_id}/semantic-frame"): "READ_ONLY_TECHNICAL_DETAIL",
     ("GET", "/api/audits/{audit_id}/verify"): "READ_ONLY",
 }
 
@@ -120,7 +123,8 @@ _PAGE_MODELS = {
     ),
     "audit_log": (
         AuditListResponse,
-        AuditDetailResponse,
+        AuditDetailView,
+        SemanticFrame,
         TimelineItem,
         AuditVerificationResponse,
     ),

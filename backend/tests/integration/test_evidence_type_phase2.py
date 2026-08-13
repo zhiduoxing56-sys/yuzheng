@@ -27,10 +27,11 @@ from app.services.evidence.demand_registry import EvidenceDemandRegistry
 from app.services.evidence.recall import MandatoryRecallService
 from app.services.evidence.repository import EvidenceRepository
 from app.services.graph.builder import EvidenceSubgraphBuilder
-from app.services.index.hnsw import HNSWIndexService
+from app.services.index.hnsw import HNSWIndexService, evidence_key
 from app.services.quality.evaluator import EvidenceQualityService
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import DeterministicHashEmbeddingService
+from semantic_registry_v1 import UnifiedSemanticRegistry
 
 
 AGGREGATE_TYPES = {
@@ -40,17 +41,27 @@ AGGREGATE_TYPES = {
 }
 
 
-def _frame(action: str, target: str, *, control_domain: str = "车身控制") -> SemanticFrame:
+def _frame(
+    intent_id: str,
+    action: str,
+    target: str,
+    *,
+    mode: str | None = None,
+) -> SemanticFrame:
+    definition = UnifiedSemanticRegistry().definition(intent_id)
     intent = SemanticIntent(
         clause_index=0,
         clause_text=f"{action}{target}",
-        intent_id="PHASE2_GATE_FIXTURE",
+        intent_id=intent_id,
+        runtime_identity=definition["runtime_identity"],
         action=action,
         target=target,
-        control_domain=control_domain,
+        mode=mode,
+        control_attribute=definition["control_attribute"],
+        control_domain=definition["control_domain"],
         semantic_confidence=1,
         ambiguity_score=0,
-        risk_level="R3",
+        risk_level=definition["risk_level"],
     )
     return SemanticFrame(
         turn_id="TURN_PHASE2_GATE",
@@ -132,9 +143,19 @@ def test_catalog_and_runtime_mapping_cover_exactly_32_without_compatibility_fiel
 def test_repository_emits_one_node_per_available_canonical_fact_and_aggregate() -> None:
     nodes = _nodes(VehicleState())
     types = [node.evidence_type for node in nodes]
-    assert len(nodes) == len(set(types)) == 13
+    assert len(nodes) == 16
+    assert len(set(types)) == 13
     assert set(types) <= CANONICAL_EVIDENCE_TYPES
     by_type = {node.evidence_type: node for node in nodes}
+    door_nodes = [node for node in nodes if node.evidence_type == "DOOR_STATE"]
+    assert {node.metadata.get("area") for node in door_nodes} == {
+        "LEFT_FRONT",
+        "RIGHT_FRONT",
+        "LEFT_REAR",
+        "RIGHT_REAR",
+    }
+    assert len(door_nodes) == 4
+    assert all(node.value == {"state": "CLOSED", "position": None} for node in door_nodes)
     assert all(isinstance(by_type[evidence_type].value, dict) for evidence_type in AGGREGATE_TYPES)
     assert by_type["ENVIRONMENT_CONDITIONS"].value["ambient_illumination"] == 100
     assert by_type["SURROUNDING_OBJECT_STATE"].value["front_obstacle_distance"] == 100
@@ -144,6 +165,20 @@ def test_repository_emits_one_node_per_available_canonical_fact_and_aggregate() 
     assert by_type["AUTHORIZATION_STATE"].quality_label.value == "MISSING"
     assert all(node.metadata["source_fields"] for node in nodes)
     assert all("source_field_availability" in node.metadata for node in nodes)
+
+
+def test_four_door_nodes_keep_distinct_existing_stream_and_hnsw_identity() -> None:
+    nodes = _nodes(VehicleState())
+    doors = [node for node in nodes if node.evidence_type == "DOOR_STATE"]
+
+    assert len({EvidenceRepository.stream_key(node) for node in doors}) == 4
+    assert len({evidence_key(node) for node in doors}) == 4
+
+    index = HNSWIndexService(
+        load_yaml("index.yaml"), DeterministicHashEmbeddingService(768)
+    )
+    status = index.build(doors)
+    assert status.node_count == 4
 
 
 def test_observation_contract_rejects_old_type_and_accepts_canonical_type() -> None:
@@ -177,7 +212,7 @@ def test_mandatory_recall_creates_only_canonical_missing_node() -> None:
     repository = EvidenceRepository(load_yaml("evidence_quality.yaml"))
     embedder = DeterministicHashEmbeddingService(768)
     query, _ = embedder.encode("lane")
-    intent_demand = _demand(_frame("打开", "车门"), ["LANE_STATE"]).intent_demands[0]
+    intent_demand = _demand(_frame("DOOR_OPEN", "打开", "车门"), ["LANE_STATE"]).intent_demands[0]
     intent_demand = intent_demand.model_copy(update={"query_vector": query})
     nodes, resolution = MandatoryRecallService(repository, embedder).resolve(
         [], intent_demand, "TURN_PHASE2_MISSING"
@@ -190,15 +225,12 @@ def test_mandatory_recall_creates_only_canonical_missing_node() -> None:
 @pytest.mark.parametrize(
     ("rule_id", "frame", "state", "required"),
     [
-        ("MOVING_DOOR_OPEN_PROHIBITED", _frame("打开", "车门"), VehicleState(vehicle_speed=1), ["VEHICLE_SPEED"]),
-        ("LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED", _frame("关闭", "前照灯"), VehicleState(vehicle_speed=1, ambient_light=5), ["VEHICLE_SPEED", "ENVIRONMENT_CONDITIONS"]),
-        ("DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED", _frame("关闭", "前挡风除雾"), VehicleState(weather="DENSE_FOG"), ["ENVIRONMENT_CONDITIONS"]),
-        ("NON_DRIVER_DRIVING_CONTROL_PROHIBITED", _frame("加速", "速度", control_domain="驾驶控制"), VehicleState(occupant_role="passenger"), ["AUTHORIZATION_STATE"]),
-        ("REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED", _frame("关闭", "大屏"), VehicleState(reverse_camera_active=True), []),
-        ("ACTIVE_NAVIGATION_DISPLAY_OFF_PROHIBITED", _frame("关闭", "大屏"), VehicleState(vehicle_speed=1, navigation_active=True), ["VEHICLE_SPEED"]),
-        ("AUTOPARK_CRITICAL_EVIDENCE_REQUIRED", _frame("打开", "自动泊车"), VehicleState(ultrasonic_distance=None), []),
-        ("FRONT_OBSTACLE_ACCELERATION_PROHIBITED", _frame("加速", "速度", control_domain="驾驶控制"), VehicleState(front_obstacle_distance=2), ["SURROUNDING_OBJECT_STATE"]),
-        ("REAR_STATE_DECELERATION_CONFLICT", _frame("减速", "速度", control_domain="驾驶控制"), VehicleState(rear_obstacle_distance=1), ["SURROUNDING_OBJECT_STATE"]),
+        ("MOVING_DOOR_OPEN_PROHIBITED", _frame("DOOR_OPEN", "打开", "车门"), VehicleState(vehicle_speed=1), ["VEHICLE_SPEED"]),
+        ("LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED", _frame("HEADLIGHT_SET_MODE", "设置", "前照灯", mode="OFF"), VehicleState(vehicle_speed=1, ambient_light=5), ["VEHICLE_SPEED", "ENVIRONMENT_CONDITIONS"]),
+        ("DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED", _frame("DEFROST_OFF", "关闭", "前挡风除雾"), VehicleState(weather="DENSE_FOG"), ["ENVIRONMENT_CONDITIONS"]),
+        ("NON_DRIVER_DRIVING_CONTROL_PROHIBITED", _frame("ACCELERATE", "加速", "速度"), VehicleState(occupant_role="passenger"), ["AUTHORIZATION_STATE"]),
+        ("FRONT_OBSTACLE_ACCELERATION_PROHIBITED", _frame("ACCELERATE", "加速", "速度"), VehicleState(front_obstacle_distance=2), ["SURROUNDING_OBJECT_STATE"]),
+        ("REAR_STATE_DECELERATION_CONFLICT", _frame("DECELERATE", "减速", "速度"), VehicleState(rear_obstacle_distance=1), ["SURROUNDING_OBJECT_STATE"]),
     ],
 )
 def test_safety_gate_reads_canonical_scalar_and_aggregate_values(
@@ -215,8 +247,67 @@ def test_safety_gate_reads_canonical_scalar_and_aggregate_values(
     assert rule_id in result.hit_rules
 
 
+@pytest.mark.parametrize(
+    "rear_value",
+    [None, "1.0", True, float("nan"), float("inf"), float("-inf")],
+)
+@pytest.mark.parametrize("intent_id", ["DECELERATE", "BRAKE"])
+def test_rear_state_rule_fails_closed_for_unusable_values(
+    rear_value, intent_id
+) -> None:
+    frame = _frame(intent_id, "减速" if intent_id == "DECELERATE" else "打开", "速度")
+    nodes = _nodes(VehicleState(rear_obstacle_distance=100))
+    nodes = [
+        node.model_copy(
+            update={
+                "value": {
+                    **node.value,
+                    "rear_obstacle_distance": rear_value,
+                }
+            }
+        )
+        if node.evidence_type == "SURROUNDING_OBJECT_STATE"
+        else node
+        for node in nodes
+    ]
+    result = SafetyGateService(load_yaml("safety_rules.yaml")).evaluate(
+        frame,
+        _demand(frame, ["SURROUNDING_OBJECT_STATE"]),
+        nodes,
+        _resolution(frame, ["SURROUNDING_OBJECT_STATE"], nodes),
+        runtime_safety_context=RuntimeSafetyContext(),
+    )
+    check = next(
+        item
+        for item in result.checks
+        if item.rule_id == "REAR_STATE_DECELERATION_CONFLICT"
+    )
+    assert check.hit is True
+    assert check.observed["rear_state_usable"] is False
+    assert check.observed["failure_reason"] == "REAR_OBSTACLE_DISTANCE_UNUSABLE"
+
+
+def test_emergency_brake_is_not_subject_to_ordinary_rear_rule() -> None:
+    frame = _frame("EMERGENCY_BRAKE", "紧急", "制动")
+    nodes = _nodes(VehicleState(rear_obstacle_distance=0.1))
+    result = SafetyGateService(load_yaml("safety_rules.yaml")).evaluate(
+        frame,
+        _demand(frame, ["SURROUNDING_OBJECT_STATE"]),
+        nodes,
+        _resolution(frame, ["SURROUNDING_OBJECT_STATE"], nodes),
+        runtime_safety_context=RuntimeSafetyContext(),
+    )
+    check = next(
+        item
+        for item in result.checks
+        if item.rule_id == "REAR_STATE_DECELERATION_CONFLICT"
+    )
+    assert check.hit is False
+    assert check.observed["rear_state_usable"] is True
+
+
 def test_decision_necessity_reads_canonical_aggregate_values() -> None:
-    frame = _frame("打开", "制动", control_domain="驾驶控制")
+    frame = _frame("BRAKE", "打开", "制动")
     score, reason = DecisionService(load_yaml("decision_policy.yaml"))._necessity_score(
         frame,
         _nodes(
@@ -233,7 +324,7 @@ def test_decision_necessity_reads_canonical_aggregate_values() -> None:
 
 
 def test_advanced_validation_keeps_security_signal_and_has_no_historical_claims() -> None:
-    frame = _frame("打开", "车门").model_copy(
+    frame = _frame("DOOR_OPEN", "打开", "车门").model_copy(
         update={"security_signals": ["PERMISSION_BYPASS"]}
     )
     result = AdvancedValidationService(load_yaml("jailbreak_policy.yaml")).validate(
@@ -246,7 +337,7 @@ def test_advanced_validation_keeps_security_signal_and_has_no_historical_claims(
 
 
 def test_graph_contains_only_canonical_evidence_nodes() -> None:
-    frame = _frame("打开", "车门")
+    frame = _frame("DOOR_OPEN", "打开", "车门")
     demand = _demand(frame, ["VEHICLE_SPEED"])
     nodes = _nodes(VehicleState())
     evaluated, metrics, conflicts = EvidenceQualityService(

@@ -196,6 +196,8 @@ class WorkflowEventType(str, Enum):
     REVIEW_CONFIRMED = "REVIEW_CONFIRMED"
     REVIEW_CORRECTED = "REVIEW_CORRECTED"
     REVIEW_CANCELLED = "REVIEW_CANCELLED"
+    CLARIFICATION_REQUESTED = "CLARIFICATION_REQUESTED"
+    CLARIFICATION_RESOLVED = "CLARIFICATION_RESOLVED"
     FINAL_DECISION_UPDATED = "FINAL_DECISION_UPDATED"
     AUDIT_OUTCOME_APPENDED = "AUDIT_OUTCOME_APPENDED"
     REDECISION_STARTED = "REDECISION_STARTED"
@@ -211,6 +213,8 @@ class WorkflowEventType(str, Enum):
     PRE_EXECUTION_CHECK_FAILED = "PRE_EXECUTION_CHECK_FAILED"
     EXECUTION_SUCCEEDED = "EXECUTION_SUCCEEDED"
     EXECUTION_FAILED = "EXECUTION_FAILED"
+    DECISION_SNAPSHOT_CAPTURED = "DECISION_SNAPSHOT_CAPTURED"
+    LLM_EXPLANATION_GENERATED = "LLM_EXPLANATION_GENERATED"
 
 
 class VoiceTrustResult(StrictModel):
@@ -329,10 +333,14 @@ class SemanticIntent(StrictModel):
     clause_index: int = Field(ge=0)
     clause_text: str
     intent_id: str
+    runtime_identity: Literal["FORMAL", "KNOWN_NON_EXECUTABLE"] = "FORMAL"
     action: str
     target: str
     area: str = "unknown"
     value: Any | None = None
+    mode: str | None = None
+    direction: str | None = None
+    control_attribute: str = "unknown"
     control_domain: str = "unknown"
     risk_level: str = "R1"
     risk_tags: list[str] = Field(default_factory=list)
@@ -353,6 +361,50 @@ class SemanticFrame(StrictModel):
     unresolved_clauses: list[str] = Field(default_factory=list)
     security_signals: list[str] = Field(default_factory=list)
     intents: list[SemanticIntent] = Field(default_factory=list)
+
+
+class ClarificationType(str, Enum):
+    VOICE_CONFIRMATION = "VOICE_CONFIRMATION"
+    SEMANTIC_CONFIRMATION = "SEMANTIC_CONFIRMATION"
+
+
+class ClarificationCandidateSource(str, Enum):
+    ASR_NBEST = "ASR_NBEST"
+    TEXT_SIMILARITY = "TEXT_SIMILARITY"
+    SEMANTIC_REVIEW_CANDIDATE = "SEMANTIC_REVIEW_CANDIDATE"
+    SLOT_COMPLETION = "SLOT_COMPLETION"
+
+
+class ClarificationResolution(str, Enum):
+    SELECTED = "SELECTED"
+    NONE_OF_ABOVE = "NONE_OF_ABOVE"
+
+
+class ClarificationCandidate(StrictModel):
+    candidate_id: str
+    display_text: str = Field(min_length=1, max_length=2048)
+    candidate_source: ClarificationCandidateSource
+    source_rank: int = Field(ge=1)
+    confidence: float | None = Field(default=None, ge=0, le=1)
+
+
+class ClarificationRequest(StrictModel):
+    clarification_id: str
+    turn_id: str
+    clarification_type: ClarificationType
+    prompt: str = Field(min_length=1, max_length=500)
+    original_text: str = Field(max_length=2048)
+    candidates: list[ClarificationCandidate] = Field(default_factory=list, max_length=4)
+
+
+class ClarificationResolutionRecord(StrictModel):
+    clarification_id: str
+    source_turn_id: str
+    resolution: ClarificationResolution
+    selected_candidate_id: str | None = None
+    selected_candidate_text: str | None = None
+    child_turn_id: str | None = None
+    resolved_at: datetime = Field(default_factory=utc_now)
 
 
 class IntentEvidenceDemand(StrictModel):
@@ -1509,6 +1561,7 @@ class TextCommandResponse(StrictModel):
     accepted: bool = True
     input_type: Literal["text"] = "text"
     websocket_channel: str | None = None
+    clarification_request: ClarificationRequest | None = None
 
 
 class AudioCommandResponse(StrictModel):
@@ -1525,6 +1578,7 @@ class AudioCommandResponse(StrictModel):
     accepted: bool = True
     input_type: Literal["audio"] = "audio"
     websocket_channel: str | None = None
+    clarification_request: ClarificationRequest | None = None
 
 
 class HealthResponse(StrictModel):
@@ -1705,11 +1759,22 @@ class AuthorizationTokenMetadata(StrictModel):
     action: str
     target: str
     area: str
+    intent_id: str | None = None
+    mode: str | None = None
+    value: Any | None = None
+    direction: str | None = None
+    control_attribute: str | None = None
+    capability_contract_id: str | None = None
+    capability_contract_version: int | None = Field(default=None, ge=1)
+    capability_contract_digest: str | None = None
+    capability_adapter: str | None = None
     issued_at: datetime
     expires_at: datetime
     state_snapshot_digest: str
     token_digest: str
     key_id: str = "legacy"
+    key_version: int | None = Field(default=None, ge=1)
+    nonce_digest: str | None = None
     status: AuthorizationTokenStatus
 
 
@@ -1735,6 +1800,12 @@ class VehicleExecutionResult(StrictModel):
     action: str
     target: str
     area: str
+    intent_id: str | None = None
+    mode: str | None = None
+    value: Any | None = None
+    direction: str | None = None
+    control_attribute: str | None = None
+    capability_contract_digest: str | None = None
     before_state: VehicleState
     after_state: VehicleState
     feedback: str

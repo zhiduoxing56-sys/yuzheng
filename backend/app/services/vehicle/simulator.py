@@ -11,6 +11,7 @@ from app.models.schemas import (
     make_id,
     utc_now,
 )
+from app.services.vehicle.capabilities import PhysicalVehicleCommand
 
 
 class SimulatorVehicleAdapter:
@@ -77,16 +78,16 @@ class SimulatorVehicleAdapter:
             updated = min(float(operation["maximum"]), updated)
         state_data[field] = updated
 
-    def execute(self, action: str, target: str, area: str) -> VehicleExecutionResult:
+    def execute(self, command: PhysicalVehicleCommand) -> VehicleExecutionResult:
         started = perf_counter()
-        key = f"{action}|{target}"
-        mapping = self._actions.get(key)
-        if mapping is None:
-            raise ValueError(f"模拟器不支持车辆动作: {key}")
+        if command.kind != "state_operations" or not command.operations:
+            raise ValueError(
+                f"模拟器不支持物理命令类型: {command.kind}"
+            )
         with self._lock:
             before = self._state.model_copy(deep=True)
             state_data = self._state.model_dump()
-            for operation in mapping.get("operations", []):
+            for operation in command.operations:
                 self._apply_operation(state_data, operation)
             state_data["updated_at"] = utc_now()
             self._state = VehicleState.model_validate(state_data)
@@ -94,12 +95,12 @@ class SimulatorVehicleAdapter:
                 adapter=self.adapter_name,
                 simulated=True,
                 status="SUCCEEDED",
-                action=action,
-                target=target,
-                area=area,
+                action=command.action,
+                target=command.target,
+                area=command.area,
                 before_state=before,
                 after_state=self._state.model_copy(deep=True),
-                feedback=str(mapping.get("feedback", "模拟动作已执行")),
+                feedback=f"模拟物理动作已执行：{command.action}{command.target}",
                 duration_ms=round((perf_counter() - started) * 1000, 4),
             )
             self._last_feedback = result

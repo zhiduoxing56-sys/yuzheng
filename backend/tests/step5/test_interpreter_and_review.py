@@ -136,7 +136,9 @@ def test_unconfigured_provider_uses_structured_deterministic_fallback() -> None:
     "provider_output, expected_reason",
     [
         (TimeoutError("timeout"), "TimeoutError"),
-        ({"not": "valid json schema"}, "ValueError"),
+        (ConnectionError("network down"), "ConnectionError"),
+        (ValueError("illegal json"), "ValueError"),
+        ({"summary": ""}, "ValueError"),
         (
             {
                 "summary": "attempt control",
@@ -147,9 +149,8 @@ def test_unconfigured_provider_uses_structured_deterministic_fallback() -> None:
         ),
         (
             {
-                "summary": "bad citation",
-                "decision_label": "REVIEW",
-                "evidence_citations": [{"node_id": "OTHER_TURN", "reason": "fake"}],
+                "summary": "contains final_decision",
+                "final_decision": "REVIEW",
             },
             "ValueError",
         ),
@@ -186,10 +187,6 @@ def test_provider_receives_bounded_structured_context_without_audio_vectors_or_t
     provider = StaticProvider(
         {
             "summary": "review explanation",
-            "decision_label": "REVIEW",
-            "decision_basis": ["deterministic decision"],
-            "evidence_citations": [{"node_id": "NODE_VALID", "reason": "current evidence"}],
-            "candidate_texts": ["播放音乐"],
         }
     )
     semantic, demand_service, service = _components(provider=provider)
@@ -204,7 +201,7 @@ def test_provider_receives_bounded_structured_context_without_audio_vectors_or_t
     assert "authorization" not in serialized
     assert "api_key" not in serialized
     assert "database_path" not in serialized
-    assert "current evidence" not in serialized
+    assert "candidate_texts" not in serialized
     assert len(str(provider.payload)) <= service.maximum_input_characters
 
 
@@ -212,8 +209,6 @@ def test_unknown_provider_candidate_is_not_used_as_a_second_semantic_source() ->
     provider = StaticProvider(
         {
             "summary": "unknown candidate",
-            "decision_label": "REVIEW",
-            "candidate_texts": ["发射导弹"],
         }
     )
     semantic, demand_service, service = _components(provider=provider)
@@ -288,8 +283,6 @@ def test_provider_candidate_texts_do_not_create_parallel_semantic_results(pipeli
     pipeline.interpreter_service.provider = StaticProvider(
         {
             "summary": "two locally valid interpretations",
-            "decision_label": "REVIEW",
-            "candidate_texts": ["打开车门", "打开自动泊车"],
         }
     )
     result = pipeline.process_text(
@@ -308,8 +301,6 @@ def test_negated_action_does_not_generate_positive_provider_candidate() -> None:
         provider=StaticProvider(
             {
                 "summary": "unsafe positive reinterpretation",
-                "decision_label": "REVIEW",
-                "candidate_texts": ["打开车门"],
             }
         )
     )
@@ -327,8 +318,6 @@ def test_review_multi_intent_keeps_only_resolved_semantic_candidate() -> None:
         provider=StaticProvider(
             {
                 "summary": "unsafe single-action reinterpretation",
-                "decision_label": "REVIEW",
-                "candidate_texts": ["打开车门", "打开大屏"],
             }
         )
     )

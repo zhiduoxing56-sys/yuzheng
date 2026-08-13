@@ -60,8 +60,10 @@ from app.models.schemas import (
 from app.services.audit.repository import AuditRepository
 from app.services.audit.recall_ai import RecallAIAuditService
 from app.services.audit.effective import EffectiveAuditResolver
+from app.services.audit.explanation import AuditExplanationService
 from app.services.authorization.service import AuthorizationTokenError, AuthorizationTokenService
 from app.services.causal.service import CausalCorrectionService
+from app.services.clarification.service import ClarificationService
 from app.services.decision.engine import DecisionService
 from app.services.decision.merge import (
     apply_merge_outcome,
@@ -77,6 +79,7 @@ from app.services.execution.service import ExecutionService
 from app.services.graph.builder import EvidenceSubgraphBuilder
 from app.services.index.hnsw import HNSWIndexService
 from app.services.interpreter.service import InterpreterService
+from app.services.presentation.audit_snapshot import AuditSnapshotBuilder
 from app.services.runtime.capability import RuntimeCapabilityService
 from app.services.memory.service import DualMemoryService
 from app.services.quality.evaluator import EvidenceQualityService
@@ -86,6 +89,7 @@ from app.services.semantic.orchestrator import SemanticOrchestratorService
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.carla import CarlaVehicleAdapter
+from app.services.vehicle.capabilities import CanonicalCapabilityRegistry
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 from app.services.asr.whisper import ASRModelError, WhisperASRService
 from app.services.voice.antispoof import ASVspoofLADetector, ASVspoofPADetector
@@ -136,6 +140,9 @@ class CommandPipeline:
                 self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
         else:
             self.vehicle = SimulatorVehicleAdapter(action_config=self.vehicle_config)
+        self.command_capability_registry = CanonicalCapabilityRegistry(
+            self.vehicle_config
+        )
         self.event_broker = event_broker or PipelineEventBroker()
         self.review_config = load_yaml("review_policy.yaml")
         self.interpreter_config = load_yaml("interpreter.yaml")
@@ -169,6 +176,10 @@ class CommandPipeline:
             embedder=self.embedder,
         )
         self.interpreter_service = InterpreterService(self.interpreter_config)
+        audit_explanation_provider = self.interpreter_service.provider
+        self.audit_explanation_service = AuditExplanationService(
+            audit_explanation_provider
+        )
         self.evidence_repository = EvidenceRepository(
             quality_config, load_yaml("evidence_retention.yaml")
         )
@@ -200,6 +211,8 @@ class CommandPipeline:
             self.workflow_repository,
             secret=token_secret,
             capability_provider=self.runtime_capability,
+            command_capability_registry=self.command_capability_registry,
+            vehicle_adapter_provider=lambda: self.vehicle.adapter_name,
         )
         self.evidence_repository.begin_turn("SYSTEM_SEED")
         seed_nodes = self.evidence_repository.ingest_vehicle_state(
@@ -211,6 +224,7 @@ class CommandPipeline:
         self.evidence_repository.complete_turn("SYSTEM_SEED")
         self._subgraphs: dict[str, EvidenceSubgraph] = {}
         self._turns: dict[str, TextCommandResponse] = {}
+        self.clarification_service = ClarificationService(self, self.review_config)
         self.review_service = ReviewService(self, self.review_config)
         self.execution_service = ExecutionService(self)
 
@@ -456,10 +470,7 @@ class CommandPipeline:
         authorizations: list[dict[str, Any]] = []
         if trusted_subject and trusted_context is not None:
             for intent, permission in zip(intents, zone_results, strict=True):
-                driving = (
-                    intent.control_domain == "驾驶控制"
-                    or intent.action in {"加速", "减速"}
-                )
+                driving = intent.control_domain == "驾驶控制"
                 role_permitted = (
                     trusted_context.subject_role.strip().lower() == "driver"
                     or not driving
@@ -825,6 +836,7 @@ class CommandPipeline:
             decision=pipeline_result.decision,
             audit=pipeline_result.audit,
             pipeline=pipeline_result,
+            clarification_request=pipeline_result.clarification_request,
         )
 
     def _terminal_audio_response(
@@ -970,6 +982,216 @@ class CommandPipeline:
             audit=saved,
             pipeline=None,
         )
+
+    def _semantic_terminal_response(
+        self,
+        *,
+        frame,
+        demand: EvidenceDemand,
+        input_trust: VoiceTrustResult,
+        transcription: TranscriptionResult,
+        root_turn_id: str,
+        parent_turn_id: str | None,
+        attempt_no: int,
+        workflow_type: str,
+        turn_started_at,
+        emit: Callable[[str, str, dict[str, Any] | None], None],
+        terminal_kind: str,
+    ) -> TextCommandResponse:
+        """Finish Known PASS or semantic REVIEW before every downstream service."""
+
+        if demand.intent_demands:
+            raise RuntimeError("semantic terminal route created EvidenceDemand")
+        is_review = terminal_kind == "SEMANTIC_REVIEW"
+        now = utc_now()
+        index_status = self.index.status()
+        retrieval = RetrievalMetadata(
+            implementation=index_status.implementation,
+            index_node_count=index_status.node_count,
+            vector_dimension=index_status.dimension,
+            M=index_status.M,
+            ef_construction=index_status.ef_construction,
+            ef_search=index_status.ef_search,
+            top_k=index_status.top_k,
+            candidate_count=0,
+            canonical_node_count=index_status.canonical_node_count,
+            ephemeral_node_count=index_status.ephemeral_node_count,
+            index_update_count=index_status.index_update_count,
+            index_rebuild_count=index_status.index_rebuild_count,
+            deduplicated_count=index_status.deduplicated_count,
+            duration_ms=0,
+            empty_index=index_status.node_count == 0,
+            degraded=index_status.degraded,
+            degradation_reason=index_status.degradation_reason,
+            excluded_types=index_status.excluded_types,
+            last_built_at=index_status.last_built_at,
+        )
+        quality = EvidenceQualityMetrics(
+            ecr=None,
+            evidence_coverage_applicable=False,
+            ecs=0,
+            ef=0,
+            sas=0,
+            eas=0,
+        )
+        subgraph = EvidenceSubgraph(
+            turn_id=frame.turn_id,
+            quality_metrics=quality,
+            retrieval_metadata=retrieval,
+            advanced_reasoning_status=(
+                "NOT_INVOKED_SEMANTIC_REVIEW"
+                if is_review
+                else "NOT_APPLICABLE_KNOWN_NON_EXECUTABLE"
+            ),
+        )
+        # This is an audit representation of a route that did not invoke SafetyGate.
+        gate = SafetyGateResult(blocked=False, checks=[], reasons=[])
+        factors = DecisionScoreFactors(
+            semantic_quality=frame.semantic_confidence,
+            evidence_coverage=None,
+            evidence_coverage_applicable=False,
+            applied_weights={},
+            five_factors={},
+        )
+        decision = DecisionResult(
+            turn_id=frame.turn_id,
+            decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
+            score_decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
+            final_decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
+            decision_sources=[],
+            decision_merge_reason=(
+                "SEMANTIC_REVIEW terminal; downstream services were not invoked"
+                if is_review
+                else "KNOWN_NON_EXECUTABLE semantic PASS; downstream safety and execution chains are not applicable"
+            ),
+            safety_score=1,
+            soft_safety_score=1,
+            gate_blocked=False,
+            score_factors=factors,
+            explanations=[
+                "语义信息不完整或存在歧义；需要用户复核。"
+                if is_review
+                else "系统已明确理解该 Known 意图；PASS 不表示允许车辆执行。"
+            ],
+            reason_codes=(
+                ["SEMANTIC_REVIEW_TERMINAL"]
+                if is_review
+                else ["KNOWN_NON_EXECUTABLE_SEMANTIC_PASS"]
+            ),
+        )
+        timing = TurnTiming(
+            turn_started_at=turn_started_at,
+            state_snapshot_at=now,
+            decision_reference_time=now,
+            completed_at=now,
+            end_to_end_ms=max(0, (now - turn_started_at).total_seconds() * 1000),
+        )
+        audit_id = make_id("AUD")
+        audit_quality = self._new_audit_quality(
+            audit_id, stage5=input_trust.audio_source != "text_api"
+        ).model_copy(
+            update={
+                "eligible_for_learning": False,
+                "exclusion_reasons": [
+                    "semantic review terminal"
+                    if is_review
+                    else "known non-executable semantic terminal"
+                ],
+            }
+        )
+        runtime_capability = self.runtime_capability()
+        audit = AuditRecord(
+            audit_id=audit_id,
+            turn_id=frame.turn_id,
+            root_turn_id=root_turn_id,
+            parent_turn_id=parent_turn_id,
+            attempt_no=attempt_no,
+            workflow_type=workflow_type,
+            input_trust_result=input_trust,
+            transcription_result=transcription,
+            semantic_frame=frame,
+            evidence_demand=demand,
+            candidate_recall_results=[],
+            retrieval_metadata=retrieval,
+            evidence_subgraph=subgraph,
+            evidence_subgraph_summary={
+                "graph_id": subgraph.graph_id,
+                "node_count": 0,
+                "edge_count": 0,
+                "terminal_reason": terminal_kind,
+            },
+            evidence_quality_metrics=quality,
+            safety_gate_result=gate,
+            score_details=factors,
+            final_decision=decision,
+            complete_gate_result=gate,
+            audit_quality=audit_quality,
+            turn_timing=timing,
+            runtime_capability=runtime_capability,
+        )
+        saved_audit = self.audit_repository.save(audit)
+        clarification_request = None
+        if is_review:
+            clarification_request = self.clarification_service.build_for_audit(saved_audit)
+            self.workflow_repository.append_event(
+                root_turn_id=root_turn_id,
+                related_turn_id=frame.turn_id,
+                parent_turn_id=parent_turn_id,
+                event_type=WorkflowEventType.REVIEW_REQUESTED,
+                payload={
+                    "review_question": (
+                        clarification_request.prompt if clarification_request else None
+                    ),
+                    "candidate_count": (
+                        len(clarification_request.candidates)
+                        if clarification_request
+                        else 0
+                    ),
+                    "intent_ids": [intent.intent_id for intent in frame.intents],
+                    "attempt_no": attempt_no,
+                },
+            )
+        response = TextCommandResponse(
+            turn_id=frame.turn_id,
+            root_turn_id=root_turn_id,
+            parent_turn_id=parent_turn_id,
+            attempt_no=attempt_no,
+            workflow_type=workflow_type,
+            input_trust_result=input_trust,
+            transcription_result=transcription,
+            semantic_frame=frame,
+            evidence_demand=demand,
+            evidence=[],
+            query_vectors=[],
+            retrieval_metadata=retrieval,
+            candidate_evidence=[],
+            evidence_subgraph=subgraph,
+            quality_metrics=quality,
+            safety_gate=gate,
+            decision=decision,
+            audit=saved_audit,
+            actionable=False,
+            retrieval_scopes=[],
+            turn_timing=timing,
+            runtime_capability=runtime_capability,
+            clarification_request=clarification_request,
+        )
+        self._subgraphs[frame.turn_id] = subgraph
+        self._turns[frame.turn_id] = response
+        emit(
+            "SEMANTIC_REVIEW_REQUIRED" if is_review else "KNOWN_NON_EXECUTABLE_COMPLETED",
+            (
+                "语义结果需要复核，已在证据需求构建前终止。"
+                if is_review
+                else "已知不可执行意图已在语义层完成，不进入证据、安全或执行链。"
+            ),
+            {
+                "intent_ids": [intent.intent_id for intent in frame.intents],
+                "review_candidates": frame.review_candidates[:4] if is_review else [],
+            },
+        )
+        self.evidence_repository.complete_turn(frame.turn_id)
+        return response
 
     def process_text(
         self,
@@ -1167,24 +1389,64 @@ class CommandPipeline:
                     "intents": confirmed_intents,
                 }
             )
-        demand = self.demand_service.build(frame)
         mark_stage("semantic_complete")
+        semantic_occurrences = list(frame.intents)
+        formal_occurrences = [
+            intent for intent in semantic_occurrences if intent.runtime_identity == "FORMAL"
+        ]
+        mixed_runtime_identity = bool(formal_occurrences) and len(formal_occurrences) != len(
+            semantic_occurrences
+        )
+        if frame.semantic_status != "OK":
+            return self._semantic_terminal_response(
+                frame=frame,
+                demand=EvidenceDemand(turn_id=frame.turn_id, intent_demands=[]),
+                input_trust=input_trust,
+                transcription=transcription,
+                root_turn_id=root_turn_id,
+                parent_turn_id=parent_turn_id,
+                attempt_no=attempt_no,
+                workflow_type=workflow_type,
+                turn_started_at=turn_started_at,
+                emit=emit,
+                terminal_kind="SEMANTIC_REVIEW",
+            )
+        if (
+            bool(frame.intents)
+            and all(
+                intent.runtime_identity == "KNOWN_NON_EXECUTABLE"
+                for intent in semantic_occurrences
+            )
+        ):
+            return self._semantic_terminal_response(
+                frame=frame,
+                demand=EvidenceDemand(turn_id=frame.turn_id, intent_demands=[]),
+                input_trust=input_trust,
+                transcription=transcription,
+                root_turn_id=root_turn_id,
+                parent_turn_id=parent_turn_id,
+                attempt_no=attempt_no,
+                workflow_type=workflow_type,
+                turn_started_at=turn_started_at,
+                emit=emit,
+                terminal_kind="KNOWN_NON_EXECUTABLE",
+            )
+        demand = self.demand_service.build(frame)
         zone_permission: ZonePermissionResult | None = None
         zone_results: list[ZonePermissionResult] = []
         if (
             trusted_context is not None
             and trusted_context.subject_zone is not None
             and trusted_context.zone_source is not None
-            and frame.intents
+            and formal_occurrences
         ):
             zone_results = [
                 self.zone_permission_service.evaluate(
                     trusted_context.subject_zone,
-                    intent.action,
-                    intent.target,
+                    intent,
                     zone_source=trusted_context.zone_source,
                 )
-                for intent in frame.intents
+                for intent in formal_occurrences
             ]
             zone_permission = min(
                 zone_results,
@@ -1219,7 +1481,7 @@ class CommandPipeline:
                         "target": intent.target,
                         "risk_level": intent.risk_level,
                     }
-                    for intent in frame.intents
+                    for intent in semantic_occurrences
                 ],
             },
         )
@@ -1236,6 +1498,10 @@ class CommandPipeline:
             event_type=WorkflowEventType.RUNTIME_CAPABILITY_CHECKED,
             payload=capability_payload,
         )
+
+        # Downstream services receive only FORMAL occurrences. The public frame
+        # remains the sole frame and is restored before audit/response assembly.
+        frame.intents = formal_occurrences
 
         authorization_fact = self._authorization_fact(
             state, frame.intents, trusted_context, zone_results if zone_permission else []
@@ -1737,6 +2003,7 @@ class CommandPipeline:
             causal=causal,
             decision_sources=[source.value for source in decision.decision_sources],
             decision_merge_reason=decision.decision_merge_reason,
+            vehicle_state=self.vehicle.get_state().model_dump(mode="json"),
         )
         if interpreter.review_question != decision.review_question:
             decision = decision.model_copy(
@@ -1769,7 +2036,7 @@ class CommandPipeline:
                         "target": intent.target,
                         "risk_level": intent.risk_level,
                     }
-                    for intent in frame.intents
+                    for intent in semantic_occurrences
                 ],
                 "retrieval_scopes": [
                     item.retrieval_scope for item in demand.intent_demands
@@ -1826,6 +2093,7 @@ class CommandPipeline:
         )
         audit_id = make_id("AUD")
         audit_build_started = perf_counter()
+        frame.intents = semantic_occurrences
         audit = AuditRecord(
             audit_id=audit_id,
             turn_id=turn_id,
@@ -1910,6 +2178,20 @@ class CommandPipeline:
         set_metric("audit_id", audit_id)
         mark_stage("audit_object_built")
         saved_audit = self.audit_repository.save(audit)
+        persisted_decision_snapshot = AuditSnapshotBuilder.from_audit(saved_audit)
+        if persisted_decision_snapshot is not None:
+            self.workflow_repository.append_event(
+                root_turn_id=root_turn_id,
+                related_turn_id=turn_id,
+                parent_turn_id=parent_turn_id,
+                event_type=WorkflowEventType.DECISION_SNAPSHOT_CAPTURED,
+                payload={
+                    "audit_id": saved_audit.audit_id,
+                    "decision_snapshot": persisted_decision_snapshot.model_dump(
+                        mode="json"
+                    ),
+                },
+            )
         emit(
             "AUDIT_SAVED",
             "裁决审计已追加保存",
@@ -1919,13 +2201,17 @@ class CommandPipeline:
         actionable = (
             frame.semantic_status == "OK"
             and bool(demand.intent_demands)
+            and not mixed_runtime_identity
+            and all(intent.runtime_identity == "FORMAL" for intent in frame.intents)
             and all(
                 item.retrieval_scope == "control_evidence"
                 for item in demand.intent_demands
             )
             and runtime_capability.semantic_control_mode == SemanticControlMode.FULL
         )
+        clarification_request = None
         if decision.final_decision == DecisionLabel.REVIEW:
+            clarification_request = self.clarification_service.build_for_audit(saved_audit)
             self.workflow_repository.append_event(
                 root_turn_id=root_turn_id,
                 related_turn_id=turn_id,
@@ -2024,6 +2310,7 @@ class CommandPipeline:
             decision_confidence=causal.decision_confidence,
             turn_timing=timing,
             runtime_capability=runtime_capability,
+            clarification_request=clarification_request,
         )
         mark_stage("response_ready")
         # 原始令牌只存在于本次返回对象；内存缓存与 SQLite 均保存去敏版本。
@@ -2034,6 +2321,47 @@ class CommandPipeline:
                 )
             }
         )
+        try:
+            decision_snapshot = persisted_decision_snapshot
+            explanation_context = self.audit_explanation_service.context(
+                saved_audit,
+                decision_snapshot=(
+                    decision_snapshot.model_dump(mode="json")
+                    if decision_snapshot is not None
+                    else None
+                ),
+            )
+            explanation_context = explanation_context.model_copy(
+                update={
+                    "authorization_status": (
+                        "AUTHORIZED"
+                        if response_decision.authorization_token is not None
+                        else "NOT_AUTHORIZED"
+                    ),
+                    "execution_status": None,
+                }
+            )
+            explanation_result = self.audit_explanation_service.generate(
+                explanation_context
+            )
+            self.workflow_repository.append_event(
+                root_turn_id=root_turn_id,
+                related_turn_id=turn_id,
+                parent_turn_id=parent_turn_id,
+                event_type=WorkflowEventType.LLM_EXPLANATION_GENERATED,
+                payload={
+                    "audit_id": saved_audit.audit_id,
+                    "llm_explanation_status": explanation_result.status,
+                    "llm_explanation": explanation_result.explanation,
+                    "llm_model": explanation_result.model,
+                    "llm_generated_at": explanation_result.generated_at.isoformat(),
+                    "failure_reason": explanation_result.failure_reason,
+                },
+            )
+        except Exception:
+            # Explanation is strictly post-decision and must never invalidate the
+            # persisted audit, authorization grant, or command response.
+            _LOGGER.warning("AI audit explanation append failed", exc_info=True)
         return response
 
     def current_evidence(self) -> CurrentEvidenceResponse:

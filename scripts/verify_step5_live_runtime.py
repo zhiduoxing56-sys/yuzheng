@@ -182,9 +182,9 @@ def read_bundle(client: httpx.Client, turn_id: str, audit_id: str) -> dict[str, 
     assert {"MEMORY_PROPAGATED", "CAUSAL_CORRECTED", "EXPLANATION_GENERATED"} <= set(
         timeline_stages
     )
-    assert detail["memory"] == memory
-    assert detail["causal"] == causal
-    assert detail["decision_explanation"] == explanation
+    assert detail["command_summary"]["raw_command"] == presentation["input"]["asr_raw_text"]
+    assert detail["decision_summary"]["final_decision"] == presentation["decision_result"]["final_decision"]
+    assert "memory" not in detail and "causal" not in detail
     assert verification["audit_chain_valid"] is True
     assert verification["workflow_chain_valid"] is True
     assert explanation["decision_label"] == presentation["decision_result"]["final_decision"]
@@ -202,7 +202,7 @@ def read_bundle(client: httpx.Client, turn_id: str, audit_id: str) -> dict[str, 
         audit_candidate = next(
             (
                 item
-                for item in detail["retrieval_summary"]["candidates"]
+                for item in presentation["retrieval_summary"]["candidates"]
                 if item["node_id"] == node_id
             ),
             None,
@@ -478,11 +478,11 @@ def main() -> None:
             cancel_detail = request(
                 client, "GET", f"/api/audits/{cancel_reference['audit_id']}"
             )
-            assert cancel_detail["original_decision"]["final_decision"] == "REVIEW"
-            assert cancel_detail["effective_outcome"]["final_decision"] == "BLOCK"
-            assert cancel_detail["effective_outcome"]["terminal_audit_id"] == cancel_reference[
-                "terminal_audit_id"
-            ]
+            cancel_verify = request(
+                client, "GET", f"/api/audits/{cancel_reference['audit_id']}/verify"
+            )
+            assert cancel_detail["decision_summary"]["final_decision"] == "BLOCK"
+            assert cancel_verify["terminal_audit_id"] == cancel_reference["terminal_audit_id"]
             results["restart_cancel"] = cancel_after
             replay_after = read_bundle(
                 client, replay_reference["turn_id"], replay_reference["audit_id"]

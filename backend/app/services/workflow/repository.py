@@ -15,6 +15,8 @@ from app.models.schemas import (
     WorkflowChainVerification,
     WorkflowEvent,
     WorkflowEventType,
+    ClarificationRequest,
+    ClarificationResolutionRecord,
     make_id,
     utc_now,
 )
@@ -62,12 +64,22 @@ class WorkflowRepository:
                     action TEXT NOT NULL,
                     target TEXT NOT NULL,
                     area TEXT NOT NULL,
+                    intent_id TEXT,
+                    mode TEXT,
+                    value_json TEXT,
+                    direction TEXT,
+                    control_attribute TEXT,
+                    capability_contract_id TEXT,
+                    capability_contract_version INTEGER,
+                    capability_contract_digest TEXT,
+                    capability_adapter TEXT,
                     issued_at TEXT NOT NULL,
                     expires_at TEXT NOT NULL,
                     nonce_digest TEXT NOT NULL,
                     state_snapshot_digest TEXT NOT NULL,
                     token_digest TEXT NOT NULL UNIQUE,
                     key_id TEXT,
+                    key_version INTEGER,
                     status TEXT NOT NULL,
                     status_reason TEXT,
                     consumed_at TEXT,
@@ -100,14 +112,64 @@ class WorkflowRepository:
                     status TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS schema_migrations (
+                    migration_id TEXT PRIMARY KEY,
+                    applied_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS clarification_requests (
+                    clarification_id TEXT PRIMARY KEY,
+                    root_turn_id TEXT NOT NULL,
+                    turn_id TEXT NOT NULL,
+                    request_json TEXT NOT NULL,
+                    review_reasons_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    UNIQUE(turn_id, clarification_id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_clarification_turn
+                    ON clarification_requests(turn_id, created_at);
+                CREATE TABLE IF NOT EXISTS clarification_resolutions (
+                    clarification_id TEXT PRIMARY KEY,
+                    source_turn_id TEXT NOT NULL,
+                    resolution_json TEXT NOT NULL,
+                    resolved_at TEXT NOT NULL,
+                    FOREIGN KEY(clarification_id)
+                        REFERENCES clarification_requests(clarification_id)
+                );
                 """
             )
-            token_columns = {
-                str(row["name"])
-                for row in connection.execute("PRAGMA table_info(authorization_tokens)").fetchall()
-            }
-            if "key_id" not in token_columns:
-                connection.execute("ALTER TABLE authorization_tokens ADD COLUMN key_id TEXT")
+            migration_id = "2026-08-13.authorization-token-canonical-identity-v1"
+            migrated = connection.execute(
+                "SELECT 1 FROM schema_migrations WHERE migration_id = ?", (migration_id,)
+            ).fetchone()
+            if migrated is None:
+                token_columns = {
+                    str(row["name"])
+                    for row in connection.execute(
+                        "PRAGMA table_info(authorization_tokens)"
+                    ).fetchall()
+                }
+                canonical_token_columns = {
+                    "key_id": "TEXT",
+                    "key_version": "INTEGER",
+                    "intent_id": "TEXT",
+                    "mode": "TEXT",
+                    "value_json": "TEXT",
+                    "direction": "TEXT",
+                    "control_attribute": "TEXT",
+                    "capability_contract_id": "TEXT",
+                    "capability_contract_version": "INTEGER",
+                    "capability_contract_digest": "TEXT",
+                    "capability_adapter": "TEXT",
+                }
+                for column, column_type in canonical_token_columns.items():
+                    if column not in token_columns:
+                        connection.execute(
+                            f"ALTER TABLE authorization_tokens ADD COLUMN {column} {column_type}"
+                        )
+                connection.execute(
+                    "INSERT INTO schema_migrations (migration_id, applied_at) VALUES (?, ?)",
+                    (migration_id, utc_now().isoformat()),
+                )
 
     def append_event(
         self,
@@ -171,6 +233,108 @@ class WorkflowRepository:
             connection.commit()
             return event
 
+    def save_clarification_request(
+        self,
+        request: ClarificationRequest,
+        *,
+        root_turn_id: str,
+        review_reasons: list[str],
+    ) -> ClarificationRequest:
+        with self._lock, self._connect() as connection:
+            connection.execute(
+                """
+                INSERT OR IGNORE INTO clarification_requests (
+                    clarification_id, root_turn_id, turn_id, request_json,
+                    review_reasons_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    request.clarification_id,
+                    root_turn_id,
+                    request.turn_id,
+                    json.dumps(request.model_dump(mode="json"), ensure_ascii=False, sort_keys=True),
+                    json.dumps(review_reasons, ensure_ascii=False),
+                    utc_now().isoformat(),
+                ),
+            )
+            connection.commit()
+        persisted = self.get_clarification_request(request.clarification_id)
+        if persisted is None:
+            raise RuntimeError("澄清请求持久化失败")
+        return persisted
+
+    def get_clarification_request(
+        self, clarification_id: str
+    ) -> ClarificationRequest | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT request_json FROM clarification_requests WHERE clarification_id = ?",
+                (clarification_id,),
+            ).fetchone()
+        return (
+            ClarificationRequest.model_validate_json(str(row["request_json"]))
+            if row is not None
+            else None
+        )
+
+    def clarification_for_turn(self, turn_id: str) -> ClarificationRequest | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT request_json FROM clarification_requests WHERE turn_id = ? "
+                "ORDER BY created_at DESC LIMIT 1",
+                (turn_id,),
+            ).fetchone()
+        return (
+            ClarificationRequest.model_validate_json(str(row["request_json"]))
+            if row is not None
+            else None
+        )
+
+    def save_clarification_resolution(
+        self, resolution: ClarificationResolutionRecord
+    ) -> tuple[ClarificationResolutionRecord, bool]:
+        with self._lock, self._connect() as connection:
+            cursor = connection.execute(
+                """
+                INSERT OR IGNORE INTO clarification_resolutions (
+                    clarification_id, source_turn_id, resolution_json, resolved_at
+                ) VALUES (?, ?, ?, ?)
+                """,
+                (
+                    resolution.clarification_id,
+                    resolution.source_turn_id,
+                    json.dumps(
+                        resolution.model_dump(mode="json"),
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    ),
+                    resolution.resolved_at.isoformat(),
+                ),
+            )
+            connection.commit()
+            created = cursor.rowcount == 1
+        persisted = self.get_clarification_resolution(resolution.clarification_id)
+        if persisted is None:
+            raise RuntimeError("澄清结果持久化失败")
+        return persisted, created
+
+    def get_clarification_resolution(
+        self, clarification_id: str
+    ) -> ClarificationResolutionRecord | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT resolution_json FROM clarification_resolutions "
+                "WHERE clarification_id = ?",
+                (clarification_id,),
+            ).fetchone()
+        return (
+            ClarificationResolutionRecord.model_validate_json(
+                str(row["resolution_json"])
+            )
+            if row is not None
+            else None
+        )
+
     @staticmethod
     def _event_from_row(row: sqlite3.Row) -> WorkflowEvent:
         return WorkflowEvent(
@@ -227,9 +391,12 @@ class WorkflowRepository:
                 """
                 INSERT INTO authorization_tokens (
                     token_id, root_turn_id, turn_id, action, target, area,
+                    intent_id, mode, value_json, direction, control_attribute,
+                    capability_contract_id, capability_contract_version,
+                    capability_contract_digest, capability_adapter,
                     issued_at, expires_at, nonce_digest, state_snapshot_digest,
-                    token_digest, key_id, status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    token_digest, key_id, key_version, status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     metadata.token_id,
@@ -238,12 +405,27 @@ class WorkflowRepository:
                     metadata.action,
                     metadata.target,
                     metadata.area,
+                    metadata.intent_id,
+                    metadata.mode,
+                    json.dumps(
+                        metadata.value,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    metadata.direction,
+                    metadata.control_attribute,
+                    metadata.capability_contract_id,
+                    metadata.capability_contract_version,
+                    metadata.capability_contract_digest,
+                    metadata.capability_adapter,
                     metadata.issued_at.isoformat(),
                     metadata.expires_at.isoformat(),
                     nonce_digest,
                     metadata.state_snapshot_digest,
                     metadata.token_digest,
                     metadata.key_id,
+                    metadata.key_version,
                     metadata.status.value,
                     utc_now().isoformat(),
                 ),
@@ -258,11 +440,50 @@ class WorkflowRepository:
             action=str(row["action"]),
             target=str(row["target"]),
             area=str(row["area"]),
+            intent_id=(str(row["intent_id"]) if row["intent_id"] is not None else None),
+            mode=(str(row["mode"]) if row["mode"] is not None else None),
+            value=(
+                json.loads(str(row["value_json"]))
+                if row["value_json"] is not None
+                else None
+            ),
+            direction=(
+                str(row["direction"]) if row["direction"] is not None else None
+            ),
+            control_attribute=(
+                str(row["control_attribute"])
+                if row["control_attribute"] is not None
+                else None
+            ),
+            capability_contract_id=(
+                str(row["capability_contract_id"])
+                if row["capability_contract_id"] is not None
+                else None
+            ),
+            capability_contract_version=(
+                int(row["capability_contract_version"])
+                if row["capability_contract_version"] is not None
+                else None
+            ),
+            capability_contract_digest=(
+                str(row["capability_contract_digest"])
+                if row["capability_contract_digest"] is not None
+                else None
+            ),
+            capability_adapter=(
+                str(row["capability_adapter"])
+                if row["capability_adapter"] is not None
+                else None
+            ),
             issued_at=str(row["issued_at"]),
             expires_at=str(row["expires_at"]),
             state_snapshot_digest=str(row["state_snapshot_digest"]),
             token_digest=str(row["token_digest"]),
             key_id=str(row["key_id"] or "legacy"),
+            key_version=(
+                int(row["key_version"]) if row["key_version"] is not None else None
+            ),
+            nonce_digest=str(row["nonce_digest"]),
             status=AuthorizationTokenStatus(str(row["status"])),
         )
 
@@ -503,6 +724,33 @@ class WorkflowRepository:
         for row in rows:
             statuses[str(row["root_turn_id"])] = str(row["status"])
         return statuses
+
+    def review_occurrences(self, root_turn_ids: list[str]) -> set[str]:
+        """Return roots with a real clarification or user review event.
+
+        REVIEW_REQUESTED alone only means that the safety decision requires review;
+        it must not be presented as a review that already occurred.
+        """
+        roots = tuple(dict.fromkeys(root_turn_ids))
+        if not roots:
+            return set()
+        placeholders = ",".join("?" for _ in roots)
+        occurred_event_types = (
+            WorkflowEventType.CLARIFICATION_REQUESTED.value,
+            WorkflowEventType.CLARIFICATION_RESOLVED.value,
+            WorkflowEventType.REVIEW_CONFIRMED.value,
+            WorkflowEventType.REVIEW_CORRECTED.value,
+            WorkflowEventType.REVIEW_CANCELLED.value,
+        )
+        event_placeholders = ",".join("?" for _ in occurred_event_types)
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT DISTINCT root_turn_id FROM turn_workflow_events "
+                f"WHERE root_turn_id IN ({placeholders}) "
+                f"AND event_type IN ({event_placeholders})",
+                (*roots, *occurred_event_types),
+            ).fetchall()
+        return {str(row["root_turn_id"]) for row in rows}
 
     def compact_statuses(self, root_turn_ids: list[str]) -> dict[str, dict[str, str]]:
         roots = tuple(dict.fromkeys(root_turn_ids))

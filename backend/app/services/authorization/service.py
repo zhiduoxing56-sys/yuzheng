@@ -6,17 +6,18 @@ import hmac
 import json
 import os
 import secrets
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
 
-from app.core.config import PROJECT_ROOT
+from app.core.config import PROJECT_ROOT, load_yaml
 from app.models.schemas import (
     AuthorizationGrant,
     AuthorizationKeyMetadata,
     AuthorizationTokenMetadata,
     AuthorizationTokenStatus,
     SemanticFrame,
+    SemanticIntent,
     RuntimeCapabilityStatus,
     SemanticControlMode,
     VehicleState,
@@ -26,6 +27,16 @@ from app.models.schemas import (
 )
 from app.core.redaction import SensitiveDataRedactor
 from app.services.workflow.repository import WorkflowRepository
+from app.services.command_identity import (
+    IDENTITY_FIELDS,
+    CanonicalCommandIdentity,
+    CanonicalCommandIdentityError,
+)
+from app.services.vehicle.capabilities import (
+    CanonicalCapabilityError,
+    CanonicalCapabilityRegistry,
+    ResolvedCanonicalCapability,
+)
 
 
 def _b64encode(value: bytes) -> str:
@@ -72,13 +83,20 @@ class AuthorizationTokenService:
         *,
         secret: bytes | None = None,
         capability_provider: Callable[[], RuntimeCapabilityStatus] | None = None,
+        command_capability_registry: CanonicalCapabilityRegistry | None = None,
+        vehicle_adapter_provider: Callable[[], str] | None = None,
     ) -> None:
         self.config = config
         self.repository = repository
         self.ttl_seconds = int(config.get("token_ttl_seconds", 30))
-        self.executable_actions = set(config.get("executable_actions", []))
+        if "executable_actions" in config:
+            raise AuthorizationKeyError(
+                "authorization.yaml 不得保留 legacy executable_actions"
+            )
         self.revoked_tokens_on_startup = 0
         self._capability_provider = capability_provider
+        self._command_capability_registry = command_capability_registry
+        self._vehicle_adapter_provider = vehicle_adapter_provider
         self.repository.expire_due_issued_tokens()
         if secret is not None:
             self._secret = self._validate_secret(secret, "injected_test_secret")
@@ -181,12 +199,36 @@ class AuthorizationTokenService:
         metadata = self._activate_key(value, "local_file")
         return value, "local_file", metadata
 
+    def _command_capabilities(self) -> CanonicalCapabilityRegistry:
+        if self._command_capability_registry is None:
+            self._command_capability_registry = CanonicalCapabilityRegistry(
+                load_yaml("vehicle_actions.yaml")
+            )
+        return self._command_capability_registry
+
+    def _vehicle_adapter(self) -> str:
+        if self._vehicle_adapter_provider is not None:
+            return str(self._vehicle_adapter_provider())
+        return str(load_yaml("vehicle_actions.yaml").get("adapter", "simulator"))
+
+    def _resolve_command(self, intent: SemanticIntent) -> ResolvedCanonicalCapability:
+        try:
+            return self._command_capabilities().resolve(
+                intent, adapter=self._vehicle_adapter()
+            )
+        except CanonicalCapabilityError as exc:
+            raise AuthorizationTokenError(
+                f"CANONICAL_CAPABILITY_UNSUPPORTED: {exc}"
+            ) from exc
+
     def is_executable(self, frame: SemanticFrame) -> bool:
-        return (
-            len(frame.intents) == 1
-            and f"{frame.intents[0].action}|{frame.intents[0].target}"
-            in self.executable_actions
-        )
+        if len(frame.intents) != 1:
+            return False
+        try:
+            self._resolve_command(frame.intents[0])
+            return True
+        except AuthorizationTokenError:
+            return False
 
     def issue(
         self,
@@ -199,6 +241,7 @@ class AuthorizationTokenService:
         if len(frame.intents) != 1:
             raise AuthorizationTokenError("车辆执行授权当前要求恰好一个正式子意图")
         intent = frame.intents[0]
+        resolved = self._resolve_command(intent)
         if self._capability_provider is not None:
             capability = self._capability_provider()
             if (
@@ -215,14 +258,20 @@ class AuthorizationTokenService:
         expires_at = issued_at + timedelta(seconds=self.ttl_seconds)
         token_id = make_id("TOK")
         nonce = secrets.token_urlsafe(24)
+        nonce_digest = hashlib.sha256(nonce.encode("utf-8")).hexdigest()
         snapshot_digest = state_snapshot_digest(state)
         payload = {
             "token_id": token_id,
             "root_turn_id": root_turn_id,
             "turn_id": turn_id,
-            "action": intent.action,
-            "target": intent.target,
-            "area": intent.area,
+            **resolved.identity.as_dict(),
+            "capability_contract_id": resolved.contract_id,
+            "capability_contract_version": resolved.contract_version,
+            "capability_contract_digest": resolved.contract_digest,
+            "capability_adapter": resolved.adapter,
+            # Display-only compatibility metadata; never used as a security binding.
+            "display_action": intent.action,
+            "display_target": intent.target,
             "issued_at": issued_at.isoformat().replace("+00:00", "Z"),
             "expires_at": expires_at.isoformat().replace("+00:00", "Z"),
             "nonce": nonce,
@@ -245,17 +294,26 @@ class AuthorizationTokenService:
             turn_id=turn_id,
             action=intent.action,
             target=intent.target,
-            area=intent.area,
+            area=resolved.identity.area,
+            intent_id=resolved.identity.intent_id,
+            mode=resolved.identity.mode,
+            value=resolved.identity.value,
+            direction=resolved.identity.direction,
+            control_attribute=resolved.identity.control_attribute,
+            capability_contract_id=resolved.contract_id,
+            capability_contract_version=resolved.contract_version,
+            capability_contract_digest=resolved.contract_digest,
+            capability_adapter=resolved.adapter,
             issued_at=issued_at,
             expires_at=expires_at,
             state_snapshot_digest=snapshot_digest,
             token_digest=token_digest,
             key_id=self.key_metadata.key_id,
+            key_version=self.key_metadata.key_version,
+            nonce_digest=nonce_digest,
             status=AuthorizationTokenStatus.ISSUED,
         )
-        self.repository.insert_token(
-            metadata, nonce_digest=hashlib.sha256(nonce.encode("utf-8")).hexdigest()
-        )
+        self.repository.insert_token(metadata, nonce_digest=nonce_digest)
         self.repository.append_event(
             root_turn_id=root_turn_id,
             related_turn_id=turn_id,
@@ -266,6 +324,11 @@ class AuthorizationTokenService:
                 "expires_at": metadata.expires_at.isoformat(),
                 "state_snapshot_digest": snapshot_digest,
                 "key_id": self.key_metadata.key_id,
+                "canonical_identity": resolved.identity.as_dict(),
+                "capability_contract_id": resolved.contract_id,
+                "capability_contract_version": resolved.contract_version,
+                "capability_contract_digest": resolved.contract_digest,
+                "capability_adapter": resolved.adapter,
             },
         )
         return AuthorizationGrant(authorization_token=raw_token, metadata=metadata)
@@ -275,8 +338,7 @@ class AuthorizationTokenService:
         raw_token: str,
         *,
         expected_turn_id: str | None = None,
-        expected_action: str | None = None,
-        expected_target: str | None = None,
+        expected_intent: SemanticIntent | None = None,
     ) -> tuple[dict[str, Any], AuthorizationTokenMetadata]:
         try:
             encoded_payload, encoded_signature = raw_token.split(".", 1)
@@ -302,11 +364,50 @@ class AuthorizationTokenService:
             raise AuthorizationTokenError("授权令牌与持久化摘要不一致")
         if metadata.status != AuthorizationTokenStatus.ISSUED:
             raise AuthorizationTokenError(f"授权令牌状态不可用: {metadata.status.value}")
+        persisted_bindings = {
+            "token_id": metadata.token_id,
+            "root_turn_id": metadata.root_turn_id,
+            "turn_id": metadata.turn_id,
+            "state_snapshot_digest": metadata.state_snapshot_digest,
+            "key_id": metadata.key_id,
+        }
+        for field, persisted in persisted_bindings.items():
+            if str(payload.get(field, "")) != str(persisted):
+                raise AuthorizationTokenError(
+                    f"授权令牌与持久化 {field} 绑定不一致"
+                )
+        nonce = payload.get("nonce")
+        if not isinstance(nonce, str) or not nonce or metadata.nonce_digest is None:
+            raise AuthorizationTokenError("授权令牌缺少 nonce 持久化绑定")
+        if not hmac.compare_digest(
+            hashlib.sha256(nonce.encode("utf-8")).hexdigest(), metadata.nonce_digest
+        ):
+            raise AuthorizationTokenError("授权令牌 nonce 与持久化摘要不一致")
         payload_key_id = str(payload.get("key_id", "legacy"))
         if metadata.key_id not in {"legacy", self.key_metadata.key_id}:
             raise AuthorizationTokenError("授权令牌密钥标识已失效")
         if metadata.key_id != "legacy" and payload_key_id != metadata.key_id:
             raise AuthorizationTokenError("授权令牌密钥标识不匹配")
+        if (
+            metadata.key_version is None
+            or payload.get("key_version") != metadata.key_version
+            or metadata.key_version != self.key_metadata.key_version
+        ):
+            raise AuthorizationTokenError("授权令牌密钥版本已失效或不匹配")
+        try:
+            payload_issued_at = datetime.fromisoformat(
+                str(payload["issued_at"]).replace("Z", "+00:00")
+            )
+            payload_expires_at = datetime.fromisoformat(
+                str(payload["expires_at"]).replace("Z", "+00:00")
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise AuthorizationTokenError("授权令牌时间绑定无效") from exc
+        if (
+            payload_issued_at != metadata.issued_at
+            or payload_expires_at != metadata.expires_at
+        ):
+            raise AuthorizationTokenError("授权令牌时间与持久化记录不一致")
         if metadata.expires_at <= utc_now():
             self.repository.transition_token(
                 token_id,
@@ -321,14 +422,81 @@ class AuthorizationTokenService:
                 payload={"token_id": token_id, "token_digest": metadata.token_digest},
             )
             raise AuthorizationTokenError("授权令牌已过期")
-        bindings = {
-            "turn_id": expected_turn_id,
-            "action": expected_action,
-            "target": expected_target,
+        if expected_turn_id is not None and str(payload.get("turn_id")) != expected_turn_id:
+            raise AuthorizationTokenError("授权令牌turn_id绑定不匹配")
+        if any(field not in payload for field in IDENTITY_FIELDS):
+            raise AuthorizationTokenError(
+                "LEGACY_TOKEN_CANONICAL_IDENTITY_MISSING: 旧 action|target Token 永久禁止执行"
+            )
+        try:
+            payload_identity = self._command_capabilities().identity_projector.from_mapping(
+                payload, require_formal=True
+            )
+        except CanonicalCommandIdentityError as exc:
+            raise AuthorizationTokenError(f"授权令牌 canonical identity 无效: {exc}") from exc
+        if metadata.intent_id is None or metadata.control_attribute is None:
+            raise AuthorizationTokenError(
+                "LEGACY_TOKEN_CANONICAL_IDENTITY_MISSING: 持久化 Token 缺少 canonical identity"
+            )
+        metadata_mapping = {
+            "intent_id": metadata.intent_id,
+            "area": metadata.area,
+            "mode": metadata.mode,
+            "value": metadata.value,
+            "direction": metadata.direction,
+            "control_attribute": metadata.control_attribute,
         }
-        for field, expected in bindings.items():
-            if expected is not None and str(payload.get(field)) != expected:
-                raise AuthorizationTokenError(f"授权令牌{field}绑定不匹配")
+        try:
+            metadata_identity = self._command_capabilities().identity_projector.from_mapping(
+                metadata_mapping, require_formal=True
+            )
+        except CanonicalCommandIdentityError as exc:
+            raise AuthorizationTokenError(
+                f"持久化 Token canonical identity 无效: {exc}"
+            ) from exc
+        if payload_identity != metadata_identity:
+            raise AuthorizationTokenError("授权令牌与持久化 canonical identity 不一致")
+        if expected_intent is not None:
+            try:
+                expected_identity = self._command_capabilities().identity_projector.project(
+                    expected_intent, require_formal=True
+                )
+            except CanonicalCommandIdentityError as exc:
+                raise AuthorizationTokenError(
+                    f"预期 canonical identity 无效: {exc}"
+                ) from exc
+            if payload_identity != expected_identity:
+                raise AuthorizationTokenError("授权令牌 canonical command 绑定不匹配")
+        contract_fields = (
+            "capability_contract_id",
+            "capability_contract_version",
+            "capability_contract_digest",
+            "capability_adapter",
+        )
+        if any(payload.get(field) in {None, ""} for field in contract_fields):
+            raise AuthorizationTokenError("授权令牌缺少 capability contract 绑定")
+        for field in contract_fields:
+            if payload.get(field) != getattr(metadata, field):
+                raise AuthorizationTokenError(
+                    f"授权令牌与持久化 {field} 不一致"
+                )
+        try:
+            current = self._command_capabilities().resolve_identity(
+                payload_identity, adapter=self._vehicle_adapter()
+            )
+        except CanonicalCapabilityError as exc:
+            raise AuthorizationTokenError(
+                f"CANONICAL_CAPABILITY_CHANGED_OR_UNSUPPORTED: {exc}"
+            ) from exc
+        if (
+            current.contract_id != payload["capability_contract_id"]
+            or current.contract_version != payload["capability_contract_version"]
+            or current.contract_digest != payload["capability_contract_digest"]
+            or current.adapter != payload["capability_adapter"]
+        ):
+            raise AuthorizationTokenError(
+                "CANONICAL_CAPABILITY_CONTRACT_CHANGED: 能力合同变化，旧 Token 永久失效"
+            )
         return payload, metadata
 
     def metadata_from_untrusted_token(

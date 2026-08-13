@@ -19,6 +19,7 @@ from app.models.schemas import (
     TextCommandRequest,
     TrustedRuntimeContext,
     VehicleStatePatch,
+    WorkflowEventType,
 )
 from app.services.review.adapter import adapt_review_submission
 from app.websocket.broker import PipelineEventBroker
@@ -248,7 +249,30 @@ def test_15_audit_list_supports_decision_filter(contract_context):
     client, _, _ = contract_context
     body = client.get("/api/audits?decision=PASS&page_size=100").json()
     assert body["items"]
-    assert all(item["final_decision"]["final_decision"] == "PASS" for item in body["items"])
+    assert all(item["final_decision"] == "PASS" for item in body["items"])
+
+
+def test_15b_review_flag_matches_real_clarification_history(contract_context, prepared):
+    client, pipeline, _ = contract_context
+    audit = pipeline.audit_repository.get_by_turn(prepared["ambiguous"]["turn_id"])
+    assert audit is not None
+    body = client.get("/api/audits?decision=REVIEW&page_size=100").json()
+    item = next(entry for entry in body["items"] if entry["audit_id"] == audit.audit_id)
+    detail = client.get(f"/api/audits/{audit.audit_id}").json()
+    assert item["review_occurred"] is True
+    assert detail["clarification_history"]
+
+
+def test_15c_review_requested_alone_is_not_review_occurrence(contract_context):
+    _, pipeline, _ = contract_context
+    root_turn_id = "TURN_REVIEW_REQUIRED_ONLY"
+    pipeline.workflow_repository.append_event(
+        root_turn_id=root_turn_id,
+        event_type=WorkflowEventType.REVIEW_REQUESTED,
+    )
+    assert root_turn_id not in pipeline.workflow_repository.review_occurrences(
+        [root_turn_id]
+    )
 
 
 def test_16_audit_detail_contains_document_sections(contract_context, prepared):
@@ -256,30 +280,25 @@ def test_16_audit_detail_contains_document_sections(contract_context, prepared):
     audit_id = prepared["passed"]["audit"]["audit_id"]
     body = client.get(f"/api/audits/{audit_id}").json()
     required = {
-        "input_summary",
-        "voice_trust",
-        "transcription",
-        "semantic_frame",
-        "evidence_demand",
-        "retrieval_summary",
-        "mandatory_recall",
-        "evidence_graph_summary",
-        "quality_metrics",
-        "validation_result",
-        "gate_result",
-        "score_factors",
-        "initial_decision",
-        "review_process",
-        "final_decision",
-        "authorization_status",
-        "execution_status",
-        "workflow_events",
-        "previous_hash",
-        "record_hash",
-        "audit_chain_valid",
-        "workflow_chain_valid",
+        "command_summary",
+        "resolved_operations",
+        "decision_snapshot",
+        "decision_summary",
+        "key_evidence",
+        "intent_decisions",
+        "llm_explanation",
+        "clarification_history",
+        "authorization_summary",
+        "execution_summary",
+        "execution_before_snapshot",
+        "execution_after_snapshot",
+        "execution_changes",
     }
-    assert required <= body.keys()
+    assert required == body.keys()
+    assert "semantic_frame" not in body
+    assert "record_hash" not in body
+    semantic = client.get(f"/api/audits/{audit_id}/semantic-frame").json()
+    assert semantic["raw_text"] == prepared["passed"]["semantic_frame"]["raw_text"]
     assert "weights_path" not in json.dumps(body, ensure_ascii=False)
 
 

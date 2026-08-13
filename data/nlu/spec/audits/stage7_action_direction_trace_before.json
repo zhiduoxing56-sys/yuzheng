@@ -1,0 +1,12 @@
+{
+  "phase": "before",
+  "input": "解除行李厢锁定",
+  "requested_families": ["LOCK"],
+  "selected_intent": "TRUNK_UNLOCK",
+  "selected_family": "UNLOCK",
+  "compatible_candidates": ["TRUNK_LOCK", "DOOR_LOCK"],
+  "semantic_status": "REVIEW",
+  "review_reasons": ["ACTION_DIRECTION_CONFLICT"],
+  "guard_triggers": ["ACTION_DIRECTION_CONFLICT"],
+  "gate_path": "DIRECT_ACCEPT"
+}

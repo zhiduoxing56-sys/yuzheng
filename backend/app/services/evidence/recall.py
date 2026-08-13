@@ -19,6 +19,10 @@ from app.services.vector.embedding import EmbeddingService
 
 
 class MandatoryRecallService:
+    _DOOR_PHYSICAL_AREAS = frozenset(
+        {"LEFT_FRONT", "RIGHT_FRONT", "LEFT_REAR", "RIGHT_REAR"}
+    )
+
     def __init__(self, repository: EvidenceRepository, embedder: EmbeddingService) -> None:
         self.repository = repository
         self.embedder = embedder
@@ -26,6 +30,39 @@ class MandatoryRecallService:
     def _similarity(self, query_vector: list[float], node: EvidenceNode) -> float:
         vector, _ = self.embedder.encode(evidence_text(node))
         return float(np.clip(np.dot(query_vector, vector), 0, 1))
+
+    @classmethod
+    def _matching_candidates(
+        cls,
+        candidates: list[EvidenceNode],
+        demand: IntentEvidenceDemand,
+        evidence_type: str,
+    ) -> list[EvidenceNode]:
+        matching = [
+            node for node in candidates if node.evidence_type == evidence_type
+        ]
+        if (
+            evidence_type == "DOOR_STATE"
+            and demand.area in cls._DOOR_PHYSICAL_AREAS
+        ):
+            return [
+                node
+                for node in matching
+                if node.metadata.get("area") == demand.area
+            ]
+        return matching
+
+    def _latest_for_demand(
+        self, demand: IntentEvidenceDemand, evidence_type: str
+    ) -> EvidenceNode | None:
+        if (
+            evidence_type == "DOOR_STATE"
+            and demand.area in self._DOOR_PHYSICAL_AREAS
+        ):
+            return self.repository.latest_resolved_for_area(
+                evidence_type, demand.area
+            )
+        return self.repository.latest_resolved(evidence_type)
 
     def resolve(
         self,
@@ -43,15 +80,20 @@ class MandatoryRecallService:
 
         for evidence_type in demand.required_types:
             require_canonical_evidence_type(evidence_type)
-            matching_candidates = [
-                node for node in candidates if node.evidence_type == evidence_type
-            ]
+            matching_candidates = self._matching_candidates(
+                candidates, demand, evidence_type
+            )
             candidate_ids = [node.node_id for node in matching_candidates]
             current_turn_missing = next(
                 (
                     node
                     for node in self.repository.turn_nodes(turn_id)
                     if node.evidence_type == evidence_type
+                    and (
+                        evidence_type != "DOOR_STATE"
+                        or demand.area not in self._DOOR_PHYSICAL_AREAS
+                        or node.metadata.get("area") == demand.area
+                    )
                     and node.quality_label == EvidenceStatus.MISSING
                     and node.source != "missing_placeholder"
                 ),
@@ -130,7 +172,7 @@ class MandatoryRecallService:
                 )
                 continue
 
-            latest = self.repository.latest_resolved(evidence_type)
+            latest = self._latest_for_demand(demand, evidence_type)
             if latest is not None:
                 if latest.quality_label == EvidenceStatus.MISSING:
                     missing = self.repository.get_or_create_missing(
@@ -238,9 +280,9 @@ class MandatoryRecallService:
 
         for evidence_type in demand.optional_types:
             require_canonical_evidence_type(evidence_type)
-            optional_candidates = [
-                node for node in candidates if node.evidence_type == evidence_type
-            ]
+            optional_candidates = self._matching_candidates(
+                candidates, demand, evidence_type
+            )
             selected_nodes = select_canonical_evidence(
                 [evidence_type], optional_candidates
             )

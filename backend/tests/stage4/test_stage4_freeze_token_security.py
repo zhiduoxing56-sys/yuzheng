@@ -60,12 +60,14 @@ def _frame(turn_id: str = "TURN_KEY") -> SemanticFrame:
                 clause_index=0,
                 clause_text="打开车门",
                 intent_id="DOOR_OPEN",
+                runtime_identity="FORMAL",
                 action="打开",
                 target="车门",
-                control_domain="cabin",
+                control_attribute="OPENING_STATE",
+                control_domain="车身控制",
                 semantic_confidence=1,
                 ambiguity_score=0,
-                risk_level="HIGH",
+                risk_level="R3",
             )
         ],
     )

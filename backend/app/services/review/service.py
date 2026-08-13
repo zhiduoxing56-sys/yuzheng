@@ -76,6 +76,15 @@ class ReviewService:
         terminal_event = next(
             (event for event in reversed(events) if event.event_type in TERMINAL_EVENTS), None
         )
+        clarification_cancelled = next(
+            (
+                event
+                for event in reversed(events)
+                if event.event_type == WorkflowEventType.CLARIFICATION_RESOLVED
+                and event.payload.get("resolution") == "NONE_OF_ABOVE"
+            ),
+            None,
+        )
         token = self.pipeline.workflow_repository.latest_token_for_root(root_turn_id)
         if terminal_event is not None:
             status = {
@@ -88,6 +97,8 @@ class ReviewService:
                 if terminal_event.event_type == WorkflowEventType.REVIEW_CANCELLED
                 else latest_decision
             )
+        elif clarification_cancelled is not None:
+            status = "CANCELLED"
         elif latest_decision == DecisionLabel.REVIEW:
             status = "REVIEW_REQUIRED"
         elif token is not None and token.status == AuthorizationTokenStatus.ISSUED:
@@ -103,7 +114,7 @@ class ReviewService:
             latest_decision=latest_decision,
             token_status=token.status if token else None,
             event_count=len(events),
-            terminal=terminal_event is not None,
+            terminal=terminal_event is not None or clarification_cancelled is not None,
         )
 
     def _validate_entry(self, turn_id: str):

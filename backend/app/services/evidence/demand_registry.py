@@ -12,8 +12,8 @@ from app.services.evidence.catalog import evidence_type_catalog
 
 
 DEMAND_REGISTRY_PATH = PROJECT_ROOT / "证据" / "evidence_demand_registry_v1.yaml"
-R4_INTENT_REGISTRY_PATH = (
-    PROJECT_ROOT / "data" / "nlu" / "spec" / "intent_registry_r4_final.yaml"
+UNIFIED_INTENT_REGISTRY_PATH = (
+    PROJECT_ROOT / "data" / "nlu" / "spec" / "intent_registry_unified_v1.yaml"
 )
 REQUIREMENT_FIELDS = frozenset(
     {"mandatory", "recommended", "conditional_mandatory", "rationale"}
@@ -87,10 +87,10 @@ class EvidenceDemandRegistry:
     def __init__(
         self,
         registry_path: Path = DEMAND_REGISTRY_PATH,
-        r4_registry_path: Path = R4_INTENT_REGISTRY_PATH,
+        semantic_registry_path: Path = UNIFIED_INTENT_REGISTRY_PATH,
     ) -> None:
         raw = _load_yaml(registry_path)
-        r4_raw = _load_yaml(r4_registry_path)
+        r4_raw = _load_yaml(semantic_registry_path)
         try:
             canonical_types = frozenset(evidence_type_catalog())
         except ValueError as exc:
@@ -181,6 +181,8 @@ class EvidenceDemandRegistry:
                 or not item["intent_id"]
             ):
                 raise ConfigurationError("正式 R4 intents 项缺少 intent_id")
+            if item.get("runtime_identity") != "FORMAL":
+                continue
             intent_id = item["intent_id"]
             intent_ids.append(intent_id)
             allowed_areas = _string_list(
@@ -198,8 +200,12 @@ class EvidenceDemandRegistry:
             raise ConfigurationError("正式 R4 Intent ID 不得重复")
 
         formal_ids = _string_list(
-            raw.get("formal_user_voice_intent_ids"),
-            field="formal_user_voice_intent_ids",
+            [
+                item["intent_id"]
+                for item in raw["intents"]
+                if item.get("runtime_identity") == "FORMAL"
+            ],
+            field="runtime_identity_FORMAL_intent_ids",
             allow_empty=False,
         )
         if set(formal_ids) != set(intent_ids):

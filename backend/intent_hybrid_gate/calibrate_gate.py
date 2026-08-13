@@ -142,9 +142,6 @@ def model_consistent(
 ) -> bool:
     if not selected:
         return False
-    top1 = str(sample["diagnostic"]["fused_top8"][0])
-    if config["require_fused_top1_selected"] and top1 not in selected:
-        return False
     rows = target_rows(sample)
     max_rank = int(config["strong_channel_rank_max"])
     min_count = int(config["min_strong_channel_count_per_selected_target"])

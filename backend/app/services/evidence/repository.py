@@ -28,6 +28,13 @@ from app.services.evidence.security_classification import (
 class EvidenceRepository:
     """维护当前、多源与历史证据流；所有状态均来自实际输入快照或显式观测。"""
 
+    DOOR_PHYSICAL_AREAS = (
+        "LEFT_FRONT",
+        "RIGHT_FRONT",
+        "LEFT_REAR",
+        "RIGHT_REAR",
+    )
+
     def __init__(
         self,
         quality_config: dict[str, Any] | None = None,
@@ -370,14 +377,14 @@ class EvidenceRepository:
                 source_providers = {
                     name: "simulator_vehicle_state" for name in source_fields
                 }
-            validity = self._validity_seconds(evidence_type)
-            node = self._make_node(
-                evidence_type=evidence_type,
-                source=str(mapping["provider"]),
-                value=value,
-                timestamp=now,
-                expires_at=now + timedelta(seconds=validity),
-                metadata={
+            areas: tuple[str | None, ...] = (
+                self.DOOR_PHYSICAL_AREAS
+                if evidence_type == "DOOR_STATE"
+                else (None,)
+            )
+            for area in areas:
+                validity = self._validity_seconds(evidence_type)
+                metadata = {
                     "turn_id": turn_id,
                     "snapshot_updated_at": state.updated_at.isoformat(),
                     "state_epoch_id": state.state_epoch_id,
@@ -389,9 +396,18 @@ class EvidenceRepository:
                     "source_field_availability": {
                         name: raw_sources.get(name) is not None for name in source_fields
                     },
-                },
-            )
-            nodes.append(self._store(node, turn_id))
+                }
+                if area is not None:
+                    metadata["area"] = area
+                node = self._make_node(
+                    evidence_type=evidence_type,
+                    source=str(mapping["provider"]),
+                    value=value,
+                    timestamp=now,
+                    expires_at=now + timedelta(seconds=validity),
+                    metadata=metadata,
+                )
+                nodes.append(self._store(node, turn_id))
         return nodes
 
     def ingest_observations(
@@ -509,6 +525,16 @@ class EvidenceRepository:
         """Return the newest exact-type observation, including abnormal states."""
 
         observations = self.latest_observations(evidence_type)
+        return observations[0] if observations else None
+
+    def latest_resolved_for_area(
+        self, evidence_type: str, area: str
+    ) -> EvidenceNode | None:
+        observations = [
+            node
+            for node in self.latest_observations(evidence_type)
+            if node.metadata.get("area") == area
+        ]
         return observations[0] if observations else None
 
     def all_nodes(self) -> list[EvidenceNode]:

@@ -1,15 +1,21 @@
 from __future__ import annotations
 
 import unicodedata
-from pathlib import Path
 from statistics import mean
 from typing import Any
 
 import yaml
 
 from app.models.schemas import SemanticFrame, SemanticIntent
+from app.services.semantic.area import (
+    allowed_areas_for_intent,
+    canonical_area,
+    explicit_area_mentions,
+    resolve_explicit_area,
+)
 from semantic_orchestrator_v2.orchestrator import INTENT_CARDS, OrchestratorRun
 from semantic_orchestrator_v2_1.orchestrator import SemanticOrchestratorV2_1
+from semantic_registry_v1 import UnifiedSemanticRegistry
 
 
 _ACTION_DISPLAY_LABELS = {
@@ -84,15 +90,6 @@ _TARGET_DISPLAY_OVERRIDES = {
     ("KEEP", "LANE", "POSITION"): "当前车道",
 }
 
-_R4_INTENT_REGISTRY = (
-    Path(__file__).resolve().parents[4]
-    / "data"
-    / "nlu"
-    / "spec"
-    / "intent_registry_r4_final.yaml"
-)
-
-
 def _normalized_text(text: str) -> str:
     return "".join(unicodedata.normalize("NFKC", text).strip().lower().split())
 
@@ -101,7 +98,8 @@ class SemanticOrchestratorService:
     """唯一正式语义入口：运行冻结 V2.1 并直接产出公共语义契约。"""
 
     def __init__(self) -> None:
-        registry = yaml.safe_load(_R4_INTENT_REGISTRY.read_text(encoding="utf-8"))
+        self._registry = UnifiedSemanticRegistry()
+        registry = self._registry.document
         if not isinstance(registry, dict):
             raise RuntimeError("正式 R4 Intent Registry 根节点必须是映射")
         definitions = registry.get("intents", [])
@@ -137,14 +135,14 @@ class SemanticOrchestratorService:
             )
 
         cards_root = yaml.safe_load(INTENT_CARDS.read_text(encoding="utf-8"))
-        cards = cards_root.get("正式意图", {}) if isinstance(cards_root, dict) else {}
+        cards = cards_root.get("intents", {}) if isinstance(cards_root, dict) else {}
         if set(cards) != set(self._intent_definitions):
             raise RuntimeError("冻结 Intent Cards 与正式 R4 Intent Registry 的意图集合不一致")
         for intent_id, definition in self._intent_definitions.items():
             card = cards[intent_id]
             if (
-                str(card.get("动作")) != str(definition["canonical_action"])
-                or str(card.get("对象")) != str(definition["canonical_target"])
+                str(card.get("canonical_action")) != str(definition["canonical_action"])
+                or str(card.get("canonical_target")) != str(definition["canonical_target"])
             ):
                 raise RuntimeError(
                     "冻结 Intent Cards 与正式 R4 Intent Registry 的规范动作/对象不一致: "
@@ -175,7 +173,9 @@ class SemanticOrchestratorService:
         confidence = max(0.0, min(1.0, mean(scores))) if scores else 0.5
         return round(confidence, 6), round(1.0 - confidence, 6)
 
-    def _intent_metadata(self, intent_id: str) -> tuple[str, str, str, str, list[str]]:
+    def _intent_metadata(
+        self, intent_id: str
+    ) -> tuple[str, str, str, str, str, str, list[str]]:
         definition = self._intent_definitions.get(intent_id)
         if definition is None:
             raise RuntimeError(
@@ -191,13 +191,13 @@ class SemanticOrchestratorService:
         target = _TARGET_DISPLAY_OVERRIDES.get(
             semantic_key, _TARGET_DISPLAY_LABELS.get(canonical_target)
         )
-        if action is None or target is None:
-            raise RuntimeError(
-                f"正式 R4 Intent Registry 存在未支持的规范动作或对象: {intent_id}"
-            )
+        action = action or canonical_action
+        target = target or canonical_target
         return (
             action,
             target,
+            str(definition["runtime_identity"]),
+            control_attribute,
             str(definition["control_domain"]),
             str(definition["risk_level"]),
             [str(item) for item in definition["risk_tags"]],
@@ -233,8 +233,6 @@ class SemanticOrchestratorService:
         intents: list[SemanticIntent] = []
         status = str(run.output.get("status", "NO_MATCH"))
         for original_index, clause in enumerate(run.debug.get("clause_results", [])):
-            if status == "REVIEW" and not bool(clause.get("reliable")):
-                continue
             for intent_id_value in clause.get("accepted_intent_ids", []):
                 intent_id = str(intent_id_value)
                 if occurrence_index >= len(authoritative_occurrences):
@@ -249,20 +247,38 @@ class SemanticOrchestratorService:
                         f"clause={intent_id}, authoritative={expected_intent_id}"
                     )
                 occurrence_index += 1
-                action, target, domain, risk_level, risk_tags = self._intent_metadata(
-                    intent_id
-                )
+                (
+                    action,
+                    target,
+                    runtime_identity,
+                    control_attribute,
+                    domain,
+                    risk_level,
+                    risk_tags,
+                ) = self._intent_metadata(intent_id)
                 confidence, ambiguity = self._confidence(clause, intent_id)
                 params = dict(occurrence.get("params", {}))
+                allowed_areas = allowed_areas_for_intent(intent_id)
+                supplied_area = canonical_area(params.get("area"))
+                if supplied_area not in allowed_areas:
+                    supplied_area = None
+                resolved_area = supplied_area or resolve_explicit_area(
+                    str(clause.get("clause", "")),
+                    allowed_areas,
+                )
                 intents.append(
                     SemanticIntent(
                         clause_index=int(clause.get("clause_index", original_index)),
                         clause_text=str(clause.get("clause", "")),
                         intent_id=intent_id,
+                        runtime_identity=runtime_identity,
                         action=action,
                         target=target,
-                        area=str(params.get("area", "unknown")),
+                        area=resolved_area or "unknown",
                         value=params.get("value"),
+                        mode=params.get("mode"),
+                        direction=params.get("direction"),
+                        control_attribute=control_attribute,
                         control_domain=domain,
                         risk_level=risk_level,
                         risk_tags=risk_tags,
@@ -280,20 +296,65 @@ class SemanticOrchestratorService:
             (intent.semantic_confidence for intent in intents), default=0.0
         )
         ambiguity_score = max((intent.ambiguity_score for intent in intents), default=1.0)
+        review_reasons = [str(item) for item in run.output.get("reasons", [])]
+        unresolved_clauses = [
+            str(item) for item in run.output.get("unresolved_clauses", [])
+        ]
+        # The frozen orchestrator can report MISSING_REQUIRED_AREA before this
+        # public wrapper applies the same Registry's explicit-area resolver.  Do
+        # not preserve that stale REVIEW when every AREA-required occurrence now
+        # carries an explicit allowed value.  This reconciles runtime state only;
+        # it does not infer a default area or alter the frozen semantic contract.
+        area_reconciled = bool(intents) and review_reasons == ["MISSING_REQUIRED_AREA"]
+        if area_reconciled:
+            for intent in intents:
+                definition = self._intent_definitions[intent.intent_id]
+                if "AREA" in definition.get("required_slots", []) and intent.area == "unknown":
+                    area_reconciled = False
+                    break
+        semantic_status = "OK" if area_reconciled else str(
+            run.output.get("status", "NO_MATCH")
+        )
+        final_review_reasons = [] if area_reconciled else review_reasons
+        final_unresolved_clauses = [] if area_reconciled else unresolved_clauses
+        area_failures: list[str] = []
+        for intent in intents:
+            definition = self._intent_definitions[intent.intent_id]
+            carried_slots = {
+                *definition.get("required_slots", []),
+                *definition.get("optional_slots", []),
+            }
+            if "AREA" not in carried_slots:
+                continue
+            mentions = explicit_area_mentions(intent.clause_text)
+            allowed_areas = allowed_areas_for_intent(intent.intent_id)
+            mentioned_areas = {area for _term, area in mentions}
+            if mentions and (
+                intent.area == "unknown"
+                or not mentioned_areas.issubset(allowed_areas)
+                or intent.area not in allowed_areas
+            ):
+                area_failures.append(intent.clause_text)
+        if area_failures:
+            semantic_status = "REVIEW"
+            final_review_reasons = list(
+                dict.fromkeys([*final_review_reasons, "AREA_MENTION_UNRESOLVED"])
+            )
+            final_unresolved_clauses = list(
+                dict.fromkeys([*final_unresolved_clauses, *area_failures])
+            )
         return SemanticFrame(
             turn_id=turn_id,
             raw_text=text,
             normalized_text=_normalized_text(text),
             semantic_confidence=semantic_confidence,
             ambiguity_score=ambiguity_score,
-            semantic_status=str(run.output.get("status", "NO_MATCH")),
-            review_reasons=[str(item) for item in run.output.get("reasons", [])],
+            semantic_status=semantic_status,
+            review_reasons=final_review_reasons,
             review_candidates=[
                 str(item) for item in run.output.get("review_candidates", [])
             ],
-            unresolved_clauses=[
-                str(item) for item in run.output.get("unresolved_clauses", [])
-            ],
+            unresolved_clauses=final_unresolved_clauses,
             security_signals=[
                 str(item) for item in run.output.get("security_signals", [])
             ],

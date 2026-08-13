@@ -298,11 +298,12 @@ def test_pa_weight_failure_never_uses_generic_fallback(
 def test_zone_permission_report_formula_differs_by_seat(
     stage5_pipeline: CommandPipeline,
 ) -> None:
+    intent = stage5_pipeline.semantic_service.parse("TURN_ZONE", "打开车门").intents[0]
     driver = stage5_pipeline.zone_permission_service.evaluate(
-        "driver", "打开", "车门", zone_source="explicit_request_configuration"
+        "driver", intent, zone_source="explicit_request_configuration"
     )
     passenger = stage5_pipeline.zone_permission_service.evaluate(
-        "front_passenger", "打开", "车门", zone_source="explicit_request_configuration"
+        "front_passenger", intent, zone_source="explicit_request_configuration"
     )
     assert driver.permission_score == pytest.approx(0.64)
     assert driver.permission_label == DecisionLabel.PASS
@@ -352,7 +353,7 @@ def test_real_synthetic_audio_enters_review_and_cannot_issue_token(
     assert result.decision.authorization_token is None
 
 
-def test_low_trust_audio_air_conditioning_still_requires_review(
+def test_low_trust_audio_known_air_conditioning_is_terminal_pass_without_token(
     stage5_pipeline: CommandPipeline,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -398,12 +399,13 @@ def test_low_trust_audio_air_conditioning_still_requires_review(
     )
 
     assert result.semantic_frame is not None
-    assert result.semantic_frame.intents == []
+    assert [intent.intent_id for intent in result.semantic_frame.intents] == ["HVAC_ON"]
+    assert result.semantic_frame.intents[0].runtime_identity == "KNOWN_NON_EXECUTABLE"
     assert result.pipeline is not None
-    assert result.pipeline.quality_metrics.evidence_alignment_route == "EVIDENCE_PASS"
+    assert result.pipeline.quality_metrics.evidence_alignment_route is None
     assert result.voice_trust.input_trust_label == DecisionLabel.REVIEW.value
-    assert result.decision.final_decision == DecisionLabel.REVIEW
-    assert "VOICE_TRUST_REVIEW" in result.decision.reason_codes
+    assert result.decision.final_decision == DecisionLabel.PASS
+    assert "KNOWN_NON_EXECUTABLE_SEMANTIC_PASS" in result.decision.reason_codes
     assert result.decision.authorization_token is None
 
 
@@ -521,7 +523,7 @@ def test_voice_websocket_event_sequence_comes_from_real_processing_points(
         "PA_CHECKED",
         "VOICE_TRUST_DECIDED",
         "ASR_COMPLETED",
-        "SEMANTIC_PARSED",
+        "SEMANTIC_REVIEW_REQUIRED",
     ]
     assert [event.stage for event in events[:7]] == expected
     assert [event.sequence for event in events] == list(range(1, len(events) + 1))
@@ -628,7 +630,7 @@ def test_websocket_delivers_required_voice_events_in_order(
         "PA_CHECKED",
         "VOICE_TRUST_DECIDED",
         "ASR_COMPLETED",
-        "SEMANTIC_PARSED",
+        "SEMANTIC_REVIEW_REQUIRED",
     ]
     assert [event["sequence"] for event in events] == list(range(1, 8))
     assert len({event["turn_id"] for event in events}) == 1

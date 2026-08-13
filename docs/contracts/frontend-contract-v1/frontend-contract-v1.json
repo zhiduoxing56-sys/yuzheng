@@ -87,6 +87,9 @@
     },
     "ErrorCode": {
       "AUDIT_NOT_FOUND": "由生产定义 app.models.frontend_contract.ErrorCode 约束",
+      "CLARIFICATION_ALREADY_RESOLVED": "由生产定义 app.models.frontend_contract.ErrorCode 约束",
+      "CLARIFICATION_CANDIDATE_NOT_FOUND": "由生产定义 app.models.frontend_contract.ErrorCode 约束",
+      "CLARIFICATION_NOT_FOUND": "由生产定义 app.models.frontend_contract.ErrorCode 约束",
       "CORRECTED_TEXT_REQUIRED": "由生产定义 app.models.frontend_contract.ErrorCode 约束",
       "DATABASE_ERROR": "由生产定义 app.models.frontend_contract.ErrorCode 约束",
       "INTERNAL_ERROR": "由生产定义 app.models.frontend_contract.ErrorCode 约束",
@@ -152,12 +155,16 @@
     "WorkflowEventType": {
       "ASR_COMPLETED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "AUDIT_OUTCOME_APPENDED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
+      "CLARIFICATION_REQUESTED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
+      "CLARIFICATION_RESOLVED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
+      "DECISION_SNAPSHOT_CAPTURED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "EXECUTION_FAILED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "EXECUTION_REQUESTED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "EXECUTION_SUCCEEDED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "FINAL_DECISION_UPDATED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "KEY_INVALIDATED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "LA_CHECKED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
+      "LLM_EXPLANATION_GENERATED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "PA_CHECKED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "PRE_EXECUTION_CHECK_FAILED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "PRE_EXECUTION_CHECK_PASSED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
@@ -257,7 +264,10 @@
       "DATABASE_ERROR",
       "INVALID_FILTER",
       "INTERNAL_ERROR",
-      "INVALID_REQUEST"
+      "INVALID_REQUEST",
+      "CLARIFICATION_NOT_FOUND",
+      "CLARIFICATION_ALREADY_RESOLVED",
+      "CLARIFICATION_CANDIDATE_NOT_FOUND"
     ],
     "EvidenceDemandStatus": [
       "RETRIEVED",
@@ -319,6 +329,8 @@
       "REVIEW_CONFIRMED",
       "REVIEW_CORRECTED",
       "REVIEW_CANCELLED",
+      "CLARIFICATION_REQUESTED",
+      "CLARIFICATION_RESOLVED",
       "FINAL_DECISION_UPDATED",
       "AUDIT_OUTCOME_APPENDED",
       "REDECISION_STARTED",
@@ -333,7 +345,9 @@
       "PRE_EXECUTION_CHECK_PASSED",
       "PRE_EXECUTION_CHECK_FAILED",
       "EXECUTION_SUCCEEDED",
-      "EXECUTION_FAILED"
+      "EXECUTION_FAILED",
+      "DECISION_SNAPSHOT_CAPTURED",
+      "LLM_EXPLANATION_GENERATED"
     ]
   },
   "error_contract": {
@@ -353,7 +367,10 @@
       "DATABASE_ERROR",
       "INVALID_FILTER",
       "INTERNAL_ERROR",
-      "INVALID_REQUEST"
+      "INVALID_REQUEST",
+      "CLARIFICATION_NOT_FOUND",
+      "CLARIFICATION_ALREADY_RESOLVED",
+      "CLARIFICATION_CANDIDATE_NOT_FOUND"
     ],
     "model": {
       "$defs": {
@@ -374,7 +391,10 @@
             "DATABASE_ERROR",
             "INVALID_FILTER",
             "INTERNAL_ERROR",
-            "INVALID_REQUEST"
+            "INVALID_REQUEST",
+            "CLARIFICATION_NOT_FOUND",
+            "CLARIFICATION_ALREADY_RESOLVED",
+            "CLARIFICATION_CANDIDATE_NOT_FOUND"
           ],
           "title": "ErrorCode",
           "type": "string"
@@ -1022,7 +1042,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AuditDetailResponse"
+                "$ref": "#/components/schemas/AuditDetailView"
               }
             }
           },
@@ -1070,6 +1090,76 @@
         }
       },
       "side_effect": "READ_ONLY"
+    },
+    {
+      "method": "GET",
+      "operation_id": "audit_semantic_frame_api_audits__audit_id__semantic_frame_get",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "audit_id",
+          "required": true,
+          "schema": {
+            "title": "Audit Id",
+            "type": "string"
+          }
+        }
+      ],
+      "path": "/api/audits/{audit_id}/semantic-frame",
+      "request_body": null,
+      "responses": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SemanticFrame"
+              }
+            }
+          },
+          "description": "Successful Response"
+        },
+        "404": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          },
+          "description": "Not Found"
+        },
+        "409": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          },
+          "description": "Conflict"
+        },
+        "422": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          },
+          "description": "Unprocessable Entity"
+        },
+        "500": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          },
+          "description": "Internal Server Error"
+        }
+      },
+      "side_effect": "READ_ONLY_TECHNICAL_DETAIL"
     },
     {
       "method": "GET",
@@ -1148,10 +1238,10 @@
     "PDF与正式配置均未规定因果低置信 REVIEW 阈值；因果置信度仅用于解释和审计"
   ],
   "nullable_fields": {
-    "AuditDetailResponse": [
-      "effective_outcome",
-      "decision_explanation",
-      "generation_metadata"
+    "AuditDetailView": [
+      "decision_snapshot",
+      "execution_before_snapshot",
+      "execution_after_snapshot"
     ],
     "AuditVerificationResponse": [
       "terminal_audit_id",
@@ -1286,6 +1376,9 @@
       "event_id",
       "audit_id"
     ],
+    "TurnPresentationResponse": [
+      "clarification_request"
+    ],
     "ValidationResultPresentation": [
       "jailbreak_risk_base",
       "jailbreak_risk_severity"
@@ -1310,64 +1403,52 @@
       },
       {
         "fields": [
-          "audit_id",
-          "turn_id",
-          "created_at",
-          "input_summary",
-          "voice_trust",
-          "transcription",
-          "semantic_frame",
-          "evidence_demand",
-          "retrieval_summary",
-          "mandatory_recall",
-          "evidence_graph_summary",
-          "quality_metrics",
-          "memory",
-          "causal",
-          "validation_result",
-          "gate_result",
-          "score_factors",
-          "initial_decision",
-          "original_decision",
-          "effective_outcome",
-          "review_process",
-          "final_decision",
-          "decision_explanation",
-          "generation_metadata",
-          "authorization_status",
-          "execution_status",
-          "workflow_events",
-          "previous_hash",
-          "record_hash",
-          "audit_chain_valid",
-          "workflow_chain_valid"
+          "command_summary",
+          "resolved_operations",
+          "decision_snapshot",
+          "decision_summary",
+          "key_evidence",
+          "intent_decisions",
+          "llm_explanation",
+          "clarification_history",
+          "authorization_summary",
+          "execution_summary",
+          "execution_before_snapshot",
+          "execution_after_snapshot",
+          "execution_changes"
         ],
-        "model": "AuditDetailResponse",
+        "model": "AuditDetailView",
         "required": [
-          "audit_id",
+          "command_summary",
+          "decision_summary",
+          "llm_explanation",
+          "authorization_summary",
+          "execution_summary"
+        ]
+      },
+      {
+        "fields": [
+          "frame_id",
           "turn_id",
-          "created_at",
-          "input_summary",
-          "voice_trust",
-          "transcription",
-          "semantic_frame",
-          "evidence_demand",
-          "retrieval_summary",
-          "evidence_graph_summary",
-          "quality_metrics",
-          "validation_result",
-          "gate_result",
-          "score_factors",
-          "initial_decision",
-          "original_decision",
-          "review_process",
-          "final_decision",
-          "authorization_status",
-          "execution_status",
-          "previous_hash",
-          "record_hash",
-          "audit_chain_valid",
-          "workflow_chain_valid"
+          "raw_text",
+          "normalized_text",
+          "semantic_confidence",
+          "ambiguity_score",
+          "semantic_status",
+          "review_reasons",
+          "review_candidates",
+          "unresolved_clauses",
+          "security_signals",
+          "intents"
+        ],
+        "model": "SemanticFrame",
+        "required": [
+          "turn_id",
+          "raw_text",
+          "normalized_text",
+          "semantic_confidence",
+          "ambiguity_score",
+          "semantic_status"
         ]
       },
       {
@@ -1840,7 +1921,8 @@
           "review",
           "authorization",
           "execution",
-          "audit"
+          "audit",
+          "clarification_request"
         ],
         "model": "TurnPresentationResponse",
         "required": [
@@ -1868,7 +1950,7 @@
     ]
   },
   "pending_steps": [],
-  "production_schema_digest": "1f33e6fab1a959eb5d70d35adf5da0d1b3a27ac640a41782c300eca24f198a12",
+  "production_schema_digest": "0c63ef206fa9392122b30638251e28f370c51dc561a1aab6b9735d15b40822be",
   "review_semantics": {
     "CANCEL": "追加 ReviewOutcome 有效终态 BLOCK，不重跑原指令",
     "CONFIRM": "必须选择原轮次持久化 VALID candidate，并创建 child turn 完整重跑",

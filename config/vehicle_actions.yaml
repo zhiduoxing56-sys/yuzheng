@@ -7,6 +7,97 @@ carla:
 can:
   enabled: false
   whitelist: []
+
+# 唯一语音执行支持事实。每个 variant 同时冻结 canonical slot 边界与
+# 当前 adapter 的物理行为；未列出的 Intent、adapter 或 slot 组合全部拒绝。
+canonical_capability_contracts:
+  schema_version: 1
+  contracts:
+    - intent_id: DOOR_OPEN
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots:
+            area: {allow_omitted: true, values: [ALL]}
+          physical_action: 打开|车门
+
+    - intent_id: DOOR_UNLOCK
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots:
+            area: {allow_omitted: true, values: [ALL]}
+          physical_action: 解锁|车门
+
+    - intent_id: HEADLIGHT_SET_MODE
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench]
+          slots:
+            mode: {allow_omitted: false, values: ["OFF"]}
+          physical_action: 关闭|前照灯
+        - adapters: [carla]
+          slots:
+            mode: {allow_omitted: false, values: ["OFF"]}
+          physical_action: 关闭|前照灯
+        - adapters: [carla]
+          slots:
+            mode: {allow_omitted: false, values: ["ON"]}
+          physical_action: 打开|前照灯
+
+    - intent_id: WINDOW_OPEN
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots:
+            area: {allow_omitted: true, values: [ALL]}
+          physical_action: 打开|车窗
+
+    - intent_id: ACCELERATE
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench]
+          slots:
+            value: {allow_omitted: true, values: [10]}
+          physical_action: 加速|速度
+        - adapters: [carla]
+          slots:
+            value: {allow_omitted: true, values: []}
+          physical_action: 加速|速度
+
+    - intent_id: DECELERATE
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench]
+          slots:
+            value: {allow_omitted: true, values: [10]}
+          physical_action: 减速|速度
+        - adapters: [carla]
+          slots:
+            value: {allow_omitted: true, values: []}
+          physical_action: 减速|速度
+
+    - intent_id: BRAKE
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench]
+          slots:
+            value: {allow_omitted: true, values: []}
+          physical_action: 打开|制动
+        - adapters: [carla]
+          slots:
+            value: {allow_omitted: true, values: []}
+          physical_action: 打开|制动
+
+    - intent_id: AUTO_PARK_ENABLE
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|自动泊车
+
+# 底层物理能力库存，可能包含不向语音执行开放的能力（例如 DISPLAY_OFF）。
+# 生产语音资格只由上面的 canonical_capability_contracts 决定。
 actions:
   打开|车门:
     operations:
@@ -24,6 +115,10 @@ actions:
     operations:
       - {field: headlight_state, operation: set, value: "OFF"}
     feedback: 前照灯已关闭
+    carla_controls: {light_off: true}
+  打开|前照灯:
+    carla_controls: {light_on: true}
+    feedback: 前照灯已打开
   打开|车窗:
     operations:
       - {field: window_state, operation: set, value: OPEN}
@@ -44,15 +139,18 @@ actions:
     operations:
       - {field: vehicle_speed, operation: increment, value: 10}
     feedback: 模拟车辆已加速
+    carla_controls: {throttle: 0.6, duration_s: 1.5}
   减速|速度:
     operations:
       - {field: vehicle_speed, operation: decrement, value: 10, minimum: 0}
     feedback: 模拟车辆已减速
+    carla_controls: {brake: 0.5, duration_s: 1.5}
   打开|制动:
     operations:
       - {field: brake_state, operation: set, value: ACTIVE}
       - {field: vehicle_speed, operation: set, value: 0}
     feedback: 模拟制动已执行
+    carla_controls: {brake: 0.9, duration_s: 2.0}
   打开|自动泊车:
     operations:
       - {field: vehicle_mode, operation: set, value: AUTO_PARK}

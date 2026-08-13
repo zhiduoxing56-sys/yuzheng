@@ -83,10 +83,12 @@ export function DecisionPage() {
       setResult(EMPTY_RESULT);
       return;
     }
-    if (currentTurn?.turn_id === turnId) return;
+    const preserveCurrentClarification = currentTurn?.turn_id === turnId;
     clarificationRequestRef.current?.abort("turn changed");
     clarificationRequestRef.current = null;
-    setClarification(null);
+    if (!preserveCurrentClarification) {
+      setClarification(null);
+    }
     setClarificationBusy(false);
     setClarificationError(null);
     const controller = new AbortController();
@@ -102,11 +104,11 @@ export function DecisionPage() {
         semantic_frame: presentation.semantic_frame,
       });
       setResult(buildResultView(presentation));
-      setClarification(
+      setClarification((existing) => (
         presentation.decision_result?.final_decision === "REVIEW"
-          ? presentation.clarification_request || null
-          : null,
-      );
+          ? (presentation.clarification_request || (preserveCurrentClarification ? existing : null))
+          : null
+      ));
       setText(presentation.semantic_frame.raw_text);
       setFeedback(`已载入轮次 ${presentation.turn_id}`);
     }).catch((reason: unknown) => {

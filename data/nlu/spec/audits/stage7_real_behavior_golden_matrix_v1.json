@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "stage": "7",
+  "status": "NOT_DONE_TRUNK_STOP_CONDITION",
+  "method": "same natural-language input through CommandPipeline.process_text before and after the stage-7 changes; no mocked SemanticIntent in E2E acceptance",
+  "safety_gate": {
+    "active_rule_count": 15,
+    "autopark_retired_rule": "AUTOPARK_CRITICAL_EVIDENCE_REQUIRED",
+    "autopark_mandatory_evidence": [
+      "VEHICLE_SPEED",
+      "GEAR_STATE",
+      "FREE_SPACE_STATE",
+      "SURROUNDING_OBJECT_STATE"
+    ]
+  },
+  "cases": [
+    {
+      "id": "DECELERATE_REAR_MISSING",
+      "input": "减速",
+      "before": {
+        "intent_id": "DECELERATE",
+        "surrounding_object_requirement": "OPTIONAL",
+        "rear_rule": "MISS"
+      },
+      "after": {
+        "intent_id": "DECELERATE",
+        "surrounding_object_requirement": "MANDATORY",
+        "mandatory_gate": "HIT",
+        "rear_rule": "HIT",
+        "decision": "BLOCK",
+        "token": null,
+        "vehicle_state_changed": false
+      }
+    },
+    {
+      "id": "BRAKE_REAR_NULL",
+      "input": "正常制动一下",
+      "before": {
+        "intent_id": "BRAKE",
+        "rear_rule": "MISS",
+        "decision": "PASS",
+        "token": "ISSUED"
+      },
+      "after": {
+        "intent_id": "BRAKE",
+        "rear_rule": "HIT",
+        "failure_reason": "REAR_OBSTACLE_DISTANCE_UNUSABLE",
+        "decision": "BLOCK",
+        "token": null,
+        "vehicle_state_changed": false
+      }
+    },
+    {
+      "id": "AUTO_PARK_FREE_SPACE_UNAVAILABLE",
+      "input": "开启自动泊车",
+      "after": {
+        "intent_id": "AUTO_PARK_ENABLE",
+        "free_space_state": "MISSING_UNAVAILABLE",
+        "mandatory_gate": "HIT",
+        "retired_rule_present": false,
+        "decision": "BLOCK",
+        "token": null,
+        "vehicle_state_changed": false
+      }
+    },
+    {
+      "id": "AREA_ALL",
+      "input": "打开所有车窗",
+      "after": {
+        "intent_id": "WINDOW_OPEN",
+        "area": "ALL",
+        "decision": "PASS",
+        "token": "ISSUED"
+      }
+    },
+    {
+      "id": "AREA_CONCRETE_UNSUPPORTED_CAPABILITY",
+      "input": "打开左侧车窗",
+      "after": {
+        "intent_id": "WINDOW_OPEN",
+        "area": "LEFT_SIDE",
+        "decision": "PASS",
+        "capability_supported": false,
+        "token": null
+      }
+    },
+    {
+      "id": "MULTI_INTENT_OCCURRENCE_REPROCESS",
+      "input": "打开车窗然后锁车门",
+      "parent": {
+        "decision": "REVIEW",
+        "token": null,
+        "candidate_display_text": "打开车窗",
+        "candidate_source": "SEMANTIC_REVIEW_CANDIDATE"
+      },
+      "selection": {
+        "lookup": "stable candidate_id recomputed from immutable parent audit occurrence",
+        "selected_candidate_text": "打开车窗"
+      },
+      "child": {
+        "input": "打开车窗",
+        "new_turn_id": true,
+        "confirmed": false,
+        "semantic_reprocessed": true,
+        "intent_id": "WINDOW_OPEN",
+        "evidence_demand_regenerated": true,
+        "hnsw_safety_decision_reprocessed": true,
+        "decision": "PASS",
+        "token": "NEW_TOKEN"
+      }
+    },
+    {
+      "id": "PHYSICAL_EXECUTION_DOOR",
+      "input": "打开车门",
+      "after": {
+        "intent_id": "DOOR_OPEN",
+        "area": "unknown",
+        "decision": "PASS",
+        "pre_execution_check": "PASS",
+        "physical_command": "打开|车门",
+        "vehicle_state_before": {"door_state": "CLOSED"},
+        "vehicle_state_after": {"door_state": "OPEN"},
+        "workflow_chain_valid": true
+      }
+    },
+    {
+      "id": "TRUNK_TOP8_3B_GUARD_STOP",
+      "input": "把后备箱上锁",
+      "after": {
+        "top8_contains": ["TRUNK_CLOSE", "TRUNK_LOCK", "TRUNK_OPEN", "TRUNK_UNLOCK", "TRUNK_SET_POSITION"],
+        "judge_3b_intent_ids": ["TRUNK_LOCK"],
+        "guard_triggers": [],
+        "semantic_status": "REVIEW",
+        "decision": "REVIEW",
+        "token": null
+      },
+      "subitem_status": "STOPPED_WITH_ZERO_FROZEN_ANCHOR_CHANGES"
+    }
+  ]
+}

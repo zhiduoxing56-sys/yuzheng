@@ -334,7 +334,7 @@ def test_token_is_issued_only_after_audit_commit(pipeline, monkeypatch) -> None:
 
     monkeypatch.setattr(repository, "save", save)
     monkeypatch.setattr(pipeline.authorization_service, "issue", issue)
-    monkeypatch.setattr(pipeline, "_schedule_causal_rebuild", lambda *_: None)
+    monkeypatch.setattr(pipeline, "_schedule_causal_rebuild", lambda *_: None, raising=False)
 
     result = pipeline.process_text(
         TextCommandRequest(text="\u6253\u5f00\u8f66\u95e8")

@@ -4,6 +4,7 @@ from typing import Any
 
 from app.models.schemas import VehicleExecutionResult, VehicleState
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
+from app.services.vehicle.capabilities import PhysicalVehicleCommand
 
 
 class MockBenchAdapter(SimulatorVehicleAdapter):
@@ -18,8 +19,8 @@ class MockBenchAdapter(SimulatorVehicleAdapter):
     ) -> None:
         super().__init__(initial_state, action_config)
 
-    def execute(self, action: str, target: str, area: str) -> VehicleExecutionResult:
-        result = super().execute(action, target, area)
+    def execute(self, command: PhysicalVehicleCommand) -> VehicleExecutionResult:
+        result = super().execute(command)
         updated = result.model_copy(
             update={"feedback": f"确定性台架模拟反馈：{result.feedback}", "simulated": True}
         )

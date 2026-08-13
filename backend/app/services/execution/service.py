@@ -39,8 +39,7 @@ class ExecutionService:
             payload, metadata = self.pipeline.authorization_service.decode_and_validate(
                 raw_token,
                 expected_turn_id=turn_id,
-                expected_action=intent.action,
-                expected_target=intent.target,
+                expected_intent=intent,
             )
         except AuthorizationTokenError as exc:
             rejected_metadata = (
@@ -113,11 +112,48 @@ class ExecutionService:
                 or precheck.runtime_capability.semantic_control_mode
                 != SemanticControlMode.FULL
             )
+            identity_consistent = False
+            identity_reason = "执行前语义未产生唯一 Formal canonical command"
+            precheck_capability = None
+            if len(precheck.semantic_frame.intents) == 1:
+                try:
+                    original_identity = (
+                        self.pipeline.command_capability_registry.identity_projector.project(
+                            intent, require_formal=True
+                        )
+                    )
+                    precheck_intent = precheck.semantic_frame.intents[0]
+                    precheck_identity = (
+                        self.pipeline.command_capability_registry.identity_projector.project(
+                            precheck_intent, require_formal=True
+                        )
+                    )
+                    precheck_capability = self.pipeline.command_capability_registry.resolve(
+                        precheck_intent, adapter=self.pipeline.vehicle.adapter_name
+                    )
+                    identity_consistent = (
+                        original_identity == precheck_identity
+                        and precheck_capability.contract_id
+                        == payload["capability_contract_id"]
+                        and precheck_capability.contract_version
+                        == payload["capability_contract_version"]
+                        and precheck_capability.contract_digest
+                        == payload["capability_contract_digest"]
+                        and precheck_capability.adapter == payload["capability_adapter"]
+                    )
+                    if not identity_consistent:
+                        identity_reason = (
+                            "Token、原审计与 PRE_EXECUTION_CHECK canonical identity "
+                            "或 capability contract 不一致"
+                        )
+                except Exception as exc:
+                    identity_reason = f"执行前 canonical identity 校验失败: {exc}"
             safe = (
                 precheck.decision.final_decision == DecisionLabel.PASS
                 and not precheck.decision.gate_blocked
                 and not state_changed
                 and not capability_denied
+                and identity_consistent
             )
             if not safe:
                 reasons = list(precheck.decision.gate_reasons)
@@ -127,6 +163,8 @@ class ExecutionService:
                     reasons.append(
                         "SEMANTIC_MODEL_DEGRADED_EXECUTION_DENIED: 执行前真实语义模型不可用"
                     )
+                if not identity_consistent:
+                    reasons.append(identity_reason)
                 reason = "；".join(reasons) or "执行前完整复查未通过"
                 self.pipeline.authorization_service.reject(metadata, reason)
                 self.pipeline.workflow_repository.append_event(
@@ -141,6 +179,7 @@ class ExecutionService:
                         "hit_rules": precheck.safety_gate.hit_rules,
                         "state_changed": state_changed,
                         "semantic_execution_denied": capability_denied,
+                        "canonical_identity_consistent": identity_consistent,
                         "reason": reason,
                     },
                 )
@@ -153,6 +192,7 @@ class ExecutionService:
                         "hit_rules": precheck.safety_gate.hit_rules,
                         "state_changed": state_changed,
                         "semantic_execution_denied": capability_denied,
+                        "canonical_identity_consistent": identity_consistent,
                     },
                 )
                 emit_execution(
@@ -203,18 +243,38 @@ class ExecutionService:
                 {"token_id": metadata.token_id, "token_digest": metadata.token_digest},
             )
             try:
+                if precheck_capability is None:  # pragma: no cover - guarded by safe
+                    raise AuthorizationTokenError("缺少已验证的 canonical capability")
                 execution = self.pipeline.vehicle.execute(
-                    str(payload["action"]), str(payload["target"]), str(payload["area"])
+                    precheck_capability.physical_command
+                ).model_copy(
+                    update={
+                        **precheck_capability.identity.as_dict(),
+                        "capability_contract_digest": precheck_capability.contract_digest,
+                    }
                 )
             except Exception as exc:
                 failed_state = self.pipeline.vehicle.get_state()
+                physical = (
+                    precheck_capability.physical_command
+                    if precheck_capability is not None
+                    else None
+                )
                 failed_execution = VehicleExecutionResult(
                     adapter=self.pipeline.vehicle.adapter_name,
                     simulated=self.pipeline.vehicle.adapter_name != "can",
                     status="FAILED",
-                    action=str(payload["action"]),
-                    target=str(payload["target"]),
+                    action=physical.action if physical is not None else "canonical",
+                    target=physical.target if physical is not None else "canonical",
                     area=str(payload["area"]),
+                    intent_id=str(payload["intent_id"]),
+                    mode=payload["mode"],
+                    value=payload["value"],
+                    direction=payload["direction"],
+                    control_attribute=str(payload["control_attribute"]),
+                    capability_contract_digest=str(
+                        payload["capability_contract_digest"]
+                    ),
                     before_state=failed_state,
                     after_state=failed_state,
                     feedback=SensitiveDataRedactor.redact_exception(exc),

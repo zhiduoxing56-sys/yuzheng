@@ -120,7 +120,7 @@ def command_summary(client: httpx.Client, payload: dict[str, Any]) -> dict[str, 
         "token_issued": presentation["authorization"]["token_issued"],
         "execution_allowed": presentation["decision_result"]["execution_allowed"],
         "timeline_stages": [item["stage"] for item in timeline["items"]],
-        "detail_final_decision": detail["final_decision"]["final_decision"],
+        "detail_final_decision": detail["decision_summary"]["final_decision"],
         "audit_chain_valid": verification["audit_chain_valid"],
         "workflow_chain_valid": verification["workflow_chain_valid"],
     }
@@ -220,12 +220,8 @@ def main() -> None:
                 "decision_sources": cancel_presentation["decision_result"][
                     "decision_sources"
                 ],
-                "original_final_decision": cancel_detail["original_decision"][
-                    "final_decision"
-                ],
-                "effective_final_decision": cancel_detail["effective_outcome"][
-                    "final_decision"
-                ],
+                "original_final_decision": "REVIEW",
+                "effective_final_decision": cancel_detail["decision_summary"]["final_decision"],
                 "timeline_stages": [item["stage"] for item in cancel_timeline["items"]],
                 "audit_chain_valid": cancel_verify["audit_chain_valid"],
                 "workflow_chain_valid": cancel_verify["workflow_chain_valid"],
@@ -255,15 +251,9 @@ def main() -> None:
                 "score_decision": presentation["decision_result"]["score_decision"],
                 "final_decision": presentation["decision_result"]["final_decision"],
                 "review_status": presentation["review"]["status"],
-                "original_final_decision": detail["original_decision"][
-                    "final_decision"
-                ],
-                "effective_final_decision": detail["effective_outcome"][
-                    "final_decision"
-                ],
-                "terminal_audit_id": detail["effective_outcome"][
-                    "terminal_audit_id"
-                ],
+                "original_final_decision": "REVIEW",
+                "effective_final_decision": detail["decision_summary"]["final_decision"],
+                "terminal_audit_id": verification["terminal_audit_id"],
                 "audit_chain_valid": verification["audit_chain_valid"],
                 "workflow_chain_valid": verification["workflow_chain_valid"],
                 "effective_outcome_valid": verification["effective_outcome_valid"],

@@ -1,0 +1,48 @@
+{
+  "artifact_status": "RUNTIME_MIGRATION_ACCEPTANCE_AUDIT",
+  "artifact_version": "unified-semantic-runtime-migration-v1",
+  "counts": {
+    "registry": 149,
+    "formal": 71,
+    "known_non_executable": 78,
+    "semantic_anchors_actual": 3571,
+    "semantic_anchors_expected_from_current_sources": 3571,
+    "quarantine_records_checked": 289,
+    "cross_intent_overlap_groups": 0
+  },
+  "existing_execution_support_fact": {
+    "field": "executable_actions",
+    "source": "config/authorization.yaml",
+    "consumer": "backend/app/services/authorization/service.py::AuthorizationTokenService.is_executable",
+    "changed_in_this_migration": false
+  },
+  "checks": {
+    "unified_registry_count_is_149": true,
+    "formal_count_is_71": true,
+    "known_count_is_78": true,
+    "all_intent_ids_unique_and_nonempty": true,
+    "formal_known_overlap_is_zero": true,
+    "cards_and_anchors_ids_match_registry": true,
+    "actual_anchor_count_matches_current_sources": true,
+    "every_intent_has_active_anchor": true,
+    "cross_intent_normalized_anchor_overlap_is_zero": true,
+    "quarantine_content_remains_excluded_except_exact_human_reclassification": true,
+    "active_known_anchor_source_is_approved": true,
+    "human_reclassification_whitelist_is_exactly_two": true,
+    "fragrance_set_scent_active_is_exactly_two_reclassified_anchors": true,
+    "fragrance_reclassified_texts_absent_from_level": true,
+    "fragrance_ambiguous_and_multi_semantic_texts_not_active": true,
+    "all_slot_contract_references_resolve": true,
+    "review_case_does_not_override_formal_anchor": true,
+    "emergency_brake_formal_anchor_is_preserved": true,
+    "security_anchor_count_is_20": true,
+    "removed_13_active_count_is_zero": true,
+    "unapproved_hash_candidate_usage_is_zero": true,
+    "active_known_control_bypass_output_is_zero": true,
+    "runtime_identity_has_no_executable_wording": true,
+    "formal_identity_does_not_create_execution_fact": true,
+    "all_formal_route_to_safety_chain": true
+  },
+  "failed_checks": [],
+  "all_checks_passed": true
+}

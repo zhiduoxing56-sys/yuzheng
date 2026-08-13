@@ -50,10 +50,11 @@ def test_audit_persists_step5_objects_and_get_assembly_has_no_recomputation(
     timeline = pipeline.timeline(record.turn_id)
 
     assert first == expected == second
-    assert detail.memory.availability == "AVAILABLE"
-    assert detail.causal.availability == "AVAILABLE"
-    assert detail.decision_explanation == record.decision_explanation
-    assert detail.generation_metadata == record.generation_metadata
+    assert detail.command_summary.raw_command == record.semantic_frame.raw_text
+    assert detail.decision_summary.final_decision == record.final_decision.final_decision
+    assert "memory" not in detail.model_dump()
+    assert "causal" not in detail.model_dump()
+    assert "decision_explanation" not in detail.model_dump()
     assert {item["stage"] for item in timeline.items} >= {
         "MEMORY_PROPAGATED",
         "CAUSAL_CORRECTED",
@@ -301,5 +302,5 @@ def test_cancel_aggregates_effective_explanation_without_mutating_original_audit
     assert effective is not None
     assert effective.decision_label == DecisionLabel.BLOCK
     assert effective.validation_status == "EFFECTIVE_OUTCOME_AGGREGATED"
-    assert detail.decision_explanation == effective
+    assert detail.decision_summary.final_decision == DecisionLabel.BLOCK
     assert unchanged.decision_explanation.decision_label == DecisionLabel.REVIEW

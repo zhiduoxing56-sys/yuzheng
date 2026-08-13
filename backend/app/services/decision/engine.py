@@ -148,19 +148,17 @@ class DecisionService:
                 float(self.necessity.get("collision_state_score", 1.0)),
             )
 
-        critical_actions = self.necessity.get("safety_critical_actions", {})
-        action_cap = max(
+        critical_intents = self.necessity.get("safety_critical_intent_ids", {})
+        intent_cap = max(
             (
-                float(
-                    critical_actions.get(f"{intent.action}|{intent.target}", 0.0)
-                )
+                float(critical_intents.get(intent.intent_id, 0.0))
                 for intent in frame.intents
             ),
             default=0.0,
         )
         safety_evidence_score = 0.0
         evidence_reasons: list[str] = []
-        if action_cap > 0:
+        if intent_cap > 0:
             obstacle = latest.get("SURROUNDING_OBJECT_STATE")
             obstacle_value = self._field(obstacle, "front_obstacle_distance")
             threshold = float(self.necessity.get("front_obstacle_threshold_m", 5.0))
@@ -186,7 +184,7 @@ class DecisionService:
                     float(self.necessity.get("brake_required_score", 0.9)),
                 )
                 evidence_reasons.append("制动状态表明存在安全必要性")
-        safety_critical_score = action_cap * safety_evidence_score
+        safety_critical_score = intent_cap * safety_evidence_score
         score = self._clamp(max(emergency_score, safety_critical_score))
         reasons = []
         if emergency_score > 0:
@@ -446,17 +444,17 @@ class DecisionService:
             explanations.append("五维评分低于阻断阈值")
 
         reason_codes = list(gate.hit_rules)
-        restricted_executable = (
+        restricted_formal = (
             runtime_capability is not None
             and runtime_capability.semantic_control_mode != SemanticControlMode.FULL
             and bool(frame.intents)
             and all(
-                intent.action != "查询" and intent.target != "unknown"
+                intent.runtime_identity == "FORMAL"
                 for intent in frame.intents
             )
         )
         review_constraints: list[DecisionSource] = []
-        if restricted_executable and not gate.blocked and score_decision == DecisionLabel.PASS:
+        if restricted_formal and not gate.blocked and score_decision == DecisionLabel.PASS:
             review_constraints.append(DecisionSource.RUNTIME_CAPABILITY)
             review_question = "真实语义模型当前不可用，请恢复模型后重新确认该车控指令。"
             reason_codes.append("SEMANTIC_MODEL_DEGRADED_REVIEW_REQUIRED")

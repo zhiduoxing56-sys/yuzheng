@@ -1,0 +1,2332 @@
+{
+  "schema_version": 1,
+  "representative_source": "挂靠/intent_anchor_set_unified_v1.yaml:first anchor per intent, with an explicit unchanged frozen anchor override for MEDIA_VOLUME_SET because its first anchor is an ASR_REVIEW phrase",
+  "representative_count": 149,
+  "representative_results": [
+    {
+      "intent_id": "MIRROR_HEATING_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启外后视镜加热",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "MIRROR_HEATING_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MIRROR_HEATING_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭外后视镜加热",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "MIRROR_HEATING_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_LONGITUDINAL_SET_POSITION",
+      "runtime_identity": "FORMAL",
+      "input": "设置座椅前后位置",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_LONGITUDINAL_SET_POSITION"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_TILT_SET_ANGLE",
+      "runtime_identity": "FORMAL",
+      "input": "设置座椅整体倾角",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_TILT_SET_ANGLE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_BACKREST_SET_ANGLE",
+      "runtime_identity": "FORMAL",
+      "input": "设置座椅靠背倾斜角度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_BACKREST_SET_ANGLE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_HEIGHT_SET_POSITION",
+      "runtime_identity": "FORMAL",
+      "input": "设置座椅整体上下高度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_HEIGHT_SET_POSITION"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_LUMBAR_SET_HEIGHT",
+      "runtime_identity": "FORMAL",
+      "input": "设置座椅腰托上下高度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_LUMBAR_SET_HEIGHT"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_LUMBAR_SET_SUPPORT",
+      "runtime_identity": "FORMAL",
+      "input": "设置座椅腰托支撑程度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_LUMBAR_SET_SUPPORT"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "STEERING_WHEEL_SET_EXTENSION",
+      "runtime_identity": "FORMAL",
+      "input": "设置方向盘前后伸缩位置",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "STEERING_WHEEL_SET_EXTENSION"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "STEERING_WHEEL_SET_TILT",
+      "runtime_identity": "FORMAL",
+      "input": "设置方向盘上下倾斜位置",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "STEERING_WHEEL_SET_TILT"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DEFROST_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启前后风挡除霜除雾",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DEFROST_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DEFROST_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭前后风挡除霜除雾",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DEFROST_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "WINDSHIELD_HEATING_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启风挡加热",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "WINDSHIELD_HEATING_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "WINDSHIELD_HEATING_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭风挡加热",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "WINDSHIELD_HEATING_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "ESC_ENABLE",
+      "runtime_identity": "FORMAL",
+      "input": "激活ESC电子稳定系统",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "ESC_ENABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "ESC_DISABLE",
+      "runtime_identity": "FORMAL",
+      "input": "禁用ESC电子稳定系统",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "ESC_DISABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "TRUNK_OPEN",
+      "runtime_identity": "FORMAL",
+      "input": "把后备箱盖打开",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_OPEN"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "TRUNK_CLOSE",
+      "runtime_identity": "FORMAL",
+      "input": "把后备箱盖合上",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_CLOSE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "TRUNK_SET_POSITION",
+      "runtime_identity": "FORMAL",
+      "input": "把后备箱开度调到50%",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_SET_POSITION"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "TRUNK_LOCK",
+      "runtime_identity": "FORMAL",
+      "input": "把行李厢锁上",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_LOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "TRUNK_UNLOCK",
+      "runtime_identity": "FORMAL",
+      "input": "解除行李厢锁定",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HOOD_OPEN",
+      "runtime_identity": "FORMAL",
+      "input": "打开前舱盖",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HOOD_OPEN"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HOOD_CLOSE",
+      "runtime_identity": "FORMAL",
+      "input": "关闭前舱盖",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HOOD_CLOSE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "GEAR_SET",
+      "runtime_identity": "FORMAL",
+      "input": "设置目标挡位",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "GEAR_SET"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "GEAR_CHANGE_MODE_SET",
+      "runtime_identity": "FORMAL",
+      "input": "设置自动或手动换挡模式",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "GEAR_CHANGE_MODE_SET"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HORN_ACTIVATE",
+      "runtime_identity": "FORMAL",
+      "input": "鸣笛",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HORN_ACTIVATE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MIRROR_FOLD",
+      "runtime_identity": "FORMAL",
+      "input": "折叠外后视镜",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "MIRROR_FOLD"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MIRROR_UNFOLD",
+      "runtime_identity": "FORMAL",
+      "input": "展开外后视镜",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "MIRROR_UNFOLD"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MIRROR_SET_ANGLE",
+      "runtime_identity": "FORMAL",
+      "input": "调节外后视镜镜面角度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "MIRROR_SET_ANGLE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA",
+        "MISSING_REQUIRED_DIRECTION"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SUNROOF_OPEN",
+      "runtime_identity": "FORMAL",
+      "input": "打开天窗",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SUNROOF_OPEN"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SUNROOF_CLOSE",
+      "runtime_identity": "FORMAL",
+      "input": "关闭天窗",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SUNROOF_CLOSE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SUNROOF_SET_TILT",
+      "runtime_identity": "FORMAL",
+      "input": "控制天窗翘起或下收",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SUNROOF_SET_TILT"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CRUISE_ENABLE",
+      "runtime_identity": "FORMAL",
+      "input": "启用巡航",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "CRUISE_ENABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CRUISE_DISABLE",
+      "runtime_identity": "FORMAL",
+      "input": "关闭巡航功能",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "CRUISE_DISABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CRUISE_SET_SPEED",
+      "runtime_identity": "FORMAL",
+      "input": "设置巡航速度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "CRUISE_SET_SPEED"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CRUISE_SET_GAP",
+      "runtime_identity": "FORMAL",
+      "input": "设置巡航跟车距离",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "CRUISE_SET_GAP"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HEADLIGHT_SET_MODE",
+      "runtime_identity": "FORMAL",
+      "input": "设置主灯模式",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "HEADLIGHT_SET_MODE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HAZARD_LIGHT_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启危险警示灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HAZARD_LIGHT_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HAZARD_LIGHT_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭危险警示灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HAZARD_LIGHT_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "TURN_INDICATOR_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启转向灯",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "TURN_INDICATOR_ON"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_DIRECTION"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "TURN_INDICATOR_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭转向灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TURN_INDICATOR_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "LOW_BEAM_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启近光灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "LOW_BEAM_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "LOW_BEAM_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭近光灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "LOW_BEAM_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HIGH_BEAM_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启远光灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HIGH_BEAM_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HIGH_BEAM_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭远光灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HIGH_BEAM_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "FOG_LIGHT_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启雾灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "FOG_LIGHT_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "FOG_LIGHT_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭雾灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "FOG_LIGHT_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARKING_LIGHT_ON",
+      "runtime_identity": "FORMAL",
+      "input": "开启驻车灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARKING_LIGHT_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARKING_LIGHT_OFF",
+      "runtime_identity": "FORMAL",
+      "input": "关闭驻车灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARKING_LIGHT_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "WINDOW_OPEN",
+      "runtime_identity": "FORMAL",
+      "input": "打开车窗",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "WINDOW_OPEN"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "WINDOW_CLOSE",
+      "runtime_identity": "FORMAL",
+      "input": "关闭车窗",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "WINDOW_CLOSE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "WINDOW_SET_POSITION",
+      "runtime_identity": "FORMAL",
+      "input": "设置车窗开度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "WINDOW_SET_POSITION"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DOOR_OPEN",
+      "runtime_identity": "FORMAL",
+      "input": "打开车门",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_OPEN"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DOOR_CLOSE",
+      "runtime_identity": "FORMAL",
+      "input": "关闭车门",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_CLOSE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DOOR_SET_POSITION",
+      "runtime_identity": "FORMAL",
+      "input": "设置车门开启幅度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DOOR_SET_POSITION"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_AREA",
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DOOR_LOCK",
+      "runtime_identity": "FORMAL",
+      "input": "锁定车门",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_LOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DOOR_UNLOCK",
+      "runtime_identity": "FORMAL",
+      "input": "解锁车门",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_UNLOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "WIPER_SET_MODE",
+      "runtime_identity": "FORMAL",
+      "input": "设置雨刮模式",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "WIPER_SET_MODE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "WIPER_SET_SENSITIVITY",
+      "runtime_identity": "FORMAL",
+      "input": "设置雨刮灵敏度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "WIPER_SET_SENSITIVITY"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARKING_BRAKE_APPLY",
+      "runtime_identity": "FORMAL",
+      "input": "施加驻车制动",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARKING_BRAKE_APPLY"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARKING_BRAKE_RELEASE",
+      "runtime_identity": "FORMAL",
+      "input": "释放驻车制动",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARKING_BRAKE_RELEASE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARKING_BRAKE_AUTO_APPLY_ENABLE",
+      "runtime_identity": "FORMAL",
+      "input": "开启自动驻车施加功能",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARKING_BRAKE_AUTO_APPLY_ENABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARKING_BRAKE_AUTO_APPLY_DISABLE",
+      "runtime_identity": "FORMAL",
+      "input": "关闭自动驻车施加功能",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARKING_BRAKE_AUTO_APPLY_DISABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "ACCELERATE",
+      "runtime_identity": "FORMAL",
+      "input": "加速",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "ACCELERATE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DECELERATE",
+      "runtime_identity": "FORMAL",
+      "input": "减速",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DECELERATE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "BRAKE",
+      "runtime_identity": "FORMAL",
+      "input": "执行常规制动",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "BRAKE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "EMERGENCY_BRAKE",
+      "runtime_identity": "FORMAL",
+      "input": "执行紧急制动",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "EMERGENCY_BRAKE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "LANE_CHANGE",
+      "runtime_identity": "FORMAL",
+      "input": "变更车道",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "LANE_CHANGE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_DIRECTION"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "LANE_KEEP",
+      "runtime_identity": "FORMAL",
+      "input": "保持当前车道",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "LANE_KEEP"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "EVASIVE_STEER",
+      "runtime_identity": "FORMAL",
+      "input": "执行避险转向",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "EVASIVE_STEER"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_DIRECTION"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AUTO_PARK_ENABLE",
+      "runtime_identity": "FORMAL",
+      "input": "启用自动泊车",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "AUTO_PARK_ENABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MIRROR_ADJUSTMENT_LOCK",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "锁定外后视镜调节",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "MIRROR_ADJUSTMENT_LOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "解锁外后视镜调节",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "MIRROR_ADJUSTMENT_UNLOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "ABS_ENABLE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开防抱死制动系统",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "ABS_ENABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "ABS_DISABLE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭防抱死制动系统",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "ABS_DISABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "EBA_ENABLE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开紧急制动辅助系统",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "EBA_ENABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "EBA_DISABLE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭紧急制动辅助系统",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "EBA_DISABLE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HOOD_SET_POSITION",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "把前舱盖开到一半",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HOOD_SET_POSITION"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARK_LOCK",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "结合变速箱驻车锁",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARK_LOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "PARK_UNLOCK",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "释放变速箱驻车锁",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "PARK_UNLOCK"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AIR_PURIFIER_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭空气净化功能",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "AIR_PURIFIER_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AIR_PURIFIER_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "空气净化器帮我把它给调开",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "AIR_PURIFIER_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AIR_PURIFIER_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "空气净化器变成自动模式",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "AIR_PURIFIER_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AMBIENT_LIGHT_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭欢送氛围灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "AMBIENT_LIGHT_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AMBIENT_LIGHT_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "开启氛围灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "AMBIENT_LIGHT_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AMBIENT_LIGHT_SET_BRIGHTNESS",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "氛围灯亮度太亮了",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "AMBIENT_LIGHT_SET_BRIGHTNESS"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AMBIENT_LIGHT_SET_COLOR",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "把氛围灯调成绿色",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "AMBIENT_LIGHT_SET_COLOR"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AMBIENT_LIGHT_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "氛围灯模式切换为关联驾驶模式",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "AMBIENT_LIGHT_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "ARMREST_SET_POSITION",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "扶手朝前方滑到最前",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "ARMREST_SET_POSITION"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "BLUETOOTH_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "蓝牙关上了没呢",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "BLUETOOTH_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "BLUETOOTH_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开蓝牙",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "BLUETOOTH_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CAMERA_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "把摄像头关了",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "CAMERA_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CAMERA_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开车内摄像头",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "CAMERA_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CAMERA_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "开启录像录音功能",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "CAMERA_SET_MODE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CHILD_LOCK_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "右边的儿童锁可以帮我把它给关掉",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "CHILD_LOCK_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "CHILD_LOCK_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "左边有儿童把左边儿童锁打开吧",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "CHILD_LOCK_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DISPLAY_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭屏幕",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DISPLAY_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DISPLAY_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开hud",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DISPLAY_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DISPLAY_SET_BRIGHTNESS",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "屏幕亮度有点暗",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DISPLAY_SET_BRIGHTNESS"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DISPLAY_SET_POSITION",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "副驾屏往主驾滑",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DISPLAY_SET_POSITION"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE",
+        "AREA_MENTION_UNRESOLVED"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DRIVING_MODE_SET",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "切换驾驶模式为舒适",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DRIVING_RECORDER_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开行车记录仪",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DRIVING_RECORDER_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "FRAGRANCE_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭香氛",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "FRAGRANCE_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "FRAGRANCE_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开香氛",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "FRAGRANCE_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "FRAGRANCE_SET_LEVEL",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "香氛浓度调太高",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "FRAGRANCE_SET_LEVEL"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "FRUNK_OPEN",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开前备箱",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "FRUNK_OPEN"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "GLASS_ROOF_SET_TRANSPARENCY",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "把天幕透明度调到最低",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "GLASS_ROOF_SET_TRANSPARENCY"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HOTSPOT_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭热点",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HOTSPOT_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HOTSPOT_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开wifi",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HOTSPOT_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HVAC_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭后座空调",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HVAC_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HVAC_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "开空调",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HVAC_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HVAC_SET_AIRFLOW_DIRECTION",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "我要空调别吹脸",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "HVAC_SET_AIRFLOW_DIRECTION"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HVAC_SET_FAN_SPEED",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "空调风量调至四挡",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "HVAC_SET_FAN_SPEED"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HVAC_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "空调调成外循环",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "HVAC_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "HVAC_SET_TEMPERATURE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开空调二十二度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "HVAC_SET_TEMPERATURE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "INTERIOR_LIGHT_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "主驾车内灯关闭",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "INTERIOR_LIGHT_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "INTERIOR_LIGHT_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "开启车内灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "INTERIOR_LIGHT_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MEDIA_SOUND_EFFECT_SET",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "车外行人警示音设置为音效三",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "MEDIA_SOUND_EFFECT_SET"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "MEDIA_VOLUME_SET",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "我要导航音量现在调高10%好吗",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "MEDIA_VOLUME_SET"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "READING_LIGHT_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭阅读灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "READING_LIGHT_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "READING_LIGHT_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开所有阅读灯",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "READING_LIGHT_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "READING_LIGHT_SET_BRIGHTNESS",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "阅读灯我想要它变得稍微亮一点",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "READING_LIGHT_SET_BRIGHTNESS"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "REFRIGERATOR_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开冰箱",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "REFRIGERATOR_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "REFRIGERATOR_SET_TEMPERATURE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "冰箱温度设置成负六度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "REFRIGERATOR_SET_TEMPERATURE"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_HEATING_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "座椅可以关加热功能了",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_HEATING_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_HEATING_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开前排的座椅加热",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_HEATING_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_HEATING_SET_LEVEL",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "调高右排座椅加热8挡",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_HEATING_SET_LEVEL"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_HEATING_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "主驾座椅加热档位调到自动",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_HEATING_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_MASSAGE_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭副驾座椅按摩",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_MASSAGE_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_MASSAGE_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "副驾座椅按摩打开",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_MASSAGE_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_MASSAGE_SET_LEVEL",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "主驾座椅按摩调小一点",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_MASSAGE_SET_LEVEL"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_MASSAGE_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "调节主驾座椅按摩模式为模式二",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_MASSAGE_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_VENTILATION_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭前排的座椅通风",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_VENTILATION_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_VENTILATION_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开主驾座椅通风",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_VENTILATION_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_VENTILATION_SET_LEVEL",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "座椅通风开到最大挡位",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "SEAT_VENTILATION_SET_LEVEL"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SEAT_VENTILATION_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "座椅通风调到auto",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SEAT_VENTILATION_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SHADE_CLOSE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭遮阳帘",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SHADE_CLOSE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SHADE_OPEN",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开全部遮阳帘",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SHADE_OPEN"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "SHADE_SET_POSITION",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开一半遮阳帘",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "SHADE_SET_POSITION"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "STEERING_WHEEL_HEATING_OFF",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭方向盘加热",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "STEERING_WHEEL_HEATING_OFF"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "STEERING_WHEEL_HEATING_ON",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "打开方向盘加热",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "STEERING_WHEEL_HEATING_ON"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "AIR_PURIFIER_SET_FAN_SPEED",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "把空气净化器风速调低",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "AIR_PURIFIER_SET_FAN_SPEED"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "DISPLAY_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "屏幕调成夜间模式",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DISPLAY_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "READING_LIGHT_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "阅读灯自动关",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "READING_LIGHT_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "REFRIGERATOR_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "关闭冰箱保温模式",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "REFRIGERATOR_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "FRAGRANCE_SET_SCENT",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "给我换个其它口味的香氛试试",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "FRAGRANCE_SET_SCENT"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "INTERIOR_LIGHT_SET_BRIGHTNESS",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "调低装饰灯的亮度",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "INTERIOR_LIGHT_SET_BRIGHTNESS"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "INTERIOR_LIGHT_SET_COLOR",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "将表面灯颜色调成其他",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "INTERIOR_LIGHT_SET_COLOR"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    },
+    {
+      "intent_id": "INTERIOR_LIGHT_SET_MODE",
+      "runtime_identity": "KNOWN_NON_EXECUTABLE",
+      "input": "帮我把自动礼貌灯弄灭",
+      "semantic_status": "OK",
+      "actual_intents": [
+        "INTERIOR_LIGHT_SET_MODE"
+      ],
+      "review_reasons": [],
+      "unexpected_action_direction_conflict": false,
+      "expected_intent_present": true,
+      "runtime_identity_match": true
+    }
+  ],
+  "representative_failures": [],
+  "unexpected_action_direction_conflicts": [],
+  "frozen_review_source": "data/nlu/spec/audits/known_non_executable_semantic_review_cases_v3.yaml",
+  "frozen_review_count": 24,
+  "frozen_review_results": [
+    {
+      "input": "切换车辆驾驶模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "MISSING_REQUIRED_MODE",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "切换驾驶模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "MISSING_REQUIRED_MODE",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "调整驾驶模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "MISSING_REQUIRED_MODE",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "切换到智能驾驶模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "FORBIDDEN_DRIVING_MODE_VALUE",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "review_reasons": [
+        "FORBIDDEN_DRIVING_MODE_VALUE",
+        "MISSING_REQUIRED_MODE"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "驾驶模式设为纯电",
+      "expected_status": "REVIEW",
+      "expected_reason": "FORBIDDEN_DRIVING_MODE_VALUE",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "review_reasons": [
+        "FORBIDDEN_DRIVING_MODE_VALUE",
+        "MISSING_REQUIRED_MODE"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "转变为混动驾驶模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "FORBIDDEN_DRIVING_MODE_VALUE",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "review_reasons": [
+        "FORBIDDEN_DRIVING_MODE_VALUE",
+        "MISSING_REQUIRED_MODE"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "切换驾驶模式为四驱模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "FORBIDDEN_DRIVING_MODE_VALUE",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "review_reasons": [
+        "FORBIDDEN_DRIVING_MODE_VALUE",
+        "MISSING_REQUIRED_MODE"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "仪表切换为驾驶模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "ABNORMAL_TARGET_OBJECT",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "变速箱切到运动模式",
+      "expected_status": "REVIEW",
+      "expected_reason": "REMOVED_TRANSMISSION_PERFORMANCE_CAPABILITY",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW",
+        "REMOVED_TRANSMISSION_PERFORMANCE_CAPABILITY"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "把后视镜锁住",
+      "expected_status": "REVIEW",
+      "expected_reason": "MIRROR_CONTROL_ATTRIBUTE_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "MIRROR_ADJUSTMENT_LOCK"
+      ],
+      "review_reasons": [
+        "MIRROR_CONTROL_ATTRIBUTE_AMBIGUOUS"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "把后视镜解锁",
+      "expected_status": "REVIEW",
+      "expected_reason": "MIRROR_CONTROL_ATTRIBUTE_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "MIRROR_ADJUSTMENT_UNLOCK"
+      ],
+      "review_reasons": [
+        "MIRROR_CONTROL_ATTRIBUTE_AMBIGUOUS"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "前舱盖开一点",
+      "expected_status": "REVIEW",
+      "expected_reason": "MISSING_DETERMINATE_POSITION",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "HOOD_OPEN"
+      ],
+      "review_reasons": [
+        "MISSING_DETERMINATE_POSITION"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "引擎盖开一些",
+      "expected_status": "REVIEW",
+      "expected_reason": "MISSING_DETERMINATE_POSITION",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "HOOD_SET_POSITION"
+      ],
+      "review_reasons": [
+        "MISSING_DETERMINATE_POSITION",
+        "MISSING_REQUIRED_VALUE"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "方向盘有点冷",
+      "expected_status": "REVIEW",
+      "expected_reason": "MISSING_EXPLICIT_ACTION",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "STEERING_WHEEL_HEATING_OFF"
+      ],
+      "review_reasons": [
+        "MISSING_EXPLICIT_ACTION"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "方向盘太热了",
+      "expected_status": "REVIEW",
+      "expected_reason": "MISSING_EXPLICIT_ACTION",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "把停车锁上",
+      "expected_status": "REVIEW",
+      "expected_reason": "PARK_OBJECT_OR_CONTROL_ATTRIBUTE_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW",
+        "PARK_OBJECT_OR_CONTROL_ATTRIBUTE_AMBIGUOUS"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "解除驻车",
+      "expected_status": "REVIEW",
+      "expected_reason": "PARK_OBJECT_OR_CONTROL_ATTRIBUTE_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW",
+        "PARK_OBJECT_OR_CONTROL_ATTRIBUTE_AMBIGUOUS"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "把驻车解开",
+      "expected_status": "REVIEW",
+      "expected_reason": "PARK_OBJECT_OR_CONTROL_ATTRIBUTE_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW",
+        "PARK_OBJECT_OR_CONTROL_ATTRIBUTE_AMBIGUOUS"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "关闭制动",
+      "expected_status": "REVIEW",
+      "expected_reason": "ABS_OBJECT_INSUFFICIENT",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW",
+        "ABS_OBJECT_INSUFFICIENT"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "打开刹车功能",
+      "expected_status": "REVIEW",
+      "expected_reason": "ABS_OBJECT_INSUFFICIENT",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW",
+        "ABS_OBJECT_INSUFFICIENT"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "刹车辅助",
+      "expected_status": "REVIEW",
+      "expected_reason": "EBA_OBJECT_INSUFFICIENT",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "BRAKE"
+      ],
+      "review_reasons": [
+        "EBA_OBJECT_INSUFFICIENT"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "香氛位置调到2",
+      "expected_status": "REVIEW",
+      "expected_reason": "FRAGRANCE_LEVEL_OR_SCENT_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "FRAGRANCE_SET_LEVEL"
+      ],
+      "review_reasons": [
+        "FRAGRANCE_LEVEL_OR_SCENT_AMBIGUOUS"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "香氛位置调到3",
+      "expected_status": "REVIEW",
+      "expected_reason": "FRAGRANCE_LEVEL_OR_SCENT_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [
+        "FRAGRANCE_SET_LEVEL"
+      ],
+      "review_reasons": [
+        "FRAGRANCE_LEVEL_OR_SCENT_AMBIGUOUS"
+      ],
+      "remains_review": true
+    },
+    {
+      "input": "空气净化开最大",
+      "expected_status": "REVIEW",
+      "expected_reason": "PURIFIER_STATE_OR_FAN_SPEED_AMBIGUOUS",
+      "semantic_status": "REVIEW",
+      "actual_intents": [],
+      "review_reasons": [
+        "MODEL_REVIEW",
+        "PURIFIER_STATE_OR_FAN_SPEED_AMBIGUOUS"
+      ],
+      "remains_review": true
+    }
+  ],
+  "frozen_review_failures": []
+}

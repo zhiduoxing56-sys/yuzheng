@@ -6,20 +6,9 @@ maximum_candidates: 3
 maximum_input_characters: 6000
 maximum_output_characters: 4000
 fallback_enabled: true
-prompt_template_version: INTERPRETER_PROMPT_V1
+prompt_template_version: DECISION_EXPLANATION_PROMPT_V2
 allowed_output_fields:
   - summary
-  - decision_label
-  - decision_basis
-  - evidence_alignment_summary
-  - score_summary
-  - causal_summary
-  - safe_next_step
-  - evidence_citations
-  - reason_code_citations
-  - review_question
-  - candidate_texts
-  - recommended_recovery
 forbidden_control_fields:
   - final_decision
   - score_decision

@@ -1,0 +1,10 @@
+{
+  "artifact": "UNIFIED_SEMANTIC_RUNTIME_FREEZE",
+  "version": "v1",
+  "gate_config_sha256": "adcea6314205568bdb907d83336290009ed75e6528754692d0e2cd8dd252d081",
+  "model_config_sha256": "85bc83d06dc495b29c3dfac714afa89b507e869d863f43e00122f71bff494eea",
+  "recall_config_sha256": "5866ec96aa122a1aa546499ef6e9c80e8d1cd62f5ae2abc528fe865ab787df6c",
+  "registry_sha256": "54e18d5e748412ad9f5d3ea7f9bc6eea7a92d7ea98408cbc99cba36799b4c52c",
+  "cards_sha256": "55b942760573121bb29fee72a6f52d435a456a888fddc9c794bf82787a10bb29",
+  "anchors_sha256": "ac8e63d1520260e104933832e844c001f342fd54e4798fae7cdfe0ff47c30e1e"
+}

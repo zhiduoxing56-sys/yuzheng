@@ -1,5 +1,5 @@
 frozen_components:
-  recall_config: ../../test-results/intent-recall-v1_1/config_v1_1.yaml
+  recall_config: ../intent_recall_v1/config.yaml
   model_config: ../intent_judge_3b_minimal/config.yaml
 
 asr_review:
@@ -35,7 +35,6 @@ open_set_no_match:
   max_semantic_first_second_gap: 0.025
 
 model_consistency:
-  require_fused_top1_selected: true
   strong_channel_rank_max: 3
   min_strong_channel_count_per_selected_target: 2
 

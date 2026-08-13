@@ -52,17 +52,25 @@ class HybridConfidenceGate:
         )
         self.model_judge = MinimalCandidateJudge(model_config)
         self.recaller = self.model_judge.recaller
-        calibration_report = (
-            BASE_DIR.parents[1]
-            / "test-results"
-            / "intent-hybrid-gate"
-            / "calibration"
-            / "calibration-report.json"
+        runtime_freeze = json.loads(
+            (BASE_DIR / "runtime_semantic_freeze_v1.json").read_text(encoding="utf-8")
         )
-        frozen = json.loads(calibration_report.read_text(encoding="utf-8"))
+        root_dir = BASE_DIR.parents[1]
+        frozen_paths = {
+            "gate_config": self.config_path,
+            "model_config": model_config,
+            "recall_config": self._resolve(
+                str(self.config["frozen_components"]["recall_config"])
+            ),
+            "registry": root_dir / "data/nlu/spec/intent_registry_unified_v1.yaml",
+            "cards": root_dir / "挂靠/intent_cards_unified_v1.yaml",
+            "anchors": root_dir / "挂靠/intent_anchor_set_unified_v1.yaml",
+        }
+        for name, path in frozen_paths.items():
+            current = hashlib.sha256(path.read_bytes()).hexdigest()
+            if current != runtime_freeze[f"{name}_sha256"]:
+                raise RuntimeError(f"{name} changed after unified runtime freeze")
         current_hash = hashlib.sha256(self.config_path.read_bytes()).hexdigest()
-        if current_hash != frozen["gate_config_sha256"]:
-            raise RuntimeError("gate configuration changed after calibration freeze")
         self.gate_config_sha256 = current_hash
 
     def close(self) -> None:
@@ -100,7 +108,7 @@ class HybridConfidenceGate:
         }
         candidates = self.recaller._fuse_semantic_candidates(rankings, 8)
         security = self.recaller._security_payload(security_hits)
-        fused_ids = [parse_target(str(item["target"])) for item in candidates]
+        fused_ids = [str(item["intent_id"]) for item in candidates]
         channel_maps = {
             channel: {hit.target: hit for hit in rankings[channel]} for channel in CHANNELS
         }
@@ -127,6 +135,8 @@ class HybridConfidenceGate:
             target_rows.append(
                 {
                     "target": target,
+                    "intent_id": target,
+                    "runtime_identity": self.recaller.registry.runtime_identity(target),
                     "fused_top8_rank": fused_rank,
                     "channel_support_count": sum(
                         per_channel[channel]["rank"]

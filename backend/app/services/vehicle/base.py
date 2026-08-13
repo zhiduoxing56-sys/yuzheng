@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from app.models.schemas import VehicleExecutionResult, VehicleState, VehicleStatePatch
+from app.services.vehicle.capabilities import PhysicalVehicleCommand
 
 
 class VehicleAdapter(Protocol):
@@ -12,7 +13,7 @@ class VehicleAdapter(Protocol):
 
     def update_state(self, patch: VehicleStatePatch) -> VehicleState: ...
 
-    def execute(self, action: str, target: str, area: str) -> VehicleExecutionResult: ...
+    def execute(self, command: PhysicalVehicleCommand) -> VehicleExecutionResult: ...
 
     def get_feedback(self) -> VehicleExecutionResult | None: ...
 

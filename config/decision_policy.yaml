@@ -30,6 +30,6 @@ necessity_evidence:
   front_obstacle_score: 0.9
   brake_required_states: [REQUIRED, EMERGENCY, ACTIVE]
   brake_required_score: 0.9
-  safety_critical_actions:
-    打开|制动: 1.0
-    减速|速度: 0.8
+  safety_critical_intent_ids:
+    BRAKE: 1.0
+    DECELERATE: 0.8

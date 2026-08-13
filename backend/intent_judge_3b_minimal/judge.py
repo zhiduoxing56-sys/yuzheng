@@ -33,6 +33,7 @@ class ModelSelection(BaseModel):
 @dataclass(frozen=True, slots=True)
 class CandidateRecord:
     intent_id: str
+    runtime_identity: str
     name: str
     anchors: tuple[str, ...]
     support_anchors: tuple[dict[str, Any], ...]
@@ -134,7 +135,8 @@ class MinimalCandidateJudge:
             supports = tuple(candidate.get("support_anchors", []))
             records.append(
                 CandidateRecord(
-                    intent_id=intent_id,
+                    intent_id=str(candidate.get("intent_id") or intent_id),
+                    runtime_identity=str(candidate["runtime_identity"]),
                     name=name,
                     anchors=tuple(str(item["text"]) for item in supports[:max_anchors]),
                     support_anchors=supports,
@@ -148,7 +150,12 @@ class MinimalCandidateJudge:
         payload = {
             "INPUT": text,
             "C": [
-                {"id": item.intent_id, "name": item.name, "anchors": list(item.anchors)}
+                {
+                    "id": item.intent_id,
+                    "runtime_identity": item.runtime_identity,
+                    "name": item.name,
+                    "anchors": list(item.anchors),
+                }
                 for item in candidates
             ],
         }

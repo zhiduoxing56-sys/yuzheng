@@ -4,9 +4,20 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from app.models.frontend_contract import (
-    AuditDetailResponse,
-    EffectiveOutcomeAuditView,
+    AuditAuthorizationSummary,
+    AuditClarificationCandidate,
+    AuditClarificationHistory,
+    AuditCommandSummary,
+    AuditDecisionSummary,
+    AuditDetailView,
+    AuditEvidenceFact,
+    AuditExecutionChange,
+    AuditExecutionSummary,
+    AuditIntentDecision,
+    AuditLLMExplanation,
     AuditListItem,
+    AuditResolvedOperation,
+    AuditVehicleSnapshot,
     AuthorizationPresentation,
     Availability,
     CausalPresentation,
@@ -22,7 +33,6 @@ from app.models.frontend_contract import (
     GateResultPresentation,
     InputPresentation,
     MemoryPresentation,
-    OriginalDecisionAuditView,
     QualityMetricsPresentation,
     RetrievalCandidate,
     RetrievalLayer,
@@ -52,6 +62,7 @@ from app.models.schemas import (
 )
 from app.services.audit.repository import AuditListSummary
 from app.services.evidence.resolution import project_evidence_resolutions
+from app.services.presentation.audit_snapshot import AuditSnapshotBuilder
 
 if TYPE_CHECKING:
     from app.core.pipeline import CommandPipeline
@@ -621,7 +632,11 @@ class PresentationAssembler:
             decision_merge_reason=decision.decision_merge_reason,
             safety_score=decision.safety_score,
             reasons=[*decision.reason_codes, *decision.gate_reasons],
-            explanation="；".join(decision.explanations),
+            explanation=(
+                effective_explanation.summary
+                if effective_explanation and effective_explanation.summary
+                else "；".join(decision.explanations)
+            ),
             review_required=final == DecisionLabel.REVIEW,
             execution_allowed=final == DecisionLabel.PASS and not decision.gate_blocked,
             aggregate_safety_decision=decision.aggregate_safety_decision,
@@ -872,6 +887,9 @@ class PresentationAssembler:
                 workflow_chain_valid=workflow_verification.valid,
                 workflow_event_count=workflow_verification.event_count,
             ),
+            clarification_request=self.pipeline.clarification_service.active_for_turn(
+                record.turn_id
+            ),
         )
 
     def node_detail(self, record: AuditRecord, node_id: str) -> EvidenceNodeDetail | None:
@@ -963,16 +981,25 @@ class PresentationAssembler:
 
     def audit_list_item(self, record: AuditRecord) -> AuditListItem:
         resolution = self.pipeline.effective_audit_resolver.resolve(record)
+        root = record.root_turn_id or record.turn_id
+        events = self.pipeline.workflow_repository.events(root)
         return AuditListItem(
             audit_id=record.audit_id,
-            turn_id=record.turn_id,
             created_at=record.created_at,
-            instruction_summary=record.semantic_frame.normalized_text[:160],
-            initial_decision=record.final_decision.decision,
-            original_decision=record.final_decision.final_decision,
-            final_decision=resolution.effective_decision,
+            raw_command=record.semantic_frame.raw_text,
+            final_decision=resolution.effective_decision.final_decision,
             execution_status=self.execution(record).execution_status,
-            semantic_frame=record.semantic_frame,
+            review_occurred=any(
+                event.event_type
+                in {
+                    WorkflowEventType.CLARIFICATION_REQUESTED,
+                    WorkflowEventType.CLARIFICATION_RESOLVED,
+                    WorkflowEventType.REVIEW_CONFIRMED,
+                    WorkflowEventType.REVIEW_CORRECTED,
+                    WorkflowEventType.REVIEW_CANCELLED,
+                }
+                for event in events
+            ),
         )
 
     def audit_list_summary_item(
@@ -981,6 +1008,7 @@ class PresentationAssembler:
         *,
         outcome: ReviewOutcomeRecord | None,
         execution_status: str,
+        review_occurred: bool,
     ) -> AuditListItem:
         effective_decision = (
             self.pipeline.effective_audit_resolver.resolve_effective_decision(
@@ -994,79 +1022,325 @@ class PresentationAssembler:
         )
         return AuditListItem(
             audit_id=summary.audit_id,
-            turn_id=summary.turn_id,
             created_at=summary.created_at,
-            instruction_summary=summary.instruction_summary,
-            initial_decision=summary.original_final_decision.decision,
-            original_decision=summary.original_final_decision.final_decision,
-            final_decision=effective_decision,
+            raw_command=summary.semantic_frame.raw_text,
+            final_decision=effective_decision.final_decision,
             execution_status=execution_status,
-            semantic_frame=summary.semantic_frame,
+            review_occurred=review_occurred,
         )
+
+    @staticmethod
+    def _operation_text(intent: Any) -> str:
+        return intent.clause_text.strip() or f"{intent.action}{intent.target}"
+
+    @staticmethod
+    def _position(area: str | None) -> str | None:
+        if area is None or area.strip().lower() in {"", "unknown", "n/a", "not_applicable"}:
+            return None
+        labels = {
+            "RIGHT_FRONT": "右前",
+            "RIGHT_REAR": "右后",
+            "LEFT_FRONT": "左前",
+            "LEFT_REAR": "左后",
+            "FRONT": "前方",
+            "REAR": "后方",
+            "LEFT": "左侧",
+            "RIGHT": "右侧",
+        }
+        return labels.get(area.upper(), area)
+
+    @staticmethod
+    def _public_value_or_none(value: Any) -> str | int | float | bool | None:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return None if value.strip().lower() in {"", "unknown", "n/a", "not_applicable", "--"} else value
+        if isinstance(value, (int, float, bool)):
+            return value
+        return str(value)
+
+    @staticmethod
+    def _evidence_facts(record: AuditRecord, node_ids: set[str]) -> list[AuditEvidenceFact]:
+        nodes = record.evidence_subgraph.nodes if record.evidence_subgraph else []
+        result: list[AuditEvidenceFact] = []
+        seen: set[tuple[str, str]] = set()
+        for node in nodes:
+            if node.node_id not in node_ids:
+                continue
+            for fact in AuditSnapshotBuilder.facts_for_node(node):
+                identity = (fact.label, str(fact.value))
+                if identity in seen:
+                    continue
+                seen.add(identity)
+                result.append(
+                    AuditEvidenceFact(
+                        label=fact.label,
+                        value=fact.value,
+                        unit=fact.unit,
+                        source=fact.source,
+                    )
+                )
+        return result
+
+    @staticmethod
+    def _execution_changes(before: Any, after: Any) -> list[AuditExecutionChange]:
+        if before is None or after is None:
+            return []
+        before_facts = {
+            item.key: item for item in [*before.vehicle_state, *before.environment_state]
+        }
+        after_facts = {
+            item.key: item for item in [*after.vehicle_state, *after.environment_state]
+        }
+        changes: list[AuditExecutionChange] = []
+        for key in before_facts.keys() & after_facts.keys():
+            old = before_facts[key]
+            new = after_facts[key]
+            if old.value == new.value:
+                continue
+            delta = None
+            if (
+                isinstance(old.value, (int, float))
+                and not isinstance(old.value, bool)
+                and isinstance(new.value, (int, float))
+                and not isinstance(new.value, bool)
+            ):
+                delta = round(float(new.value) - float(old.value), 4)
+            changes.append(
+                AuditExecutionChange(
+                    key=key,
+                    label=new.label,
+                    before=old.value,
+                    after=new.value,
+                    unit=new.unit or old.unit,
+                    delta=delta,
+                )
+            )
+        return changes
 
     def audit_detail(
         self,
         record: AuditRecord,
         turn_presentation: TurnPresentationResponse | None = None,
-    ) -> AuditDetailResponse:
+    ) -> AuditDetailView:
         resolution = self.pipeline.effective_audit_resolver.resolve(record)
         presentation = turn_presentation or self.assemble(record)
-        evidence_projection = project_evidence_resolutions(
-            record.evidence_subgraph.intent_evidence_resolutions
-            if record.evidence_subgraph
-            else []
-        )
         root = record.root_turn_id or record.turn_id
         events = self.pipeline.workflow_repository.events(root)
-        return AuditDetailResponse(
-            audit_id=record.audit_id,
-            turn_id=record.turn_id,
-            created_at=record.created_at,
-            input_summary=presentation.input,
-            voice_trust=_public_value(record.input_trust_result.model_dump(mode="json")),
-            transcription=record.transcription_result,
-            semantic_frame=record.semantic_frame,
-            evidence_demand=presentation.evidence_demand,
-            retrieval_summary=presentation.retrieval_summary,
-            mandatory_recall=[
-                item.model_dump(mode="json")
-                for item in evidence_projection.mandatory_recall_records
-            ],
-            evidence_graph_summary=record.evidence_subgraph_summary,
-            quality_metrics=presentation.evidence.quality_metrics,
-            memory=presentation.evidence.memory,
-            causal=presentation.evidence.causal,
-            validation_result=presentation.validation_result,
-            gate_result=presentation.gate_result,
-            score_factors=presentation.score_result,
-            initial_decision=record.final_decision.decision,
-            original_decision=OriginalDecisionAuditView(
-                audit_id=record.audit_id,
-                score_decision=record.final_decision.score_decision,
-                final_decision=record.final_decision.final_decision,
-                record_hash=record.current_hash,
-            ),
-            effective_outcome=(
-                EffectiveOutcomeAuditView(
-                    final_decision=resolution.outcome.effective_final_decision,
-                    source=DecisionSource.USER_REVIEW,
-                    review_action=resolution.outcome.review_action,
-                    terminal_audit_id=resolution.outcome.audit_id,
-                    terminal_record_hash=resolution.outcome.current_hash,
-                    created_at=resolution.outcome.created_at,
+        clarification_by_id: dict[str, dict[str, Any]] = {}
+        for event in events:
+            if event.event_type not in {
+                WorkflowEventType.CLARIFICATION_REQUESTED,
+                WorkflowEventType.CLARIFICATION_RESOLVED,
+            }:
+                continue
+            clarification_id = str(event.payload.get("clarification_id", ""))
+            if not clarification_id:
+                continue
+            entry = clarification_by_id.setdefault(
+                clarification_id, {"clarification_id": clarification_id}
+            )
+            if event.event_type == WorkflowEventType.CLARIFICATION_REQUESTED:
+                entry.update(event.payload)
+                entry["source_turn_id"] = event.related_turn_id or record.turn_id
+                entry["requested_at"] = event.created_at
+            else:
+                entry["resolution"] = event.payload.get("resolution")
+                entry["selected_candidate_id"] = event.payload.get(
+                    "selected_candidate_id"
                 )
-                if resolution.outcome
+                entry["selected_candidate_text"] = event.payload.get(
+                    "selected_candidate_text"
+                )
+                entry["child_turn_id"] = event.payload.get("child_turn_id")
+                entry["resolved_at"] = event.payload.get("resolved_at")
+        snapshot_event = next(
+            (
+                event
+                for event in reversed(events)
+                if event.event_type == WorkflowEventType.DECISION_SNAPSHOT_CAPTURED
+                and event.payload.get("audit_id") == record.audit_id
+                and isinstance(event.payload.get("decision_snapshot"), dict)
+            ),
+            None,
+        )
+        decision_snapshot = (
+            AuditVehicleSnapshot.model_validate(
+                snapshot_event.payload["decision_snapshot"]
+            )
+            if snapshot_event is not None
+            else AuditSnapshotBuilder.from_audit(record)
+        )
+        all_supporting_ids = set(record.safety_gate_result.supporting_evidence_ids)
+        for assessment in record.final_decision.intent_safety_assessments:
+            all_supporting_ids.update(assessment.supporting_evidence_ids)
+        key_evidence = self._evidence_facts(record, all_supporting_ids)
+        intents_by_occurrence = {
+            (intent.clause_index, intent.intent_id): intent
+            for intent in record.semantic_frame.intents
+        }
+        intent_decisions: list[AuditIntentDecision] = []
+        for assessment in record.final_decision.intent_safety_assessments:
+            intent = intents_by_occurrence.get(
+                (assessment.clause_index, assessment.intent_id)
+            )
+            if intent is None:
+                continue
+            intent_decisions.append(
+                AuditIntentDecision(
+                    operation=self._operation_text(intent),
+                    decision=assessment.final_safety_decision,
+                    reasons=[*assessment.reason_codes, *assessment.gate_reasons],
+                    hit_rules=assessment.gate_hit_rules,
+                    key_evidence=self._evidence_facts(
+                        record, set(assessment.supporting_evidence_ids)
+                    ),
+                )
+            )
+        explanation_event = next(
+            (
+                event
+                for event in reversed(events)
+                if event.event_type == WorkflowEventType.LLM_EXPLANATION_GENERATED
+                and event.payload.get("audit_id") == record.audit_id
+            ),
+            None,
+        )
+        llm_status = (
+            str(explanation_event.payload.get("llm_explanation_status"))
+            if explanation_event is not None
+            else "FAILED"
+        )
+        if llm_status not in {"PENDING", "AVAILABLE", "FAILED"}:
+            llm_status = "FAILED"
+        explanation = AuditLLMExplanation(
+            status=llm_status,
+            text=(
+                str(explanation_event.payload.get("llm_explanation"))
+                if explanation_event is not None
+                and explanation_event.payload.get("llm_explanation")
                 else None
             ),
-            review_process=presentation.review,
-            final_decision=presentation.decision_result,
-            decision_explanation=presentation.decision_result.decision_explanation,
-            generation_metadata=record.generation_metadata,
-            authorization_status=presentation.authorization,
-            execution_status=presentation.execution,
-            workflow_events=events,
-            previous_hash=record.previous_hash,
-            record_hash=record.current_hash,
-            audit_chain_valid=presentation.audit.audit_chain_valid,
-            workflow_chain_valid=presentation.audit.workflow_chain_valid,
+            generated_at=(explanation_event.created_at if explanation_event else None),
+        )
+        clarifications = [
+            AuditClarificationHistory(
+                original_text=str(item.get("original_text") or record.semantic_frame.raw_text),
+                question=(str(item.get("prompt")) if item.get("prompt") else None),
+                review_reasons=[str(value) for value in item.get("review_reasons", [])],
+                shown_candidates=[
+                    AuditClarificationCandidate(display_text=str(candidate["display_text"]))
+                    for candidate in item.get("shown_candidates", [])
+                    if isinstance(candidate, dict) and candidate.get("display_text")
+                ],
+                resolution=(
+                    str(item.get("resolution"))
+                    if item.get("resolution") in {"SELECTED", "NONE_OF_ABOVE"}
+                    else "PENDING"
+                ),
+                selected_candidate=(
+                    str(item.get("selected_candidate_text"))
+                    if item.get("selected_candidate_text")
+                    else None
+                ),
+                confirmed_operation=(
+                    str(item.get("selected_candidate_text"))
+                    if item.get("resolution") == "SELECTED"
+                    else None
+                ),
+                command_terminated=item.get("resolution") == "NONE_OF_ABOVE",
+                child_turn_available=bool(item.get("child_turn_id")),
+                child_decision=(
+                    self.pipeline.effective_audit_resolver.resolve(child_record).effective_decision.final_decision
+                    if item.get("child_turn_id")
+                    and (
+                        child_record := self.pipeline.audit_repository.get_by_turn(
+                            str(item.get("child_turn_id"))
+                        )
+                    )
+                    is not None
+                    else None
+                ),
+            )
+            for item in clarification_by_id.values()
+        ]
+        authorization = presentation.authorization
+        executions = self.pipeline.workflow_repository.executions(root)
+        execution = executions[-1] if executions else None
+        before_snapshot = (
+            AuditSnapshotBuilder.from_vehicle_state(
+                execution.before_state, source=execution.adapter
+            )
+            if execution is not None
+            else None
+        )
+        after_snapshot = (
+            AuditSnapshotBuilder.from_vehicle_state(
+                execution.after_state, source=execution.adapter
+            )
+            if execution is not None
+            else None
+        )
+        execution_status = (
+            execution.status
+            if execution is not None
+            else "WAITING_EXECUTION" if authorization.token_issued else "NOT_EXECUTED"
+        )
+        final_decision = resolution.effective_decision.final_decision
+        return AuditDetailView(
+            command_summary=AuditCommandSummary(
+                raw_command=record.semantic_frame.raw_text,
+                input_type=(
+                    "text"
+                    if record.input_trust_result.audio_source == "text_api"
+                    else "audio"
+                ),
+                occurred_at=record.created_at,
+                final_decision=final_decision,
+                execution_status=execution_status,
+            ),
+            resolved_operations=[
+                AuditResolvedOperation(
+                    operation=self._operation_text(intent),
+                    position=self._position(intent.area),
+                    value=self._public_value_or_none(intent.value),
+                )
+                for intent in record.semantic_frame.intents
+            ],
+            decision_snapshot=decision_snapshot,
+            decision_summary=AuditDecisionSummary(
+                final_decision=final_decision,
+                aggregate_safety_decision=record.final_decision.aggregate_safety_decision,
+                hit_rules=record.safety_gate_result.hit_rules,
+                reason_codes=record.final_decision.reason_codes,
+                reasons=[*record.final_decision.gate_reasons, *record.final_decision.explanations],
+            ),
+            key_evidence=key_evidence,
+            intent_decisions=intent_decisions,
+            llm_explanation=explanation,
+            clarification_history=clarifications,
+            authorization_summary=AuditAuthorizationSummary(
+                status=authorization.token_status or (
+                    "AUTHORIZED" if authorization.token_issued else "NOT_AUTHORIZED"
+                ),
+                authorized=authorization.token_issued,
+            ),
+            execution_summary=AuditExecutionSummary(
+                status=execution_status,
+                adapter=(execution.adapter if execution else None),
+                feedback=(
+                    execution.feedback
+                    if execution is not None and execution.status == "SUCCESS"
+                    else None
+                ),
+                failure_reason=(
+                    execution.feedback
+                    if execution is not None and execution.status != "SUCCESS"
+                    else None
+                ),
+                executed_at=(execution.created_at if execution else None),
+            ),
+            execution_before_snapshot=before_snapshot,
+            execution_after_snapshot=after_snapshot,
+            execution_changes=self._execution_changes(before_snapshot, after_snapshot),
         )

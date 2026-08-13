@@ -97,20 +97,31 @@ trust:
     unknown: 0.75
 
 zone_permission:
-  critical_targets:
-    - 方向盘
-    - 油门
-    - 制动
-    - 前照灯
-    - 所有灯光
-    - 雨刮
-    - 车窗
-    - 门锁
-    - 车门
-    - 速度
-    - 驾驶模式
-    - 自动泊车
-    - 巡航
+  # 由迁移前 target 风险集合机械展开；运行时只按统一 Registry 的 intent_id 命中。
+  critical_intent_ids:
+    - STEERING_WHEEL_SET_EXTENSION
+    - STEERING_WHEEL_SET_TILT
+    - CRUISE_ENABLE
+    - CRUISE_DISABLE
+    - CRUISE_SET_SPEED
+    - CRUISE_SET_GAP
+    - HEADLIGHT_SET_MODE
+    - WINDOW_OPEN
+    - WINDOW_CLOSE
+    - WINDOW_SET_POSITION
+    - DOOR_OPEN
+    - DOOR_CLOSE
+    - DOOR_SET_POSITION
+    - DOOR_LOCK
+    - DOOR_UNLOCK
+    - WIPER_SET_MODE
+    - WIPER_SET_SENSITIVITY
+    - ACCELERATE
+    - DECELERATE
+    - EVASIVE_STEER
+    - BRAKE
+    - EMERGENCY_BRAKE
+    - AUTO_PARK_ENABLE
   zone_weight:
     driver: 0.0
     front_passenger: 0.65
@@ -118,21 +129,50 @@ zone_permission:
     rear_right: 0.80
     outside: 1.0
     unknown: 0.75
-  action_weight:
-    打开: 0.40
-    关闭: 0.35
-    调高: 0.30
-    调低: 0.30
-    加速: 1.0
-    减速: 0.80
-    锁定: 0.45
-    解锁: 0.80
-    切换: 0.40
-    查询: 0.0
-    播放: 0.05
-    确认: 0.10
-    取消: 0.0
-    unknown: 0.20
+  # 由迁移前 action 权重机械展开；未列出的 Formal Intent 使用原 unknown=0.20。
+  default_intent_weight: 0.20
+  intent_weight:
+    MIRROR_HEATING_ON: 0.40
+    MIRROR_HEATING_OFF: 0.35
+    DEFROST_ON: 0.40
+    DEFROST_OFF: 0.35
+    WINDSHIELD_HEATING_ON: 0.40
+    WINDSHIELD_HEATING_OFF: 0.35
+    ESC_ENABLE: 0.40
+    TRUNK_OPEN: 0.40
+    TRUNK_CLOSE: 0.35
+    TRUNK_LOCK: 0.45
+    TRUNK_UNLOCK: 0.80
+    HOOD_OPEN: 0.40
+    HOOD_CLOSE: 0.35
+    SUNROOF_OPEN: 0.40
+    SUNROOF_CLOSE: 0.35
+    CRUISE_ENABLE: 0.40
+    HEADLIGHT_SET_MODE: 0.20
+    HAZARD_LIGHT_ON: 0.40
+    HAZARD_LIGHT_OFF: 0.35
+    TURN_INDICATOR_ON: 0.40
+    TURN_INDICATOR_OFF: 0.35
+    LOW_BEAM_ON: 0.40
+    LOW_BEAM_OFF: 0.35
+    HIGH_BEAM_ON: 0.40
+    HIGH_BEAM_OFF: 0.35
+    FOG_LIGHT_ON: 0.40
+    FOG_LIGHT_OFF: 0.35
+    PARKING_LIGHT_ON: 0.40
+    PARKING_LIGHT_OFF: 0.35
+    WINDOW_OPEN: 0.40
+    WINDOW_CLOSE: 0.35
+    DOOR_OPEN: 0.40
+    DOOR_CLOSE: 0.35
+    DOOR_LOCK: 0.45
+    DOOR_UNLOCK: 0.80
+    PARKING_BRAKE_AUTO_APPLY_ENABLE: 0.40
+    ACCELERATE: 1.0
+    DECELERATE: 0.80
+    BRAKE: 0.40
+    EMERGENCY_BRAKE: 0.20
+    AUTO_PARK_ENABLE: 0.40
   thresholds:
     PASS: 0.60
     REVIEW: 0.35

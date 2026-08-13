@@ -1,0 +1,901 @@
+artifact_status: DERIVED_RUNTIME_INDEX
+artifact_version: unified-intent-cards-v1
+source_registry: data/nlu/spec/intent_registry_unified_v1.yaml
+source_registry_version: unified-semantic-runtime-v1
+intent_count: 149
+intents:
+  MIRROR_HEATING_ON:
+    name: 开启外后视镜加热
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: MIRROR
+    control_attribute: HEATING_STATE
+  MIRROR_HEATING_OFF:
+    name: 关闭外后视镜加热
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: MIRROR
+    control_attribute: HEATING_STATE
+  SEAT_LONGITUDINAL_SET_POSITION:
+    name: 设置座椅前后位置
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: SEAT
+    control_attribute: LONGITUDINAL_POSITION
+  SEAT_TILT_SET_ANGLE:
+    name: 设置座椅整体倾角
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: SEAT
+    control_attribute: TILT_ANGLE
+  SEAT_BACKREST_SET_ANGLE:
+    name: 设置座椅靠背角度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: SEAT
+    control_attribute: BACKREST_ANGLE
+  SEAT_HEIGHT_SET_POSITION:
+    name: 设置座椅高度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: SEAT
+    control_attribute: HEIGHT
+  SEAT_LUMBAR_SET_HEIGHT:
+    name: 设置座椅腰托高度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: SEAT
+    control_attribute: LUMBAR_HEIGHT
+  SEAT_LUMBAR_SET_SUPPORT:
+    name: 设置座椅腰托支撑程度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: SEAT
+    control_attribute: LUMBAR_SUPPORT
+  STEERING_WHEEL_SET_EXTENSION:
+    name: 设置方向盘伸缩位置
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: STEERING_WHEEL
+    control_attribute: EXTENSION
+  STEERING_WHEEL_SET_TILT:
+    name: 设置方向盘倾斜位置
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: STEERING_WHEEL
+    control_attribute: TILT_POSITION
+  DEFROST_ON:
+    name: 开启风挡除霜除雾
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: WINDSHIELD
+    control_attribute: DEFROST_STATE
+  DEFROST_OFF:
+    name: 关闭风挡除霜除雾
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: WINDSHIELD
+    control_attribute: DEFROST_STATE
+  WINDSHIELD_HEATING_ON:
+    name: 开启风挡加热
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: WINDSHIELD
+    control_attribute: HEATING_STATE
+  WINDSHIELD_HEATING_OFF:
+    name: 关闭风挡加热
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: WINDSHIELD
+    control_attribute: HEATING_STATE
+  ESC_ENABLE:
+    name: 启用车身电子稳定系统
+    runtime_identity: FORMAL
+    canonical_action: ENABLE
+    canonical_target: ESC
+    control_attribute: STATE
+  ESC_DISABLE:
+    name: 停用车身电子稳定系统
+    runtime_identity: FORMAL
+    canonical_action: DISABLE
+    canonical_target: ESC
+    control_attribute: STATE
+  TRUNK_OPEN:
+    name: 打开行李厢
+    runtime_identity: FORMAL
+    canonical_action: OPEN
+    canonical_target: TRUNK
+    control_attribute: OPENING_STATE
+  TRUNK_CLOSE:
+    name: 关闭行李厢
+    runtime_identity: FORMAL
+    canonical_action: CLOSE
+    canonical_target: TRUNK
+    control_attribute: OPENING_STATE
+  TRUNK_SET_POSITION:
+    name: 设置行李厢开度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: TRUNK
+    control_attribute: OPENING_POSITION
+  TRUNK_LOCK:
+    name: 锁定行李厢
+    runtime_identity: FORMAL
+    canonical_action: LOCK
+    canonical_target: TRUNK
+    control_attribute: LOCK_STATE
+  TRUNK_UNLOCK:
+    name: 解锁行李厢
+    runtime_identity: FORMAL
+    canonical_action: UNLOCK
+    canonical_target: TRUNK
+    control_attribute: LOCK_STATE
+  HOOD_OPEN:
+    name: 打开前舱盖
+    runtime_identity: FORMAL
+    canonical_action: OPEN
+    canonical_target: HOOD
+    control_attribute: OPENING_STATE
+  HOOD_CLOSE:
+    name: 关闭前舱盖
+    runtime_identity: FORMAL
+    canonical_action: CLOSE
+    canonical_target: HOOD
+    control_attribute: OPENING_STATE
+  GEAR_SET:
+    name: 设置目标挡位
+    runtime_identity: FORMAL
+    canonical_action: SWITCH_MODE
+    canonical_target: TRANSMISSION
+    control_attribute: SELECTED_GEAR
+  GEAR_CHANGE_MODE_SET:
+    name: 设置自动或手动换挡模式
+    runtime_identity: FORMAL
+    canonical_action: SWITCH_MODE
+    canonical_target: TRANSMISSION
+    control_attribute: GEAR_CHANGE_MODE
+  HORN_ACTIVATE:
+    name: 鸣笛
+    runtime_identity: FORMAL
+    canonical_action: ACTIVATE
+    canonical_target: HORN
+    control_attribute: SOUND
+  MIRROR_FOLD:
+    name: 折叠外后视镜
+    runtime_identity: FORMAL
+    canonical_action: FOLD
+    canonical_target: MIRROR
+    control_attribute: FOLDING_STATE
+  MIRROR_UNFOLD:
+    name: 展开外后视镜
+    runtime_identity: FORMAL
+    canonical_action: UNFOLD
+    canonical_target: MIRROR
+    control_attribute: FOLDING_STATE
+  MIRROR_SET_ANGLE:
+    name: 设置外后视镜角度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: MIRROR
+    control_attribute: ANGLE
+  SUNROOF_OPEN:
+    name: 打开天窗
+    runtime_identity: FORMAL
+    canonical_action: OPEN
+    canonical_target: SUNROOF
+    control_attribute: OPENING_STATE
+  SUNROOF_CLOSE:
+    name: 关闭天窗
+    runtime_identity: FORMAL
+    canonical_action: CLOSE
+    canonical_target: SUNROOF
+    control_attribute: OPENING_STATE
+  SUNROOF_SET_TILT:
+    name: 控制天窗翘起或下收
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: SUNROOF
+    control_attribute: TILT_OPERATION
+  CRUISE_ENABLE:
+    name: 启用巡航
+    runtime_identity: FORMAL
+    canonical_action: ENABLE
+    canonical_target: CRUISE
+    control_attribute: STATE
+  CRUISE_DISABLE:
+    name: 停用巡航
+    runtime_identity: FORMAL
+    canonical_action: DISABLE
+    canonical_target: CRUISE
+    control_attribute: STATE
+  CRUISE_SET_SPEED:
+    name: 设置巡航速度
+    runtime_identity: FORMAL
+    canonical_action: SET
+    canonical_target: CRUISE
+    control_attribute: SPEED
+  CRUISE_SET_GAP:
+    name: 设置巡航跟车距离
+    runtime_identity: FORMAL
+    canonical_action: SET
+    canonical_target: CRUISE
+    control_attribute: FOLLOWING_GAP
+  HEADLIGHT_SET_MODE:
+    name: 设置主灯模式
+    runtime_identity: FORMAL
+    canonical_action: SWITCH_MODE
+    canonical_target: HEADLIGHT
+    control_attribute: MODE
+  HAZARD_LIGHT_ON:
+    name: 开启危险警示灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: HAZARD_LIGHT
+    control_attribute: STATE
+  HAZARD_LIGHT_OFF:
+    name: 关闭危险警示灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: HAZARD_LIGHT
+    control_attribute: STATE
+  TURN_INDICATOR_ON:
+    name: 开启转向灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: TURN_INDICATOR
+    control_attribute: STATE
+  TURN_INDICATOR_OFF:
+    name: 关闭转向灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: TURN_INDICATOR
+    control_attribute: STATE
+  LOW_BEAM_ON:
+    name: 开启近光灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: LOW_BEAM
+    control_attribute: STATE
+  LOW_BEAM_OFF:
+    name: 关闭近光灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: LOW_BEAM
+    control_attribute: STATE
+  HIGH_BEAM_ON:
+    name: 开启远光灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: HIGH_BEAM
+    control_attribute: STATE
+  HIGH_BEAM_OFF:
+    name: 关闭远光灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: HIGH_BEAM
+    control_attribute: STATE
+  FOG_LIGHT_ON:
+    name: 开启雾灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: FOG_LIGHT
+    control_attribute: STATE
+  FOG_LIGHT_OFF:
+    name: 关闭雾灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: FOG_LIGHT
+    control_attribute: STATE
+  PARKING_LIGHT_ON:
+    name: 开启驻车灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_ON
+    canonical_target: PARKING_LIGHT
+    control_attribute: STATE
+  PARKING_LIGHT_OFF:
+    name: 关闭驻车灯
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: PARKING_LIGHT
+    control_attribute: STATE
+  WINDOW_OPEN:
+    name: 打开车窗
+    runtime_identity: FORMAL
+    canonical_action: OPEN
+    canonical_target: WINDOW
+    control_attribute: OPENING_STATE
+  WINDOW_CLOSE:
+    name: 关闭车窗
+    runtime_identity: FORMAL
+    canonical_action: CLOSE
+    canonical_target: WINDOW
+    control_attribute: OPENING_STATE
+  WINDOW_SET_POSITION:
+    name: 设置车窗开度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: WINDOW
+    control_attribute: OPENING_POSITION
+  DOOR_OPEN:
+    name: 打开车门
+    runtime_identity: FORMAL
+    canonical_action: OPEN
+    canonical_target: DOOR
+    control_attribute: OPENING_STATE
+  DOOR_CLOSE:
+    name: 关闭车门
+    runtime_identity: FORMAL
+    canonical_action: CLOSE
+    canonical_target: DOOR
+    control_attribute: OPENING_STATE
+  DOOR_SET_POSITION:
+    name: 设置车门开度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: DOOR
+    control_attribute: OPENING_POSITION
+  DOOR_LOCK:
+    name: 锁定车门
+    runtime_identity: FORMAL
+    canonical_action: LOCK
+    canonical_target: DOOR
+    control_attribute: LOCK_STATE
+  DOOR_UNLOCK:
+    name: 解锁车门
+    runtime_identity: FORMAL
+    canonical_action: UNLOCK
+    canonical_target: DOOR
+    control_attribute: LOCK_STATE
+  WIPER_SET_MODE:
+    name: 设置雨刮模式
+    runtime_identity: FORMAL
+    canonical_action: SWITCH_MODE
+    canonical_target: WIPER
+    control_attribute: MODE
+  WIPER_SET_SENSITIVITY:
+    name: 设置雨刮灵敏度
+    runtime_identity: FORMAL
+    canonical_action: ADJUST
+    canonical_target: WIPER
+    control_attribute: SENSITIVITY
+  PARKING_BRAKE_APPLY:
+    name: 施加驻车制动
+    runtime_identity: FORMAL
+    canonical_action: APPLY
+    canonical_target: PARKING_BRAKE
+    control_attribute: APPLICATION_STATE
+  PARKING_BRAKE_RELEASE:
+    name: 释放驻车制动
+    runtime_identity: FORMAL
+    canonical_action: RELEASE
+    canonical_target: PARKING_BRAKE
+    control_attribute: APPLICATION_STATE
+  PARKING_BRAKE_AUTO_APPLY_ENABLE:
+    name: 启用驻车制动自动施加
+    runtime_identity: FORMAL
+    canonical_action: ENABLE
+    canonical_target: PARKING_BRAKE
+    control_attribute: AUTO_APPLY_STATE
+  PARKING_BRAKE_AUTO_APPLY_DISABLE:
+    name: 停用驻车制动自动施加
+    runtime_identity: FORMAL
+    canonical_action: DISABLE
+    canonical_target: PARKING_BRAKE
+    control_attribute: AUTO_APPLY_STATE
+  ACCELERATE:
+    name: 加速
+    runtime_identity: FORMAL
+    canonical_action: ACCELERATE
+    canonical_target: VEHICLE
+    control_attribute: SPEED
+  DECELERATE:
+    name: 减速
+    runtime_identity: FORMAL
+    canonical_action: DECELERATE
+    canonical_target: VEHICLE
+    control_attribute: SPEED
+  BRAKE:
+    name: 执行制动
+    runtime_identity: FORMAL
+    canonical_action: BRAKE
+    canonical_target: SERVICE_BRAKE
+    control_attribute: NORMAL_BRAKING
+  EMERGENCY_BRAKE:
+    name: 执行紧急制动
+    runtime_identity: FORMAL
+    canonical_action: BRAKE
+    canonical_target: SERVICE_BRAKE
+    control_attribute: EMERGENCY_BRAKING
+  LANE_CHANGE:
+    name: 变更车道
+    runtime_identity: FORMAL
+    canonical_action: CHANGE
+    canonical_target: LANE
+    control_attribute: POSITION
+  LANE_KEEP:
+    name: 保持当前车道
+    runtime_identity: FORMAL
+    canonical_action: KEEP
+    canonical_target: LANE
+    control_attribute: POSITION
+  EVASIVE_STEER:
+    name: 执行避险转向
+    runtime_identity: FORMAL
+    canonical_action: STEER
+    canonical_target: VEHICLE
+    control_attribute: TRAJECTORY
+  AUTO_PARK_ENABLE:
+    name: 启用自动泊车
+    runtime_identity: FORMAL
+    canonical_action: ENABLE
+    canonical_target: AUTO_PARK
+    control_attribute: STATE
+  MIRROR_ADJUSTMENT_LOCK:
+    name: 锁定外后视镜调节
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: LOCK
+    canonical_target: MIRROR
+    control_attribute: ADJUSTMENT_LOCK_STATE
+  MIRROR_ADJUSTMENT_UNLOCK:
+    name: 解锁外后视镜调节
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: UNLOCK
+    canonical_target: MIRROR
+    control_attribute: ADJUSTMENT_LOCK_STATE
+  ABS_ENABLE:
+    name: 启用防抱死制动系统
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: ENABLE
+    canonical_target: ABS
+    control_attribute: STATE
+  ABS_DISABLE:
+    name: 停用防抱死制动系统
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: DISABLE
+    canonical_target: ABS
+    control_attribute: STATE
+  EBA_ENABLE:
+    name: 启用紧急制动辅助系统
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: ENABLE
+    canonical_target: EBA
+    control_attribute: STATE
+  EBA_DISABLE:
+    name: 停用紧急制动辅助系统
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: DISABLE
+    canonical_target: EBA
+    control_attribute: STATE
+  HOOD_SET_POSITION:
+    name: 设置前舱盖开度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: ADJUST
+    canonical_target: HOOD
+    control_attribute: OPENING_POSITION
+  PARK_LOCK:
+    name: 结合驻车锁
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: LOCK
+    canonical_target: PARK_LOCK
+    control_attribute: ENGAGEMENT_STATE
+  PARK_UNLOCK:
+    name: 释放驻车锁
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: UNLOCK
+    canonical_target: PARK_LOCK
+    control_attribute: ENGAGEMENT_STATE
+  AIR_PURIFIER_OFF:
+    name: 关闭空气净化器
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: AIR_PURIFIER
+    control_attribute: STATE
+  AIR_PURIFIER_ON:
+    name: 开启空气净化器
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: AIR_PURIFIER
+    control_attribute: STATE
+  AIR_PURIFIER_SET_MODE:
+    name: 设置空气净化器模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: AIR_PURIFIER
+    control_attribute: MODE
+  AMBIENT_LIGHT_OFF:
+    name: 关闭氛围灯
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: AMBIENT_LIGHT
+    control_attribute: STATE
+  AMBIENT_LIGHT_ON:
+    name: 开启氛围灯
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: AMBIENT_LIGHT
+    control_attribute: STATE
+  AMBIENT_LIGHT_SET_BRIGHTNESS:
+    name: 设置氛围灯亮度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: AMBIENT_LIGHT
+    control_attribute: BRIGHTNESS
+  AMBIENT_LIGHT_SET_COLOR:
+    name: 设置氛围灯颜色
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: AMBIENT_LIGHT
+    control_attribute: COLOR
+  AMBIENT_LIGHT_SET_MODE:
+    name: 设置氛围灯模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: AMBIENT_LIGHT
+    control_attribute: MODE
+  ARMREST_SET_POSITION:
+    name: 设置扶手位置
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: ADJUST
+    canonical_target: ARMREST
+    control_attribute: POSITION
+  BLUETOOTH_OFF:
+    name: 关闭蓝牙
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: BLUETOOTH
+    control_attribute: STATE
+  BLUETOOTH_ON:
+    name: 开启蓝牙
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: BLUETOOTH
+    control_attribute: STATE
+  CAMERA_OFF:
+    name: 关闭车载摄像头
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: CAMERA
+    control_attribute: STATE
+  CAMERA_ON:
+    name: 开启车载摄像头
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: CAMERA
+    control_attribute: STATE
+  CAMERA_SET_MODE:
+    name: 设置车载摄像头模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: CAMERA
+    control_attribute: MODE
+  CHILD_LOCK_OFF:
+    name: 关闭儿童锁
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: CHILD_LOCK
+    control_attribute: STATE
+  CHILD_LOCK_ON:
+    name: 开启儿童锁
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: CHILD_LOCK
+    control_attribute: STATE
+  DISPLAY_OFF:
+    name: 关闭显示屏
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: DISPLAY
+    control_attribute: STATE
+  DISPLAY_ON:
+    name: 开启显示屏
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: DISPLAY
+    control_attribute: STATE
+  DISPLAY_SET_BRIGHTNESS:
+    name: 设置显示屏亮度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: DISPLAY
+    control_attribute: BRIGHTNESS
+  DISPLAY_SET_POSITION:
+    name: 设置显示屏位置
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: ADJUST
+    canonical_target: DISPLAY
+    control_attribute: POSITION
+  DRIVING_MODE_SET:
+    name: 设置驾驶模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: DRIVING_MODE
+    control_attribute: MODE
+  DRIVING_RECORDER_ON:
+    name: 开启行车记录仪
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: DRIVING_RECORDER
+    control_attribute: STATE
+  FRAGRANCE_OFF:
+    name: 关闭香氛
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: FRAGRANCE
+    control_attribute: STATE
+  FRAGRANCE_ON:
+    name: 开启香氛
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: FRAGRANCE
+    control_attribute: STATE
+  FRAGRANCE_SET_LEVEL:
+    name: 设置香氛档位
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: FRAGRANCE
+    control_attribute: LEVEL
+  FRUNK_OPEN:
+    name: 开启前备箱
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: OPEN
+    canonical_target: FRUNK
+    control_attribute: OPENING_STATE
+  GLASS_ROOF_SET_TRANSPARENCY:
+    name: 设置玻璃天幕透光度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: GLASS_ROOF
+    control_attribute: TRANSPARENCY
+  HOTSPOT_OFF:
+    name: 关闭热点
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: HOTSPOT
+    control_attribute: STATE
+  HOTSPOT_ON:
+    name: 开启热点
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: HOTSPOT
+    control_attribute: STATE
+  HVAC_OFF:
+    name: 关闭空调
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: HVAC
+    control_attribute: STATE
+  HVAC_ON:
+    name: 开启空调
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: HVAC
+    control_attribute: STATE
+  HVAC_SET_AIRFLOW_DIRECTION:
+    name: 设置空调风向
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: HVAC
+    control_attribute: AIRFLOW_DIRECTION
+  HVAC_SET_FAN_SPEED:
+    name: 设置空调风量
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: HVAC
+    control_attribute: FAN_SPEED
+  HVAC_SET_MODE:
+    name: 设置空调模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: HVAC
+    control_attribute: MODE
+  HVAC_SET_TEMPERATURE:
+    name: 设置空调温度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: HVAC
+    control_attribute: TEMPERATURE
+  INTERIOR_LIGHT_OFF:
+    name: 关闭车内灯
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: INTERIOR_LIGHT
+    control_attribute: STATE
+  INTERIOR_LIGHT_ON:
+    name: 开启车内灯
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: INTERIOR_LIGHT
+    control_attribute: STATE
+  MEDIA_SOUND_EFFECT_SET:
+    name: 设置车载媒体音效
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: MEDIA
+    control_attribute: SOUND_EFFECT
+  MEDIA_VOLUME_SET:
+    name: 设置车载媒体音量
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: MEDIA
+    control_attribute: VOLUME
+  READING_LIGHT_OFF:
+    name: 关闭阅读灯
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: READING_LIGHT
+    control_attribute: STATE
+  READING_LIGHT_ON:
+    name: 开启阅读灯
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: READING_LIGHT
+    control_attribute: STATE
+  READING_LIGHT_SET_BRIGHTNESS:
+    name: 设置阅读灯亮度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: READING_LIGHT
+    control_attribute: BRIGHTNESS
+  REFRIGERATOR_ON:
+    name: 开启车载冰箱
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: REFRIGERATOR
+    control_attribute: STATE
+  REFRIGERATOR_SET_TEMPERATURE:
+    name: 设置车载冰箱温度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: REFRIGERATOR
+    control_attribute: TEMPERATURE
+  SEAT_HEATING_OFF:
+    name: 关闭座椅加热
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: SEAT_HEATING
+    control_attribute: STATE
+  SEAT_HEATING_ON:
+    name: 开启座椅加热
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: SEAT_HEATING
+    control_attribute: STATE
+  SEAT_HEATING_SET_LEVEL:
+    name: 设置座椅加热档位
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: SEAT_HEATING
+    control_attribute: LEVEL
+  SEAT_HEATING_SET_MODE:
+    name: 设置座椅加热模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: SEAT_HEATING
+    control_attribute: MODE
+  SEAT_MASSAGE_OFF:
+    name: 关闭座椅按摩
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: SEAT_MASSAGE
+    control_attribute: STATE
+  SEAT_MASSAGE_ON:
+    name: 开启座椅按摩
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: SEAT_MASSAGE
+    control_attribute: STATE
+  SEAT_MASSAGE_SET_LEVEL:
+    name: 设置座椅按摩档位
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: SEAT_MASSAGE
+    control_attribute: LEVEL
+  SEAT_MASSAGE_SET_MODE:
+    name: 设置座椅按摩模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: SEAT_MASSAGE
+    control_attribute: MODE
+  SEAT_VENTILATION_OFF:
+    name: 关闭座椅通风
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: SEAT_VENTILATION
+    control_attribute: STATE
+  SEAT_VENTILATION_ON:
+    name: 开启座椅通风
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: SEAT_VENTILATION
+    control_attribute: STATE
+  SEAT_VENTILATION_SET_LEVEL:
+    name: 设置座椅通风档位
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: SEAT_VENTILATION
+    control_attribute: LEVEL
+  SEAT_VENTILATION_SET_MODE:
+    name: 设置座椅通风模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: SEAT_VENTILATION
+    control_attribute: MODE
+  SHADE_CLOSE:
+    name: 关闭遮阳帘
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: CLOSE
+    canonical_target: SHADE
+    control_attribute: OPENING_STATE
+  SHADE_OPEN:
+    name: 开启遮阳帘
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: OPEN
+    canonical_target: SHADE
+    control_attribute: OPENING_STATE
+  SHADE_SET_POSITION:
+    name: 设置遮阳帘位置
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: ADJUST
+    canonical_target: SHADE
+    control_attribute: POSITION
+  STEERING_WHEEL_HEATING_OFF:
+    name: 关闭方向盘加热
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_OFF
+    canonical_target: STEERING_WHEEL
+    control_attribute: HEATING_STATE
+  STEERING_WHEEL_HEATING_ON:
+    name: 开启方向盘加热
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: TURN_ON
+    canonical_target: STEERING_WHEEL
+    control_attribute: HEATING_STATE
+  AIR_PURIFIER_SET_FAN_SPEED:
+    name: 设置空气净化器风速
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: AIR_PURIFIER
+    control_attribute: FAN_SPEED
+  DISPLAY_SET_MODE:
+    name: 设置显示屏模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: DISPLAY
+    control_attribute: MODE
+  READING_LIGHT_SET_MODE:
+    name: 设置阅读灯模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: READING_LIGHT
+    control_attribute: MODE
+  REFRIGERATOR_SET_MODE:
+    name: 设置车载冰箱模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: REFRIGERATOR
+    control_attribute: MODE
+  FRAGRANCE_SET_SCENT:
+    name: 设置香氛香型
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: FRAGRANCE
+    control_attribute: SCENT
+  INTERIOR_LIGHT_SET_BRIGHTNESS:
+    name: 设置车内灯亮度
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: INTERIOR_LIGHT
+    control_attribute: BRIGHTNESS
+  INTERIOR_LIGHT_SET_COLOR:
+    name: 设置车内灯颜色
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SET
+    canonical_target: INTERIOR_LIGHT
+    control_attribute: COLOR
+  INTERIOR_LIGHT_SET_MODE:
+    name: 设置车内灯模式
+    runtime_identity: KNOWN_NON_EXECUTABLE
+    canonical_action: SWITCH_MODE
+    canonical_target: INTERIOR_LIGHT
+    control_attribute: MODE
+source_registry_sha256: 54e18d5e748412ad9f5d3ea7f9bc6eea7a92d7ea98408cbc99cba36799b4c52c

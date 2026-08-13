@@ -2,18 +2,3 @@ token_ttl_seconds: 30
 secret_environment_variable: YUZHENG_TOKEN_SECRET
 secret_file: data/secrets/authorization.key
 secret_file_environment_variable: YUZHENG_TOKEN_KEY_FILE
-executable_actions:
-  - 打开|车门
-  - 解锁|车门
-  - 解锁|门锁
-  - 关闭|前照灯
-  - 设置|前照灯
-  - 打开|车窗
-  - 关闭|大屏
-  - 打开|音乐
-  - 播放|音乐
-  - 加速|速度
-  - 减速|速度
-  - 打开|制动
-  - 打开|自动泊车
-query_actions: [查询]

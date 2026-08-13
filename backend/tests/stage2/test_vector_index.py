@@ -6,9 +6,11 @@ import math
 import pytest
 
 from app.core.config import load_yaml
-from app.models.schemas import VehicleState
+from app.models.schemas import SemanticFrame, SemanticIntent, VehicleState
+from app.services.evidence.demand import EvidenceDemandService
+from app.services.evidence.demand_registry import EvidenceDemandRegistry
 from app.services.evidence.repository import EvidenceRepository
-from app.services.index.hnsw import HNSWIndexService, evidence_key
+from app.services.index.hnsw import HNSWIndexService, evidence_key, evidence_text
 from app.services.vector import embedding as embedding_module
 from app.services.vector.embedding import DeterministicHashEmbeddingService, build_embedding_service
 
@@ -62,6 +64,64 @@ def test_configured_index_uses_real_hnswlib(real_bge_embedder) -> None:
     assert len(results) == 2
     assert metadata.implementation == "hnswlib"
     assert metadata.degraded is False
+
+
+def test_real_bge_open_right_front_door_ranking_is_demand_and_area_aligned(
+    real_bge_embedder,
+) -> None:
+    frame = SemanticFrame(
+        turn_id="T_RIGHT_FRONT_RANKING",
+        raw_text="打开右前车门",
+        normalized_text="打开右前车门",
+        semantic_confidence=1,
+        ambiguity_score=0,
+        semantic_status="OK",
+        intents=[
+            SemanticIntent(
+                clause_index=0,
+                clause_text="打开右前车门",
+                intent_id="DOOR_OPEN",
+                action="打开",
+                target="车门",
+                area="RIGHT_FRONT",
+                control_domain="车身控制",
+                risk_level="R3",
+                risk_tags=["车身安全", "运动中误操作"],
+                semantic_confidence=1,
+                ambiguity_score=0,
+            )
+        ],
+    )
+    demand = EvidenceDemandService(
+        EvidenceDemandRegistry(), real_bge_embedder
+    ).build(frame).intent_demands[0]
+    repository = EvidenceRepository(load_yaml("evidence_quality.yaml"))
+    nodes = repository.ingest_vehicle_state(
+        VehicleState(), None, "T_RIGHT_FRONT_RANKING"
+    )
+    index = HNSWIndexService(load_yaml("index.yaml"), real_bge_embedder)
+    index.build(nodes)
+
+    results, _ = index.search(demand.query_vector, top_k=len(nodes))
+    ranked = [node for node, _similarity in results]
+    demand_types = set(demand.required_types) | set(demand.optional_types)
+    right_front_rank = next(
+        rank
+        for rank, node in enumerate(ranked, start=1)
+        if node.evidence_type == "DOOR_STATE"
+        and node.metadata.get("area") == "RIGHT_FRONT"
+    )
+    other_door_ranks = [
+        rank
+        for rank, node in enumerate(ranked, start=1)
+        if node.evidence_type == "DOOR_STATE"
+        and node.metadata.get("area") != "RIGHT_FRONT"
+    ]
+
+    assert ranked[0].evidence_type in demand_types
+    assert ranked[0].evidence_type != "SYSTEM_MODE"
+    assert right_front_rank < min(other_door_ranks)
+    assert "RIGHT_FRONT" in evidence_text(ranked[right_front_rank - 1])
 
 
 def test_hash_vector_is_deterministic_normalized_and_768_dimensional() -> None:

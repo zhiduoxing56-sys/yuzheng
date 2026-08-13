@@ -1,0 +1,798 @@
+{
+  "artifact_status": "FINALIZATION_AUDIT_NOT_RUNTIME",
+  "artifact_version": "known-non-executable-semantic-finalization-audit-v2",
+  "created_date": "2026-08-12",
+  "counts": {
+    "formal": 71,
+    "known_non_executable": 78,
+    "total_stable_known_intents": 149,
+    "ready": 78,
+    "needs_anchor_review": 0,
+    "needs_schema_review": 0,
+    "boundary_review": 0,
+    "blocked": 0
+  },
+  "removed_intent_ids": [
+    "CLUTCH_SET_ENGAGEMENT",
+    "DIFFERENTIAL_LOCK",
+    "DIFFERENTIAL_UNLOCK",
+    "EBD_DISABLE",
+    "EBD_ENABLE",
+    "ELECTRIC_POWERTRAIN_DISENGAGE",
+    "ELECTRIC_POWERTRAIN_ENGAGE",
+    "LOW_RANGE_DISABLE",
+    "LOW_RANGE_ENABLE",
+    "TCS_DISABLE",
+    "TCS_ENABLE",
+    "TORQUE_DISTRIBUTION_SET",
+    "TRANSMISSION_PERFORMANCE_MODE_SET"
+  ],
+  "generated_anchor_approval": {
+    "approved_as_is": 16,
+    "approved_with_edit": 7,
+    "rejected": 0,
+    "total": 23,
+    "records": [
+      {
+        "intent_id": "MIRROR_ADJUSTMENT_LOCK",
+        "text": "锁定外后视镜调节",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "锁定外后视镜调节",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "MIRROR_ADJUSTMENT_LOCK",
+        "text": "把左侧后视镜调节锁住",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "把左侧后视镜调节锁住",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "MIRROR_ADJUSTMENT_LOCK",
+        "text": "别让右侧后视镜再被调节",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "别让右侧后视镜再被调节",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+        "text": "解锁外后视镜调节",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "解锁外后视镜调节",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+        "text": "把左侧后视镜调节解锁",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "把左侧后视镜调节解锁",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "MIRROR_ADJUSTMENT_UNLOCK",
+        "text": "允许右侧后视镜继续调节",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "允许右侧后视镜继续调节",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "ABS_ENABLE",
+        "text": "打开防抱死制动系统",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "打开防抱死制动系统",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "ABS_ENABLE",
+        "text": "启用ABS",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_WITH_EDIT",
+        "original_generated_text": "把ABS启用",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "ABS_DISABLE",
+        "text": "关闭防抱死制动系统",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "关闭防抱死制动系统",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "ABS_DISABLE",
+        "text": "关闭ABS",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_WITH_EDIT",
+        "original_generated_text": "把ABS停用",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "EBA_ENABLE",
+        "text": "打开紧急制动辅助系统",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "打开紧急制动辅助系统",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "EBA_ENABLE",
+        "text": "启用EBA",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_WITH_EDIT",
+        "original_generated_text": "把EBA启用",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "EBA_DISABLE",
+        "text": "关闭紧急制动辅助系统",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "关闭紧急制动辅助系统",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "EBA_DISABLE",
+        "text": "关闭EBA",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_WITH_EDIT",
+        "original_generated_text": "把EBA停用",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "HOOD_SET_POSITION",
+        "text": "把前舱盖开到一半",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "把前舱盖开到一半",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "HOOD_SET_POSITION",
+        "text": "引擎盖开度调到30%",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "引擎盖开度调到30%",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "HOOD_SET_POSITION",
+        "text": "前舱盖只开到三成",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_WITH_EDIT",
+        "original_generated_text": "不要全开，前舱盖开到三成",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "PARK_LOCK",
+        "text": "结合变速箱驻车锁",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_WITH_EDIT",
+        "original_generated_text": "结合驻车锁",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "PARK_LOCK",
+        "text": "把变速箱驻车锁锁上",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "把变速箱驻车锁锁上",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "PARK_LOCK",
+        "text": "锁住传动系统的驻车锁",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "锁住传动系统的驻车锁",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "PARK_UNLOCK",
+        "text": "释放变速箱驻车锁",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_WITH_EDIT",
+        "original_generated_text": "释放驻车锁",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "PARK_UNLOCK",
+        "text": "把变速箱驻车锁解开",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "把变速箱驻车锁解开",
+        "approved_date": "2026-08-12"
+      },
+      {
+        "intent_id": "PARK_UNLOCK",
+        "text": "解锁传动系统的驻车锁",
+        "source_type": "GENERATED_HUMAN_APPROVED",
+        "generation_origin": "ASSISTANT_GENERATED",
+        "approval_authority": "HUMAN_PRODUCT_DECISION",
+        "approval_action": "APPROVED_AS_IS",
+        "original_generated_text": "解锁传动系统的驻车锁",
+        "approved_date": "2026-08-12"
+      }
+    ]
+  },
+  "driving_mode": {
+    "approved_mode_contract": {
+      "contract_id": "DRIVING_MODE_FINAL_APPROVED_V2",
+      "allowed_values": [
+        {
+          "canonical": "SPORT",
+          "surface_values": [
+            "运动"
+          ]
+        },
+        {
+          "canonical": "ECONOMY",
+          "surface_values": [
+            "经济"
+          ]
+        },
+        {
+          "canonical": "COMFORT",
+          "surface_values": [
+            "舒适"
+          ]
+        },
+        {
+          "canonical": "STANDARD",
+          "surface_values": [
+            "标准"
+          ]
+        },
+        {
+          "canonical": "PERSONALIZED",
+          "surface_values": [
+            "个性化"
+          ]
+        },
+        {
+          "canonical": "SNOW",
+          "surface_values": [
+            "雪地"
+          ]
+        },
+        {
+          "canonical": "OFF_ROAD",
+          "surface_values": [
+            "越野"
+          ]
+        },
+        {
+          "canonical": "SAND",
+          "surface_values": [
+            "沙地"
+          ]
+        },
+        {
+          "canonical": "MUD",
+          "surface_values": [
+            "泥泞"
+          ]
+        },
+        {
+          "canonical": "ROCK",
+          "surface_values": [
+            "岩石"
+          ]
+        },
+        {
+          "canonical": "MOUNTAIN",
+          "surface_values": [
+            "山地"
+          ]
+        },
+        {
+          "canonical": "GRASS",
+          "surface_values": [
+            "草地"
+          ]
+        },
+        {
+          "canonical": "DRIFT",
+          "surface_values": [
+            "漂移"
+          ]
+        },
+        {
+          "canonical": "RACE",
+          "surface_values": [
+            "竞速"
+          ]
+        },
+        {
+          "canonical": "SUPER_SPORT",
+          "surface_values": [
+            "超级运动"
+          ]
+        }
+      ],
+      "forbidden_auto_pass_surface_values": [
+        "智能",
+        "纯电",
+        "混动",
+        "四驱"
+      ],
+      "mode_required": true
+    },
+    "excluded_historical_anchor_count": 14,
+    "excluded_historical_anchors": [
+      {
+        "text": "仪表切换为驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "仪表切换为驾驶模式",
+            "source_file": "dev_set.jsonl",
+            "source_id": "19583",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "ABNORMAL_TARGET_OBJECT"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "切换到智能驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "切换到智能驾驶模式",
+            "source_file": "test_set.jsonl",
+            "source_id": "164",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "切换驾驶模式为四驱模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "切换驾驶模式为四驱模式",
+            "source_file": "train_set.jsonl",
+            "source_id": "10611",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "动力模式调为纯电驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "动力模式调为纯电驾驶模式",
+            "source_file": "train_set.jsonl",
+            "source_id": "11698",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "将驾驶模式更改为智能模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "将驾驶模式更改为智能模式",
+            "source_file": "train_set.jsonl",
+            "source_id": "12294",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "将汽车驾驶模式更改为智能型",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "将汽车驾驶模式更改为智能型",
+            "source_file": "train_set.jsonl",
+            "source_id": "12395",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "转变为混动驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "转变为混动驾驶模式",
+            "source_file": "train_set.jsonl",
+            "source_id": "17866",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "驾驶模式设为纯电",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "驾驶模式设为纯电",
+            "source_file": "train_set.jsonl",
+            "source_id": "18106",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "动力模式切换到纯电驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "动力模式切换到纯电驾驶模式",
+            "source_file": "train_set.jsonl",
+            "source_id": "3500",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "调节为智能驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "调节为智能驾驶模式",
+            "source_file": "train_set.jsonl",
+            "source_id": "8798",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "驾驶模式切换为纯电",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "驾驶模式切换为纯电",
+            "source_file": "train_set.jsonl",
+            "source_id": "9278",
+            "intent_key": "意图1"
+          }
+        ],
+        "reasons": [
+          "FORBIDDEN_DRIVING_MODE_VALUE"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "切换驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "切换驾驶模式",
+            "source_file": "intent_anchor_set_v1_2.yaml",
+            "source_key": "已知车控旁路.驾驶模式"
+          }
+        ],
+        "reasons": [
+          "MISSING_REQUIRED_MODE_REVIEW_ONLY"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "切换车辆驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "切换车辆驾驶模式",
+            "source_file": "intent_anchor_set_v1_2.yaml",
+            "source_key": "已知车控旁路.驾驶模式"
+          }
+        ],
+        "reasons": [
+          "MISSING_REQUIRED_MODE_REVIEW_ONLY"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      },
+      {
+        "text": "调整驾驶模式",
+        "source_type": "HISTORICAL_RECOVERED",
+        "provenance": [
+          {
+            "expression": "调整驾驶模式",
+            "source_file": "intent_anchor_set_v1_2.yaml",
+            "source_key": "已知车控旁路.驾驶模式"
+          }
+        ],
+        "reasons": [
+          "MISSING_REQUIRED_MODE_REVIEW_ONLY"
+        ],
+        "disposition": "REVIEW_NOT_ACTIVE_ANCHOR"
+      }
+    ],
+    "gear_change_formal_contract": {
+      "intent_id": "GEAR_CHANGE_MODE_SET",
+      "mode_contract": "GEAR_CHANGE",
+      "allowed": [
+        "MANUAL",
+        "AUTOMATIC"
+      ]
+    }
+  },
+  "quarantine": {
+    "v1_count": 89,
+    "final_v2_count": 89,
+    "v1_sha256": "873e9b35703592032ff7a89f8cdb0f812c7bf26d0ebb198a4699e1494398b373"
+  },
+  "review_case_count": 24,
+  "migration_stages": [
+    {
+      "order": 1,
+      "stage": "统一语义注册表",
+      "current_reads": [
+        "data/nlu/spec/intent_registry_r4_final.yaml",
+        "挂靠/intent_cards_v1.yaml"
+      ],
+      "current_output": "仅 71 个 Formal definition/card；Known 仍是 scope/reference",
+      "next_files": [
+        "data/nlu/spec/intent_registry_r4_final.yaml",
+        "挂靠/intent_cards_v1.yaml",
+        "backend/app/services/semantic/orchestrator.py"
+      ]
+    },
+    {
+      "order": 2,
+      "stage": "锚点召回",
+      "current_reads": [
+        "挂靠/intent_anchor_set_v1_3.yaml",
+        "test-results/anchor-loo-v1_3/config_v1_3.yaml",
+        "挂靠/intent_cards_v1.yaml"
+      ],
+      "current_output": "CandidateIntentRecaller.semantic_candidates；旁路目标仍为中文标签‘驾驶模式’",
+      "next_files": [
+        "挂靠/intent_anchor_set_v1_3.yaml",
+        "test-results/anchor-loo-v1_3/config_v1_3.yaml",
+        "backend/intent_recall_v1/recaller.py"
+      ]
+    },
+    {
+      "order": 3,
+      "stage": "Top8 候选",
+      "current_reads": [
+        "backend/intent_recall_v1/config.yaml",
+        "test-results/anchor-loo-v1_3/config_v1_3.yaml"
+      ],
+      "current_output": "recall_result.semantic_candidates + fused_top8，默认 8",
+      "next_files": [
+        "backend/intent_recall_v1/recaller.py",
+        "backend/intent_hybrid_gate/gate.py",
+        "backend/intent_hybrid_gate/gate_config.yaml"
+      ]
+    },
+    {
+      "order": 4,
+      "stage": "3B 判定",
+      "current_reads": [
+        "backend/intent_judge_3b_minimal/config.yaml",
+        "Top8 support anchors"
+      ],
+      "current_output": "ModelSelection.intent_ids；gate 转为 semantic_status/sub_intents",
+      "next_files": [
+        "backend/intent_judge_3b_minimal/judge.py",
+        "backend/intent_judge_3b_minimal/config.yaml",
+        "backend/intent_hybrid_gate/gate.py"
+      ]
+    },
+    {
+      "order": 5,
+      "stage": "Guard",
+      "current_reads": [
+        "挂靠/intent_cards_v1.yaml",
+        "gate output",
+        "stage1_top8"
+      ],
+      "current_output": "动作方向、候选一致性、对象族冲突；最终 OK/REVIEW/NO_MATCH",
+      "next_files": [
+        "backend/semantic_orchestrator_v2/action_direction_guard.py",
+        "backend/semantic_orchestrator_v2/candidate_consistency_guard.py",
+        "backend/semantic_orchestrator_v2/orchestrator.py",
+        "backend/semantic_orchestrator_v2_1/object_family_guard.py",
+        "backend/semantic_orchestrator_v2_1/orchestrator.py"
+      ]
+    },
+    {
+      "order": 6,
+      "stage": "SemanticIntent",
+      "current_reads": [
+        "data/nlu/spec/intent_registry_r4_final.yaml",
+        "orchestrator output"
+      ],
+      "current_output": "app.models.schemas.SemanticIntent；intent_id 被强制解释为 Formal",
+      "next_files": [
+        "backend/app/models/schemas.py",
+        "backend/app/services/semantic/orchestrator.py",
+        "backend/app/services/semantic/area.py"
+      ]
+    },
+    {
+      "order": 7,
+      "stage": "Formal / Known / Unknown 分流",
+      "current_reads": [
+        "SemanticFrame.semantic_status",
+        "SemanticFrame.intents",
+        "evidence demand registry"
+      ],
+      "current_output": "当前主链只支持 Formal 或空/REVIEW；Known 细粒度身份尚无生产分支",
+      "next_files": [
+        "backend/app/core/pipeline.py",
+        "backend/app/services/evidence/demand.py",
+        "backend/app/services/evidence/demand_registry.py",
+        "backend/app/services/decision/engine.py",
+        "backend/app/services/authorization/service.py",
+        "backend/app/services/execution/service.py"
+      ]
+    }
+  ],
+  "legacy_runtime_findings": {
+    "known_control_bypass_generated": [
+      "scripts/build_sys014_r4_scope_simplification.py",
+      "scripts/full_nlu/build_r4_scope_dryrun_v1.py",
+      "data/nlu/spec/intent_registry_r4_final.yaml:user_voice_scope_contract/runtime_scope_routing"
+    ],
+    "intent_id_null_or_old_identity": [
+      "data/nlu/spec/intent_registry_r4_final.yaml declares requires_intent_id=false and prohibits detailed intent_id for KNOWN_CONTROL_BYPASS",
+      "experiments/frozen_anchor_exact_v1_3/online_parser.py sets BYPASS intent_id=None and sub_intents=[] on exact bypass hits",
+      "No active main SemanticOrchestratorService branch converting a stable Known ID to null was found; main service currently cannot represent Known identity at all."
+    ],
+    "pass_decision": [
+      "data/nlu/spec/intent_registry_r4_final.yaml declares PASS_BYPASS -> NATIVE_COCKPIT_ASSISTANT",
+      "backend/intent_hybrid_gate/gate.py decides semantic OK/REVIEW/NO_MATCH",
+      "backend/semantic_orchestrator_v2/orchestrator.py converts reliable OK selections into sub_intents"
+    ],
+    "downstream_entry_or_skip": [
+      "backend/app/core/pipeline.py builds evidence demands from SemanticFrame and only issues a token when semantic_status=OK, demands exist, PASS, and authorization says executable",
+      "Legacy bypass is architecturally excluded from the Formal safety chain by registry routing, but no active detailed Known branch exists in the main service."
+    ],
+    "formal_71_assumptions": [
+      "挂靠/intent_cards_v1.yaml contains only Formal cards",
+      "backend/intent_recall_v1/recaller.py loads display labels only from cards['正式意图']",
+      "backend/semantic_orchestrator_v2(_1) guards are constructed only from cards['正式意图']",
+      "backend/app/services/semantic/orchestrator.py requires registry IDs == Formal card IDs and rejects any other intent_id",
+      "backend/app/services/evidence/demand_registry.py validates demand keys against Formal registry IDs"
+    ],
+    "direct_old_registry_or_anchor_reads": [
+      "backend/app/services/semantic/orchestrator.py -> data/nlu/spec/intent_registry_r4_final.yaml",
+      "backend/semantic_orchestrator_v2/orchestrator.py -> 挂靠/intent_anchor_set_v1_3.yaml and 挂靠/intent_cards_v1.yaml",
+      "test-results/anchor-loo-v1_3/config_v1_3.yaml -> 挂靠/intent_anchor_set_v1_3.yaml",
+      "backend/intent_recall_v1/config.yaml -> 挂靠/intent_anchor_set_v1.yaml",
+      "backend/intent_judge_3b_minimal/config.yaml -> test-results/intent-recall-v1_1/config_v1_1.yaml -> 挂靠/intent_anchor_set_v1_1.yaml (overridden at runtime by V2)"
+    ]
+  },
+  "automated_checks": {
+    "formal_count_is_71": true,
+    "final_known_count_is_78": true,
+    "removed_13_occurrence_in_final_freeze_is_zero": true,
+    "known_78_ids_globally_unique": true,
+    "formal_known_id_overlap_is_zero": true,
+    "all_78_ready": true,
+    "approved_generated_anchors_are_16_as_is_7_edited_0_rejected": true,
+    "approved_generated_anchor_texts_match_product_decision": true,
+    "quarantined_89_not_silently_restored": true,
+    "unapproved_1402_hash_candidate_usage_is_zero": true,
+    "driving_mode_forbidden_values_not_auto_pass": true,
+    "gear_change_mode_remains_manual_automatic_only": true,
+    "park_boundaries_use_real_formal_ids": true,
+    "hood_open_close_position_boundary_frozen": true,
+    "abs_eba_object_guards_exist": true,
+    "all_78_non_executable_contract": true,
+    "removed_13_textual_occurrence_in_final_freeze_is_zero": true,
+    "protected_production_file_hashes_unchanged": true,
+    "production_runtime_files_unchanged": true
+  },
+  "protected_file_sha256_before": {
+    "data\\nlu\\spec\\intent_registry_r4_final.yaml": "6d7f1c8f7a7e3ad8c380e446d66071f38dcd84fef24621ba1d1968162ad196bb",
+    "挂靠\\intent_anchor_set_v1_3.yaml": "b88b4d9dcc9cdfdb27ec6d25038af6e7e5d3f01fe6937ba4777815987fb65bff",
+    "挂靠\\intent_cards_v1.yaml": "574f93dfcf885fba0d083cf84e68572bbc5ab74d9014d7578d3157b2ac19c171",
+    "backend\\intent_recall_v1\\recaller.py": "a3a96a43eabbb01e2da96f9139abd396b7244b1bbc2b1e462120207bab76e71c",
+    "backend\\intent_judge_3b_minimal\\judge.py": "dd8064aa712f355debfc52689eb04013e76bc9a5b2f851a5ab86307d3f9a25d4",
+    "backend\\semantic_orchestrator_v2\\orchestrator.py": "c6e8ec02c699dca5408597e14a009d195969fcffb244a08b93ad656cba303212",
+    "backend\\semantic_orchestrator_v2_1\\orchestrator.py": "f151315c0af766b872f7781449f9dea75497b4e37679a9ba8b910500aca7d59b",
+    "backend\\app\\services\\semantic\\orchestrator.py": "dd986e2146762177a1bb66ba00a887ee783078a24909c4e4050a66b0e9d0a2bf",
+    "backend\\app\\core\\pipeline.py": "ea98532a13a654b0a07726e67bf40833c294c3276efd8061383cb4564bc0d767"
+  },
+  "protected_file_sha256_after": {
+    "data\\nlu\\spec\\intent_registry_r4_final.yaml": "6d7f1c8f7a7e3ad8c380e446d66071f38dcd84fef24621ba1d1968162ad196bb",
+    "挂靠\\intent_anchor_set_v1_3.yaml": "b88b4d9dcc9cdfdb27ec6d25038af6e7e5d3f01fe6937ba4777815987fb65bff",
+    "挂靠\\intent_cards_v1.yaml": "574f93dfcf885fba0d083cf84e68572bbc5ab74d9014d7578d3157b2ac19c171",
+    "backend\\intent_recall_v1\\recaller.py": "a3a96a43eabbb01e2da96f9139abd396b7244b1bbc2b1e462120207bab76e71c",
+    "backend\\intent_judge_3b_minimal\\judge.py": "dd8064aa712f355debfc52689eb04013e76bc9a5b2f851a5ab86307d3f9a25d4",
+    "backend\\semantic_orchestrator_v2\\orchestrator.py": "c6e8ec02c699dca5408597e14a009d195969fcffb244a08b93ad656cba303212",
+    "backend\\semantic_orchestrator_v2_1\\orchestrator.py": "f151315c0af766b872f7781449f9dea75497b4e37679a9ba8b910500aca7d59b",
+    "backend\\app\\services\\semantic\\orchestrator.py": "dd986e2146762177a1bb66ba00a887ee783078a24909c4e4050a66b0e9d0a2bf",
+    "backend\\app\\core\\pipeline.py": "ea98532a13a654b0a07726e67bf40833c294c3276efd8061383cb4564bc0d767"
+  },
+  "worktree_status_delta": [],
+  "unexpected_worktree_status_delta": []
+}

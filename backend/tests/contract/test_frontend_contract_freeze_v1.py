@@ -186,7 +186,7 @@ def test_four_page_models_are_complete_and_backend_owned(frozen_payload: dict) -
     } <= names["decision_review"]
     assert {
         "AuditListResponse",
-        "AuditDetailResponse",
+        "AuditDetailView",
         "AuditVerificationResponse",
     } <= names["audit_log"]
     assert {

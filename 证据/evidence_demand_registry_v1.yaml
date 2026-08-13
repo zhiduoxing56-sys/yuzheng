@@ -719,8 +719,8 @@ intent_requirements:
   DECELERATE:
     mandatory:
     - VEHICLE_SPEED
-    recommended:
     - SURROUNDING_OBJECT_STATE
+    recommended:
     - LANE_STATE
     - ROAD_FRICTION_STATE
     conditional_mandatory: []

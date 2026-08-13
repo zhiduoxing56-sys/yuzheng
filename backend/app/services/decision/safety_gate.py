@@ -28,6 +28,7 @@ from app.services.evidence.value_contract import (
     is_finite_number,
     validate_evidence_value,
 )
+from semantic_registry_v1 import UnifiedSemanticRegistry
 
 
 class SafetyGateService:
@@ -61,13 +62,38 @@ class SafetyGateService:
             "real_road_bypass": self._real_road_bypass,
             "unauthorized_direct_interface": self._unauthorized_direct_interface,
             "unauthorized_control_frame": self._unauthorized_control_frame,
-            "reverse_camera_display": self._reverse_camera_display,
-            "active_navigation_display": self._active_navigation_display,
-            "autopark_critical": self._autopark_critical,
             "acceleration_obstacle": self._acceleration_obstacle,
             "deceleration_rear_conflict": self._deceleration_rear_conflict,
             "semantic_model_degraded": self._semantic_model_degraded,
         }
+        self._semantic_registry = UnifiedSemanticRegistry()
+        self._validate_canonical_selectors()
+
+    def _validate_canonical_selectors(self) -> None:
+        for rule in self.rules:
+            intent_ids = rule.get("intent_ids", [])
+            if not isinstance(intent_ids, list):
+                raise ValueError(f"{rule.get('id')} intent_ids 必须是列表")
+            for intent_id in intent_ids:
+                definition = self._semantic_registry.definition(str(intent_id))
+                if definition["runtime_identity"] != "FORMAL":
+                    raise ValueError(
+                        f"SafetyGate selector 不得引用 Known Intent: {intent_id}"
+                    )
+                if "mode" in rule:
+                    if "MODE" not in {
+                        *definition.get("required_slots", []),
+                        *definition.get("optional_slots", []),
+                    }:
+                        raise ValueError(f"{intent_id} SafetyGate selector 不承载 MODE")
+                    reference = definition.get("mode_contract")
+                    allowed = self._semantic_registry.document.get(
+                        "mode_contracts", {}
+                    ).get(reference, [])
+                    if rule["mode"] not in allowed:
+                        raise ValueError(
+                            f"{intent_id} SafetyGate mode selector 不合法: {rule['mode']}"
+                        )
 
     @staticmethod
     def _latest_by_type(evidence: list[EvidenceNode]) -> dict[str, EvidenceNode]:
@@ -187,16 +213,22 @@ class SafetyGateService:
 
     @staticmethod
     def _moving_door(rule, intent, demand, by_type, evidence, validation):
-        del rule, demand, evidence, validation
+        del demand, evidence, validation
         node = by_type.get("VEHICLE_SPEED")
         value = node.value if node else None
-        hit = (
-            intent.action == "打开"
-            and intent.target == "车门"
-            and is_finite_number(value)
-            and value > 0
+        intent_ids = {str(item) for item in rule.get("intent_ids", [])}
+        opening = intent.intent_id == "DOOR_OPEN" or (
+            intent.intent_id == "DOOR_SET_POSITION"
+            and is_finite_number(intent.value)
+            and intent.value > 0
         )
-        return hit, {"value": value, "vehicle_speed": value}, [node.node_id] if node else []
+        hit = intent.intent_id in intent_ids and opening and is_finite_number(value) and value > 0
+        return hit, {
+            "value": intent.value if intent.intent_id == "DOOR_SET_POSITION" else value,
+            "vehicle_speed": value,
+            "area": intent.area,
+            "control_attribute": intent.control_attribute,
+        }, [node.node_id] if node else []
 
     @staticmethod
     def _low_light_headlight(rule, intent, demand, by_type, evidence, validation):
@@ -211,14 +243,19 @@ class SafetyGateService:
             and light_value < float(rule.get("low_light_lux", 20))
         )
         hit = (
-            intent.action == "关闭"
-            and intent.target == "前照灯"
+            intent.intent_id in {str(item) for item in rule.get("intent_ids", [])}
+            and intent.mode == rule.get("mode")
             and is_finite_number(speed_value)
             and speed_value > 0
             and low
         )
         nodes = [node.node_id for node in (speed, light) if node]
-        return hit, {"vehicle_speed": speed_value, "ambient_light": light_value}, nodes
+        return hit, {
+            "vehicle_speed": speed_value,
+            "ambient_light": light_value,
+            "mode": intent.mode,
+            "control_attribute": intent.control_attribute,
+        }, nodes
 
     @staticmethod
     def _dense_fog_defog(rule, intent, demand, by_type, evidence, validation):
@@ -234,13 +271,17 @@ class SafetyGateService:
             )
         }
         hit = (
-            intent.action == "关闭"
-            and intent.target == "前挡风除雾"
+            intent.intent_id in {str(item) for item in rule.get("intent_ids", [])}
             and value in dense_fog_values
         )
         return (
             hit,
-            {"weather": value, "dense_fog_values": sorted(dense_fog_values)},
+            {
+                "weather": value,
+                "dense_fog_values": sorted(dense_fog_values),
+                "area": intent.area,
+                "control_attribute": intent.control_attribute,
+            },
             [weather.node_id] if weather else [],
         )
 
@@ -261,7 +302,7 @@ class SafetyGateService:
             ),
             None,
         )
-        driving = intent.control_domain == "驾驶控制" or intent.action in {"加速", "减速"}
+        driving = intent.control_domain == "驾驶控制"
         return (
             driving
             and (
@@ -300,56 +341,16 @@ class SafetyGateService:
         return self._conflict_rule(validation, {"UNAUTHORIZED_CONTROL_FRAME"})
 
     @staticmethod
-    def _reverse_camera_display(rule, intent, demand, by_type, evidence, validation):
-        del demand, by_type, evidence, validation
-        runtime = rule["_runtime_safety_context"]
-        reverse_active = runtime.reverse_camera_active
-        hit = intent.action == "关闭" and intent.target == "大屏" and bool(reverse_active)
-        return hit, {"reverse_camera_active": reverse_active}, []
-
-    @staticmethod
-    def _active_navigation_display(rule, intent, demand, by_type, evidence, validation):
-        del demand, evidence, validation
-        runtime = rule["_runtime_safety_context"]
-        speed = by_type.get("VEHICLE_SPEED")
-        navigation_active = runtime.navigation_active
-        speed_value = speed.value if speed else None
-        hit = (
-            intent.action == "关闭"
-            and intent.target == "大屏"
-            and bool(navigation_active)
-            and is_finite_number(speed_value)
-            and speed_value > 0
-        )
-        return hit, {"navigation_active": navigation_active, "vehicle_speed": speed_value}, [speed.node_id] if speed else []
-
-    @staticmethod
-    def _autopark_critical(rule, intent, demand, by_type, evidence, validation):
-        del demand, by_type, evidence, validation
-        runtime = rule["_runtime_safety_context"]
-        surround_state = runtime.surround_camera_state
-        ultrasonic_distance = runtime.ultrasonic_distance
-        bad = (
-            str(surround_state).upper() not in {"AVAILABLE", "ACTIVE", "ON", "READY"}
-            or not is_finite_number(ultrasonic_distance)
-        )
-        return (
-            intent.action == "打开" and intent.target == "自动泊车" and bad,
-            {
-                "bad_types": ["FREE_SPACE_STATE"] if bad else [],
-                "surround_camera_state": surround_state,
-                "ultrasonic_distance": ultrasonic_distance,
-            },
-            [],
-        )
-
-    @staticmethod
     def _acceleration_obstacle(rule, intent, demand, by_type, evidence, validation):
         del demand, evidence, validation
         obstacle = by_type.get("SURROUNDING_OBJECT_STATE")
         value = SafetyGateService._field(obstacle, "front_obstacle_distance")
         threshold = float(rule.get("threshold_m", 5))
-        hit = intent.action == "加速" and is_finite_number(value) and value < threshold
+        hit = (
+            intent.intent_id in {str(item) for item in rule.get("intent_ids", [])}
+            and is_finite_number(value)
+            and value < threshold
+        )
         return hit, {"front_obstacle_distance": value, "threshold_m": threshold}, [obstacle.node_id] if obstacle else []
 
     @staticmethod
@@ -362,10 +363,33 @@ class SafetyGateService:
             for item in validation.conflicts
         )
         threshold = float(rule.get("threshold_m", 1.5))
-        hit = intent.action in {"减速", "打开"} and intent.target in {"速度", "制动"} and (
-            conflict or is_finite_number(value) and value < threshold
+        applies = intent.intent_id in {
+            str(item) for item in rule.get("intent_ids", [])
+        }
+        available = rear is not None
+        usable = available and is_finite_number(value)
+        failure_reason = None
+        if applies and not available:
+            failure_reason = "SURROUNDING_OBJECT_STATE_MISSING"
+        elif applies and not usable:
+            failure_reason = "REAR_OBSTACLE_DISTANCE_UNUSABLE"
+        elif applies and conflict:
+            failure_reason = "REAR_VALIDATION_CONFLICT"
+        elif applies and value < threshold:
+            failure_reason = "REAR_DISTANCE_BELOW_THRESHOLD"
+        hit = applies and (not available or not usable or conflict or value < threshold)
+        return (
+            hit,
+            {
+                "rear_state_available": available,
+                "rear_obstacle_distance": value,
+                "rear_state_usable": usable,
+                "threshold": threshold,
+                "conflict": conflict,
+                "failure_reason": failure_reason,
+            },
+            [rear.node_id] if rear is not None else [],
         )
-        return hit, {"rear_obstacle_distance": value, "conflict": conflict}, [rear.node_id] if rear else []
 
     @staticmethod
     def _semantic_model_degraded(rule, intent, demand, by_type, evidence, validation):
@@ -373,8 +397,8 @@ class SafetyGateService:
         capability = rule.get("_runtime_capability")
         if capability is None:
             return False, {"semantic_control_mode": "FULL"}, []
-        executable = intent.action != "查询" and intent.target != "unknown"
-        hit = executable and (
+        formal = intent.runtime_identity == "FORMAL"
+        hit = formal and (
             capability.semantic_control_mode == SemanticControlMode.QUERY_ONLY
             or (
                 capability.semantic_control_mode == SemanticControlMode.RESTRICTED
@@ -448,7 +472,6 @@ class SafetyGateService:
         for rule in self.rules:
             rule = dict(rule)
             rule["_runtime_capability"] = runtime_capability
-            rule["_runtime_safety_context"] = runtime_safety_context
             evaluator_name = str(rule.get("evaluator"))
             evaluator = self._evaluators.get(evaluator_name)
             if evaluator is None:
@@ -518,6 +541,18 @@ class SafetyGateService:
                     scoped_evidence,
                     validation,
                 )
+                if intent is not None:
+                    observed = {
+                        **observed,
+                        "canonical_identity": {
+                            "intent_id": intent.intent_id,
+                            "area": intent.area,
+                            "mode": intent.mode,
+                            "value": intent.value,
+                            "direction": intent.direction,
+                            "control_attribute": intent.control_attribute,
+                        },
+                    }
                 intent_results.append(
                     (
                         intent.clause_index if intent is not None else None,

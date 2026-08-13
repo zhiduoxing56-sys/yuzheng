@@ -24,7 +24,7 @@ phonetic_confirmation:
   pinyin_gain_min: 0.12
 
 paths:
-  first_stage_config: ../../test-results/intent-recall-v1_1/config_v1_1.yaml
+  first_stage_config: ../intent_recall_v1/config.yaml
   acceptance_cases: ../intent_judge_v1/acceptance_cases.yaml
   baseline_summary: ../../test-results/intent-judge-v1/summary.json
   baseline_case_results: ../../test-results/intent-judge-v1/case-results.json

@@ -27,9 +27,26 @@ class EvidenceDemandService:
         # A configuration flag cannot relax an EvidenceDemand.required_types entry.
         return True
 
+    @staticmethod
+    def query_text_for(demand: IntentEvidenceDemand) -> str:
+        """Build the sole HNSW query document from the finalized demand."""
+
+        parts = [demand.intent_id, demand.action, demand.target]
+        if demand.area and demand.area != "unknown":
+            parts.append(demand.area)
+        if demand.required_types:
+            parts.extend(["REQUIRED", *demand.required_types])
+        if demand.optional_types:
+            parts.extend(["OPTIONAL", *demand.optional_types])
+        return " ".join(parts)
+
     def build(self, frame: SemanticFrame) -> EvidenceDemand:
         intent_demands: list[IntentEvidenceDemand] = []
         for intent in sorted(frame.intents, key=lambda item: item.clause_index):
+            # Identity is a routing fact, not proof of execution support. Known
+            # occurrences terminate after semantic PASS and create no HNSW work.
+            if intent.runtime_identity != "FORMAL":
+                continue
             rule = self._registry.rule_for_intent_id(intent.intent_id)
             required_types = list(rule.mandatory)
             for conditional in rule.conditional_mandatory:
@@ -43,35 +60,29 @@ class EvidenceDemandService:
             optional_types = [
                 item for item in rule.recommended if item not in required_type_set
             ]
-            query_parts = [
-                intent.intent_id,
-                intent.action,
-                intent.target,
-                intent.area,
-                str(intent.value) if intent.value is not None else None,
-                intent.risk_level,
-                *intent.risk_tags,
-            ]
-            query_text = " ".join(
-                part for part in query_parts if part and part != "unknown"
+            intent_demand = IntentEvidenceDemand(
+                intent_id=intent.intent_id,
+                clause_index=intent.clause_index,
+                action=intent.action,
+                target=intent.target,
+                area=intent.area,
+                value=intent.value,
+                risk_level=intent.risk_level,
+                query_text="",
+                required_types=required_types,
+                optional_types=optional_types,
+                priority=0,
+                retrieval_scope="control_evidence",
             )
+            query_text = self.query_text_for(intent_demand)
             query_vector, vectorization_metadata = self._embedder.encode(query_text)
             intent_demands.append(
-                IntentEvidenceDemand(
-                    intent_id=intent.intent_id,
-                    clause_index=intent.clause_index,
-                    action=intent.action,
-                    target=intent.target,
-                    area=intent.area,
-                    value=intent.value,
-                    risk_level=intent.risk_level,
-                    query_text=query_text,
-                    query_vector=query_vector,
-                    vectorization_metadata=vectorization_metadata,
-                    required_types=required_types,
-                    optional_types=optional_types,
-                    priority=0,
-                    retrieval_scope="control_evidence",
+                intent_demand.model_copy(
+                    update={
+                        "query_text": query_text,
+                        "query_vector": query_vector,
+                        "vectorization_metadata": vectorization_metadata,
+                    }
                 )
             )
         return EvidenceDemand(turn_id=frame.turn_id, intent_demands=intent_demands)

@@ -1,0 +1,20 @@
+{
+  "artifact_status": "KNOWN_ANCHOR_SOURCE_PROVENANCE_CLEANING_AUDIT",
+  "artifact_version": "v3",
+  "historical_active_before": 2285,
+  "historical_active_after_source_alignment": 2150,
+  "historical_active_after_all_checks": 2120,
+  "new_quarantine_records": 222,
+  "combined_quarantine_records": 289,
+  "blocked_anchor_source_intents": [
+    "FRAGRANCE_SET_SCENT"
+  ],
+  "new_quarantine_reason_counts": {
+    "AMBIGUOUS_ANNOTATION_TO_CLAUSE_MATCH": 27,
+    "CROSS_KNOWN_NORMALIZED_ANCHOR_OVERLAP": 30,
+    "MULTI_CAPABILITY_SPLIT_CLAUSE": 117,
+    "NO_ANNOTATION_TO_CLAUSE_MATCH": 8,
+    "RECOVERY_SELECTED_WRONG_SOURCE_CLAUSE": 40
+  },
+  "known_intent_count": 78
+}

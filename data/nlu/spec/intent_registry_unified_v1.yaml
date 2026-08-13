@@ -1,0 +1,5180 @@
+document_status: PRODUCTION_UNIFIED_SEMANTIC_REGISTRY
+registry_version: unified-semantic-runtime-v1
+runtime_loading_allowed: true
+single_semantic_source_of_truth: true
+statistics:
+  intent_count: 149
+  formal_count: 71
+  known_non_executable_count: 78
+source_freezes:
+  formal:
+    path: data/nlu/spec/intent_registry_r4_final.yaml
+    sha256: 6d7f1c8f7a7e3ad8c380e446d66071f38dcd84fef24621ba1d1968162ad196bb
+  known:
+    path: data/nlu/spec/audits/known_non_executable_semantic_freeze_final_v4.yaml
+    sha256: 5a8319f5ba9ddb3f1cf74f8274260db20810e0a9360541d1fc269aac56d1b238
+  product_removals:
+    path: data/nlu/spec/audits/known_non_executable_product_removals_v2.yaml
+    sha256: dad730e6bb4859f6ab8c26a47a23a5c93a9116a93a36893a498f81d3410122ce
+  contract_catalog:
+    path: data/nlu/spec/intent_registry_r4_final_candidate.yaml
+    sha256: 55bbb90780a969cb249f73833d7d34d9e464d99c65e1a6352ead15aa34db4440
+enums:
+  scope_status:
+  - IN_SCOPE
+  - OUT_OF_SCOPE
+  - PENDING_SCOPE
+  capability_origin:
+  - VSS
+  - PROJECT_NATIVE
+  - VSS_AND_PROJECT
+  vss_relation:
+  - DIRECT
+  - INDIRECT
+  - NONE
+  scope_authority:
+  - HUMAN_APPROVED_VSS
+  - EXISTING_PROJECT_DESIGN
+  - BOTH
+  risk_review_status:
+  - CONFIRMED
+  - RISK_REVIEW_REQUIRED
+  capability_slot_type:
+  - AREA
+  - VALUE
+  - DIRECTION
+  - MODE
+  annotation_slot_type:
+  - AREA
+  - VALUE
+  - DIRECTION
+  - MODE
+  - NEGATION
+area_catalog:
+  LEFT_FRONT:
+    area_type: ATOMIC
+    semantic_frame_value: 左前
+    examples:
+    - 驾驶位
+    - 主驾
+    - 司机这边
+    - 左前
+  RIGHT_FRONT:
+    area_type: ATOMIC
+    semantic_frame_value: 右前
+    examples:
+    - 副驾驶
+    - 副驾
+    - 右前
+  LEFT_REAR:
+    area_type: ATOMIC
+    semantic_frame_value: 左后
+    examples:
+    - 左后
+    - 左后排
+  RIGHT_REAR:
+    area_type: ATOMIC
+    semantic_frame_value: 右后
+    examples:
+    - 右后
+    - 右后排
+  MIDDLE_FRONT:
+    area_type: ATOMIC
+    semantic_frame_value: 前排中间
+    examples:
+    - 前排中间
+    - 前排中座
+  MIDDLE_REAR:
+    area_type: ATOMIC
+    semantic_frame_value: 后排中间
+    examples:
+    - 后排中间
+    - 后排中座
+  FRONT_ROW:
+    area_type: COMPOSITE
+    semantic_frame_value: 前排
+    examples:
+    - 前排
+    - 前面两侧
+  REAR_ROW:
+    area_type: COMPOSITE
+    semantic_frame_value: 后排
+    examples:
+    - 后排
+    - 后座
+  LEFT_SIDE:
+    area_type: COMPOSITE
+    semantic_frame_value: 左侧
+    examples:
+    - 左边
+    - 左侧
+  RIGHT_SIDE:
+    area_type: COMPOSITE
+    semantic_frame_value: 右侧
+    examples:
+    - 右边
+    - 右侧
+  ALL:
+    area_type: COMPOSITE
+    semantic_frame_value: 全车
+    examples:
+    - 全部
+    - 所有
+    - 全车
+  FRONT:
+    area_type: ATOMIC
+    semantic_frame_value: 前部
+    examples:
+    - 前部
+    - 前面
+    - 前舱
+  REAR:
+    area_type: ATOMIC
+    semantic_frame_value: 后部
+    examples:
+    - 后部
+    - 后面
+    - 后舱
+area_semantics:
+  area_types:
+    ATOMIC:
+      description_zh: 对应当前能力中的一个具体车辆执行器实例。
+      executor_cardinality: ONE
+    COMPOSITE:
+      description_zh: 对应多个原子区域的显式聚合操作，具体 fan-out 由未来 Resolver 按已批准能力合同处理。
+      executor_cardinality: MULTIPLE_CAPABILITY_SPECIFIC
+      explicit_user_expression_required: true
+  missing_area:
+    representation: UNRESOLVED
+    description_zh: 用户未明确区域且存在多个合法物理目标时，Intent 仍可识别，但 AREA 保持未解析，参数不可视为完整可执行。
+    parameter_resolution_status: INCOMPLETE_MISSING_AREA
+    implicit_defaults_prohibited:
+    - ALL
+    - DRIVER_POSITION
+    - SPEAKER_POSITION
+    - NEAREST_POSITION
+    - CONTEXT_INFERENCE
+    future_behavior: REVIEW_OR_PARAMETER_COMPLETION
+    approved_vehicle_default_policy_exception: EXPLICIT_HUMAN_APPROVAL_REQUIRED
+  composite_area_policy:
+    explicit_expression_required: true
+    runtime_fan_out_implemented: false
+    capability_specific_approval_required: true
+value_contracts:
+  ANGLE_OPTIONAL:
+    allowed: true
+    required: false
+    type: ANGLE
+    canonical_unit: deg
+    valid_range:
+      min_ref: vehicle_capability_limits.min_angle
+      max_ref: vehicle_capability_limits.max_angle
+    enum_values: []
+  BRAKE_INTENSITY_OPTIONAL:
+    allowed: true
+    required: false
+    type: PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: 0
+      max: 100
+    enum_values: []
+  FOLLOWING_GAP_VALUE_OPTIONAL:
+    allowed: true
+    required: false
+    type: DISTANCE_OR_RELATIVE_DELTA
+    canonical_unit: m
+    valid_range:
+      min_ref: vehicle_capability_limits.min_following_gap_m
+      max_ref: vehicle_capability_limits.max_following_gap_m
+    enum_values:
+    - RELATIVE_FARTHER
+    - RELATIVE_CLOSER
+  LUMBAR_HEIGHT_MM_OPTIONAL:
+    allowed: true
+    required: false
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.lumbar_height_max_mm
+    enum_values:
+    - LOWEST
+    - HIGHEST
+  NONE:
+    allowed: false
+    required: false
+    type: NONE
+    canonical_unit: null
+    valid_range: null
+    enum_values: []
+  PERCENT_0_100_OPTIONAL:
+    allowed: true
+    required: false
+    type: PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: 0
+      max: 100
+    enum_values: []
+  PERCENT_0_100_REQUIRED:
+    allowed: true
+    required: true
+    type: PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: 0
+      max: 100
+    enum_values: []
+  PERCENT_PARTIAL_1_99_REQUIRED:
+    allowed: true
+    required: true
+    type: PERCENT
+    canonical_unit: '%'
+    valid_range:
+      min: 1
+      max: 99
+    enum_values: []
+    endpoint_routes:
+      0: WINDOW_CLOSE
+      100: WINDOW_OPEN
+    endpoint_values_prohibited_for_contract: true
+  SEAT_HEIGHT_MM_OPTIONAL:
+    allowed: true
+    required: false
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.seat_height_max_mm
+    enum_values:
+    - LOWEST
+    - HIGHEST
+  SEAT_LONGITUDINAL_MM_OPTIONAL:
+    allowed: true
+    required: false
+    type: LENGTH
+    canonical_unit: mm
+    valid_range:
+      min: 0
+      max_ref: VEHICLE_SPECIFIC.seat_longitudinal_max_mm
+    enum_values:
+    - FRONTMOST
+    - REARMOST
+  SOURCE_AIRFLOW_DIRECTION_REQUIRED:
+    allowed: true
+    required: true
+    type: AIRFLOW_DIRECTION_SOURCE_TEXT
+    canonical_unit: source_defined
+    valid_range: null
+    enum_values: []
+    range_policy: SOURCE_EXPLICIT_NO_GLOBAL_RANGE
+    relative_value_policy: RECOGNIZE_BUT_KEEP_UNRESOLVED_WITHOUT_PHYSICAL_MAGNITUDE
+  SOURCE_COLOR_REQUIRED:
+    allowed: true
+    required: true
+    type: COLOR_SOURCE_TEXT
+    canonical_unit: source_defined
+    valid_range: null
+    enum_values: []
+    range_policy: SOURCE_EXPLICIT_NO_GLOBAL_RANGE
+    relative_value_policy: RECOGNIZE_BUT_KEEP_UNRESOLVED_WITHOUT_PHYSICAL_MAGNITUDE
+  SOURCE_LEVEL_REQUIRED:
+    allowed: true
+    required: true
+    type: LEVEL_OR_RELATIVE
+    canonical_unit: source_defined
+    valid_range: null
+    enum_values: []
+    range_policy: SOURCE_EXPLICIT_NO_GLOBAL_RANGE
+    relative_value_policy: RECOGNIZE_BUT_KEEP_UNRESOLVED_WITHOUT_PHYSICAL_MAGNITUDE
+  SOURCE_POSITION_REQUIRED:
+    allowed: true
+    required: true
+    type: POSITION_OR_RELATIVE
+    canonical_unit: source_defined
+    valid_range: null
+    enum_values: []
+    range_policy: SOURCE_EXPLICIT_NO_GLOBAL_RANGE
+    relative_value_policy: RECOGNIZE_BUT_KEEP_UNRESOLVED_WITHOUT_PHYSICAL_MAGNITUDE
+  SOURCE_SCENT_REQUIRED:
+    allowed: true
+    required: true
+    type: SCENT_SOURCE_TEXT
+    canonical_unit: source_defined
+    valid_range: null
+    enum_values: []
+    range_policy: SOURCE_EXPLICIT_NO_GLOBAL_RANGE
+    relative_value_policy: RECOGNIZE_BUT_KEEP_UNRESOLVED_WITHOUT_PHYSICAL_MAGNITUDE
+  SOURCE_TEMPERATURE_REQUIRED:
+    allowed: true
+    required: true
+    type: TEMPERATURE_OR_RELATIVE
+    canonical_unit: degC_when_explicit
+    valid_range: null
+    enum_values: []
+    range_policy: SOURCE_EXPLICIT_NO_GLOBAL_RANGE
+    relative_value_policy: RECOGNIZE_BUT_KEEP_UNRESOLVED_WITHOUT_PHYSICAL_MAGNITUDE
+  SOURCE_TRANSPARENCY_REQUIRED:
+    allowed: true
+    required: true
+    type: TRANSPARENCY_OR_RELATIVE
+    canonical_unit: source_defined
+    valid_range: null
+    enum_values: []
+    range_policy: SOURCE_EXPLICIT_NO_GLOBAL_RANGE
+    relative_value_policy: RECOGNIZE_BUT_KEEP_UNRESOLVED_WITHOUT_PHYSICAL_MAGNITUDE
+  SPEED_DELTA_OPTIONAL:
+    allowed: true
+    required: false
+    type: SPEED_DELTA
+    canonical_unit: km/h
+    valid_range:
+      min: 0
+      max_ref: vehicle_capability_limits.max_speed_delta_kmh
+    enum_values: []
+    absolute_target_prohibited: true
+    action_provides_direction: true
+  SPEED_REQUIRED:
+    allowed: true
+    required: true
+    type: SPEED
+    canonical_unit: km/h
+    valid_range:
+      min: 0
+      max_ref: vehicle_capability_limits.max_cruise_speed_kmh
+    enum_values: []
+  WIPER_SENSITIVITY_REQUIRED:
+    allowed: true
+    required: true
+    type: LEVEL
+    canonical_unit: policy_defined
+    valid_range:
+      min_ref: vehicle_capability_limits.min_wiper_sensitivity
+      max_ref: vehicle_capability_limits.max_wiper_sensitivity
+    enum_values:
+    - LOW
+    - MEDIUM
+    - HIGH
+mode_contracts:
+  CRUISE_GAP_LEVEL:
+  - LEVEL_1
+  - LEVEL_2
+  - LEVEL_3
+  - LEVEL_4
+  GEAR:
+  - P
+  - N
+  - D
+  - R
+  - FORWARD_GEAR_N
+  - REVERSE_GEAR_N
+  GEAR_CHANGE:
+  - MANUAL
+  - AUTOMATIC
+  HEADLIGHT:
+  - 'OFF'
+  - 'ON'
+  - POSITION
+  - DAYTIME_RUNNING_LIGHTS
+  - AUTO
+  KNOWN_AIR_PURIFIER_SOURCE_MODE:
+  - 自动
+  KNOWN_AMBIENT_LIGHT_SOURCE_MODE:
+  - 个性化
+  - 主题模式
+  - 关联驾驶
+  - 单色固定
+  - 单色闪动
+  - 双色
+  - 呼吸
+  - 常亮
+  - 心跳
+  - 渐变
+  - 温度
+  - 纯色
+  - 静态
+  - 音乐律动
+  KNOWN_CAMERA_SOURCE_MODE:
+  - 延时摄影
+  - 录视频
+  - 拍动图
+  - 缩录
+  KNOWN_DISPLAY_SOURCE_MODE:
+  - 夜晚模式
+  - 夜间模式
+  - 性能
+  - 日出
+  - 日落
+  - 日间模式
+  - 标准
+  - 深色
+  - 深色模式
+  - 清洁
+  - 白天
+  - 白天模式
+  - 经典
+  - 自动
+  - 自动调节
+  - 雪地模式
+  KNOWN_HVAC_SOURCE_MODE:
+  - 内循环
+  - 制冷
+  - 制热
+  - 压缩机
+  - 吹着热风
+  - 外循环
+  - 平衡
+  - 强劲
+  - 手动
+  - 手动模式
+  - 扫风
+  - 暖风
+  - 标准
+  - 聚焦模式
+  - 自动
+  - 自动循环
+  - 自动模式
+  - 自然风
+  - 自由
+  - 自由风
+  - 舒适
+  - 舒适模式
+  - 轻柔
+  - 避开
+  KNOWN_INTERIOR_LIGHT_SOURCE_MODE:
+  - 主题
+  - 自动
+  - 自动关闭
+  KNOWN_MEDIA_SOURCE_MODE:
+  - 三维
+  - 典雅旋律
+  - 剧场
+  - 原声模式
+  - 古典之韵
+  - 平坦
+  - 标准
+  - 歌剧院
+  - 流行
+  - 流行律动
+  - 爵士
+  - 爵士乐章
+  - 现场音乐会
+  - 超重低音
+  - 酒吧
+  - 雅马哈
+  - 音乐厅
+  KNOWN_READING_LIGHT_SOURCE_MODE:
+  - 自动
+  KNOWN_REFRIGERATOR_SOURCE_MODE:
+  - 保温
+  - 制冷
+  - 极冻
+  - 热下吃的
+  - 热饮
+  - 红酒
+  KNOWN_SEAT_HEATING_SOURCE_MODE:
+  - 自动
+  KNOWN_SEAT_MASSAGE_SOURCE_MODE:
+  - 二
+  - 交叉
+  - 平衡
+  - 推拿
+  - 海浪
+  - 清新
+  - 肩部舒展
+  - 背部放松
+  - 背部舒展
+  - 脊柱
+  - 脊柱松弛
+  - 腰臀舒缓
+  - 腰部放松
+  - 臀腿推拿
+  - 风吹麦浪
+  KNOWN_SEAT_VENTILATION_SOURCE_MODE:
+  - AUTO
+  LUMBAR_REGION:
+  - GENERIC
+  - TOP
+  - MID
+  - BOTTOM
+  WIPER:
+  - 'OFF'
+  - SLOW
+  - MEDIUM
+  - FAST
+  - INTERVAL
+  - RAIN_SENSOR
+  WIPER_SENSITIVITY_APPLICABLE_MODE:
+  - INTERVAL
+  - RAIN_SENSOR
+  DRIVING_MODE_FINAL_APPROVED_V2:
+  - SPORT
+  - ECONOMY
+  - COMFORT
+  - STANDARD
+  - PERSONALIZED
+  - SNOW
+  - OFF_ROAD
+  - SAND
+  - MUD
+  - ROCK
+  - MOUNTAIN
+  - GRASS
+  - DRIFT
+  - RACE
+  - SUPER_SPORT
+direction_contracts:
+  EVASIVE_STEER_LEFT_RIGHT:
+  - LEFT
+  - RIGHT
+  LANE_CHANGE_LEFT_RIGHT:
+  - LEFT
+  - RIGHT
+  LUMBAR_SUPPORT_MORE_LESS:
+  - MORE
+  - LESS
+  MIRROR_LEFT_RIGHT_UP_DOWN:
+  - LEFT
+  - RIGHT
+  - UP
+  - DOWN
+  SEAT_FORWARD_BACKWARD:
+  - FORWARD
+  - BACKWARD
+  SEAT_UP_DOWN:
+  - UP
+  - DOWN
+  STEERING_WHEEL_EXTEND_RETRACT:
+  - EXTEND
+  - RETRACT
+  STEERING_WHEEL_UP_DOWN:
+  - UP
+  - DOWN
+  SUNROOF_TILT_UP_DOWN:
+  - UP
+  - DOWN
+  TURN_INDICATOR_LEFT_RIGHT:
+  - LEFT
+  - RIGHT
+conditional_slot_contracts:
+  VALUE_OR_DIRECTION:
+    rule: AT_LEAST_ONE_OF
+    slots:
+    - VALUE
+    - DIRECTION
+    same_text_span_policy: DISALLOW_SHARED_SPAN
+  VALUE_XOR_MODE:
+    rule: XOR
+    slots:
+    - VALUE
+    - MODE
+    jointly_present_exception: ALLOW_ONLY_IF_DETERMINISTICALLY_CONSISTENT
+mode_mapping_contracts:
+  GEAR_VEHICLE_SPECIFIC:
+    canonical_modes:
+    - P
+    - N
+    - D
+    - R
+    - FORWARD_GEAR_N
+    - REVERSE_GEAR_N
+    lexical_aliases:
+      R挡: R
+      倒挡: R
+      挂倒挡: R
+      倒N挡: REVERSE_GEAR_N
+    vss_code_rules:
+      P: 126
+      N: 0
+      D: 127
+      R: VEHICLE_CAPABILITY_MAPPING_REQUIRED
+      FORWARD_GEAR_N: POSITIVE_INTEGER_N
+      REVERSE_GEAR_N: NEGATIVE_INTEGER_N
+    physical_mapping_authority: VehicleCapabilityMapping
+    vehicle_specific_validation_required: true
+    prohibited_generic_mapping: R -> -1 or REVERSE_GEAR_1
+  HEADLIGHT_MAIN_SWITCH:
+    canonical_modes:
+    - 'OFF'
+    - 'ON'
+    - POSITION
+    - DAYTIME_RUNNING_LIGHTS
+    - AUTO
+    lexical_aliases:
+      'ON':
+        canonical_mode: 'ON'
+        condition: EXPLICIT_MAIN_LIGHT_SWITCH_REFERENCE
+    restricted_aliases:
+      'ON':
+        allowed_intent_id: HEADLIGHT_SET_MODE
+        prohibited_intent_ids:
+        - LOW_BEAM_ON
+        - HIGH_BEAM_ON
+value_mapping_contracts: {}
+mode_surface_mappings:
+  HEADLIGHT:
+    'OFF':
+    - 关闭前照灯
+    - 关掉前照灯
+    - 前照灯关闭
+    - 主灯关闭
+    'ON':
+    - 打开前照灯
+    - 开启前照灯
+    - 前照灯打开
+    - 主灯打开
+    POSITION:
+    - 示宽灯
+    - 位置灯
+    DAYTIME_RUNNING_LIGHTS:
+    - 日间行车灯
+    AUTO:
+    - 自动大灯
+    - 自动前照灯
+  GEAR:
+    P:
+    - P挡
+    - P档
+    - 驻车挡
+    N:
+    - N挡
+    - N档
+    - 空挡
+    D:
+    - D挡
+    - D档
+    - 前进挡
+    R:
+    - R挡
+    - R档
+    - 倒挡
+  GEAR_CHANGE:
+    MANUAL:
+    - 手动换挡
+    - 手动模式
+    AUTOMATIC:
+    - 自动换挡
+    - 自动模式
+  WIPER:
+    'OFF':
+    - 关闭雨刮
+    - 雨刮关闭
+    SLOW:
+    - 雨刮慢速
+    - 低速雨刮
+    - 雨刮低速
+    MEDIUM:
+    - 雨刮中速
+    - 中速雨刮
+    FAST:
+    - 雨刮快速
+    - 高速雨刮
+    - 雨刮高速
+    INTERVAL:
+    - 间歇雨刮
+    - 雨刮间歇
+    RAIN_SENSOR:
+    - 自动雨刮
+    - 感应雨刮
+  CRUISE_GAP_LEVEL:
+    LEVEL_1:
+    - 一级
+    - 1级
+    - 一档
+    LEVEL_2:
+    - 二级
+    - 2级
+    - 二档
+    LEVEL_3:
+    - 三级
+    - 3级
+    - 三档
+    LEVEL_4:
+    - 四级
+    - 4级
+    - 四档
+  DRIVING_MODE_FINAL_APPROVED_V2:
+    SPORT:
+    - 运动
+    ECONOMY:
+    - 经济
+    COMFORT:
+    - 舒适
+    STANDARD:
+    - 标准
+    PERSONALIZED:
+    - 个性化
+    SNOW:
+    - 雪地
+    OFF_ROAD:
+    - 越野
+    SAND:
+    - 沙地
+    MUD:
+    - 泥泞
+    ROCK:
+    - 岩石
+    MOUNTAIN:
+    - 山地
+    GRASS:
+    - 草地
+    DRIFT:
+    - 漂移
+    RACE:
+    - 竞速
+    SUPER_SPORT:
+    - 超级运动
+  KNOWN_AIR_PURIFIER_SOURCE_MODE:
+    自动:
+    - 自动
+  KNOWN_AMBIENT_LIGHT_SOURCE_MODE:
+    个性化:
+    - 个性化
+    主题模式:
+    - 主题模式
+    关联驾驶:
+    - 关联驾驶
+    单色固定:
+    - 单色固定
+    单色闪动:
+    - 单色闪动
+    双色:
+    - 双色
+    呼吸:
+    - 呼吸
+    常亮:
+    - 常亮
+    心跳:
+    - 心跳
+    渐变:
+    - 渐变
+    温度:
+    - 温度
+    纯色:
+    - 纯色
+    静态:
+    - 静态
+    音乐律动:
+    - 音乐律动
+  KNOWN_CAMERA_SOURCE_MODE:
+    延时摄影:
+    - 延时摄影
+    录视频:
+    - 录视频
+    拍动图:
+    - 拍动图
+    缩录:
+    - 缩录
+  KNOWN_DISPLAY_SOURCE_MODE:
+    夜晚模式:
+    - 夜晚模式
+    夜间模式:
+    - 夜间模式
+    性能:
+    - 性能
+    日出:
+    - 日出
+    日落:
+    - 日落
+    日间模式:
+    - 日间模式
+    标准:
+    - 标准
+    深色:
+    - 深色
+    深色模式:
+    - 深色模式
+    清洁:
+    - 清洁
+    白天:
+    - 白天
+    白天模式:
+    - 白天模式
+    经典:
+    - 经典
+    自动:
+    - 自动
+    自动调节:
+    - 自动调节
+    雪地模式:
+    - 雪地模式
+  KNOWN_HVAC_SOURCE_MODE:
+    内循环:
+    - 内循环
+    制冷:
+    - 制冷
+    制热:
+    - 制热
+    压缩机:
+    - 压缩机
+    吹着热风:
+    - 吹着热风
+    外循环:
+    - 外循环
+    平衡:
+    - 平衡
+    强劲:
+    - 强劲
+    手动:
+    - 手动
+    手动模式:
+    - 手动模式
+    扫风:
+    - 扫风
+    暖风:
+    - 暖风
+    标准:
+    - 标准
+    聚焦模式:
+    - 聚焦模式
+    自动:
+    - 自动
+    自动循环:
+    - 自动循环
+    自动模式:
+    - 自动模式
+    自然风:
+    - 自然风
+    自由:
+    - 自由
+    自由风:
+    - 自由风
+    舒适:
+    - 舒适
+    舒适模式:
+    - 舒适模式
+    轻柔:
+    - 轻柔
+    避开:
+    - 避开
+  KNOWN_INTERIOR_LIGHT_SOURCE_MODE:
+    主题:
+    - 主题
+    自动:
+    - 自动
+    自动关闭:
+    - 自动关闭
+  KNOWN_MEDIA_SOURCE_MODE:
+    三维:
+    - 三维
+    典雅旋律:
+    - 典雅旋律
+    剧场:
+    - 剧场
+    原声模式:
+    - 原声模式
+    古典之韵:
+    - 古典之韵
+    平坦:
+    - 平坦
+    标准:
+    - 标准
+    歌剧院:
+    - 歌剧院
+    流行:
+    - 流行
+    流行律动:
+    - 流行律动
+    爵士:
+    - 爵士
+    爵士乐章:
+    - 爵士乐章
+    现场音乐会:
+    - 现场音乐会
+    超重低音:
+    - 超重低音
+    酒吧:
+    - 酒吧
+    雅马哈:
+    - 雅马哈
+    音乐厅:
+    - 音乐厅
+  KNOWN_READING_LIGHT_SOURCE_MODE:
+    自动:
+    - 自动
+  KNOWN_REFRIGERATOR_SOURCE_MODE:
+    保温:
+    - 保温
+    制冷:
+    - 制冷
+    极冻:
+    - 极冻
+    热下吃的:
+    - 热下吃的
+    热饮:
+    - 热饮
+    红酒:
+    - 红酒
+  KNOWN_SEAT_HEATING_SOURCE_MODE:
+    自动:
+    - 自动
+  KNOWN_SEAT_MASSAGE_SOURCE_MODE:
+    二:
+    - 二
+    交叉:
+    - 交叉
+    平衡:
+    - 平衡
+    推拿:
+    - 推拿
+    海浪:
+    - 海浪
+    清新:
+    - 清新
+    肩部舒展:
+    - 肩部舒展
+    背部放松:
+    - 背部放松
+    背部舒展:
+    - 背部舒展
+    脊柱:
+    - 脊柱
+    脊柱松弛:
+    - 脊柱松弛
+    腰臀舒缓:
+    - 腰臀舒缓
+    腰部放松:
+    - 腰部放松
+    臀腿推拿:
+    - 臀腿推拿
+    风吹麦浪:
+    - 风吹麦浪
+  KNOWN_SEAT_VENTILATION_SOURCE_MODE:
+    AUTO:
+    - AUTO
+  LUMBAR_REGION:
+    GENERIC:
+    - GENERIC
+    TOP:
+    - TOP
+    MID:
+    - MID
+    BOTTOM:
+    - BOTTOM
+  WIPER_SENSITIVITY_APPLICABLE_MODE:
+    INTERVAL:
+    - INTERVAL
+    RAIN_SENSOR:
+    - RAIN_SENSOR
+direction_surface_mappings:
+  SEAT_FORWARD_BACKWARD:
+    FORWARD:
+    - 往前
+    - 向前
+    - 前移
+    BACKWARD:
+    - 往后
+    - 向后
+    - 后移
+  SEAT_UP_DOWN:
+    UP:
+    - 往上
+    - 向上
+    - 升高
+    - 调高
+    DOWN:
+    - 往下
+    - 向下
+    - 降低
+    - 调低
+  LUMBAR_SUPPORT_MORE_LESS:
+    MORE:
+    - 增加
+    - 加强
+    - 多顶
+    LESS:
+    - 减小
+    - 减弱
+    - 少顶
+  STEERING_WHEEL_EXTEND_RETRACT:
+    EXTEND:
+    - 往前
+    - 向外
+    - 推远
+    RETRACT:
+    - 往后
+    - 向内
+    - 拉近
+  STEERING_WHEEL_UP_DOWN:
+    UP:
+    - 往上
+    - 抬高
+    - 调高
+    DOWN:
+    - 往下
+    - 压低
+    - 调低
+  MIRROR_LEFT_RIGHT_UP_DOWN:
+    LEFT:
+    - 向左
+    - 往左
+    RIGHT:
+    - 向右
+    - 往右
+    UP:
+    - 向上
+    - 往上
+    DOWN:
+    - 向下
+    - 往下
+  TURN_INDICATOR_LEFT_RIGHT:
+    LEFT:
+    - 左转
+    - 左侧
+    RIGHT:
+    - 右转
+    - 右侧
+  LANE_CHANGE_LEFT_RIGHT:
+    LEFT:
+    - 向左
+    - 左侧
+    RIGHT:
+    - 向右
+    - 右侧
+  EVASIVE_STEER_LEFT_RIGHT:
+    LEFT:
+    - 向左
+    - 左侧
+    RIGHT:
+    - 向右
+    - 右侧
+  SUNROOF_TILT_UP_DOWN:
+    UP:
+    - 翘起
+    - 上翘
+    DOWN:
+    - 下收
+    - 向下
+contract_catalog_provenance:
+  source: data/nlu/spec/intent_registry_r4_final_candidate.yaml
+  policy: COPY_ONLY_REFERENCED_EXISTING_CONTRACTS_NO_GUESSED_RANGE_OR_ENUM
+intents:
+- intent_id: MIRROR_HEATING_ON
+  chinese_name: 开启外后视镜加热
+  capability_family: BODY_MIRROR_HEATING
+  canonical_action: TURN_ON
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: MIRROR_HEATING_OFF
+  chinese_name: 关闭外后视镜加热
+  capability_family: BODY_MIRROR_HEATING
+  canonical_action: TURN_OFF
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SEAT_LONGITUDINAL_SET_POSITION
+  chinese_name: 设置座椅前后位置
+  capability_family: SEAT_LONGITUDINAL_POSITION
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - MIDDLE_FRONT
+  - MIDDLE_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: SEAT_LONGITUDINAL_MM_OPTIONAL
+  direction_contract: SEAT_FORWARD_BACKWARD
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_LONGITUDINAL_POSITION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LONGITUDINAL_POSITION
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SEAT_TILT_SET_ANGLE
+  chinese_name: 设置座椅整体倾角
+  capability_family: SEAT_TILT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - MIDDLE_FRONT
+  - MIDDLE_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: ANGLE_OPTIONAL
+  direction_contract: SEAT_FORWARD_BACKWARD
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_TILT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TILT_ANGLE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SEAT_BACKREST_SET_ANGLE
+  chinese_name: 设置座椅靠背角度
+  capability_family: SEAT_BACKREST_RECLINE
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - MIDDLE_FRONT
+  - MIDDLE_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: ANGLE_OPTIONAL
+  direction_contract: SEAT_FORWARD_BACKWARD
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_BACKREST_RECLINE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: BACKREST_ANGLE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SEAT_HEIGHT_SET_POSITION
+  chinese_name: 设置座椅高度
+  capability_family: SEAT_HEIGHT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - MIDDLE_FRONT
+  - MIDDLE_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  value_contract: SEAT_HEIGHT_MM_OPTIONAL
+  direction_contract: SEAT_UP_DOWN
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_HEIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEIGHT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SEAT_LUMBAR_SET_HEIGHT
+  chinese_name: 设置座椅腰托高度
+  capability_family: SEAT_LUMBAR_SUPPORT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - MIDDLE_FRONT
+  - MIDDLE_REAR
+  value_contract: LUMBAR_HEIGHT_MM_OPTIONAL
+  direction_contract: SEAT_UP_DOWN
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_LUMBAR_SUPPORT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LUMBAR_HEIGHT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SEAT_LUMBAR_SET_SUPPORT
+  chinese_name: 设置座椅腰托支撑程度
+  capability_family: SEAT_LUMBAR_SUPPORT
+  canonical_action: ADJUST
+  canonical_target: SEAT
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - MIDDLE_FRONT
+  - MIDDLE_REAR
+  value_contract: PERCENT_0_100_OPTIONAL
+  mode_contract: LUMBAR_REGION
+  direction_contract: LUMBAR_SUPPORT_MORE_LESS
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  required_slots:
+  - AREA
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  - MODE
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - SEAT_LUMBAR_SUPPORT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LUMBAR_SUPPORT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: STEERING_WHEEL_SET_EXTENSION
+  chinese_name: 设置方向盘伸缩位置
+  capability_family: CHASSIS_STEERING_WHEEL_POSITION
+  canonical_action: ADJUST
+  canonical_target: STEERING_WHEEL
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas: []
+  value_contract: PERCENT_0_100_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_STEERING_WHEEL_POSITION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: EXTENSION
+  direction_contract: STEERING_WHEEL_EXTEND_RETRACT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: STEERING_WHEEL_SET_TILT
+  chinese_name: 设置方向盘倾斜位置
+  capability_family: CHASSIS_STEERING_WHEEL_POSITION
+  canonical_action: ADJUST
+  canonical_target: STEERING_WHEEL
+  control_domain: 座舱控制
+  risk_level: R1
+  risk_review_status: RISK_REVIEW_REQUIRED
+  risk_tags:
+  - 驾驶姿态
+  allowed_areas: []
+  value_contract: PERCENT_0_100_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  - DIRECTION
+  conditional_slot_contract: VALUE_OR_DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_STEERING_WHEEL_POSITION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TILT_POSITION
+  direction_contract: STEERING_WHEEL_UP_DOWN
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DEFROST_ON
+  chinese_name: 开启风挡除霜除雾
+  capability_family: CABIN_HVAC_DEFROST
+  canonical_action: TURN_ON
+  canonical_target: WINDSHIELD
+  control_domain: 座舱控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  - 除雾安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_HVAC_DEFROST
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: DEFROST_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DEFROST_OFF
+  chinese_name: 关闭风挡除霜除雾
+  capability_family: CABIN_HVAC_DEFROST
+  canonical_action: TURN_OFF
+  canonical_target: WINDSHIELD
+  control_domain: 座舱控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 除雾安全
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_HVAC_DEFROST
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: DEFROST_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: WINDSHIELD_HEATING_ON
+  chinese_name: 开启风挡加热
+  capability_family: BODY_WINDSHIELD_HEATING
+  canonical_action: TURN_ON
+  canonical_target: WINDSHIELD
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_WINDSHIELD_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: WINDSHIELD_HEATING_OFF
+  chinese_name: 关闭风挡加热
+  capability_family: BODY_WINDSHIELD_HEATING
+  canonical_action: TURN_OFF
+  canonical_target: WINDSHIELD
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_WINDSHIELD_HEATING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: HEATING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: ESC_ENABLE
+  chinese_name: 启用车身电子稳定系统
+  capability_family: ADAS_ESC_ENABLE
+  canonical_action: ENABLE
+  canonical_target: ESC
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 车身稳定
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_ESC_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: ESC_DISABLE
+  chinese_name: 停用车身电子稳定系统
+  capability_family: ADAS_ESC_ENABLE
+  canonical_action: DISABLE
+  canonical_target: ESC
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 车身稳定
+  - ADAS
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - ADAS_ESC_ENABLE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: TRUNK_OPEN
+  chinese_name: 打开行李厢
+  capability_family: BODY_TRUNK_OPENING
+  canonical_action: OPEN
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_OPENING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: TRUNK_CLOSE
+  chinese_name: 关闭行李厢
+  capability_family: BODY_TRUNK_OPENING
+  canonical_action: CLOSE
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_OPENING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: TRUNK_SET_POSITION
+  chinese_name: 设置行李厢开度
+  capability_family: BODY_TRUNK_OPENING
+  canonical_action: ADJUST
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - REAR
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_OPENING
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_POSITION
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: TRUNK_LOCK
+  chinese_name: 锁定行李厢
+  capability_family: BODY_TRUNK_LOCK
+  canonical_action: LOCK
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOCK_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: TRUNK_UNLOCK
+  chinese_name: 解锁行李厢
+  capability_family: BODY_TRUNK_LOCK
+  canonical_action: UNLOCK
+  canonical_target: TRUNK
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TRUNK_LOCK
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: LOCK_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HOOD_OPEN
+  chinese_name: 打开前舱盖
+  capability_family: BODY_HOOD
+  canonical_action: OPEN
+  canonical_target: HOOD
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HOOD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HOOD_CLOSE
+  chinese_name: 关闭前舱盖
+  capability_family: BODY_HOOD
+  canonical_action: CLOSE
+  canonical_target: HOOD
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身开闭
+  - 行车安全
+  allowed_areas:
+  - FRONT
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HOOD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: GEAR_SET
+  chinese_name: 设置目标挡位
+  capability_family: TRANSMISSION_GEAR_SELECTION
+  canonical_action: SWITCH_MODE
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 挡位安全
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: GEAR
+  mode_mapping_contract: GEAR_VEHICLE_SPECIFIC
+  required_slots:
+  - MODE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_GEAR_SELECTION
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: SELECTED_GEAR
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: GEAR_CHANGE_MODE_SET
+  chinese_name: 设置自动或手动换挡模式
+  capability_family: TRANSMISSION_GEAR_CHANGE_MODE
+  canonical_action: SWITCH_MODE
+  canonical_target: TRANSMISSION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 动力传递
+  - 驾驶模式
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: GEAR_CHANGE
+  required_slots:
+  - MODE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - TRANSMISSION_GEAR_CHANGE_MODE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: GEAR_CHANGE_MODE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HORN_ACTIVATE
+  chinese_name: 鸣笛
+  capability_family: BODY_HORN
+  canonical_action: ACTIVATE
+  canonical_target: HORN
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 对外信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HORN
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: SOUND
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: MIRROR_FOLD
+  chinese_name: 折叠外后视镜
+  capability_family: BODY_MIRROR_FOLD
+  canonical_action: FOLD
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_FOLD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: FOLDING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: MIRROR_UNFOLD
+  chinese_name: 展开外后视镜
+  capability_family: BODY_MIRROR_FOLD
+  canonical_action: UNFOLD
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_FOLD
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: FOLDING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: MIRROR_SET_ANGLE
+  chinese_name: 设置外后视镜角度
+  capability_family: BODY_MIRROR_ADJUSTMENT
+  canonical_action: ADJUST
+  canonical_target: MIRROR
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  value_contract: ANGLE_OPTIONAL
+  required_slots:
+  - AREA
+  - DIRECTION
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_MIRROR_ADJUSTMENT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: ANGLE
+  direction_contract: MIRROR_LEFT_RIGHT_UP_DOWN
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SUNROOF_OPEN
+  chinese_name: 打开天窗
+  capability_family: CABIN_SUNROOF
+  canonical_action: OPEN
+  canonical_target: SUNROOF
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CABIN_SUNROOF
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SUNROOF_CLOSE
+  chinese_name: 关闭天窗
+  capability_family: CABIN_SUNROOF
+  canonical_action: CLOSE
+  canonical_target: SUNROOF
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CABIN_SUNROOF
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: SUNROOF_SET_TILT
+  chinese_name: 控制天窗翘起或下收
+  capability_family: CABIN_SUNROOF
+  canonical_action: ADJUST
+  canonical_target: SUNROOF
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CABIN_SUNROOF
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: TILT_OPERATION
+  direction_contract: SUNROOF_TILT_UP_DOWN
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: CRUISE_ENABLE
+  chinese_name: 启用巡航
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: ENABLE
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: CRUISE_DISABLE
+  chinese_name: 停用巡航
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: DISABLE
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: CRUISE_SET_SPEED
+  chinese_name: 设置巡航速度
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: SET
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: SPEED_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: SPEED
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: CRUISE_SET_GAP
+  chinese_name: 设置巡航跟车距离
+  capability_family: ADAS_CRUISE_CONTROL
+  canonical_action: SET
+  canonical_target: CRUISE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 巡航控制
+  - 跟车安全
+  allowed_areas: []
+  value_contract: FOLLOWING_GAP_VALUE_OPTIONAL
+  mode_contract: CRUISE_GAP_LEVEL
+  conditional_slot_contract: VALUE_XOR_MODE
+  required_slots: []
+  optional_slots:
+  - VALUE
+  - MODE
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: FOLLOWING_GAP
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HEADLIGHT_SET_MODE
+  chinese_name: 设置主灯模式
+  capability_family: BODY_MAIN_LIGHT_MODE
+  canonical_action: SWITCH_MODE
+  canonical_target: HEADLIGHT
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: HEADLIGHT
+  mode_mapping_contract: HEADLIGHT_MAIN_SWITCH
+  required_slots:
+  - MODE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - BODY_MAIN_LIGHT_MODE
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: MODE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HAZARD_LIGHT_ON
+  chinese_name: 开启危险警示灯
+  capability_family: BODY_HAZARD_LIGHT
+  canonical_action: TURN_ON
+  canonical_target: HAZARD_LIGHT
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 警示信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HAZARD_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HAZARD_LIGHT_OFF
+  chinese_name: 关闭危险警示灯
+  capability_family: BODY_HAZARD_LIGHT
+  canonical_action: TURN_OFF
+  canonical_target: HAZARD_LIGHT
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 警示信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HAZARD_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: TURN_INDICATOR_ON
+  chinese_name: 开启转向灯
+  capability_family: BODY_TURN_INDICATOR
+  canonical_action: TURN_ON
+  canonical_target: TURN_INDICATOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 转向信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TURN_INDICATOR
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  direction_contract: TURN_INDICATOR_LEFT_RIGHT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: TURN_INDICATOR_OFF
+  chinese_name: 关闭转向灯
+  capability_family: BODY_TURN_INDICATOR
+  canonical_action: TURN_OFF
+  canonical_target: TURN_INDICATOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 对外灯光
+  - 转向信号
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - DIRECTION
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_TURN_INDICATOR
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  direction_contract: TURN_INDICATOR_LEFT_RIGHT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: LOW_BEAM_ON
+  chinese_name: 开启近光灯
+  capability_family: BODY_LOW_BEAM
+  canonical_action: TURN_ON
+  canonical_target: LOW_BEAM
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_LOW_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: LOW_BEAM_OFF
+  chinese_name: 关闭近光灯
+  capability_family: BODY_LOW_BEAM
+  canonical_action: TURN_OFF
+  canonical_target: LOW_BEAM
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_LOW_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HIGH_BEAM_ON
+  chinese_name: 开启远光灯
+  capability_family: BODY_HIGH_BEAM
+  canonical_action: TURN_ON
+  canonical_target: HIGH_BEAM
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HIGH_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: HIGH_BEAM_OFF
+  chinese_name: 关闭远光灯
+  capability_family: BODY_HIGH_BEAM
+  canonical_action: TURN_OFF
+  canonical_target: HIGH_BEAM
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_HIGH_BEAM
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: FOG_LIGHT_ON
+  chinese_name: 开启雾灯
+  capability_family: BODY_FOG_LIGHT
+  canonical_action: TURN_ON
+  canonical_target: FOG_LIGHT
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_FOG_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: FOG_LIGHT_OFF
+  chinese_name: 关闭雾灯
+  capability_family: BODY_FOG_LIGHT
+  canonical_action: TURN_OFF
+  canonical_target: FOG_LIGHT
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  - 对外灯光
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_FOG_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: PARKING_LIGHT_ON
+  chinese_name: 开启驻车灯
+  capability_family: BODY_PARKING_LIGHT
+  canonical_action: TURN_ON
+  canonical_target: PARKING_LIGHT
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 对外灯光
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_PARKING_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: PARKING_LIGHT_OFF
+  chinese_name: 关闭驻车灯
+  capability_family: BODY_PARKING_LIGHT
+  canonical_action: TURN_OFF
+  canonical_target: PARKING_LIGHT
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 对外灯光
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - BODY_PARKING_LIGHT
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: WINDOW_OPEN
+  chinese_name: 打开车窗
+  capability_family: CABIN_WINDOW
+  canonical_action: OPEN
+  canonical_target: WINDOW
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  - 乘员安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_WINDOW
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: WINDOW_CLOSE
+  chinese_name: 关闭车窗
+  capability_family: CABIN_WINDOW
+  canonical_action: CLOSE
+  canonical_target: WINDOW
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  - 乘员安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_WINDOW
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: WINDOW_SET_POSITION
+  chinese_name: 设置车窗开度
+  capability_family: CABIN_WINDOW
+  canonical_action: ADJUST
+  canonical_target: WINDOW
+  control_domain: 车身控制
+  risk_level: R2
+  risk_tags:
+  - 车身开闭
+  - 乘员安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  area_resolution_policy: EXPLICIT_ONLY_UNRESOLVED_IF_MISSING
+  composite_area_policy: EXPLICIT_APPROVED
+  value_contract: PERCENT_PARTIAL_1_99_REQUIRED
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_WINDOW
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_POSITION
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DOOR_OPEN
+  chinese_name: 打开车门
+  capability_family: CABIN_DOOR_OPENING
+  canonical_action: OPEN
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身安全
+  - 运动中误操作
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_OPENING
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DOOR_CLOSE
+  chinese_name: 关闭车门
+  capability_family: CABIN_DOOR_OPENING
+  canonical_action: CLOSE
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身安全
+  - 夹伤风险
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_OPENING
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DOOR_SET_POSITION
+  chinese_name: 设置车门开度
+  capability_family: CABIN_DOOR_OPENING
+  canonical_action: ADJUST
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 车身安全
+  - 夹伤风险
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  area_resolution_policy: EXPLICIT_ONLY_UNRESOLVED_IF_MISSING
+  composite_area_policy: PROHIBITED_CONSERVATIVE_SAFETY_CONTRACT
+  value_contract: PERCENT_0_100_REQUIRED
+  required_slots:
+  - AREA
+  - VALUE
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_OPENING
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: OPENING_POSITION
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DOOR_LOCK
+  chinese_name: 锁定车门
+  capability_family: CABIN_DOOR_LOCK
+  canonical_action: LOCK
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_LOCK
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: LOCK_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DOOR_UNLOCK
+  chinese_name: 解锁车门
+  capability_family: CABIN_DOOR_LOCK
+  canonical_action: UNLOCK
+  canonical_target: DOOR
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 权限安全
+  - 车身安全
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - CABIN_DOOR_LOCK
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: LOCK_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: WIPER_SET_MODE
+  chinese_name: 设置雨刮模式
+  capability_family: BODY_WIPER_USER_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: WIPER
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: NONE
+  mode_contract: WIPER
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - BODY_WIPER_USER_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: MODE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: WIPER_SET_SENSITIVITY
+  chinese_name: 设置雨刮灵敏度
+  capability_family: BODY_WIPER_USER_CONTROL
+  canonical_action: ADJUST
+  canonical_target: WIPER
+  control_domain: 车身控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶视野
+  allowed_areas:
+  - FRONT
+  - REAR
+  - ALL
+  value_contract: WIPER_SENSITIVITY_REQUIRED
+  mode_contract: WIPER_SENSITIVITY_APPLICABLE_MODE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  - MODE
+  scope_status: IN_SCOPE
+  capability_origin: VSS_AND_PROJECT
+  vss_capability_ids:
+  - BODY_WIPER_USER_CONTROL
+  vss_relation: DIRECT
+  scope_authority: BOTH
+  control_attribute: SENSITIVITY
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: PARKING_BRAKE_APPLY
+  chinese_name: 施加驻车制动
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: APPLY
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: APPLICATION_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: PARKING_BRAKE_RELEASE
+  chinese_name: 释放驻车制动
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: RELEASE
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: APPLICATION_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: PARKING_BRAKE_AUTO_APPLY_ENABLE
+  chinese_name: 启用驻车制动自动施加
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: ENABLE
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: AUTO_APPLY_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: PARKING_BRAKE_AUTO_APPLY_DISABLE
+  chinese_name: 停用驻车制动自动施加
+  capability_family: CHASSIS_PARKING_BRAKE
+  canonical_action: DISABLE
+  canonical_target: PARKING_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驻车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: VSS
+  vss_capability_ids:
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: DIRECT
+  scope_authority: HUMAN_APPROVED_VSS
+  control_attribute: AUTO_APPLY_STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: ACCELERATE
+  chinese_name: 加速
+  capability_family: PROJECT_LONGITUDINAL_SPEED_CONTROL
+  canonical_action: ACCELERATE
+  canonical_target: VEHICLE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: SPEED_DELTA_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: SPEED
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: DECELERATE
+  chinese_name: 减速
+  capability_family: PROJECT_LONGITUDINAL_SPEED_CONTROL
+  canonical_action: DECELERATE
+  canonical_target: VEHICLE
+  control_domain: 驾驶控制
+  risk_level: R2
+  risk_tags:
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: SPEED_DELTA_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_CRUISE_CONTROL
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: SPEED
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: BRAKE
+  chinese_name: 执行制动
+  capability_family: PROJECT_SERVICE_BRAKING
+  canonical_action: BRAKE
+  canonical_target: SERVICE_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 制动安全
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: BRAKE_INTENSITY_OPTIONAL
+  required_slots: []
+  optional_slots:
+  - VALUE
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_EBA_ENABLE
+  - CHASSIS_PARKING_BRAKE
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: NORMAL_BRAKING
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: EMERGENCY_BRAKE
+  chinese_name: 执行紧急制动
+  capability_family: PROJECT_SERVICE_BRAKING
+  canonical_action: BRAKE
+  canonical_target: SERVICE_BRAKE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 紧急制动
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids:
+  - ADAS_EBA_ENABLE
+  vss_relation: INDIRECT
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: EMERGENCY_BRAKING
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: LANE_CHANGE
+  chinese_name: 变更车道
+  capability_family: PROJECT_LANE_CONTROL
+  canonical_action: CHANGE
+  canonical_target: LANE
+  target_adapter: LANE_TARGET_BY_DIRECTION
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 变道
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: POSITION
+  direction_contract: LANE_CHANGE_LEFT_RIGHT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: LANE_KEEP
+  chinese_name: 保持当前车道
+  capability_family: PROJECT_LANE_CONTROL
+  canonical_action: KEEP
+  canonical_target: LANE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 车道保持
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: POSITION
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: EVASIVE_STEER
+  chinese_name: 执行避险转向
+  capability_family: PROJECT_EVASIVE_STEERING
+  canonical_action: STEER
+  canonical_target: VEHICLE
+  control_domain: 驾驶控制
+  risk_level: R3
+  risk_tags:
+  - 避险转向
+  - 驾驶控制
+  allowed_areas: []
+  value_contract: NONE
+  required_slots:
+  - DIRECTION
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: TRAJECTORY
+  direction_contract: EVASIVE_STEER_LEFT_RIGHT
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: AUTO_PARK_ENABLE
+  chinese_name: 启用自动泊车
+  capability_family: PROJECT_AUTO_PARK
+  canonical_action: ENABLE
+  canonical_target: AUTO_PARK
+  control_domain: 驾驶控制
+  risk_level: R2
+  risk_tags:
+  - 辅助驾驶
+  - 泊车安全
+  allowed_areas: []
+  value_contract: NONE
+  required_slots: []
+  optional_slots: []
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: NONE
+  scope_authority: EXISTING_PROJECT_DESIGN
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
+- intent_id: MIRROR_ADJUSTMENT_LOCK
+  chinese_name: 锁定外后视镜调节
+  capability_family: BODY_MIRROR_ADJUSTMENT_LOCK
+  canonical_action: LOCK
+  canonical_target: MIRROR
+  control_attribute: ADJUSTMENT_LOCK_STATE
+  control_domain: 车身控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_semantics:
+    - MIRROR_OBJECT
+    - ADJUSTMENT_PERMISSION_LOCK_OR_PROHIBIT_ADJUSTMENT
+    formal_exclusions:
+    - MIRROR_HEATING_ON
+    - MIRROR_HEATING_OFF
+    - MIRROR_FOLD
+    - MIRROR_UNFOLD
+    - MIRROR_SET_ANGLE
+    review_examples:
+    - 把后视镜锁住
+- intent_id: MIRROR_ADJUSTMENT_UNLOCK
+  chinese_name: 解锁外后视镜调节
+  capability_family: BODY_MIRROR_ADJUSTMENT_LOCK
+  canonical_action: UNLOCK
+  canonical_target: MIRROR
+  control_attribute: ADJUSTMENT_LOCK_STATE
+  control_domain: 车身控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_semantics:
+    - MIRROR_OBJECT
+    - RESTORE_ADJUSTMENT_PERMISSION_OR_UNLOCK_ADJUSTMENT
+    formal_exclusions:
+    - MIRROR_UNFOLD
+    - MIRROR_SET_ANGLE
+    review_examples:
+    - 把后视镜解锁
+- intent_id: ABS_ENABLE
+  chinese_name: 启用防抱死制动系统
+  capability_family: ADAS_ABS_ENABLE
+  canonical_action: ENABLE
+  canonical_target: ABS
+  control_attribute: STATE
+  control_domain: 驾驶控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_object_terms:
+    - ABS
+    - 防抱死
+    - 防抱死制动系统
+    prohibited_generic_routing:
+    - 关闭制动
+    - 打开刹车功能
+    insufficient_object_route: REVIEW
+- intent_id: ABS_DISABLE
+  chinese_name: 停用防抱死制动系统
+  capability_family: ADAS_ABS_ENABLE
+  canonical_action: DISABLE
+  canonical_target: ABS
+  control_attribute: STATE
+  control_domain: 驾驶控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_object_terms:
+    - ABS
+    - 防抱死
+    - 防抱死制动系统
+    prohibited_generic_routing:
+    - 关闭制动
+    - 打开刹车功能
+    insufficient_object_route: REVIEW
+- intent_id: EBA_ENABLE
+  chinese_name: 启用紧急制动辅助系统
+  capability_family: ADAS_EBA_ENABLE
+  canonical_action: ENABLE
+  canonical_target: EBA
+  control_attribute: STATE
+  control_domain: 驾驶控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_object_terms:
+    - EBA
+    - 紧急制动辅助
+    prohibited_generic_routing:
+    - 紧急刹车
+    - 制动
+    - 刹车辅助
+    insufficient_object_route: REVIEW
+    insufficient_object_reason: EBA_OBJECT_INSUFFICIENT
+- intent_id: EBA_DISABLE
+  chinese_name: 停用紧急制动辅助系统
+  capability_family: ADAS_EBA_ENABLE
+  canonical_action: DISABLE
+  canonical_target: EBA
+  control_attribute: STATE
+  control_domain: 驾驶控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_object_terms:
+    - EBA
+    - 紧急制动辅助
+    prohibited_generic_routing:
+    - 紧急刹车
+    - 制动
+    - 刹车辅助
+    insufficient_object_route: REVIEW
+    insufficient_object_reason: EBA_OBJECT_INSUFFICIENT
+- intent_id: HOOD_SET_POSITION
+  chinese_name: 设置前舱盖开度
+  capability_family: BODY_HOOD
+  canonical_action: ADJUST
+  canonical_target: HOOD
+  control_attribute: OPENING_POSITION
+  control_domain: 车身控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas:
+  - FRONT
+  value_contract: PERCENT_0_100_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    routing:
+      FULL_OPEN: HOOD_OPEN
+      FULL_CLOSE: HOOD_CLOSE
+      EXPLICIT_PERCENT_RATIO_OR_DETERMINATE_POSITION: HOOD_SET_POSITION
+      VAGUE_RELATIVE_POSITION: REVIEW
+    review_examples:
+    - 前舱盖开一点
+    - 引擎盖开一些
+- intent_id: PARK_LOCK
+  chinese_name: 结合驻车锁
+  capability_family: TRANSMISSION_PARK_LOCK
+  canonical_action: LOCK
+  canonical_target: PARK_LOCK
+  control_attribute: ENGAGEMENT_STATE
+  control_domain: 驾驶控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_object_terms:
+    - 变速箱驻车锁
+    - 传动系统驻车锁
+    - 驻车锁机构
+    formal_boundaries:
+      P_GEAR: GEAR_SET
+      ELECTRONIC_PARKING_BRAKE_APPLY: PARKING_BRAKE_APPLY
+      ELECTRONIC_PARKING_BRAKE_RELEASE: PARKING_BRAKE_RELEASE
+      AUTO_PARKING_BRAKE:
+      - PARKING_BRAKE_AUTO_APPLY_ENABLE
+      - PARKING_BRAKE_AUTO_APPLY_DISABLE
+    review_examples:
+    - 把停车锁上
+    - 解除驻车
+    - 把驻车解开
+- intent_id: PARK_UNLOCK
+  chinese_name: 释放驻车锁
+  capability_family: TRANSMISSION_PARK_LOCK
+  canonical_action: UNLOCK
+  canonical_target: PARK_LOCK
+  control_attribute: ENGAGEMENT_STATE
+  control_domain: 驾驶控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_object_terms:
+    - 变速箱驻车锁
+    - 传动系统驻车锁
+    - 驻车锁机构
+    formal_boundaries:
+      P_GEAR: GEAR_SET
+      ELECTRONIC_PARKING_BRAKE_APPLY: PARKING_BRAKE_APPLY
+      ELECTRONIC_PARKING_BRAKE_RELEASE: PARKING_BRAKE_RELEASE
+      AUTO_PARKING_BRAKE:
+      - PARKING_BRAKE_AUTO_APPLY_ENABLE
+      - PARKING_BRAKE_AUTO_APPLY_DISABLE
+    review_examples:
+    - 把停车锁上
+    - 解除驻车
+    - 把驻车解开
+- intent_id: AIR_PURIFIER_OFF
+  chinese_name: 关闭空气净化器
+  capability_family: PROJECT_AIR_PURIFIER_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: AIR_PURIFIER
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: AIR_PURIFIER_ON
+  chinese_name: 开启空气净化器
+  capability_family: PROJECT_AIR_PURIFIER_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: AIR_PURIFIER
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: AIR_PURIFIER_SET_MODE
+  chinese_name: 设置空气净化器模式
+  capability_family: PROJECT_AIR_PURIFIER_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: AIR_PURIFIER
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: KNOWN_AIR_PURIFIER_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: AMBIENT_LIGHT_OFF
+  chinese_name: 关闭氛围灯
+  capability_family: PROJECT_AMBIENT_LIGHT_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: AMBIENT_LIGHT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - RIGHT_FRONT
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: AMBIENT_LIGHT_ON
+  chinese_name: 开启氛围灯
+  capability_family: PROJECT_AMBIENT_LIGHT_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: AMBIENT_LIGHT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - RIGHT_FRONT
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: AMBIENT_LIGHT_SET_BRIGHTNESS
+  chinese_name: 设置氛围灯亮度
+  capability_family: PROJECT_AMBIENT_LIGHT_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: AMBIENT_LIGHT
+  control_attribute: BRIGHTNESS
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - RIGHT_FRONT
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: AMBIENT_LIGHT_SET_COLOR
+  chinese_name: 设置氛围灯颜色
+  capability_family: PROJECT_AMBIENT_LIGHT_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: AMBIENT_LIGHT
+  control_attribute: COLOR
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - RIGHT_FRONT
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: SOURCE_COLOR_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: AMBIENT_LIGHT_SET_MODE
+  chinese_name: 设置氛围灯模式
+  capability_family: PROJECT_AMBIENT_LIGHT_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: AMBIENT_LIGHT
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - RIGHT_FRONT
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: NONE
+  mode_contract: KNOWN_AMBIENT_LIGHT_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: ARMREST_SET_POSITION
+  chinese_name: 设置扶手位置
+  capability_family: PROJECT_ARMREST_KNOWN_CONTROL
+  canonical_action: ADJUST
+  canonical_target: ARMREST
+  control_attribute: POSITION
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: SOURCE_POSITION_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: BLUETOOTH_OFF
+  chinese_name: 关闭蓝牙
+  capability_family: PROJECT_BLUETOOTH_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: BLUETOOTH
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: BLUETOOTH_ON
+  chinese_name: 开启蓝牙
+  capability_family: PROJECT_BLUETOOTH_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: BLUETOOTH
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: CAMERA_OFF
+  chinese_name: 关闭车载摄像头
+  capability_family: PROJECT_CAMERA_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: CAMERA
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: CAMERA_ON
+  chinese_name: 开启车载摄像头
+  capability_family: PROJECT_CAMERA_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: CAMERA
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: CAMERA_SET_MODE
+  chinese_name: 设置车载摄像头模式
+  capability_family: PROJECT_CAMERA_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: CAMERA
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: KNOWN_CAMERA_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: CHILD_LOCK_OFF
+  chinese_name: 关闭儿童锁
+  capability_family: PROJECT_CHILD_LOCK_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: CHILD_LOCK
+  control_attribute: STATE
+  control_domain: 车身控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: CHILD_LOCK_ON
+  chinese_name: 开启儿童锁
+  capability_family: PROJECT_CHILD_LOCK_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: CHILD_LOCK
+  control_attribute: STATE
+  control_domain: 车身控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_SIDE
+  - RIGHT_SIDE
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: DISPLAY_OFF
+  chinese_name: 关闭显示屏
+  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: DISPLAY
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - REAR
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: DISPLAY_ON
+  chinese_name: 开启显示屏
+  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: DISPLAY
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - REAR
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: DISPLAY_SET_BRIGHTNESS
+  chinese_name: 设置显示屏亮度
+  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: DISPLAY
+  control_attribute: BRIGHTNESS
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - REAR
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: DISPLAY_SET_POSITION
+  chinese_name: 设置显示屏位置
+  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
+  canonical_action: ADJUST
+  canonical_target: DISPLAY
+  control_attribute: POSITION
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - REAR
+  value_contract: SOURCE_POSITION_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: DRIVING_MODE_SET
+  chinese_name: 设置驾驶模式
+  capability_family: PROJECT_DRIVING_MODE_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: DRIVING_MODE
+  control_attribute: MODE
+  control_domain: 车身控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: DRIVING_MODE_FINAL_APPROVED_V2
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    target_level: WHOLE_VEHICLE_DRIVING_STYLE_OR_ROAD_CONDITION
+    formal_boundary:
+      GEAR_CHANGE_MODE_SET:
+      - MANUAL
+      - AUTOMATIC
+    deleted_capability_behavior:
+      变速箱切到运动模式: REVIEW
+    missing_required_mode_behavior:
+      intent_candidate: DRIVING_MODE_SET
+      semantic_status: REVIEW
+      reason: MISSING_REQUIRED_MODE
+- intent_id: DRIVING_RECORDER_ON
+  chinese_name: 开启行车记录仪
+  capability_family: PROJECT_DRIVING_RECORDER_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: DRIVING_RECORDER
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: FRAGRANCE_OFF
+  chinese_name: 关闭香氛
+  capability_family: PROJECT_FRAGRANCE_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: FRAGRANCE
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: FRAGRANCE_ON
+  chinese_name: 开启香氛
+  capability_family: PROJECT_FRAGRANCE_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: FRAGRANCE
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: FRAGRANCE_SET_LEVEL
+  chinese_name: 设置香氛档位
+  capability_family: PROJECT_FRAGRANCE_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: FRAGRANCE
+  control_attribute: LEVEL
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: FRUNK_OPEN
+  chinese_name: 开启前备箱
+  capability_family: PROJECT_FRUNK_KNOWN_CONTROL
+  canonical_action: OPEN
+  canonical_target: FRUNK
+  control_attribute: OPENING_STATE
+  control_domain: 车身控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: GLASS_ROOF_SET_TRANSPARENCY
+  chinese_name: 设置玻璃天幕透光度
+  capability_family: PROJECT_GLASS_ROOF_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: GLASS_ROOF
+  control_attribute: TRANSPARENCY
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: SOURCE_TRANSPARENCY_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HOTSPOT_OFF
+  chinese_name: 关闭热点
+  capability_family: PROJECT_HOTSPOT_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: HOTSPOT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HOTSPOT_ON
+  chinese_name: 开启热点
+  capability_family: PROJECT_HOTSPOT_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: HOTSPOT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HVAC_OFF
+  chinese_name: 关闭空调
+  capability_family: PROJECT_HVAC_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: HVAC
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HVAC_ON
+  chinese_name: 开启空调
+  capability_family: PROJECT_HVAC_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: HVAC
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HVAC_SET_AIRFLOW_DIRECTION
+  chinese_name: 设置空调风向
+  capability_family: PROJECT_HVAC_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: HVAC
+  control_attribute: AIRFLOW_DIRECTION
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: SOURCE_AIRFLOW_DIRECTION_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HVAC_SET_FAN_SPEED
+  chinese_name: 设置空调风量
+  capability_family: PROJECT_HVAC_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: HVAC
+  control_attribute: FAN_SPEED
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HVAC_SET_MODE
+  chinese_name: 设置空调模式
+  capability_family: PROJECT_HVAC_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: HVAC
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: NONE
+  mode_contract: KNOWN_HVAC_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: HVAC_SET_TEMPERATURE
+  chinese_name: 设置空调温度
+  capability_family: PROJECT_HVAC_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: HVAC
+  control_attribute: TEMPERATURE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  - FRONT
+  - REAR
+  value_contract: SOURCE_TEMPERATURE_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: INTERIOR_LIGHT_OFF
+  chinese_name: 关闭车内灯
+  capability_family: PROJECT_INTERIOR_LIGHT_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: INTERIOR_LIGHT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: INTERIOR_LIGHT_ON
+  chinese_name: 开启车内灯
+  capability_family: PROJECT_INTERIOR_LIGHT_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: INTERIOR_LIGHT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: MEDIA_SOUND_EFFECT_SET
+  chinese_name: 设置车载媒体音效
+  capability_family: PROJECT_MEDIA_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: MEDIA
+  control_attribute: SOUND_EFFECT
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: KNOWN_MEDIA_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: MEDIA_VOLUME_SET
+  chinese_name: 设置车载媒体音量
+  capability_family: PROJECT_MEDIA_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: MEDIA
+  control_attribute: VOLUME
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: READING_LIGHT_OFF
+  chinese_name: 关闭阅读灯
+  capability_family: PROJECT_READING_LIGHT_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: READING_LIGHT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: READING_LIGHT_ON
+  chinese_name: 开启阅读灯
+  capability_family: PROJECT_READING_LIGHT_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: READING_LIGHT
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: READING_LIGHT_SET_BRIGHTNESS
+  chinese_name: 设置阅读灯亮度
+  capability_family: PROJECT_READING_LIGHT_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: READING_LIGHT
+  control_attribute: BRIGHTNESS
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: REFRIGERATOR_ON
+  chinese_name: 开启车载冰箱
+  capability_family: PROJECT_REFRIGERATOR_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: REFRIGERATOR
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: REFRIGERATOR_SET_TEMPERATURE
+  chinese_name: 设置车载冰箱温度
+  capability_family: PROJECT_REFRIGERATOR_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: REFRIGERATOR
+  control_attribute: TEMPERATURE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: SOURCE_TEMPERATURE_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_HEATING_OFF
+  chinese_name: 关闭座椅加热
+  capability_family: PROJECT_SEAT_HEATING_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: SEAT_HEATING
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_HEATING_ON
+  chinese_name: 开启座椅加热
+  capability_family: PROJECT_SEAT_HEATING_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: SEAT_HEATING
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_HEATING_SET_LEVEL
+  chinese_name: 设置座椅加热档位
+  capability_family: PROJECT_SEAT_HEATING_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: SEAT_HEATING
+  control_attribute: LEVEL
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_HEATING_SET_MODE
+  chinese_name: 设置座椅加热模式
+  capability_family: PROJECT_SEAT_HEATING_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: SEAT_HEATING
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: KNOWN_SEAT_HEATING_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_MASSAGE_OFF
+  chinese_name: 关闭座椅按摩
+  capability_family: PROJECT_SEAT_MASSAGE_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: SEAT_MASSAGE
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_MASSAGE_ON
+  chinese_name: 开启座椅按摩
+  capability_family: PROJECT_SEAT_MASSAGE_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: SEAT_MASSAGE
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_MASSAGE_SET_LEVEL
+  chinese_name: 设置座椅按摩档位
+  capability_family: PROJECT_SEAT_MASSAGE_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: SEAT_MASSAGE
+  control_attribute: LEVEL
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - ALL
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_MASSAGE_SET_MODE
+  chinese_name: 设置座椅按摩模式
+  capability_family: PROJECT_SEAT_MASSAGE_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: SEAT_MASSAGE
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - LEFT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: KNOWN_SEAT_MASSAGE_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_VENTILATION_OFF
+  chinese_name: 关闭座椅通风
+  capability_family: PROJECT_SEAT_VENTILATION_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: SEAT_VENTILATION
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_VENTILATION_ON
+  chinese_name: 开启座椅通风
+  capability_family: PROJECT_SEAT_VENTILATION_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: SEAT_VENTILATION
+  control_attribute: STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_VENTILATION_SET_LEVEL
+  chinese_name: 设置座椅通风档位
+  capability_family: PROJECT_SEAT_VENTILATION_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: SEAT_VENTILATION
+  control_attribute: LEVEL
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SEAT_VENTILATION_SET_MODE
+  chinese_name: 设置座椅通风模式
+  capability_family: PROJECT_SEAT_VENTILATION_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: SEAT_VENTILATION
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - RIGHT_SIDE
+  - ALL
+  value_contract: NONE
+  mode_contract: KNOWN_SEAT_VENTILATION_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SHADE_CLOSE
+  chinese_name: 关闭遮阳帘
+  capability_family: PROJECT_SHADE_KNOWN_CONTROL
+  canonical_action: CLOSE
+  canonical_target: SHADE
+  control_attribute: OPENING_STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SHADE_OPEN
+  chinese_name: 开启遮阳帘
+  capability_family: PROJECT_SHADE_KNOWN_CONTROL
+  canonical_action: OPEN
+  canonical_target: SHADE
+  control_attribute: OPENING_STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: SHADE_SET_POSITION
+  chinese_name: 设置遮阳帘位置
+  capability_family: PROJECT_SHADE_KNOWN_CONTROL
+  canonical_action: ADJUST
+  canonical_target: SHADE
+  control_attribute: POSITION
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  value_contract: PERCENT_0_100_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: STEERING_WHEEL_HEATING_OFF
+  chinese_name: 关闭方向盘加热
+  capability_family: PROJECT_STEERING_WHEEL_HEATING_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: STEERING_WHEEL
+  control_attribute: HEATING_STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_semantics:
+    - STEERING_WHEEL_OBJECT
+    - HEATING_ATTRIBUTE
+    - EXPLICIT_DISABLE_ACTION
+    formal_exclusions:
+    - STEERING_WHEEL_SET_EXTENSION
+    - STEERING_WHEEL_SET_TILT
+    review_examples:
+    - 方向盘太热了
+- intent_id: STEERING_WHEEL_HEATING_ON
+  chinese_name: 开启方向盘加热
+  capability_family: PROJECT_STEERING_WHEEL_HEATING_KNOWN_CONTROL
+  canonical_action: TURN_ON
+  canonical_target: STEERING_WHEEL
+  control_attribute: HEATING_STATE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots: []
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    status: FROZEN
+    required_semantics:
+    - STEERING_WHEEL_OBJECT
+    - HEATING_ATTRIBUTE
+    - EXPLICIT_ENABLE_ACTION
+    formal_exclusions:
+    - STEERING_WHEEL_SET_EXTENSION
+    - STEERING_WHEEL_SET_TILT
+    review_examples:
+    - 方向盘有点冷
+- intent_id: AIR_PURIFIER_SET_FAN_SPEED
+  chinese_name: 设置空气净化器风速
+  capability_family: PROJECT_AIR_PURIFIER_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: AIR_PURIFIER
+  control_attribute: FAN_SPEED
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: DISPLAY_SET_MODE
+  chinese_name: 设置显示屏模式
+  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: DISPLAY
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - REAR
+  value_contract: NONE
+  mode_contract: KNOWN_DISPLAY_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: READING_LIGHT_SET_MODE
+  chinese_name: 设置阅读灯模式
+  capability_family: PROJECT_READING_LIGHT_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: READING_LIGHT
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: KNOWN_READING_LIGHT_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: REFRIGERATOR_SET_MODE
+  chinese_name: 设置车载冰箱模式
+  capability_family: PROJECT_REFRIGERATOR_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: REFRIGERATOR
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: NONE
+  mode_contract: KNOWN_REFRIGERATOR_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: FRAGRANCE_SET_SCENT
+  chinese_name: 设置香氛香型
+  capability_family: PROJECT_FRAGRANCE_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: FRAGRANCE
+  control_attribute: SCENT
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots: []
+  allowed_areas: []
+  value_contract: SOURCE_SCENT_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: INTERIOR_LIGHT_SET_BRIGHTNESS
+  chinese_name: 设置车内灯亮度
+  capability_family: PROJECT_INTERIOR_LIGHT_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: INTERIOR_LIGHT
+  control_attribute: BRIGHTNESS
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - REAR_ROW
+  - ALL
+  value_contract: SOURCE_LEVEL_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: INTERIOR_LIGHT_SET_COLOR
+  chinese_name: 设置车内灯颜色
+  capability_family: PROJECT_INTERIOR_LIGHT_KNOWN_CONTROL
+  canonical_action: SET
+  canonical_target: INTERIOR_LIGHT
+  control_attribute: COLOR
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - VALUE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - REAR_ROW
+  - ALL
+  value_contract: SOURCE_COLOR_REQUIRED
+  mode_contract: null
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN
+- intent_id: INTERIOR_LIGHT_SET_MODE
+  chinese_name: 设置车内灯模式
+  capability_family: PROJECT_INTERIOR_LIGHT_KNOWN_CONTROL
+  canonical_action: SWITCH_MODE
+  canonical_target: INTERIOR_LIGHT
+  control_attribute: MODE
+  control_domain: 座舱控制
+  risk_level: R0_NON_EXECUTABLE
+  risk_tags:
+  - KNOWN_NON_EXECUTABLE
+  required_slots:
+  - MODE
+  optional_slots:
+  - AREA
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - REAR_ROW
+  - ALL
+  value_contract: NONE
+  mode_contract: KNOWN_INTERIOR_LIGHT_SOURCE_MODE
+  direction_contract: null
+  conditional_slot_contract: null
+  value_mapping_contract: null
+  runtime_identity: KNOWN_NON_EXECUTABLE
+  boundary_contract:
+    formal_intent_ids: []
+    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
+    status: FROZEN

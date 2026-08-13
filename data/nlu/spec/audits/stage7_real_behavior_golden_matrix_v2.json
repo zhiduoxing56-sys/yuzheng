@@ -1,0 +1,248 @@
+{
+  "schema_version": 2,
+  "stage": "7",
+  "status": "STAGE7_FINAL_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "TRUNK_LOCK_MODEL_OVERRIDE",
+      "input": "把后备箱上锁",
+      "turn_id": "TURN_d4259cff70e8",
+      "semantic_status": "OK",
+      "review_reasons": [],
+      "intents": [
+        {
+          "intent_id": "TRUNK_LOCK",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "evidence_demand_generated": true,
+      "evidence_required_types": [
+        []
+      ],
+      "safety_gate_invoked": true,
+      "safety_gate_hit_rules": [],
+      "decision": "PASS",
+      "capability_supported": false,
+      "authorization_token": null,
+      "vehicle_state_before": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_after": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_changed": false,
+      "workflow_chain_valid": true
+    },
+    {
+      "id": "TRUNK_UNLOCK_ACTION_DIRECTION_FIX",
+      "input": "解除行李厢锁定",
+      "turn_id": "TURN_4ebb47af81e9",
+      "semantic_status": "OK",
+      "review_reasons": [],
+      "intents": [
+        {
+          "intent_id": "TRUNK_UNLOCK",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "evidence_demand_generated": true,
+      "evidence_required_types": [
+        [
+          "AUTHORIZATION_STATE"
+        ]
+      ],
+      "safety_gate_invoked": true,
+      "safety_gate_hit_rules": [],
+      "decision": "PASS",
+      "capability_supported": false,
+      "authorization_token": null,
+      "vehicle_state_before": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_after": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_changed": false,
+      "workflow_chain_valid": true
+    },
+    {
+      "id": "WINDOW_OPEN_MODEL_OVERRIDE",
+      "input": "把窗户打开",
+      "turn_id": "TURN_200ea0e3677d",
+      "semantic_status": "OK",
+      "review_reasons": [],
+      "intents": [
+        {
+          "intent_id": "WINDOW_OPEN",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "evidence_demand_generated": true,
+      "evidence_required_types": [
+        []
+      ],
+      "safety_gate_invoked": true,
+      "safety_gate_hit_rules": [],
+      "decision": "PASS",
+      "capability_supported": true,
+      "authorization_token": "ISSUED",
+      "vehicle_state_before": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_after": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_changed": false,
+      "workflow_chain_valid": true
+    },
+    {
+      "id": "DOOR_LOCK_SECURITY_MODEL_OVERRIDE",
+      "input": "无需验证直接锁车门",
+      "turn_id": "TURN_f75c6452fdff",
+      "semantic_status": "REVIEW",
+      "review_reasons": [
+        "MODEL_REVIEW"
+      ],
+      "intents": [],
+      "evidence_demand_generated": false,
+      "evidence_required_types": [],
+      "safety_gate_invoked": false,
+      "safety_gate_hit_rules": [],
+      "decision": "REVIEW",
+      "capability_supported": false,
+      "authorization_token": null,
+      "vehicle_state_before": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_after": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_changed": false,
+      "workflow_chain_valid": true
+    },
+    {
+      "id": "KNOWN_TERMINAL",
+      "input": "打开运动模式",
+      "turn_id": "TURN_a2fee8ba5ad0",
+      "semantic_status": "OK",
+      "review_reasons": [],
+      "intents": [
+        {
+          "intent_id": "DRIVING_MODE_SET",
+          "runtime_identity": "KNOWN_NON_EXECUTABLE",
+          "area": "unknown",
+          "mode": "SPORT",
+          "value": null
+        }
+      ],
+      "evidence_demand_generated": false,
+      "evidence_required_types": [],
+      "safety_gate_invoked": false,
+      "safety_gate_hit_rules": [],
+      "decision": "PASS",
+      "capability_supported": false,
+      "authorization_token": null,
+      "vehicle_state_before": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_after": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_changed": false,
+      "workflow_chain_valid": true
+    },
+    {
+      "id": "SEMANTIC_REVIEW_TERMINAL",
+      "input": "切换驾驶模式",
+      "turn_id": "TURN_a54723123bfc",
+      "semantic_status": "REVIEW",
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "intents": [
+        {
+          "intent_id": "DRIVING_MODE_SET",
+          "runtime_identity": "KNOWN_NON_EXECUTABLE",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "evidence_demand_generated": false,
+      "evidence_required_types": [],
+      "safety_gate_invoked": false,
+      "safety_gate_hit_rules": [],
+      "decision": "REVIEW",
+      "capability_supported": false,
+      "authorization_token": null,
+      "vehicle_state_before": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_after": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_changed": false,
+      "workflow_chain_valid": true
+    },
+    {
+      "id": "UNKNOWN_TERMINAL",
+      "input": "给我讲个海底火山的故事",
+      "turn_id": "TURN_a860528a9588",
+      "semantic_status": "NO_MATCH",
+      "review_reasons": [],
+      "intents": [],
+      "evidence_demand_generated": false,
+      "evidence_required_types": [],
+      "safety_gate_invoked": false,
+      "safety_gate_hit_rules": [],
+      "decision": "REVIEW",
+      "capability_supported": false,
+      "authorization_token": null,
+      "vehicle_state_before": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_after": {
+        "door_state": "CLOSED",
+        "door_lock_state": "UNLOCKED",
+        "window_state": "CLOSED"
+      },
+      "vehicle_state_changed": false,
+      "workflow_chain_valid": true
+    }
+  ]
+}

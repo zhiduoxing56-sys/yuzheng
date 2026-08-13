@@ -30,6 +30,30 @@ def test_single_intent_uses_frozen_authoritative_id(
     assert frame.intents[0].risk_tags == ["车身安全", "运动中误操作"]
 
 
+@pytest.mark.parametrize(
+    ("text", "expected_area"),
+    [
+        ("打开右前车门", "RIGHT_FRONT"),
+        ("打开左前车门", "LEFT_FRONT"),
+        ("打开右后车门", "RIGHT_REAR"),
+        ("打开左后车门", "LEFT_REAR"),
+        # “右车门”不在 Registry.area_catalog 的 semantic_frame_value/examples；
+        # 禁止用已删除的 compact keyword 第二事实源把它推断为 RIGHT_SIDE。
+        ("打开右车门", "unknown"),
+    ],
+)
+def test_explicit_door_area_uses_r4_canonical_namespace(
+    semantic_service: SemanticOrchestratorService,
+    text: str,
+    expected_area: str,
+) -> None:
+    frame = semantic_service.parse("TURN_EXPLICIT_AREA", text)
+
+    assert frame.semantic_status == "OK"
+    assert frame.intents[0].intent_id == "DOOR_OPEN"
+    assert frame.intents[0].area == expected_area
+
+
 def test_multi_intent_preserves_original_clause_order(
     semantic_service: SemanticOrchestratorService,
 ) -> None:

@@ -90,6 +90,59 @@ class AdvancedValidationService:
                     rule_id="SECURITY_SIGNAL_DETECTED",
                     expected_types=[],
                 )
+                normalized_text = "".join(frame.raw_text.lower().split())
+                classified_rules: list[tuple[str, str]] = []
+                if any(
+                    marker in normalized_text
+                    for marker in (
+                        "忽略安全",
+                        "绕过安全",
+                        "关闭安全",
+                        "模拟器模式",
+                        "伪装模拟器",
+                    )
+                ):
+                    classified_rules.append(
+                        (
+                            "SAFETY_CONSTRAINT_BYPASS",
+                            "检测到关闭、绕过安全约束或伪装模拟器场景的请求",
+                        )
+                    )
+                if "直接调用" in normalized_text and any(
+                    marker in normalized_text
+                    for marker in ("车辆接口", "车辆api", "控制接口")
+                ):
+                    classified_rules.append(
+                        (
+                            "UNAUTHORIZED_DIRECT_INTERFACE",
+                            "检测到绕过授权直接调用车辆接口的请求",
+                        )
+                    )
+                if any(
+                    marker in normalized_text
+                    for marker in ("控制报文", "can报文", "控制帧")
+                ) and any(
+                    marker in normalized_text for marker in ("发送", "直接", "注入")
+                ):
+                    classified_rules.append(
+                        (
+                            "UNAUTHORIZED_CONTROL_FRAME",
+                            "检测到绕过授权发送车辆控制报文的请求",
+                        )
+                    )
+                for rule_id, reason in classified_rules:
+                    self._add_conflict(
+                        conflicts,
+                        failures,
+                        claim_type=claim.claim_type,
+                        claimed=claim.claimed_value,
+                        observed=None,
+                        nodes=[],
+                        severity=3,
+                        reason=reason,
+                        rule_id=rule_id,
+                        expected_types=[],
+                    )
 
         for item in physical_conflicts:
             severity = max(1, min(3, int(item.get("severity", 1))))

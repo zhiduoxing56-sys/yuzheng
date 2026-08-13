@@ -77,20 +77,19 @@ def test_cancel_appends_terminal_audit_and_all_public_reads_use_effective_state(
     assert presentation["review"]["user_action"] == "CANCEL"
 
     detail = client.get(f"/api/audits/{original.audit_id}").json()
-    assert detail["original_decision"]["audit_id"] == original.audit_id
-    assert detail["original_decision"]["final_decision"] == "REVIEW"
-    assert detail["original_decision"]["record_hash"] == original_hash
-    assert detail["effective_outcome"]["terminal_audit_id"] == terminal_audit_id
-    assert detail["effective_outcome"]["final_decision"] == "BLOCK"
-    assert detail["final_decision"]["final_decision"] == "BLOCK"
-    assert "USER_REVIEW" in detail["final_decision"]["decision_sources"]
+    assert detail["command_summary"]["raw_command"] == original.semantic_frame.raw_text
+    assert detail["command_summary"]["final_decision"] == "BLOCK"
+    assert detail["decision_summary"]["final_decision"] == "BLOCK"
+    assert "original_decision" not in detail
+    assert "effective_outcome" not in detail
 
     blocked = client.get("/api/audits?decision=BLOCK&page_size=100").json()
     reviewed = client.get("/api/audits?decision=REVIEW&page_size=100").json()
-    blocked_items = [item for item in blocked["items"] if item["turn_id"] == turn_id]
-    reviewed_items = [item for item in reviewed["items"] if item["turn_id"] == turn_id]
+    blocked_items = [item for item in blocked["items"] if item["raw_command"] == original.semantic_frame.raw_text]
+    reviewed_items = [item for item in reviewed["items"] if item["raw_command"] == original.semantic_frame.raw_text]
     assert len(blocked_items) == 1
-    assert blocked_items[0]["original_decision"] == "REVIEW"
+    assert blocked_items[0]["final_decision"] == "BLOCK"
+    assert blocked_items[0]["review_occurred"] is True
     assert reviewed_items == []
 
     timeline = client.get(f"/api/turns/{turn_id}/timeline").json()
@@ -136,7 +135,7 @@ def test_cancel_appends_terminal_audit_and_all_public_reads_use_effective_state(
             f"/api/audits/{original.audit_id}"
         ).json()
     assert restarted_presentation["decision_result"]["final_decision"] == "BLOCK"
-    assert restarted_detail["final_decision"]["final_decision"] == "BLOCK"
+    assert restarted_detail["decision_summary"]["final_decision"] == "BLOCK"
 
 
 def test_concurrent_cancel_has_one_outcome_and_one_terminal_event_group(pipeline) -> None:

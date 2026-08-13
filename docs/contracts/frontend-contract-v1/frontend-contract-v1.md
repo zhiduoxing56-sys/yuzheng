@@ -27,7 +27,8 @@ pending_steps = []
 | POST | `/api/turns/{turn_id}/review` | `turn_review_api_turns__turn_id__review_post` | `ReviewSubmission` | `ReviewSubmissionResponse` | 按 CONFIRM/CORRECT/CANCEL 语义追加复核工作流 |
 | GET | `/api/turns/{turn_id}/timeline` | `turn_timeline_api_turns__turn_id__timeline_get` | `-` | `TurnTimeline` | READ_ONLY |
 | GET | `/api/audits` | `audits_list_api_audits_get` | `-` | `AuditListResponse` | READ_ONLY |
-| GET | `/api/audits/{audit_id}` | `audit_detail_api_audits__audit_id__get` | `-` | `AuditDetailResponse` | READ_ONLY |
+| GET | `/api/audits/{audit_id}` | `audit_detail_api_audits__audit_id__get` | `-` | `AuditDetailView` | READ_ONLY |
+| GET | `/api/audits/{audit_id}/semantic-frame` | `audit_semantic_frame_api_audits__audit_id__semantic_frame_get` | `-` | `SemanticFrame` | READ_ONLY_TECHNICAL_DETAIL |
 | GET | `/api/audits/{audit_id}/verify` | `audit_verify_api_audits__audit_id__verify_get` | `-` | `AuditVerificationResponse` | READ_ONLY |
 
 ## WebSocket
@@ -47,10 +48,10 @@ pending_steps = []
 - `ReviewAction`（`app.models.schemas.ReviewAction`）：CONFIRM, CORRECT, CANCEL
 - `Availability`（`app.models.frontend_contract.Availability`）：AVAILABLE, UNAVAILABLE, NOT_APPLICABLE
 - `LayerNavigationAvailability`（`app.models.schemas.LayerNavigationAvailability`）：AVAILABLE, DEGRADED_UNAVAILABLE, LEGACY_NOT_RECORDED
-- `WorkflowEventType`（`app.models.schemas.WorkflowEventType`）：VOICE_INPUT_RECEIVED, SPECTRUM_ANALYZED, LA_CHECKED, PA_CHECKED, VOICE_TRUST_DECIDED, ASR_COMPLETED, ZONE_PERMISSION_CHECKED, RUNTIME_CAPABILITY_CHECKED, REVIEW_REQUESTED, REVIEW_CONFIRM_REJECTED, REVIEW_CONFIRMED, REVIEW_CORRECTED, REVIEW_CANCELLED, FINAL_DECISION_UPDATED, AUDIT_OUTCOME_APPENDED, REDECISION_STARTED, REDECISION_COMPLETED, TOKEN_ISSUED, TOKEN_REJECTED, TOKEN_EXPIRED, TOKEN_CONSUMED, TOKEN_REVOKED, KEY_INVALIDATED, EXECUTION_REQUESTED, PRE_EXECUTION_CHECK_PASSED, PRE_EXECUTION_CHECK_FAILED, EXECUTION_SUCCEEDED, EXECUTION_FAILED
+- `WorkflowEventType`（`app.models.schemas.WorkflowEventType`）：VOICE_INPUT_RECEIVED, SPECTRUM_ANALYZED, LA_CHECKED, PA_CHECKED, VOICE_TRUST_DECIDED, ASR_COMPLETED, ZONE_PERMISSION_CHECKED, RUNTIME_CAPABILITY_CHECKED, REVIEW_REQUESTED, REVIEW_CONFIRM_REJECTED, REVIEW_CONFIRMED, REVIEW_CORRECTED, REVIEW_CANCELLED, CLARIFICATION_REQUESTED, CLARIFICATION_RESOLVED, FINAL_DECISION_UPDATED, AUDIT_OUTCOME_APPENDED, REDECISION_STARTED, REDECISION_COMPLETED, TOKEN_ISSUED, TOKEN_REJECTED, TOKEN_EXPIRED, TOKEN_CONSUMED, TOKEN_REVOKED, KEY_INVALIDATED, EXECUTION_REQUESTED, PRE_EXECUTION_CHECK_PASSED, PRE_EXECUTION_CHECK_FAILED, EXECUTION_SUCCEEDED, EXECUTION_FAILED, DECISION_SNAPSHOT_CAPTURED, LLM_EXPLANATION_GENERATED
 - `ContractStepStatus`（`app.models.frontend_contract.ContractStepStatus`）：PENDING, COMPLETE
 - `ContractStatus`（`app.models.frontend_contract.ContractStatus`）：DRAFT, FROZEN
-- `ErrorCode`（`app.models.frontend_contract.ErrorCode`）：TURN_NOT_FOUND, AUDIT_NOT_FOUND, NODE_NOT_FOUND, NODE_NOT_IN_TURN, REVIEW_NOT_ALLOWED, NO_PERSISTED_REVIEW_CANDIDATES, SELECTED_CANDIDATE_REQUIRED, REVIEW_CANDIDATE_NOT_FOUND, REVIEW_CANDIDATE_NOT_VALID, CORRECTED_TEXT_REQUIRED, TURN_ALREADY_FINALIZED, MODEL_UNAVAILABLE, DATABASE_ERROR, INVALID_FILTER, INTERNAL_ERROR, INVALID_REQUEST
+- `ErrorCode`（`app.models.frontend_contract.ErrorCode`）：TURN_NOT_FOUND, AUDIT_NOT_FOUND, NODE_NOT_FOUND, NODE_NOT_IN_TURN, REVIEW_NOT_ALLOWED, NO_PERSISTED_REVIEW_CANDIDATES, SELECTED_CANDIDATE_REQUIRED, REVIEW_CANDIDATE_NOT_FOUND, REVIEW_CANDIDATE_NOT_VALID, CORRECTED_TEXT_REQUIRED, TURN_ALREADY_FINALIZED, MODEL_UNAVAILABLE, DATABASE_ERROR, INVALID_FILTER, INTERNAL_ERROR, INVALID_REQUEST, CLARIFICATION_NOT_FOUND, CLARIFICATION_ALREADY_RESOLVED, CLARIFICATION_CANDIDATE_NOT_FOUND
 - `ReviewCandidateValidationStatus`（`app.models.schemas.ReviewCandidateInterpretation.validation_status`）：VALID, INVALID
 - `GenerationMode`（`app.models.schemas.InterpreterGenerationMetadata.generation_mode`）：DETERMINISTIC_FALLBACK, LLM_INTERPRETER
 - `CandidateAvailability`（`app.models.schemas.InterpreterResult.candidate_availability`）：AVAILABLE, NO_VALID_CANDIDATES
@@ -69,6 +70,7 @@ pending_steps = []
 可空字段由生产 Schema 自动枚举：
 
 - `InputPresentation`：audio_fingerprint, speaker_source, spectrum_result, la_score, synthetic_risk, pa_raw_score, pa_score, replay_risk, trust_score, asr_confidence, asr_confidence_method, zone_permission_result, preliminary_decision
+- `TurnPresentationResponse`：clarification_request
 - `RetrievalSummary`：top_k, elapsed_ms, index_implementation, embedding_model, embedding_dimension, degraded, index_build_id, index_config_digest, node_set_digest, layering_mode, mapping_coverage, security_layer_navigation, internal_hnsw_trace_reason
 - `QualityMetricsPresentation`：ecr, ecs, ef, sas, eas, evidence_pair_count, conflict_pair_count, eas_weight_profile, eas_weight_source, eas_weights, evidence_alignment_route
 - `EvidencePresentation`：evidence_subgraph, decision_confidence
@@ -83,7 +85,7 @@ pending_steps = []
 - `ExecutionPresentation`：adapter, action, target, result, failure_reason, created_at
 - `ReviewSubmission`：corrected_text, selected_candidate_id
 - `ReviewSubmissionResponse`：review_question, command_result
-- `AuditDetailResponse`：effective_outcome, decision_explanation, generation_metadata
+- `AuditDetailView`：decision_snapshot, execution_before_snapshot, execution_after_snapshot
 - `TimelineItem`：turn_id, event_id, audit_id
 - `AuditVerificationResponse`：terminal_audit_id, terminal_record_hash_valid, terminal_previous_link_valid, failure_reason
 
@@ -92,7 +94,7 @@ pending_steps = []
 ### trusted_input
 
 - `InputPresentation`：input_type, input_source, audio_fingerprint, speaker_zone, speaker_role, speaker_source, spectrum_result, la_score, synthetic_risk, pa_raw_score, pa_score, replay_risk, trust_score, input_trust_label, authorization_effect_applied, asr_raw_text, normalized_text, asr_confidence, asr_confidence_method, zone_permission_result, zone_permission_reasons, preliminary_decision, preliminary_reasons
-- `TurnPresentationResponse`：turn_id, created_at, updated_at, current_stage, processing_status, voice_trust_mode, input, semantic_frame, evidence_demand, retrieval_summary, evidence, gate_result, score_result, validation_result, decision_result, review, authorization, execution, audit
+- `TurnPresentationResponse`：turn_id, created_at, updated_at, current_stage, processing_status, voice_trust_mode, input, semantic_frame, evidence_demand, retrieval_summary, evidence, gate_result, score_result, validation_result, decision_result, review, authorization, execution, audit, clarification_request
 
 ### evidence_retrieval
 
@@ -119,7 +121,8 @@ pending_steps = []
 ### audit_log
 
 - `AuditListResponse`：items, total, page, page_size
-- `AuditDetailResponse`：audit_id, turn_id, created_at, input_summary, voice_trust, transcription, semantic_frame, evidence_demand, retrieval_summary, mandatory_recall, evidence_graph_summary, quality_metrics, memory, causal, validation_result, gate_result, score_factors, initial_decision, original_decision, effective_outcome, review_process, final_decision, decision_explanation, generation_metadata, authorization_status, execution_status, workflow_events, previous_hash, record_hash, audit_chain_valid, workflow_chain_valid
+- `AuditDetailView`：command_summary, resolved_operations, decision_snapshot, decision_summary, key_evidence, intent_decisions, llm_explanation, clarification_history, authorization_summary, execution_summary, execution_before_snapshot, execution_after_snapshot, execution_changes
+- `SemanticFrame`：frame_id, turn_id, raw_text, normalized_text, semantic_confidence, ambiguity_score, semantic_status, review_reasons, review_candidates, unresolved_clauses, security_signals, intents
 - `TimelineItem`：sequence, stage, timestamp, status, summary, turn_id, event_id, audit_id
 - `AuditVerificationResponse`：audit_id, record_hash_valid, previous_link_valid, audit_chain_valid, workflow_chain_valid, terminal_audit_id, terminal_record_hash_valid, terminal_previous_link_valid, relationship_valid, merge_decision_valid, effective_outcome_valid, failure_reason
 
@@ -132,7 +135,7 @@ pending_steps = []
 ## 错误契约
 
 - 模型：`ErrorResponse`
-- 错误码：TURN_NOT_FOUND, AUDIT_NOT_FOUND, NODE_NOT_FOUND, NODE_NOT_IN_TURN, REVIEW_NOT_ALLOWED, NO_PERSISTED_REVIEW_CANDIDATES, SELECTED_CANDIDATE_REQUIRED, REVIEW_CANDIDATE_NOT_FOUND, REVIEW_CANDIDATE_NOT_VALID, CORRECTED_TEXT_REQUIRED, TURN_ALREADY_FINALIZED, MODEL_UNAVAILABLE, DATABASE_ERROR, INVALID_FILTER, INTERNAL_ERROR, INVALID_REQUEST
+- 错误码：TURN_NOT_FOUND, AUDIT_NOT_FOUND, NODE_NOT_FOUND, NODE_NOT_IN_TURN, REVIEW_NOT_ALLOWED, NO_PERSISTED_REVIEW_CANDIDATES, SELECTED_CANDIDATE_REQUIRED, REVIEW_CANDIDATE_NOT_FOUND, REVIEW_CANDIDATE_NOT_VALID, CORRECTED_TEXT_REQUIRED, TURN_ALREADY_FINALIZED, MODEL_UNAVAILABLE, DATABASE_ERROR, INVALID_FILTER, INTERNAL_ERROR, INVALID_REQUEST, CLARIFICATION_NOT_FOUND, CLARIFICATION_ALREADY_RESOLVED, CLARIFICATION_CANDIDATE_NOT_FOUND
 - token 输入错误：不属于本 v1 冻结公开面（token 消费接口未纳入九条路径）
 
 ## 前端不得重算

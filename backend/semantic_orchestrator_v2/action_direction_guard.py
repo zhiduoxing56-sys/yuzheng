@@ -25,7 +25,7 @@ ACTION_TO_FAMILY = {
 }
 
 FAMILY_CUES = {
-    "UNLOCK": ("解除锁定", "解除车门锁定", "解除尾门锁定", "解锁"),
+    "UNLOCK": ("解除锁定", "解锁"),
     "LOCK": ("锁定", "上锁", "锁上", "锁一下"),
     "FOLD": ("折叠", "收起"),
     "UNFOLD": ("展开",),
@@ -52,6 +52,10 @@ OPPOSITES = {
 }
 
 NEGATION_PREFIXES = ("不要", "别", "不准", "禁止")
+CLAUSE_BOUNDARY_CHARS = "，。；！？,.;!?"
+COMPOUND_UNLOCK_PATTERN = re.compile(
+    rf"解除[^{re.escape(CLAUSE_BOUNDARY_CHARS)}]{{0,12}}?锁定"
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,6 +73,10 @@ def _negated(text: str, start: int) -> bool:
 
 def requested_families(text: str) -> tuple[str, ...]:
     found: list[tuple[int, str]] = []
+    compound_unlock_spans = [
+        match.span() for match in COMPOUND_UNLOCK_PATTERN.finditer(text)
+    ]
+    found.extend((start, "UNLOCK") for start, _end in compound_unlock_spans)
     mirror_open = re.search(r"打开(?:外)?后视镜", text)
     if mirror_open:
         found.append((mirror_open.start(), "UNFOLD"))
@@ -90,6 +98,11 @@ def requested_families(text: str) -> tuple[str, ...]:
             for match in re.finditer(re.escape(cue), text):
                 if _negated(text, match.start()):
                     continue
+                if family == "LOCK" and any(
+                    start <= match.start() and match.end() <= end
+                    for start, end in compound_unlock_spans
+                ):
+                    continue
                 if family == "POSITIVE_ON" and cue == "打开" and mirror_open and match.start() == mirror_open.start():
                     continue
                 found.append((match.start(), family))
@@ -105,7 +118,7 @@ class ActionDirectionGuard:
         card = self.intent_cards.get(intent_id)
         if not card:
             return None
-        return ACTION_TO_FAMILY.get(str(card.get("动作", "")))
+        return ACTION_TO_FAMILY.get(str(card.get("canonical_action", "")))
 
     def check(
         self,

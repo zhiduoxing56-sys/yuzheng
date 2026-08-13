@@ -7,6 +7,7 @@ htmlcov/
 data/database/*.db
 data/database/*.db-*
 data/database/backups/
+data/database/
 data/secrets/
 tmp/
 dist/
@@ -40,3 +41,17 @@ data/nlu/experiments/**/checkpoints/
 *.pth
 *.ckpt
 *.safetensors
+
+# Local databases and scratch artifacts
+*.sqlite3
+/+$tmp+
+/'+$tmp+'
+/backend_touch.txt
+/phase*.diff
+/phase*_files.txt
+/semantic_closure*.diff
+/semantic_closure*.txt
+/stage7*.diff
+/stage7*_files.txt
+/stage7*_status.txt
+/tmp_check_*.py

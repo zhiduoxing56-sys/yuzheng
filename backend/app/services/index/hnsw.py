@@ -30,7 +30,9 @@ from app.models.schemas import (
     utc_now,
 )
 from app.services.evidence.repository import EvidenceRepository
+from app.services.evidence.catalog import evidence_type_catalog
 from app.services.evidence.security_classification import EvidenceSecurityClassification
+from app.services.semantic.area import canonical_area
 from app.services.vector.embedding import EmbeddingService
 
 
@@ -60,13 +62,17 @@ def _digest(payload: Any) -> str:
 
 
 def evidence_text(node: EvidenceNode) -> str:
+    definition = evidence_type_catalog()[node.evidence_type]
+    area = canonical_area(node.metadata.get("area"))
     return " ".join(
-        [
+        part
+        for part in [
             node.evidence_type,
-            node.layer,
-            node.source,
-            json.dumps(node.value, ensure_ascii=False, sort_keys=True),
+            str(definition["name_zh"]),
+            str(definition["description"]),
+            area,
         ]
+        if part
     )
 
 

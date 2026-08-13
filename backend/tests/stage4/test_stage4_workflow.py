@@ -19,6 +19,7 @@ from app.models.schemas import (
     TrustedRuntimeContext,
     VehicleStatePatch,
     WorkflowEventType,
+    ClarificationCandidate,
 )
 from app.services.authorization.service import AuthorizationTokenError
 from app.services.review.service import ReviewWorkflowError
@@ -102,20 +103,43 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
     assert confirmable.semantic_frame.intents[0].action == "打开"
     assert confirmable.semantic_frame.intents[0].target == "车窗"
     assert confirmable.decision.final_decision == DecisionLabel.REVIEW
-    confirm_candidate = confirmable.audit.candidate_interpretations[0]
-    confirmed = pipeline.review_service.review(
-        confirmable.turn_id,
-        ReviewRequest(
-            action=ReviewAction.CONFIRM,
-            confirmation_text="确认打开车窗",
-            selected_candidate_id=confirm_candidate.candidate_id,
-        ),
+    assert confirmable.decision.authorization_token is None
+    assert confirmable.clarification_request is not None
+    assert confirmable.clarification_request.candidates
+    assert set(ClarificationCandidate.model_fields) == {
+        "candidate_id",
+        "display_text",
+        "candidate_source",
+        "source_rank",
+        "confidence",
+    }
+    confirm_candidate = confirmable.clarification_request.candidates[0]
+    assert confirm_candidate.candidate_id.startswith("CLAC_OCC_")
+    assert confirm_candidate.display_text == "打开车窗"
+    assert (
+        pipeline.clarification_service.active_for_turn(confirmable.turn_id)
+        .candidates[0]
+        .candidate_id
+        == confirm_candidate.candidate_id
     )
-    assert confirmed.accepted is True
-    assert confirmed.related_turn_id != confirmable.turn_id
-    assert confirmed.decision.score_decision == DecisionLabel.PASS
-    assert confirmed.decision.final_decision == DecisionLabel.PASS
-    assert confirmed.decision.authorization_token is not None
+    resolution, child = pipeline.clarification_service.resolve(
+        turn_id=confirmable.turn_id,
+        clarification_id=confirmable.clarification_request.clarification_id,
+        candidate_id=confirm_candidate.candidate_id,
+        none_of_above=False,
+    )
+    assert resolution.selected_candidate_text == "打开车窗"
+    assert child is not None
+    assert child.turn_id != confirmable.turn_id
+    assert child.parent_turn_id == confirmable.turn_id
+    assert child.semantic_frame.raw_text == "打开车窗"
+    assert child.semantic_frame.intents[0].intent_id == "WINDOW_OPEN"
+    assert child.evidence_demand.turn_id == child.turn_id
+    assert child.evidence_subgraph.intent_evidence_resolutions
+    assert child.safety_gate.checks
+    assert child.decision.final_decision == DecisionLabel.PASS
+    assert child.decision.authorization_token is not None
+    assert pipeline.workflow_repository.verify_chain(confirmable.root_turn_id).valid
 
     vague = _command(pipeline, "把那个打开", vehicle_speed=0, gear_position="P")
     assert vague.decision.final_decision == DecisionLabel.REVIEW
@@ -139,9 +163,9 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
     assert corrected.command_result.root_turn_id == vague.turn_id
     assert corrected.command_result.parent_turn_id == vague.turn_id
     assert corrected.command_result.semantic_frame.intents[0].target == "车窗"
-    assert corrected.command_result.semantic_frame.intents[0].area == "unknown"
+    assert corrected.command_result.semantic_frame.intents[0].area == "LEFT_SIDE"
     assert corrected.decision.final_decision == DecisionLabel.PASS
-    assert corrected.decision.authorization_token is not None
+    assert corrected.decision.authorization_token is None
     assert pipeline.audit_repository.count() == 4
     assert pipeline.audit_repository.verify_chain() is True
     assert pipeline.workflow_repository.verify_chain(vague.turn_id).valid is True
@@ -254,9 +278,12 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
     bad_token = tampered_token[:-1] + ("A" if tampered_token[-1] != "A" else "B")
     with pytest.raises(AuthorizationTokenError, match="摘要"):
         pipeline.execution_service.execute(tampered.turn_id, bad_token)
-    with pytest.raises(AuthorizationTokenError, match="action绑定不匹配"):
+    mismatched_intent = tampered.semantic_frame.intents[0].model_copy(
+        update={"area": "ALL"}
+    )
+    with pytest.raises(AuthorizationTokenError, match="canonical command"):
         pipeline.authorization_service.decode_and_validate(
-            tampered_token, expected_action="关闭"
+            tampered_token, expected_intent=mismatched_intent
         )
 
     pipeline.authorization_service.ttl_seconds = -1
@@ -279,17 +306,18 @@ def test_authorization_execution_security_and_adapter_actions(tmp_path: Path) ->
 
     config = load_yaml("vehicle_actions.yaml")
     simulator = SimulatorVehicleAdapter(action_config=config)
-    assert simulator.execute("解锁", "门锁", "unknown").after_state.door_lock_state == "UNLOCKED"
-    assert simulator.execute("关闭", "前照灯", "unknown").after_state.headlight_state == "OFF"
-    assert simulator.execute("关闭", "大屏", "unknown").after_state.display_state == "OFF"
-    assert simulator.execute("加速", "速度", "unknown").after_state.vehicle_speed == 10
-    assert simulator.execute("减速", "速度", "unknown").after_state.vehicle_speed == 0
-    assert simulator.execute("打开", "制动", "unknown").after_state.brake_state == "ACTIVE"
+    simulator_command = pipeline.command_capability_registry.resolve(
+        passed.semantic_frame.intents[0], adapter="simulator"
+    ).physical_command
+    assert simulator.execute(simulator_command).after_state.door_state == "OPEN"
     bench = MockBenchAdapter(action_config=config)
-    assert bench.execute("打开", "车门", "unknown").simulated is True
+    bench_command = pipeline.command_capability_registry.resolve(
+        passed.semantic_frame.intents[0], adapter="mock_bench"
+    ).physical_command
+    assert bench.execute(bench_command).simulated is True
     can = CanVehicleAdapter(config)
     with pytest.raises(PermissionError, match="DISABLED"):
-        can.execute("打开", "车门", "unknown")
+        can.execute(simulator_command)
 
 
 def test_concurrent_token_consumption_allows_only_one_success(tmp_path: Path) -> None:

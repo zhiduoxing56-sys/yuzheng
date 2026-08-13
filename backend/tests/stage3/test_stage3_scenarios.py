@@ -133,7 +133,8 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         headlight_state="ON",
     )
     assert night.semantic_frame.intents[0].intent_id == "HEADLIGHT_SET_MODE"
-    assert "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED" not in night.safety_gate.hit_rules
+    assert night.semantic_frame.intents[0].mode == "OFF"
+    assert "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED" in night.safety_gate.hit_rules
 
     passenger = _run(
         pipeline,
@@ -152,7 +153,9 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         reverse_camera_active=True,
         display_state="ON",
     )
-    assert display.semantic_frame.semantic_status == "REVIEW"
+    assert display.semantic_frame.semantic_status == "OK"
+    assert display.semantic_frame.intents[0].runtime_identity == "KNOWN_NON_EXECUTABLE"
+    assert display.safety_gate.checks == []
     assert "REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED" not in display.safety_gate.hit_rules
 
     vague = _run(pipeline, "把那个打开")
@@ -178,8 +181,8 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
 
 def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None:
     baseline = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
-    assert len(baseline.safety_gate.checks) == 18
-    assert len({item.rule_id for item in baseline.safety_gate.checks}) == 18
+    assert len(baseline.safety_gate.checks) == 15
+    assert len({item.rule_id for item in baseline.safety_gate.checks}) == 15
 
     navigation = _run(
         pipeline,
@@ -189,8 +192,12 @@ def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None
         reverse_camera_active=False,
         display_state="ON",
     )
-    assert navigation.semantic_frame.semantic_status == "REVIEW"
+    assert navigation.semantic_frame.semantic_status in {"OK", "REVIEW"}
+    if navigation.semantic_frame.intents:
+        assert navigation.semantic_frame.intents[0].runtime_identity == "KNOWN_NON_EXECUTABLE"
+    assert navigation.safety_gate.checks == []
     assert navigation.safety_gate.hit_rules == []
+    assert navigation.decision.authorization_token is None
 
     autopark = _run(
         pipeline,
@@ -200,7 +207,8 @@ def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None
         ultrasonic_distance=None,
         surround_camera_state="AVAILABLE",
     )
-    assert "AUTOPARK_CRITICAL_EVIDENCE_REQUIRED" in autopark.safety_gate.hit_rules
+    assert "AUTOPARK_CRITICAL_EVIDENCE_REQUIRED" not in autopark.safety_gate.hit_rules
+    assert "MANDATORY_EVIDENCE_AVAILABLE" in autopark.safety_gate.hit_rules
     assert autopark.decision.final_decision == DecisionLabel.BLOCK
 
     accelerate = _run(

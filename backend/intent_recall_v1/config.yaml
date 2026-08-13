@@ -22,6 +22,7 @@ security:
     pinyin: 0.82
 
 paths:
-  anchor_file: ../../挂靠/intent_anchor_set_v1.yaml
-  intent_cards_file: ../../挂靠/intent_cards_v1.yaml
-  cache_dir: ../../tmp/intent_recall_v1
+  registry_file: ../../data/nlu/spec/intent_registry_unified_v1.yaml
+  anchor_file: ../../挂靠/intent_anchor_set_unified_v1.yaml
+  intent_cards_file: ../../挂靠/intent_cards_unified_v1.yaml
+  cache_dir: ../../tmp/intent_recall_unified_v1

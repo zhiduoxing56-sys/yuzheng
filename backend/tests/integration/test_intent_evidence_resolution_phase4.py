@@ -25,6 +25,7 @@ from app.models.schemas import (
     SemanticIntent,
     TextCommandRequest,
     TextCommandResponse,
+    VehicleState,
     utc_now,
 )
 from app.services.decision.safety_gate import SafetyGateService
@@ -42,12 +43,14 @@ def _demand(
     *,
     required: list[str] | None = None,
     optional: list[str] | None = None,
+    area: str = "unknown",
 ) -> IntentEvidenceDemand:
     return IntentEvidenceDemand(
         clause_index=clause_index,
         intent_id=intent_id,
         action="查询",
         target="状态",
+        area=area,
         risk_level="R2",
         query_text=f"{intent_id} 状态",
         query_vector=[0.0] * 768,
@@ -156,6 +159,37 @@ def test_shared_physical_node_can_have_required_and_optional_ownership() -> None
     assert first.bindings[0].requirement_level == "REQUIRED"
     assert second.bindings[0].requirement_level == "OPTIONAL"
     assert first.bindings[0].node_id == second.bindings[0].node_id == speed.node_id
+
+
+def test_door_state_resolution_is_exact_area_first_without_filtering_global_types() -> None:
+    repository, recall = _recall_service()
+    snapshot = repository.ingest_vehicle_state(
+        VehicleState(), None, "TURN_AREA_SNAPSHOT"
+    )
+    doors = [node for node in snapshot if node.evidence_type == "DOOR_STATE"]
+    speed = next(node for node in snapshot if node.evidence_type == "VEHICLE_SPEED")
+    right_front = next(
+        node for node in doors if node.metadata.get("area") == "RIGHT_FRONT"
+    )
+
+    _, resolution = recall.resolve(
+        [*doors, speed],
+        _demand(
+            "DOOR_OPEN",
+            0,
+            required=["VEHICLE_SPEED"],
+            optional=["DOOR_STATE"],
+            area="RIGHT_FRONT",
+        ),
+        "TURN_AREA_BINDING",
+    )
+
+    bindings = {binding.evidence_type: binding for binding in resolution.bindings}
+    assert bindings["VEHICLE_SPEED"].node_id == speed.node_id
+    assert bindings["DOOR_STATE"].node_id == right_front.node_id
+    assert next(
+        node for node in doors if node.node_id == bindings["DOOR_STATE"].node_id
+    ).metadata["area"] == "RIGHT_FRONT"
 
 
 def test_same_physical_node_keeps_distinct_intent_scoped_similarity() -> None:

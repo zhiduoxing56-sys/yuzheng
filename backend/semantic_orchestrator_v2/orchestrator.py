@@ -18,6 +18,12 @@ if str(BACKEND_DIR) not in sys.path:
 
 from intent_hybrid_gate.gate import GateRun, HybridConfidenceGate  # noqa: E402
 from intent_recall_v1.recaller import CandidateIntentRecaller  # noqa: E402
+from semantic_registry_v1.registry import (  # noqa: E402
+    ANCHOR_PATH,
+    CARDS_PATH,
+    REGISTRY_PATH,
+    UnifiedSemanticRegistry,
+)
 
 from .action_direction_guard import ActionDirectionGuard
 from .candidate_consistency_guard import CandidateConsistencyGuard
@@ -25,16 +31,16 @@ from .clause_resolver import OrderedClauseResolver
 from .ellipsis_guard import EllipsisGuard
 from .multi_intent_guard import MultiIntentCompletenessGuard
 from .security_claim_guard import SecurityClaimGuard
+from .semantic_contract_guard import SemanticContractGuard
 
 
-V13_RECALL_CONFIG = ROOT_DIR / "test-results" / "anchor-loo-v1_3" / "config_v1_3.yaml"
-V13_ANCHOR = ROOT_DIR / "挂靠" / "intent_anchor_set_v1_3.yaml"
-INTENT_CARDS = ROOT_DIR / "挂靠" / "intent_cards_v1.yaml"
+V13_RECALL_CONFIG = ROOT_DIR / "backend" / "intent_recall_v1" / "config.yaml"
+V13_ANCHOR = ANCHOR_PATH
+INTENT_CARDS = CARDS_PATH
 GATE_CONFIG = ROOT_DIR / "backend" / "intent_hybrid_gate" / "gate_config.yaml"
 MODEL_CONFIG = ROOT_DIR / "backend" / "intent_judge_3b_minimal" / "config.yaml"
-EXPECTED_ANCHOR_SHA256 = "B88B4D9DCC9CDFDB27EC6D25038AF6E7E5D3F01FE6937BA4777815987FB65BFF"
-EXPECTED_GATE_SHA256 = "F46C2DADE8CA23F585BC14D8DCD09F65FCC8EBA494D5EBCF9D799C1ADF8F5155"
-EXPECTED_MODEL_SHA256 = "FC1C6BD7DCAC10A358790B38DF277480215536CEAAE84866225FB4ADCE8A0CAC"
+EXPECTED_GATE_SHA256 = "ADCEA6314205568BDB907D83336290009ED75E6528754692D0E2CD8DD252D081"
+EXPECTED_MODEL_SHA256 = "85BC83D06DC495B29C3DFAC714AFA89B507E869D863F43E00122F71BFF494EEA"
 
 SEMANTIC_GUARD_REASONS = (
     "INSUFFICIENT_SEMANTIC_INFORMATION",
@@ -74,7 +80,6 @@ class SemanticOrchestratorV2:
             "v1_3_recall_config": _sha256(V13_RECALL_CONFIG),
         }
         expected = {
-            "v1_3_anchor": EXPECTED_ANCHOR_SHA256,
             "gate_config": EXPECTED_GATE_SHA256,
             "model_config": EXPECTED_MODEL_SHA256,
         }
@@ -89,8 +94,9 @@ class SemanticOrchestratorV2:
         self.gate.recaller = self.recaller
         self.gate.model_judge.recaller = self.recaller
 
+        self.registry = UnifiedSemanticRegistry(REGISTRY_PATH, INTENT_CARDS, V13_ANCHOR)
         cards_root = yaml.safe_load(INTENT_CARDS.read_text(encoding="utf-8"))
-        cards = cards_root.get("正式意图", {})
+        cards = cards_root.get("intents", {})
         self.clause_resolver = OrderedClauseResolver()
         self.direction_guard = ActionDirectionGuard(cards)
         self.ellipsis_guard = EllipsisGuard()
@@ -99,6 +105,7 @@ class SemanticOrchestratorV2:
         )
         self.multi_guard = MultiIntentCompletenessGuard()
         self.security_guard = SecurityClaimGuard()
+        self.semantic_contract_guard = SemanticContractGuard(self.registry)
 
     def close(self) -> None:
         self.gate.close()
@@ -136,6 +143,7 @@ class SemanticOrchestratorV2:
             guard_details["candidate_consistency"] = {"reasons": list(candidate.reasons)}
 
         direction_rows: list[dict[str, Any]] = []
+        resolved_params: dict[str, dict[str, Any]] = {}
         for intent_id in selected_ids:
             decision = self.direction_guard.check(clause, intent_id, top8)
             direction_rows.append(
@@ -149,17 +157,21 @@ class SemanticOrchestratorV2:
             )
             if decision.conflict:
                 guard_triggers.append("ACTION_DIRECTION_CONFLICT")
+            contract = self.semantic_contract_guard.check(clause, intent_id)
+            resolved_params[intent_id] = dict(contract.params)
+            guard_triggers.extend(contract.review_reasons)
         if direction_rows:
             guard_details["action_direction"] = direction_rows
 
         base_status = str(run.output["semantic_status"])
-        semantic_conflict = any(trigger in SEMANTIC_GUARD_REASONS for trigger in guard_triggers)
+        semantic_conflict = bool(guard_triggers)
         reliable = base_status == "OK" and bool(selected_ids) and not semantic_conflict
         return {
             "clause": clause,
             "base_status": base_status,
             "gate_path": run.gate_path,
             "accepted_intent_ids": selected_ids,
+            "resolved_params": resolved_params,
             "reliable": reliable,
             "stage1_top8": top8,
             "stage1_security_signal": bool(run.output["security_signals"]),
@@ -230,16 +242,29 @@ class SemanticOrchestratorV2:
                 reasons.append(result["gate_path"])
                 unresolved_clauses = [result["clause"]]
 
+        global_review_reason = self.semantic_contract_guard.global_review_reason(text)
+        if global_review_reason is not None:
+            status = "REVIEW"
+            reasons.append(global_review_reason)
+            unresolved_clauses = unresolved_clauses or list(resolution.clauses)
+
         all_triggers = _unique(all_triggers)
         reasons = _unique(reasons)
-        formal_ids = resolved_ids if status == "OK" else []
+        occurrence_rows = [
+            {
+                "intent_id": intent_id,
+                "params": dict(result.get("resolved_params", {}).get(intent_id, {})),
+            }
+            for result in clause_results
+            for intent_id in result["accepted_intent_ids"]
+        ]
         output = {
             "status": status,
-            "sub_intents": [{"intent_id": intent_id, "params": {}} for intent_id in formal_ids],
-            "review_candidates": review_candidates if status == "REVIEW" else [],
+            "sub_intents": occurrence_rows if status == "OK" else [],
+            "review_candidates": review_candidates if status in {"REVIEW", "NO_MATCH"} else [],
             "reason": reasons[0] if reasons else None,
             "reasons": reasons,
-            "resolved_sub_intents": resolved_ids if status == "REVIEW" else [],
+            "resolved_sub_intents": occurrence_rows if status == "REVIEW" else [],
             "unresolved_clauses": unresolved_clauses if status == "REVIEW" else [],
             "suggested_target": suggested_target,
             "suggested_text": suggested_text,

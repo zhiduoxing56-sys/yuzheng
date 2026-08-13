@@ -67,16 +67,13 @@ def test_state_scenario_audit_timeline_and_restart_apis(api_client, tmp_path) ->
     assert page["page_size"] == 2
     assert page["total"] >= 2
     assert len(page["items"]) == 2
-    assert all(item["final_decision"]["final_decision"] == "PASS" for item in page["items"])
+    assert all(item["final_decision"] == "PASS" for item in page["items"])
     target_page = client.get("/api/audits?target=车窗").json()
     assert target_page["total"] >= 1
-    assert all(
-        item["semantic_frame"]["intents"][0]["target"] == "车窗"
-        for item in target_page["items"]
-    )
+    assert all("车窗" in item["raw_command"] for item in target_page["items"])
     audit_id = corrected["command_result"]["audit"]["audit_id"]
     detail = client.get(f"/api/audits/{audit_id}").json()
-    assert detail["audit_id"] == audit_id
+    assert detail["command_summary"]["final_decision"] == "PASS"
     exported = client.get(f"/api/audits/{audit_id}/export").json()
     assert exported["audit"]["audit_id"] == audit_id
     assert exported["audit_chain_valid"] is True

@@ -81,10 +81,10 @@ def _mutated_registry(tmp_path: Path, mutate) -> Path:
 
 
 def _mutated_r4_registry(tmp_path: Path, mutate) -> Path:
-    source = PROJECT_ROOT / "data/nlu/spec/intent_registry_r4_final.yaml"
+    source = PROJECT_ROOT / "data/nlu/spec/intent_registry_unified_v1.yaml"
     raw = yaml.safe_load(source.read_text(encoding="utf-8"))
     mutate(raw)
-    path = tmp_path / "intent_registry_r4_final.yaml"
+    path = tmp_path / "intent_registry_unified_v1.yaml"
     path.write_text(yaml.safe_dump(raw, allow_unicode=True, sort_keys=False), encoding="utf-8")
     return path
 
@@ -359,7 +359,7 @@ def test_area_conditional_requires_valid_nonempty_r4_allowed_areas(
 
     path = _mutated_r4_registry(tmp_path, mutate)
     with pytest.raises(ConfigurationError, match="allowed_areas"):
-        EvidenceDemandRegistry(r4_registry_path=path)
+        EvidenceDemandRegistry(semantic_registry_path=path)
 
 
 def test_all_six_seat_left_front_conditionals_remain_valid() -> None:
@@ -434,7 +434,7 @@ def test_runtime_loader_rejects_r4_runtime_loading_disabled(tmp_path: Path) -> N
         tmp_path, lambda raw: raw.__setitem__("runtime_loading_allowed", False)
     )
     with pytest.raises(ConfigurationError, match="禁止生产运行时加载"):
-        EvidenceDemandRegistry(r4_registry_path=path)
+        EvidenceDemandRegistry(semantic_registry_path=path)
 
 
 def test_missing_or_extra_r4_intent_fails_startup(tmp_path: Path) -> None:

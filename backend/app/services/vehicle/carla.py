@@ -14,6 +14,7 @@ from app.models.schemas import (
     make_id,
     utc_now,
 )
+from app.services.vehicle.capabilities import PhysicalVehicleCommand
 
 
 class CarlaVehicleAdapter:
@@ -26,17 +27,6 @@ class CarlaVehicleAdapter:
     """
 
     adapter_name = "carla"
-
-    # {动作}|{目标} -> CARLA 控制参数
-    ACTION_CONTROLS: dict[tuple[str, str], dict[str, Any]] = {
-        ("加速", "速度"): {"throttle": 0.6, "duration_s": 1.5, "feedback": "车辆已在 CARLA 中加速"},
-        ("减速", "速度"): {"brake": 0.5, "duration_s": 1.5, "feedback": "车辆已在 CARLA 中减速"},
-        ("打开", "制动"): {"brake": 0.9, "duration_s": 2.0, "feedback": "车辆已在 CARLA 中紧急制动"},
-        ("关闭", "前照灯"): {"light_off": True, "feedback": "前照灯已关闭"},
-        ("打开", "前照灯"): {"light_on": True, "feedback": "前照灯已打开"},
-        # 解析器把"打开/关闭前照灯"都归一化为"设置|前照灯"且不带值 → 执行时切换
-        ("设置", "前照灯"): {"light_toggle": True, "feedback": "前照灯已切换"},
-    }
 
     # 该 CARLA 0.9.16 构建的可用预设：无 RainyNoon/FoggyNoon，雨天用 MidRainyNoon，
     # 雾天无预设，改用自定义 WeatherParameters(fog_density=80)。
@@ -428,50 +418,45 @@ class CarlaVehicleAdapter:
                 self._connected = False
         return self.get_state()
 
-    def execute(self, action: str, target: str, area: str) -> VehicleExecutionResult:
+    def execute(self, command: PhysicalVehicleCommand) -> VehicleExecutionResult:
         started = perf_counter()
         before = self.get_state()
-        key = f"{action}|{target}"
-        mapping = self.ACTION_CONTROLS.get((action, target))
-        if mapping is None:
-            # 无 CARLA 物理映射的动作：按既有 action_config 字段操作更新镜像
-            config_mapping = self._actions.get(key)
-            if config_mapping is None:
-                raise ValueError(f"CARLA 适配器不支持车辆动作: {key}")
+        if command.kind == "state_operations" and command.operations:
             with self._lock:
                 state_data = self._mirror.model_dump()
-                for operation in config_mapping.get("operations", []):
+                for operation in command.operations:
                     self._apply_operation(state_data, operation)
                 state_data["updated_at"] = utc_now()
                 self._mirror = VehicleState.model_validate(state_data)
-            feedback = str(config_mapping.get("feedback", "动作已执行"))
-        else:
+            feedback = f"CARLA 镜像物理动作已执行：{command.action}{command.target}"
+        elif command.kind == "carla_control" and command.controls:
+            controls = command.controls
             try:
-                if "light_toggle" in mapping:
-                    state = self._vehicle.get_light_state()
-                    currently_on = state == self._carla.VehicleLightState.LowBeam
-                    self._apply_headlight(not currently_on)
-                elif "light_on" in mapping or "light_off" in mapping:
-                    self._apply_headlight(bool(mapping.get("light_on")))
-                elif "throttle" in mapping or "brake" in mapping:
+                if "light_on" in controls or "light_off" in controls:
+                    self._apply_headlight(bool(controls.get("light_on")))
+                elif "throttle" in controls or "brake" in controls:
                     self._apply_control_impulse(
-                        float(mapping.get("throttle", 0.0)),
-                        float(mapping.get("brake", 0.0)),
-                        float(mapping.get("duration_s", 1.0)),
+                        float(controls.get("throttle", 0.0)),
+                        float(controls.get("brake", 0.0)),
+                        float(controls.get("duration_s", 1.0)),
                     )
                 else:
-                    raise ValueError(f"未知 CARLA 控制映射: {key}")
-                feedback = str(mapping.get("feedback", "动作已在 CARLA 中执行"))
+                    raise ValueError(
+                        f"未知 CARLA 物理控制: {sorted(controls)}"
+                    )
+                feedback = f"动作已在 CARLA 中执行：{command.action}{command.target}"
             except Exception as exc:
                 raise RuntimeError(f"CARLA 执行失败: {type(exc).__name__}: {exc}") from exc
+        else:
+            raise ValueError(f"CARLA 不支持物理命令类型: {command.kind}")
         after = self.get_state()
         result = VehicleExecutionResult(
             adapter=self.adapter_name,
             simulated=True,
             status="SUCCEEDED",
-            action=action,
-            target=target,
-            area=area,
+            action=command.action,
+            target=command.target,
+            area=command.area,
             before_state=before,
             after_state=after,
             feedback=feedback,

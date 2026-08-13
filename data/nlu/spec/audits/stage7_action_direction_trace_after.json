@@ -1,0 +1,21 @@
+{
+  "phase": "after",
+  "input": "解除行李厢锁定",
+  "requested_families": ["UNLOCK"],
+  "selected_intent": "TRUNK_UNLOCK",
+  "selected_family": "UNLOCK",
+  "compatible_candidates": ["TRUNK_UNLOCK", "DOOR_UNLOCK"],
+  "semantic_status": "OK",
+  "review_reasons": [],
+  "guard_triggers": [],
+  "gate_path": "DIRECT_ACCEPT",
+  "evidence_demand_generated": true,
+  "evidence_required_types": ["AUTHORIZATION_STATE"],
+  "safety_gate_invoked": true,
+  "safety_gate_hit_rules": [],
+  "decision": "PASS",
+  "capability_supported": false,
+  "authorization_token": null,
+  "vehicle_state_changed": false,
+  "workflow_chain_valid": true
+}

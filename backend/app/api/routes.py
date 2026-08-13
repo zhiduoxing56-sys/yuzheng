@@ -25,6 +25,7 @@ from app.models.schemas import (
     MicrophoneCommandRequest,
     ReviewRequest,
     ReviewResult,
+    SemanticFrame,
     TextCommandRequest,
     TextCommandResponse,
     TurnTimeline,
@@ -37,7 +38,7 @@ from app.models.schemas import (
     CarlaTrafficLightRequest,
 )
 from app.models.frontend_contract import (
-    AuditDetailResponse,
+    AuditDetailView,
     AuditListResponse,
     AuditVerificationResponse,
     ErrorCode,
@@ -45,6 +46,8 @@ from app.models.frontend_contract import (
     EvidenceNodeDetail,
     ReviewSubmission,
     ReviewSubmissionResponse,
+    ClarificationSubmission,
+    ClarificationSubmissionResponse,
     TurnPresentationResponse,
     MandatoryRecallEvidencePresentation,
     RecallAuditRecentItem,
@@ -62,6 +65,7 @@ from app.api.errors import ContractError
 from app.services.authorization.service import AuthorizationTokenError
 from app.services.asr.whisper import ASRModelError
 from app.services.review.service import ReviewWorkflowError
+from app.services.clarification.service import ClarificationWorkflowError
 from app.services.voice.antispoof import AntiSpoofModelError
 from app.services.voice.audio import AudioInputError
 from app.core.redaction import SensitiveDataRedactor
@@ -429,6 +433,45 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             command_result=result.command_result,
         )
 
+    @router.post(
+        "/turns/{turn_id}/clarification",
+        response_model=ClarificationSubmissionResponse,
+        responses=contract_errors,
+    )
+    def turn_clarification(
+        turn_id: str, request: ClarificationSubmission
+    ) -> ClarificationSubmissionResponse:
+        try:
+            resolution, command_result = pipeline.clarification_service.resolve(
+                turn_id=turn_id,
+                clarification_id=request.clarification_id,
+                candidate_id=request.candidate_id,
+                none_of_above=request.resolution == "NONE_OF_ABOVE",
+            )
+        except ClarificationWorkflowError as exc:
+            message = SensitiveDataRedactor.redact_exception(exc)
+            if "candidate_id" in message:
+                code, status_code = ErrorCode.CLARIFICATION_CANDIDATE_NOT_FOUND, 404
+            elif "不存在" in message or "未找到" in message:
+                code, status_code = ErrorCode.CLARIFICATION_NOT_FOUND, 404
+            else:
+                code, status_code = ErrorCode.REVIEW_NOT_ALLOWED, 409
+            raise ContractError(
+                status_code, code, message, turn_id=turn_id
+            ) from exc
+        invalidate_workflow_reads(turn_id)
+        if resolution.child_turn_id:
+            invalidate_workflow_reads(resolution.child_turn_id)
+        return ClarificationSubmissionResponse(
+            clarification_id=resolution.clarification_id,
+            source_turn_id=resolution.source_turn_id,
+            resolution=resolution.resolution.value,
+            selected_candidate_id=resolution.selected_candidate_id,
+            selected_candidate_text=resolution.selected_candidate_text,
+            child_turn_id=resolution.child_turn_id,
+            command_result=command_result,
+        )
+
     @router.post("/turns/{turn_id}/execute", response_model=ExecuteResult)
     def turn_execute(turn_id: str, request: ExecuteRequest) -> ExecuteResult:
         try:
@@ -642,6 +685,9 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         execution_statuses = pipeline.workflow_repository.latest_execution_statuses(
             [item.root_turn_id for item in summaries.items]
         )
+        review_occurrences = pipeline.workflow_repository.review_occurrences(
+            [item.root_turn_id for item in summaries.items]
+        )
         return AuditListResponse(
             items=[
                 presentation.audit_list_summary_item(
@@ -650,6 +696,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                     execution_status=execution_statuses.get(
                         item.root_turn_id, "NOT_EXECUTED"
                     ),
+                    review_occurred=item.root_turn_id in review_occurrences,
                 )
                 for item in summaries.items
             ],
@@ -660,11 +707,11 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
 
     @router.get(
         "/audits/{audit_id}",
-        response_model=AuditDetailResponse,
+        response_model=AuditDetailView,
         responses=contract_errors,
     )
-    def audit_detail(audit_id: str) -> AuditDetailResponse:
-        def compute_audit_detail() -> AuditDetailResponse | None:
+    def audit_detail(audit_id: str) -> AuditDetailView:
+        def compute_audit_detail() -> AuditDetailView | None:
             found = pipeline.effective_audit_resolver.resolve_by_audit_id(audit_id)
             if found is None:
                 return None
@@ -684,6 +731,17 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         if resolution is None:
             raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
         return resolution  # type: ignore[return-value]
+
+    @router.get(
+        "/audits/{audit_id}/semantic-frame",
+        response_model=SemanticFrame,
+        responses=contract_errors,
+    )
+    def audit_semantic_frame(audit_id: str) -> SemanticFrame:
+        found = pipeline.effective_audit_resolver.resolve_by_audit_id(audit_id)
+        if found is None:
+            raise ContractError(404, ErrorCode.AUDIT_NOT_FOUND, "未找到审计记录")
+        return found.original.semantic_frame
 
     @router.get("/read-cache/stats")
     def read_cache_stats() -> dict[str, int]:

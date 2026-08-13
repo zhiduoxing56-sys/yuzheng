@@ -57,7 +57,7 @@ class ObjectFamilyGuard:
         card = self.intent_cards.get(intent_id)
         if not card:
             return None
-        value = card.get("对象")
+        value = card.get("canonical_target")
         return str(value) if value is not None else None
 
     def check(

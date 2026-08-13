@@ -211,6 +211,16 @@
           "audit": {
             "$ref": "#/components/schemas/AuditRecord"
           },
+          "clarification_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClarificationRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "decision": {
             "$ref": "#/components/schemas/DecisionResult"
           },
@@ -292,172 +302,575 @@
         "title": "AudioCommandResponse",
         "type": "object"
       },
-      "AuditDetailResponse": {
+      "AuditAuthorizationSummary": {
         "additionalProperties": false,
         "properties": {
-          "audit_chain_valid": {
-            "title": "Audit Chain Valid",
+          "authorized": {
+            "title": "Authorized",
             "type": "boolean"
           },
-          "audit_id": {
-            "title": "Audit Id",
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "authorized"
+        ],
+        "title": "AuditAuthorizationSummary",
+        "type": "object"
+      },
+      "AuditClarificationCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "display_text": {
+            "title": "Display Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_text"
+        ],
+        "title": "AuditClarificationCandidate",
+        "type": "object"
+      },
+      "AuditClarificationHistory": {
+        "additionalProperties": false,
+        "properties": {
+          "child_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionLabel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "child_turn_available": {
+            "default": false,
+            "title": "Child Turn Available",
+            "type": "boolean"
+          },
+          "command_terminated": {
+            "default": false,
+            "title": "Command Terminated",
+            "type": "boolean"
+          },
+          "confirmed_operation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed Operation"
+          },
+          "original_text": {
+            "title": "Original Text",
             "type": "string"
           },
-          "authorization_status": {
-            "$ref": "#/components/schemas/AuthorizationPresentation"
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question"
           },
-          "causal": {
-            "$ref": "#/components/schemas/CausalPresentation"
-          },
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
+          "resolution": {
+            "default": "PENDING",
+            "enum": [
+              "PENDING",
+              "SELECTED",
+              "NONE_OF_ABOVE"
+            ],
+            "title": "Resolution",
             "type": "string"
           },
-          "decision_explanation": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DecisionExplanation"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "effective_outcome": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/EffectiveOutcomeAuditView"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "evidence_demand": {
-            "$ref": "#/components/schemas/EvidenceDemandPresentation"
-          },
-          "evidence_graph_summary": {
-            "additionalProperties": true,
-            "title": "Evidence Graph Summary",
-            "type": "object"
-          },
-          "execution_status": {
-            "$ref": "#/components/schemas/ExecutionPresentation"
-          },
-          "final_decision": {
-            "$ref": "#/components/schemas/DecisionResultPresentation"
-          },
-          "gate_result": {
-            "$ref": "#/components/schemas/GateResultPresentation"
-          },
-          "generation_metadata": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/InterpreterGenerationMetadata"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "initial_decision": {
-            "$ref": "#/components/schemas/DecisionLabel"
-          },
-          "input_summary": {
-            "$ref": "#/components/schemas/InputPresentation"
-          },
-          "mandatory_recall": {
+          "review_reasons": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "type": "string"
             },
-            "title": "Mandatory Recall",
+            "title": "Review Reasons",
             "type": "array"
           },
-          "memory": {
-            "$ref": "#/components/schemas/MemoryPresentation"
+          "selected_candidate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Candidate"
           },
-          "original_decision": {
-            "$ref": "#/components/schemas/OriginalDecisionAuditView"
-          },
-          "previous_hash": {
-            "title": "Previous Hash",
-            "type": "string"
-          },
-          "quality_metrics": {
-            "$ref": "#/components/schemas/QualityMetricsPresentation"
-          },
-          "record_hash": {
-            "title": "Record Hash",
-            "type": "string"
-          },
-          "retrieval_summary": {
-            "$ref": "#/components/schemas/RetrievalSummary"
-          },
-          "review_process": {
-            "$ref": "#/components/schemas/ReviewPresentation"
-          },
-          "score_factors": {
-            "$ref": "#/components/schemas/ScoreResultPresentation"
-          },
-          "semantic_frame": {
-            "$ref": "#/components/schemas/SemanticFrame"
-          },
-          "transcription": {
-            "$ref": "#/components/schemas/TranscriptionResult"
-          },
-          "turn_id": {
-            "title": "Turn Id",
-            "type": "string"
-          },
-          "validation_result": {
-            "$ref": "#/components/schemas/ValidationResultPresentation"
-          },
-          "voice_trust": {
-            "additionalProperties": true,
-            "title": "Voice Trust",
-            "type": "object"
-          },
-          "workflow_chain_valid": {
-            "title": "Workflow Chain Valid",
-            "type": "boolean"
-          },
-          "workflow_events": {
+          "shown_candidates": {
             "items": {
-              "$ref": "#/components/schemas/WorkflowEvent"
+              "$ref": "#/components/schemas/AuditClarificationCandidate"
             },
-            "title": "Workflow Events",
+            "title": "Shown Candidates",
             "type": "array"
           }
         },
         "required": [
-          "audit_id",
-          "turn_id",
-          "created_at",
-          "input_summary",
-          "voice_trust",
-          "transcription",
-          "semantic_frame",
-          "evidence_demand",
-          "retrieval_summary",
-          "evidence_graph_summary",
-          "quality_metrics",
-          "validation_result",
-          "gate_result",
-          "score_factors",
-          "initial_decision",
-          "original_decision",
-          "review_process",
-          "final_decision",
-          "authorization_status",
-          "execution_status",
-          "previous_hash",
-          "record_hash",
-          "audit_chain_valid",
-          "workflow_chain_valid"
+          "original_text"
         ],
-        "title": "AuditDetailResponse",
+        "title": "AuditClarificationHistory",
+        "type": "object"
+      },
+      "AuditCommandSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "execution_status": {
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "final_decision": {
+            "$ref": "#/components/schemas/DecisionLabel"
+          },
+          "input_type": {
+            "enum": [
+              "text",
+              "audio"
+            ],
+            "title": "Input Type",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "raw_command": {
+            "title": "Raw Command",
+            "type": "string"
+          }
+        },
+        "required": [
+          "raw_command",
+          "input_type",
+          "occurred_at",
+          "final_decision",
+          "execution_status"
+        ],
+        "title": "AuditCommandSummary",
+        "type": "object"
+      },
+      "AuditDecisionSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregate_safety_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionLabel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "final_decision": {
+            "$ref": "#/components/schemas/DecisionLabel"
+          },
+          "hit_rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hit Rules",
+            "type": "array"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "final_decision"
+        ],
+        "title": "AuditDecisionSummary",
+        "type": "object"
+      },
+      "AuditDetailView": {
+        "additionalProperties": false,
+        "properties": {
+          "authorization_summary": {
+            "$ref": "#/components/schemas/AuditAuthorizationSummary"
+          },
+          "clarification_history": {
+            "items": {
+              "$ref": "#/components/schemas/AuditClarificationHistory"
+            },
+            "title": "Clarification History",
+            "type": "array"
+          },
+          "command_summary": {
+            "$ref": "#/components/schemas/AuditCommandSummary"
+          },
+          "decision_snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuditVehicleSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_summary": {
+            "$ref": "#/components/schemas/AuditDecisionSummary"
+          },
+          "execution_after_snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuditVehicleSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_before_snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuditVehicleSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_changes": {
+            "items": {
+              "$ref": "#/components/schemas/AuditExecutionChange"
+            },
+            "title": "Execution Changes",
+            "type": "array"
+          },
+          "execution_summary": {
+            "$ref": "#/components/schemas/AuditExecutionSummary"
+          },
+          "intent_decisions": {
+            "items": {
+              "$ref": "#/components/schemas/AuditIntentDecision"
+            },
+            "title": "Intent Decisions",
+            "type": "array"
+          },
+          "key_evidence": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEvidenceFact"
+            },
+            "title": "Key Evidence",
+            "type": "array"
+          },
+          "llm_explanation": {
+            "$ref": "#/components/schemas/AuditLLMExplanation"
+          },
+          "resolved_operations": {
+            "items": {
+              "$ref": "#/components/schemas/AuditResolvedOperation"
+            },
+            "title": "Resolved Operations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "command_summary",
+          "decision_summary",
+          "llm_explanation",
+          "authorization_summary",
+          "execution_summary"
+        ],
+        "title": "AuditDetailView",
+        "type": "object"
+      },
+      "AuditEvidenceFact": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "AuditEvidenceFact",
+        "type": "object"
+      },
+      "AuditExecutionChange": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "After"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "Before"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "before",
+          "after"
+        ],
+        "title": "AuditExecutionChange",
+        "type": "object"
+      },
+      "AuditExecutionSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adapter"
+          },
+          "executed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed At"
+          },
+          "failure_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Reason"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "AuditExecutionSummary",
+        "type": "object"
+      },
+      "AuditIntentDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/DecisionLabel"
+          },
+          "hit_rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hit Rules",
+            "type": "array"
+          },
+          "key_evidence": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEvidenceFact"
+            },
+            "title": "Key Evidence",
+            "type": "array"
+          },
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "operation",
+          "decision"
+        ],
+        "title": "AuditIntentDecision",
+        "type": "object"
+      },
+      "AuditLLMExplanation": {
+        "additionalProperties": false,
+        "properties": {
+          "generated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generated At"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "AVAILABLE",
+              "FAILED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "AuditLLMExplanation",
         "type": "object"
       },
       "AuditListItem": {
@@ -477,36 +890,24 @@
             "type": "string"
           },
           "final_decision": {
-            "$ref": "#/components/schemas/DecisionResult"
-          },
-          "initial_decision": {
             "$ref": "#/components/schemas/DecisionLabel"
           },
-          "instruction_summary": {
-            "title": "Instruction Summary",
+          "raw_command": {
+            "title": "Raw Command",
             "type": "string"
           },
-          "original_decision": {
-            "$ref": "#/components/schemas/DecisionLabel"
-          },
-          "semantic_frame": {
-            "$ref": "#/components/schemas/SemanticFrame"
-          },
-          "turn_id": {
-            "title": "Turn Id",
-            "type": "string"
+          "review_occurred": {
+            "title": "Review Occurred",
+            "type": "boolean"
           }
         },
         "required": [
           "audit_id",
-          "turn_id",
           "created_at",
-          "instruction_summary",
-          "initial_decision",
-          "original_decision",
+          "raw_command",
           "final_decision",
           "execution_status",
-          "semantic_frame"
+          "review_occurred"
         ],
         "title": "AuditListItem",
         "type": "object"
@@ -1091,6 +1492,182 @@
         ],
         "title": "AuditRecordQuality",
         "type": "string"
+      },
+      "AuditResolvedOperation": {
+        "additionalProperties": false,
+        "properties": {
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "title": "AuditResolvedOperation",
+        "type": "object"
+      },
+      "AuditSensorSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "sensor": {
+            "title": "Sensor",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "status": {
+            "const": "AVAILABLE",
+            "default": "AVAILABLE",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sensor"
+        ],
+        "title": "AuditSensorSummary",
+        "type": "object"
+      },
+      "AuditSnapshotFact": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value"
+        ],
+        "title": "AuditSnapshotFact",
+        "type": "object"
+      },
+      "AuditVehicleSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "captured_at": {
+            "format": "date-time",
+            "title": "Captured At",
+            "type": "string"
+          },
+          "environment_state": {
+            "items": {
+              "$ref": "#/components/schemas/AuditSnapshotFact"
+            },
+            "title": "Environment State",
+            "type": "array"
+          },
+          "sensor_summary": {
+            "items": {
+              "$ref": "#/components/schemas/AuditSensorSummary"
+            },
+            "title": "Sensor Summary",
+            "type": "array"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "vehicle_state": {
+            "items": {
+              "$ref": "#/components/schemas/AuditSnapshotFact"
+            },
+            "title": "Vehicle State",
+            "type": "array"
+          }
+        },
+        "required": [
+          "captured_at",
+          "source"
+        ],
+        "title": "AuditVehicleSnapshot",
+        "type": "object"
       },
       "AuditVerificationResponse": {
         "additionalProperties": false,
@@ -2192,6 +2769,112 @@
         "title": "CausalPriorComponents",
         "type": "object"
       },
+      "ClarificationCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "candidate_source": {
+            "$ref": "#/components/schemas/ClarificationCandidateSource"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "display_text": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Display Text",
+            "type": "string"
+          },
+          "source_rank": {
+            "minimum": 1.0,
+            "title": "Source Rank",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "display_text",
+          "candidate_source",
+          "source_rank"
+        ],
+        "title": "ClarificationCandidate",
+        "type": "object"
+      },
+      "ClarificationCandidateSource": {
+        "enum": [
+          "ASR_NBEST",
+          "TEXT_SIMILARITY",
+          "SEMANTIC_REVIEW_CANDIDATE",
+          "SLOT_COMPLETION"
+        ],
+        "title": "ClarificationCandidateSource",
+        "type": "string"
+      },
+      "ClarificationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/ClarificationCandidate"
+            },
+            "maxItems": 4,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "clarification_id": {
+            "title": "Clarification Id",
+            "type": "string"
+          },
+          "clarification_type": {
+            "$ref": "#/components/schemas/ClarificationType"
+          },
+          "original_text": {
+            "maxLength": 2048,
+            "title": "Original Text",
+            "type": "string"
+          },
+          "prompt": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "turn_id": {
+            "title": "Turn Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clarification_id",
+          "turn_id",
+          "clarification_type",
+          "prompt",
+          "original_text"
+        ],
+        "title": "ClarificationRequest",
+        "type": "object"
+      },
+      "ClarificationType": {
+        "enum": [
+          "VOICE_CONFIRMATION",
+          "SEMANTIC_CONFIRMATION"
+        ],
+        "title": "ClarificationType",
+        "type": "string"
+      },
       "ContextClaim": {
         "additionalProperties": false,
         "properties": {
@@ -2798,55 +3481,6 @@
         "title": "DecisionSource",
         "type": "string"
       },
-      "EffectiveOutcomeAuditView": {
-        "additionalProperties": false,
-        "properties": {
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
-            "type": "string"
-          },
-          "execution_allowed": {
-            "const": false,
-            "default": false,
-            "title": "Execution Allowed",
-            "type": "boolean"
-          },
-          "final_decision": {
-            "$ref": "#/components/schemas/DecisionLabel"
-          },
-          "review_action": {
-            "$ref": "#/components/schemas/ReviewAction"
-          },
-          "source": {
-            "$ref": "#/components/schemas/DecisionSource"
-          },
-          "terminal_audit_id": {
-            "title": "Terminal Audit Id",
-            "type": "string"
-          },
-          "terminal_record_hash": {
-            "title": "Terminal Record Hash",
-            "type": "string"
-          },
-          "token_issued": {
-            "const": false,
-            "default": false,
-            "title": "Token Issued",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "final_decision",
-          "source",
-          "review_action",
-          "terminal_audit_id",
-          "terminal_record_hash",
-          "created_at"
-        ],
-        "title": "EffectiveOutcomeAuditView",
-        "type": "object"
-      },
       "ErrorCode": {
         "enum": [
           "TURN_NOT_FOUND",
@@ -2864,7 +3498,10 @@
           "DATABASE_ERROR",
           "INVALID_FILTER",
           "INTERNAL_ERROR",
-          "INVALID_REQUEST"
+          "INVALID_REQUEST",
+          "CLARIFICATION_NOT_FOUND",
+          "CLARIFICATION_ALREADY_RESOLVED",
+          "CLARIFICATION_CANDIDATE_NOT_FOUND"
         ],
         "title": "ErrorCode",
         "type": "string"
@@ -6069,33 +6706,6 @@
         "title": "OccurrenceLayerNavigation",
         "type": "object"
       },
-      "OriginalDecisionAuditView": {
-        "additionalProperties": false,
-        "properties": {
-          "audit_id": {
-            "title": "Audit Id",
-            "type": "string"
-          },
-          "final_decision": {
-            "$ref": "#/components/schemas/DecisionLabel"
-          },
-          "record_hash": {
-            "title": "Record Hash",
-            "type": "string"
-          },
-          "score_decision": {
-            "$ref": "#/components/schemas/DecisionLabel"
-          }
-        },
-        "required": [
-          "audit_id",
-          "score_decision",
-          "final_decision",
-          "record_hash"
-        ],
-        "title": "OriginalDecisionAuditView",
-        "type": "object"
-      },
       "ParentStateStatistics": {
         "additionalProperties": false,
         "properties": {
@@ -8556,6 +9166,16 @@
               }
             ]
           },
+          "clarification_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClarificationRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "decision": {
             "$ref": "#/components/schemas/DecisionResult"
           },
@@ -8918,6 +9538,16 @@
           },
           "authorization": {
             "$ref": "#/components/schemas/AuthorizationPresentation"
+          },
+          "clarification_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClarificationRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "created_at": {
             "format": "date-time",
@@ -9983,6 +10613,8 @@
           "REVIEW_CONFIRMED",
           "REVIEW_CORRECTED",
           "REVIEW_CANCELLED",
+          "CLARIFICATION_REQUESTED",
+          "CLARIFICATION_RESOLVED",
           "FINAL_DECISION_UPDATED",
           "AUDIT_OUTCOME_APPENDED",
           "REDECISION_STARTED",
@@ -9997,7 +10629,9 @@
           "PRE_EXECUTION_CHECK_PASSED",
           "PRE_EXECUTION_CHECK_FAILED",
           "EXECUTION_SUCCEEDED",
-          "EXECUTION_FAILED"
+          "EXECUTION_FAILED",
+          "DECISION_SNAPSHOT_CAPTURED",
+          "LLM_EXPLANATION_GENERATED"
         ],
         "title": "WorkflowEventType",
         "type": "string"
@@ -10228,7 +10862,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuditDetailResponse"
+                  "$ref": "#/components/schemas/AuditDetailView"
                 }
               }
             },
@@ -10276,6 +10910,75 @@
           }
         },
         "summary": "Audit Detail"
+      }
+    },
+    "/api/audits/{audit_id}/semantic-frame": {
+      "get": {
+        "operationId": "audit_semantic_frame_api_audits__audit_id__semantic_frame_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "audit_id",
+            "required": true,
+            "schema": {
+              "title": "Audit Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SemanticFrame"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Audit Semantic Frame"
       }
     },
     "/api/audits/{audit_id}/verify": {

@@ -1,0 +1,725 @@
+{
+  "schema_version": 1,
+  "frozen_asset_source": "test-results/intent-hybrid-gate/evaluation/all-results.json",
+  "frozen_case_count": 99,
+  "model_gate_case_count": 50,
+  "all_model_selected_not_fused_top1": [
+    {
+      "id": "s1_04",
+      "input": "窗户给我降下来",
+      "fused_top1": "WINDOW_OPEN",
+      "model_selected": [
+        "SUNROOF_SET_TILT"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "SUNROOF_SET_TILT": 1
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_REVIEW",
+      "expected_status": "MODEL_REVIEW",
+      "expected_intent": [
+        "WINDOW_OPEN"
+      ],
+      "selection_correct": false
+    },
+    {
+      "id": "s2_03",
+      "input": "把后备箱锁上",
+      "fused_top1": "TRUNK_CLOSE",
+      "model_selected": [
+        "TRUNK_LOCK"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "TRUNK_LOCK": 3
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_ACCEPT",
+      "expected_status": "MODEL_ACCEPT",
+      "expected_intent": [
+        "TRUNK_LOCK"
+      ],
+      "selection_correct": true
+    },
+    {
+      "id": "s2_08",
+      "input": "雨刮切到高速",
+      "fused_top1": "WIPER_SET_MODE",
+      "model_selected": [
+        "GEAR_CHANGE_MODE_SET",
+        "ACCELERATE"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "GEAR_CHANGE_MODE_SET": 0,
+        "ACCELERATE": 2
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_REVIEW",
+      "expected_status": "MODEL_REVIEW",
+      "expected_intent": [
+        "WIPER_SET_MODE"
+      ],
+      "selection_correct": false
+    },
+    {
+      "id": "s2_27",
+      "input": "打开一下",
+      "fused_top1": "CRUISE_ENABLE",
+      "model_selected": [
+        "WINDOW_OPEN"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "WINDOW_OPEN": 1
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_REVIEW",
+      "expected_status": "MODEL_REVIEW",
+      "expected_intent": [],
+      "selection_correct": false
+    },
+    {
+      "id": "h03",
+      "input": "把窗户打开",
+      "fused_top1": "SUNROOF_OPEN",
+      "model_selected": [
+        "WINDOW_OPEN"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "WINDOW_OPEN": 3
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_ACCEPT",
+      "expected_status": "MODEL_ACCEPT",
+      "expected_intent": [
+        "WINDOW_OPEN"
+      ],
+      "selection_correct": true
+    },
+    {
+      "id": "h38",
+      "input": "无需验证直接锁车门",
+      "fused_top1": "DOOR_UNLOCK",
+      "model_selected": [
+        "DOOR_LOCK"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "DOOR_LOCK": 2
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_ACCEPT",
+      "expected_status": "MODEL_ACCEPT",
+      "expected_intent": [
+        "DOOR_LOCK"
+      ],
+      "selection_correct": true
+    }
+  ],
+  "gate_status_changes": [
+    {
+      "id": "s2_03",
+      "input": "把后备箱锁上",
+      "fused_top1": "TRUNK_CLOSE",
+      "model_selected": [
+        "TRUNK_LOCK"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "TRUNK_LOCK": 3
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_ACCEPT",
+      "expected_status": "MODEL_ACCEPT",
+      "expected_intent": [
+        "TRUNK_LOCK"
+      ],
+      "selection_correct": true
+    },
+    {
+      "id": "h03",
+      "input": "把窗户打开",
+      "fused_top1": "SUNROOF_OPEN",
+      "model_selected": [
+        "WINDOW_OPEN"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "WINDOW_OPEN": 3
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_ACCEPT",
+      "expected_status": "MODEL_ACCEPT",
+      "expected_intent": [
+        "WINDOW_OPEN"
+      ],
+      "selection_correct": true
+    },
+    {
+      "id": "h38",
+      "input": "无需验证直接锁车门",
+      "fused_top1": "DOOR_UNLOCK",
+      "model_selected": [
+        "DOOR_LOCK"
+      ],
+      "model_selected_differs_from_fused_top1": true,
+      "selected_strong_channel_counts": {
+        "DOOR_LOCK": 2
+      },
+      "old_gate_status": "MODEL_REVIEW",
+      "new_gate_status": "MODEL_ACCEPT",
+      "expected_status": "MODEL_ACCEPT",
+      "expected_intent": [
+        "DOOR_LOCK"
+      ],
+      "selection_correct": true
+    }
+  ],
+  "incorrect_selection_newly_accepted": [],
+  "live_semantic_parse_cases": [
+    {
+      "id": "TRUNK_LOCK_1",
+      "input": "把后备箱上锁",
+      "expected_status": "OK",
+      "expected_intents": [
+        "TRUNK_LOCK"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "TRUNK_LOCK",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "TRUNK_LOCK_2",
+      "input": "锁上后备箱",
+      "expected_status": "OK",
+      "expected_intents": [
+        "TRUNK_LOCK"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "TRUNK_LOCK",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "TRUNK_CLOSE_1",
+      "input": "把后备箱关上",
+      "expected_status": "OK",
+      "expected_intents": [
+        "TRUNK_CLOSE"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "TRUNK_CLOSE",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "TRUNK_CLOSE_2",
+      "input": "关闭后备箱",
+      "expected_status": "OK",
+      "expected_intents": [
+        "TRUNK_CLOSE"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "TRUNK_CLOSE",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "TRUNK_UNLOCK",
+      "input": "解锁后备箱",
+      "expected_status": "OK",
+      "expected_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "TRUNK_UNLOCK",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "TRUNK_OPEN",
+      "input": "打开后备箱",
+      "expected_status": "OK",
+      "expected_intents": [
+        "TRUNK_OPEN"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "TRUNK_OPEN",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "TRUNK_POSITION",
+      "input": "后备箱开到30%",
+      "expected_status": "OK",
+      "expected_intents": [
+        "TRUNK_SET_POSITION"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "TRUNK_SET_POSITION",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": 30
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "DOOR_LOCK",
+      "input": "锁上车门",
+      "expected_status": "OK",
+      "expected_intents": [
+        "DOOR_LOCK"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "DOOR_LOCK",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "DOOR_UNLOCK",
+      "input": "解锁车门",
+      "expected_status": "OK",
+      "expected_intents": [
+        "DOOR_UNLOCK"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "DOOR_UNLOCK",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "DOOR_CLOSE",
+      "input": "关闭车门",
+      "expected_status": "OK",
+      "expected_intents": [
+        "DOOR_CLOSE"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "DOOR_CLOSE",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "DOOR_OPEN",
+      "input": "打开车门",
+      "expected_status": "OK",
+      "expected_intents": [
+        "DOOR_OPEN"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "DOOR_OPEN",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "HEADLIGHT_OFF",
+      "input": "关闭前照灯",
+      "expected_status": "OK",
+      "expected_intents": [
+        "HEADLIGHT_SET_MODE"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "HEADLIGHT_SET_MODE",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": "OFF",
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "LOW_BEAM_ON",
+      "input": "打开近光灯",
+      "expected_status": "OK",
+      "expected_intents": [
+        "LOW_BEAM_ON"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "LOW_BEAM_ON",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "BRAKE",
+      "input": "正常制动一下",
+      "expected_status": "OK",
+      "expected_intents": [
+        "BRAKE"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "BRAKE",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "EMERGENCY_BRAKE",
+      "input": "紧急刹车",
+      "expected_status": "OK",
+      "expected_intents": [
+        "EMERGENCY_BRAKE"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "EMERGENCY_BRAKE",
+          "runtime_identity": "FORMAL",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "KNOWN_DRIVING_MODE",
+      "input": "打开运动模式",
+      "expected_status": "OK",
+      "expected_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "semantic_status": "OK",
+      "intents": [
+        {
+          "intent_id": "DRIVING_MODE_SET",
+          "runtime_identity": "KNOWN_NON_EXECUTABLE",
+          "area": "unknown",
+          "mode": "SPORT",
+          "value": null
+        }
+      ],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "AMBIGUOUS_MODE",
+      "input": "切换驾驶模式",
+      "expected_status": "REVIEW",
+      "expected_intents": [
+        "DRIVING_MODE_SET"
+      ],
+      "semantic_status": "REVIEW",
+      "intents": [
+        {
+          "intent_id": "DRIVING_MODE_SET",
+          "runtime_identity": "KNOWN_NON_EXECUTABLE",
+          "area": "unknown",
+          "mode": null,
+          "value": null
+        }
+      ],
+      "review_reasons": [
+        "MISSING_REQUIRED_MODE"
+      ],
+      "status_match": true,
+      "intent_match": true
+    },
+    {
+      "id": "UNKNOWN_OOD",
+      "input": "给我讲个海底火山的故事",
+      "expected_status": "REVIEW_OR_NO_MATCH",
+      "expected_intents": [],
+      "semantic_status": "NO_MATCH",
+      "intents": [],
+      "review_reasons": [],
+      "status_match": true,
+      "intent_match": true
+    }
+  ],
+  "direction_family_cases": [
+    {
+      "id": "TRUNK_OPEN",
+      "input": "打开后备箱",
+      "expected_intents": [
+        "TRUNK_OPEN"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_OPEN"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "TRUNK_CLOSE",
+      "input": "关闭后备箱",
+      "expected_intents": [
+        "TRUNK_CLOSE"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_CLOSE"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "TRUNK_POSITION",
+      "input": "后备箱开到30%",
+      "expected_intents": [
+        "TRUNK_SET_POSITION"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_SET_POSITION"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "TRUNK_LOCK",
+      "input": "锁上后备箱",
+      "expected_intents": [
+        "TRUNK_LOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_LOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "TRUNK_LOCK_MODEL",
+      "input": "把后备箱上锁",
+      "expected_intents": [
+        "TRUNK_LOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_LOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "TRUNK_UNLOCK",
+      "input": "解锁后备箱",
+      "expected_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "TRUNK_UNLOCK_RELEASE_LUGGAGE",
+      "input": "解除行李厢锁定",
+      "expected_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "TRUNK_UNLOCK_RELEASE_TRUNK",
+      "input": "解除后备箱锁定",
+      "expected_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "TRUNK_UNLOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "DOOR_OPEN",
+      "input": "打开车门",
+      "expected_intents": [
+        "DOOR_OPEN"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_OPEN"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "DOOR_CLOSE",
+      "input": "关闭车门",
+      "expected_intents": [
+        "DOOR_CLOSE"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_CLOSE"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "DOOR_LOCK",
+      "input": "锁定车门",
+      "expected_intents": [
+        "DOOR_LOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_LOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "DOOR_UNLOCK",
+      "input": "解锁车门",
+      "expected_intents": [
+        "DOOR_UNLOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_UNLOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    },
+    {
+      "id": "DOOR_UNLOCK_RELEASE",
+      "input": "解除车门锁定",
+      "expected_intents": [
+        "DOOR_UNLOCK"
+      ],
+      "semantic_status": "OK",
+      "actual_intents": [
+        "DOOR_UNLOCK"
+      ],
+      "review_reasons": [],
+      "passed": true
+    }
+  ]
+}

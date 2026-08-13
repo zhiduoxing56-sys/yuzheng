@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.models.schemas import VehicleExecutionResult, VehicleState, VehicleStatePatch
+from app.services.vehicle.capabilities import PhysicalVehicleCommand
 
 
 class CanVehicleAdapter:
@@ -23,8 +24,8 @@ class CanVehicleAdapter:
         del patch
         raise PermissionError("真实 CAN 适配器模式禁止任意修改车辆状态")
 
-    def execute(self, action: str, target: str, area: str) -> VehicleExecutionResult:
-        del action, target, area
+    def execute(self, command: PhysicalVehicleCommand) -> VehicleExecutionResult:
+        del command
         if not self.enabled or not self.whitelist:
             raise PermissionError("CAN 适配器为 DISABLED，且未配置显式动作白名单")
         raise PermissionError("本阶段不实现真实 CAN 报文发送")

@@ -25,6 +25,7 @@ from app.models.schemas import (
     CausalEdge,
     CausalNodeWeight,
     CausalPriorComponents,
+    ClarificationRequest,
     RecoveryRecommendation,
     RetrievalOrigin,
     ReviewCandidateInterpretation,
@@ -136,6 +137,9 @@ class ErrorCode(str, Enum):
     INVALID_FILTER = "INVALID_FILTER"
     INTERNAL_ERROR = "INTERNAL_ERROR"
     INVALID_REQUEST = "INVALID_REQUEST"
+    CLARIFICATION_NOT_FOUND = "CLARIFICATION_NOT_FOUND"
+    CLARIFICATION_ALREADY_RESOLVED = "CLARIFICATION_ALREADY_RESOLVED"
+    CLARIFICATION_CANDIDATE_NOT_FOUND = "CLARIFICATION_CANDIDATE_NOT_FOUND"
 
 
 class ErrorResponse(StrictModel):
@@ -469,6 +473,7 @@ class TurnPresentationResponse(StrictModel):
     authorization: AuthorizationPresentation
     execution: ExecutionPresentation
     audit: TurnAuditPresentation
+    clarification_request: ClarificationRequest | None = None
 
 
 class MandatoryRecallEvidencePresentation(StrictModel):
@@ -595,16 +600,37 @@ class ReviewSubmissionResponse(StrictModel):
     command_result: TextCommandResponse | None = None
 
 
+class ClarificationSubmission(StrictModel):
+    clarification_id: str = Field(min_length=1, max_length=128)
+    candidate_id: str | None = Field(default=None, min_length=1, max_length=128)
+    resolution: Literal["NONE_OF_ABOVE"] | None = None
+
+    @model_validator(mode="after")
+    def validate_selection(self) -> "ClarificationSubmission":
+        selected = self.candidate_id is not None
+        rejected = self.resolution == "NONE_OF_ABOVE"
+        if selected == rejected:
+            raise ValueError("必须且只能提交 candidate_id 或 NONE_OF_ABOVE")
+        return self
+
+
+class ClarificationSubmissionResponse(StrictModel):
+    clarification_id: str
+    source_turn_id: str
+    resolution: Literal["SELECTED", "NONE_OF_ABOVE"]
+    selected_candidate_id: str | None = None
+    selected_candidate_text: str | None = None
+    child_turn_id: str | None = None
+    command_result: TextCommandResponse | None = None
+
+
 class AuditListItem(StrictModel):
     audit_id: str
-    turn_id: str
     created_at: datetime
-    instruction_summary: str
-    initial_decision: DecisionLabel
-    original_decision: DecisionLabel
-    final_decision: DecisionResult
+    raw_command: str
+    final_decision: DecisionLabel
     execution_status: str
-    semantic_frame: SemanticFrame
+    review_occurred: bool
 
 
 class AuditListResponse(StrictModel):
@@ -614,56 +640,124 @@ class AuditListResponse(StrictModel):
     page_size: int = Field(ge=1)
 
 
-class OriginalDecisionAuditView(StrictModel):
-    audit_id: str
-    score_decision: DecisionLabel
+class AuditCommandSummary(StrictModel):
+    raw_command: str
+    input_type: Literal["text", "audio"]
+    occurred_at: datetime
     final_decision: DecisionLabel
-    record_hash: str
+    execution_status: str
 
 
-class EffectiveOutcomeAuditView(StrictModel):
+class AuditResolvedOperation(StrictModel):
+    operation: str
+    position: str | None = None
+    value: str | int | float | bool | None = None
+
+
+class AuditSnapshotFact(StrictModel):
+    key: str
+    label: str
+    value: str | int | float | bool
+    unit: str | None = None
+    source: str | None = None
+
+
+class AuditSensorSummary(StrictModel):
+    sensor: str
+    status: Literal["AVAILABLE"] = "AVAILABLE"
+    source: str | None = None
+
+
+class AuditVehicleSnapshot(StrictModel):
+    captured_at: datetime
+    source: str
+    vehicle_state: list[AuditSnapshotFact] = Field(default_factory=list)
+    environment_state: list[AuditSnapshotFact] = Field(default_factory=list)
+    sensor_summary: list[AuditSensorSummary] = Field(default_factory=list)
+
+
+class AuditEvidenceFact(StrictModel):
+    label: str
+    value: str | int | float | bool
+    unit: str | None = None
+    source: str | None = None
+
+
+class AuditIntentDecision(StrictModel):
+    operation: str
+    decision: DecisionLabel
+    reasons: list[str] = Field(default_factory=list)
+    hit_rules: list[str] = Field(default_factory=list)
+    key_evidence: list[AuditEvidenceFact] = Field(default_factory=list)
+
+
+class AuditDecisionSummary(StrictModel):
     final_decision: DecisionLabel
-    source: DecisionSource
-    review_action: ReviewAction
-    terminal_audit_id: str
-    terminal_record_hash: str
-    created_at: datetime
-    token_issued: Literal[False] = False
-    execution_allowed: Literal[False] = False
+    aggregate_safety_decision: DecisionLabel | None = None
+    hit_rules: list[str] = Field(default_factory=list)
+    reason_codes: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
 
 
-class AuditDetailResponse(StrictModel):
-    audit_id: str
-    turn_id: str
-    created_at: datetime
-    input_summary: InputPresentation
-    voice_trust: dict[str, Any]
-    transcription: TranscriptionResult
-    semantic_frame: SemanticFrame
-    evidence_demand: EvidenceDemandPresentation
-    retrieval_summary: RetrievalSummary
-    mandatory_recall: list[dict[str, Any]] = Field(default_factory=list)
-    evidence_graph_summary: dict[str, Any]
-    quality_metrics: QualityMetricsPresentation
-    memory: MemoryPresentation = Field(default_factory=MemoryPresentation)
-    causal: CausalPresentation = Field(default_factory=CausalPresentation)
-    validation_result: ValidationResultPresentation
-    gate_result: GateResultPresentation
-    score_factors: ScoreResultPresentation
-    initial_decision: DecisionLabel
-    original_decision: OriginalDecisionAuditView
-    effective_outcome: EffectiveOutcomeAuditView | None = None
-    review_process: ReviewPresentation
-    final_decision: DecisionResultPresentation
-    decision_explanation: DecisionExplanation | None = None
-    generation_metadata: InterpreterGenerationMetadata | None = None
-    authorization_status: AuthorizationPresentation
-    execution_status: ExecutionPresentation
-    workflow_events: list[WorkflowEvent] = Field(default_factory=list)
-    previous_hash: str
-    record_hash: str
-    audit_chain_valid: bool
-    workflow_chain_valid: bool
+class AuditLLMExplanation(StrictModel):
+    status: Literal["PENDING", "AVAILABLE", "FAILED"]
+    text: str | None = None
+    generated_at: datetime | None = None
+
+
+class AuditClarificationCandidate(StrictModel):
+    display_text: str
+
+
+class AuditClarificationHistory(StrictModel):
+    original_text: str
+    question: str | None = None
+    review_reasons: list[str] = Field(default_factory=list)
+    shown_candidates: list[AuditClarificationCandidate] = Field(default_factory=list)
+    resolution: Literal["PENDING", "SELECTED", "NONE_OF_ABOVE"] = "PENDING"
+    selected_candidate: str | None = None
+    confirmed_operation: str | None = None
+    command_terminated: bool = False
+    child_turn_available: bool = False
+    child_decision: DecisionLabel | None = None
+
+
+class AuditAuthorizationSummary(StrictModel):
+    status: str
+    authorized: bool
+
+
+class AuditExecutionSummary(StrictModel):
+    status: str
+    adapter: str | None = None
+    feedback: str | None = None
+    failure_reason: str | None = None
+    executed_at: datetime | None = None
+
+
+class AuditExecutionChange(StrictModel):
+    key: str
+    label: str
+    before: str | int | float | bool
+    after: str | int | float | bool
+    unit: str | None = None
+    delta: float | None = None
+
+
+class AuditDetailView(StrictModel):
+    command_summary: AuditCommandSummary
+    resolved_operations: list[AuditResolvedOperation] = Field(default_factory=list)
+    decision_snapshot: AuditVehicleSnapshot | None = None
+    decision_summary: AuditDecisionSummary
+    key_evidence: list[AuditEvidenceFact] = Field(default_factory=list)
+    intent_decisions: list[AuditIntentDecision] = Field(default_factory=list)
+    llm_explanation: AuditLLMExplanation
+    clarification_history: list[AuditClarificationHistory] = Field(default_factory=list)
+    authorization_summary: AuditAuthorizationSummary
+    execution_summary: AuditExecutionSummary
+    execution_before_snapshot: AuditVehicleSnapshot | None = None
+    execution_after_snapshot: AuditVehicleSnapshot | None = None
+    execution_changes: list[AuditExecutionChange] = Field(default_factory=list)
 
 
 class AuditVerificationResponse(StrictModel):

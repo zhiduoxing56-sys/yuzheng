@@ -331,7 +331,7 @@ def main() -> None:
                 "final_decision只由merge_decision产生",
                 not forbidden_writes
                 and cancel_verify["merge_decision_valid"]
-                and cancel_detail["final_decision"]["final_decision"] == "BLOCK",
+                and cancel_detail["decision_summary"]["final_decision"] == "BLOCK",
                 (
                     f"AST forbidden={len(forbidden_writes)}, allowed={len(allowed_writes)}; "
                     f"details={[asdict(item) for item in forbidden_writes]}"

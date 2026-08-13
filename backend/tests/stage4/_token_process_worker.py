@@ -24,8 +24,6 @@ def main() -> int:
         _, metadata = service.decode_and_validate(
             request["authorization_token"],
             expected_turn_id=request["turn_id"],
-            expected_action=request["action"],
-            expected_target=request["target"],
         )
     except AuthorizationTokenError as exc:
         print(json.dumps({"success": False, "reason": str(exc)}, ensure_ascii=False))

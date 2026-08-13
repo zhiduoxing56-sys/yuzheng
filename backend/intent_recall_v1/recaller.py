@@ -21,11 +21,13 @@ os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 import numpy as np
 import yaml
+
+from semantic_registry_v1.registry import UnifiedSemanticRegistry
 from pypinyin import Style, __version__ as pypinyin_version, lazy_pinyin
 
 
 CHANNELS = ("semantic", "literal", "pinyin")
-CACHE_SCHEMA_VERSION = "INTENT_RECALL_CACHE_V1"
+CACHE_SCHEMA_VERSION = "INTENT_RECALL_CACHE_UNIFIED_V1"
 _IGNORED_TEXT_PATTERN = re.compile(r"[\s，。！？、；：,.!?;:'\"“”‘’（）()【】\[\]{}<>《》·—_-]+")
 
 
@@ -33,6 +35,7 @@ _IGNORED_TEXT_PATTERN = re.compile(r"[\s，。！？、；：,.!?;:'\"“”‘�
 class Anchor:
     text: str
     target: str
+    runtime_identity: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,20 +127,25 @@ def _load_yaml_mapping(path: Path) -> dict[str, Any]:
 
 
 def load_anchors(path: Path) -> list[Anchor]:
-    """Flatten all actual top-level shapes without filtering non-formal anchors."""
-
+    """Load only the unified 149-ID anchor index plus orthogonal security anchors."""
     data = _load_yaml_mapping(path)
+    intent_groups = data.get("intents")
+    security = data.get("security")
+    if not isinstance(intent_groups, dict) or not isinstance(security, dict):
+        raise ValueError("unified anchor index must contain intents and security")
     anchors: list[Anchor] = []
-    for category, contents in data.items():
-        if isinstance(contents, dict):
-            for target, texts in contents.items():
-                if not isinstance(texts, list):
-                    raise ValueError(f"anchor target must contain a list: {category}/{target}")
-                anchors.extend(Anchor(str(text), str(target)) for text in texts)
-        elif isinstance(contents, list):
-            anchors.extend(Anchor(str(text), str(category)) for text in contents)
-        else:
-            raise ValueError(f"unsupported top-level anchor shape: {category}")
+    for intent_id, group in intent_groups.items():
+        if not isinstance(group, dict) or not isinstance(group.get("anchors"), list):
+            raise ValueError(f"invalid unified anchor group: {intent_id}")
+        identity = str(group.get("runtime_identity", ""))
+        if identity not in {"FORMAL", "KNOWN_NON_EXECUTABLE"}:
+            raise ValueError(f"invalid anchor runtime identity: {intent_id}/{identity}")
+        anchors.extend(Anchor(str(text), str(intent_id), identity) for text in group["anchors"])
+    security_target = str(security.get("target", ""))
+    security_anchors = security.get("anchors")
+    if not security_target or not isinstance(security_anchors, list):
+        raise ValueError("invalid security anchor group")
+    anchors.extend(Anchor(str(text), security_target, "SECURITY_SIGNAL") for text in security_anchors)
     if not anchors:
         raise ValueError("anchor set is empty")
     if any(not item.text.strip() or not item.target.strip() for item in anchors):
@@ -153,11 +161,17 @@ class CandidateIntentRecaller:
         self.base_dir = Path(__file__).resolve().parent
         self.config_path = Path(config_path).resolve() if config_path else self.base_dir / "config.yaml"
         self.config = _load_yaml_mapping(self.config_path)
+        self.registry_path = self._resolve_config_path("registry_file")
         self.anchor_path = self._resolve_config_path("anchor_file")
         self.cards_path = self._resolve_config_path("intent_cards_file")
         self.cache_dir = self._resolve_config_path("cache_dir")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
+        self.registry = UnifiedSemanticRegistry(
+            registry_path=self.registry_path,
+            cards_path=self.cards_path,
+            anchor_path=self.anchor_path,
+        )
         self.anchors = load_anchors(self.anchor_path)
         self.security_target = str(self.config["security"]["target"])
         self.target_labels = self._load_target_labels()
@@ -216,17 +230,18 @@ class CandidateIntentRecaller:
 
     def _load_target_labels(self) -> dict[str, str]:
         cards = _load_yaml_mapping(self.cards_path)
-        formal = cards.get("正式意图", {})
+        card_items = cards.get("intents", {})
         labels: dict[str, str] = {}
-        if isinstance(formal, dict):
-            for target, card in formal.items():
-                if isinstance(card, dict) and card.get("名称"):
-                    labels[str(target)] = str(card["名称"])
+        if isinstance(card_items, dict):
+            for target, card in card_items.items():
+                if isinstance(card, dict) and card.get("name"):
+                    labels[str(target)] = str(card["name"])
         return labels
 
     def _cache_path(self) -> Path:
         digest = hashlib.sha256()
         digest.update(CACHE_SCHEMA_VERSION.encode("utf-8"))
+        digest.update(self.registry_path.read_bytes())
         digest.update(self.anchor_path.read_bytes())
         digest.update(self.model_name.encode("utf-8"))
         digest.update(str(self.dimension).encode("ascii"))
@@ -463,6 +478,16 @@ class CandidateIntentRecaller:
         )[: int(self.config["retrieval"]["max_debug_anchors_per_target"])]
         return {
             "target": self._display_target(target),
+            "intent_id": target,
+            "runtime_identity": (
+                "SECURITY_SIGNAL"
+                if target == self.security_target
+                else self.registry.runtime_identity(target)
+            ),
+            "score": round(
+                sum(1.0 / (int(self.config["retrieval"]["rrf_k"]) + hit.rank) for hit in channel_hits.values()),
+                8,
+            ),
             "channels": [channel for channel in CHANNELS if channel in channel_hits],
             "support_anchors": [
                 {
