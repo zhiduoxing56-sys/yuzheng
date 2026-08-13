@@ -30,6 +30,7 @@ from app.models.schemas import (
     EvidenceRelation,
     EvidenceSubgraph,
     EvidenceQualityMetrics,
+    ExecutionTokenView,
     GateCheck,
     IndexStatus,
     IndexParametersRequest,
@@ -2341,32 +2342,63 @@ class CommandPipeline:
             and decision.final_decision == DecisionLabel.PASS
             and not decision.gate_blocked
             and actionable
-            and len(frame.intents) <= 1
-            and self.authorization_service.is_executable(frame)
         ):
             try:
                 token_issue_started = perf_counter()
-                grant = self.authorization_service.issue(
-                    root_turn_id=root_turn_id,
-                    turn_id=turn_id,
-                    frame=frame,
-                    state=state,
-                )
-                response_decision = decision.model_copy(
-                    update={"authorization_token": grant.authorization_token}
-                )
+                if len(frame.intents) <= 1:
+                    if self.authorization_service.is_executable(frame):
+                        grant = self.authorization_service.issue(
+                            root_turn_id=root_turn_id,
+                            turn_id=turn_id,
+                            frame=frame,
+                            state=state,
+                        )
+                        response_decision = decision.model_copy(
+                            update={"authorization_token": grant.authorization_token}
+                        )
+                else:
+                    grants = self.authorization_service.issue_multi(
+                        root_turn_id=root_turn_id,
+                        turn_id=turn_id,
+                        frame=frame,
+                        state=state,
+                    )
+                    intent_by_id = {intent.intent_id: intent for intent in frame.intents}
+                    execution_tokens = [
+                        ExecutionTokenView(
+                            token=grant.authorization_token,
+                            intent_id=grant.metadata.intent_id or "",
+                            label=f"{intent_by_id.get(grant.metadata.intent_id, frame.intents[0]).action}"
+                            f"{intent_by_id.get(grant.metadata.intent_id, frame.intents[0]).target or ''}",
+                            action=intent_by_id.get(grant.metadata.intent_id, frame.intents[0]).action,
+                            target=intent_by_id.get(grant.metadata.intent_id, frame.intents[0]).target,
+                            area=intent_by_id.get(grant.metadata.intent_id, frame.intents[0]).area,
+                        )
+                        for grant in grants
+                        if grant.metadata.intent_id in intent_by_id
+                    ]
+                    if execution_tokens:
+                        response_decision = decision.model_copy(
+                            update={"execution_tokens": execution_tokens}
+                        )
                 set_metric(
                     "token_issue_ms",
                     round((perf_counter() - token_issue_started) * 1000, 4),
                 )
                 set_metric("token_was_issued", True)
                 mark_stage("token_issued")
+                issued_views = response_decision.execution_tokens
+                issued_ids = (
+                    [view.token[:16] for view in issued_views]
+                    if issued_views
+                    else [str(response_decision.authorization_token or "")[:16]]
+                )
                 emit(
                     "TOKEN_ISSUED",
                     "一次性车辆执行授权已签发",
                     {
-                        "token_id": grant.metadata.token_id,
-                        "expires_at": grant.metadata.expires_at.isoformat(),
+                        "token_count": len(issued_ids),
+                        "token_ids": issued_ids,
                     },
                 )
             except AuthorizationTokenError as exc:

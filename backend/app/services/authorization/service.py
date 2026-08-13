@@ -222,13 +222,14 @@ class AuthorizationTokenService:
             ) from exc
 
     def is_executable(self, frame: SemanticFrame) -> bool:
-        if len(frame.intents) != 1:
+        if not frame.intents:
             return False
-        try:
-            self._resolve_command(frame.intents[0])
-            return True
-        except AuthorizationTokenError:
-            return False
+        for intent in frame.intents:
+            try:
+                self._resolve_command(intent)
+            except AuthorizationTokenError:
+                return False
+        return True
 
     def issue(
         self,
@@ -240,7 +241,52 @@ class AuthorizationTokenService:
     ) -> AuthorizationGrant:
         if len(frame.intents) != 1:
             raise AuthorizationTokenError("车辆执行授权当前要求恰好一个正式子意图")
-        intent = frame.intents[0]
+        return self._issue_for_intent(
+            root_turn_id=root_turn_id,
+            turn_id=turn_id,
+            intent=frame.intents[0],
+            state=state,
+            check_active=True,
+        )
+
+    def issue_multi(
+        self,
+        *,
+        root_turn_id: str,
+        turn_id: str,
+        frame: SemanticFrame,
+        state: VehicleState,
+    ) -> list[AuthorizationGrant]:
+        """多意图放行：逐意图签发执行令牌，不可执行的意图跳过。
+
+        返回能成功签发的令牌列表（每个绑定对应意图），供前端选择执行哪个。
+        """
+        grants: list[AuthorizationGrant] = []
+        for intent in frame.intents:
+            try:
+                grants.append(
+                    self._issue_for_intent(
+                        root_turn_id=root_turn_id,
+                        turn_id=turn_id,
+                        intent=intent,
+                        state=state,
+                        check_active=False,
+                    )
+                )
+            except AuthorizationTokenError:
+                # 该意图不在可执行能力内（如天窗/空调）或 area 未明确，跳过签发
+                continue
+        return grants
+
+    def _issue_for_intent(
+        self,
+        *,
+        root_turn_id: str,
+        turn_id: str,
+        intent: SemanticIntent,
+        state: VehicleState,
+        check_active: bool,
+    ) -> AuthorizationGrant:
         resolved = self._resolve_command(intent)
         if self._capability_provider is not None:
             capability = self._capability_provider()
@@ -251,7 +297,9 @@ class AuthorizationTokenService:
                 raise AuthorizationTokenError(
                     "SEMANTIC_MODEL_DEGRADED_EXECUTION_DENIED: 真实语义模型降级，禁止签发车辆执行授权"
                 )
-        active = self.repository.active_token_for_turn(turn_id)
+        active = None
+        if check_active:
+            active = self.repository.active_token_for_turn(turn_id)
         if active is not None and active.expires_at > utc_now():
             raise AuthorizationTokenError("当前轮次已有有效授权令牌")
         issued_at = utc_now()

@@ -477,7 +477,10 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     def turn_execute(turn_id: str, request: ExecuteRequest) -> ExecuteResult:
         try:
             result = pipeline.execution_service.execute(
-                turn_id, request.authorization_token, session_id=request.session_id
+                turn_id,
+                request.authorization_token,
+                intent_id=request.intent_id,
+                session_id=request.session_id,
             )
             invalidate_workflow_reads(turn_id)
             return result

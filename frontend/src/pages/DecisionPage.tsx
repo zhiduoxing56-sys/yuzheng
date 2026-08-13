@@ -4,7 +4,7 @@ import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "
 import { executeTurn, getTurnPresentation, submitTurnClarification } from "../api/turns";
 import { ClarificationModal } from "../components/ClarificationModal";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
-import type { AudioCommandResponse, ClarificationRequest, ExecuteResult, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
+import type { AudioCommandResponse, ClarificationRequest, ExecuteResult, ExecutionTokenView, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 import type { CommandInputMode, DecisionResultView } from "../types/visualModels";
 
 interface CurrentTurnData {
@@ -76,7 +76,7 @@ export function DecisionPage() {
   const clarificationRequestRef = useRef<AbortController | null>(null);
   const turnId = searchParams.get("turn_id")?.trim() || null;
   const [result, setResult] = useState<DecisionResultView>(EMPTY_RESULT);
-  const [execToken, setExecToken] = useState<string | null>(null);
+  const [execTokens, setExecTokens] = useState<ExecutionTokenView[]>([]);
   const [execResult, setExecResult] = useState<ExecuteResult | null>(null);
   const [execBusy, setExecBusy] = useState(false);
 
@@ -241,7 +241,24 @@ export function DecisionPage() {
     void submitTextCommand({ text: commandText }, controller.signal).then((response) => {
       if (controller.signal.aborted) return;
       setText(commandText);
-      setExecToken((response.decision as { authorization_token?: string | null } | undefined)?.authorization_token ?? null);
+      const decision = response.decision as {
+        authorization_token?: string | null;
+        execution_tokens?: ExecutionTokenView[];
+      } | undefined;
+      setExecTokens(
+        decision?.execution_tokens?.length
+          ? decision.execution_tokens
+          : (decision?.authorization_token
+            ? [{
+                token: decision.authorization_token,
+                intent_id: response.semantic_frame.intents?.[0]?.intent_id ?? "",
+                label: "",
+                action: response.semantic_frame.intents?.[0]?.action ?? "",
+                target: response.semantic_frame.intents?.[0]?.target ?? "",
+                area: response.semantic_frame.intents?.[0]?.area ?? "unknown",
+              }]
+            : []),
+      );
       setExecResult(null);
       setCurrentTurn({
         turn_id: response.turn_id,
@@ -252,7 +269,7 @@ export function DecisionPage() {
       const nextParams = new URLSearchParams(searchParams);
       nextParams.set("turn_id", response.turn_id);
       setSearchParams(nextParams, { replace: true });
-      setFeedback(`语义帧解析完成，轮次 ${response.turn_id}${execToken ? "" : ""}`);
+      setFeedback(`语义帧解析完成，轮次 ${response.turn_id}`);
     }).catch((reason: unknown) => {
       if (controller.signal.aborted) return;
       setHasError(true);
@@ -265,8 +282,8 @@ export function DecisionPage() {
     });
   }, [audioFile, mode, runAudioRequest, searchParams, setSearchParams, text]);
 
-  const execute = useCallback(async () => {
-    if (!turnId || !execToken) {
+  const execute = useCallback(async (token: string, intentId?: string) => {
+    if (!turnId || !token) {
       setHasError(true);
       setFeedback("当前轮次没有可用的执行令牌。");
       return;
@@ -275,7 +292,7 @@ export function DecisionPage() {
     setHasError(false);
     setFeedback("正在执行车辆动作…");
     try {
-      const result = await executeTurn(turnId, execToken);
+      const result = await executeTurn(turnId, token, intentId);
       setExecResult(result);
       setFeedback(result.accepted
         ? `执行成功 ✓ ${result.execution?.feedback ?? result.reason}`
@@ -286,7 +303,7 @@ export function DecisionPage() {
     } finally {
       setExecBusy(false);
     }
-  }, [turnId, execToken]);
+  }, [turnId]);
 
   const resolveClarification = useCallback((candidateIds: string[] | null) => {
     if (!clarification || clarificationBusy) return;
@@ -350,14 +367,19 @@ export function DecisionPage() {
       <DecisionResultDisplay result={result} />
       <section className="decision-execution-panel">
         <div className="decision-execution-actions">
-          <button
+          {execTokens.length === 0 ? <button
             type="button"
-            disabled={execBusy || !execToken}
-            onClick={() => void execute()}
+            disabled
+            className="decision-execution-button"
+          >无执行令牌</button> : execTokens.map((executionToken) => <button
+            key={executionToken.token}
+            type="button"
+            disabled={execBusy}
+            onClick={() => void execute(executionToken.token, executionToken.intent_id || undefined)}
             className="decision-execution-button"
           >
-            {execBusy ? "执行中…" : execToken ? "执行车辆动作" : "无执行令牌"}
-          </button>
+            {execBusy ? "执行中…" : executionToken.label ? `执行${executionToken.label}` : "执行车辆动作"}
+          </button>)}
         </div>
         {execResult && (
           <div className={`decision-execution-result${execResult.accepted ? " is-accepted" : " is-rejected"}`}>

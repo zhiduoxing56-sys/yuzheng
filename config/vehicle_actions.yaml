@@ -96,6 +96,13 @@ canonical_capability_contracts:
           slots: {}
           physical_action: 打开|自动泊车
 
+    - intent_id: SUNROOF_OPEN
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|天窗
+
 # 底层物理能力库存，可能包含不向语音执行开放的能力（例如 DISPLAY_OFF）。
 # 生产语音资格只由上面的 canonical_capability_contracts 决定。
 actions:
@@ -155,3 +162,11 @@ actions:
     operations:
       - {field: vehicle_mode, operation: set, value: AUTO_PARK}
     feedback: 自动泊车已开启
+  打开|天窗:
+    operations:
+      - {field: sunroof_state, operation: set, value: OPEN}
+    feedback: 天窗已打开
+  打开|空调:
+    operations:
+      - {field: ac_state, operation: set, value: "ON"}
+    feedback: 空调已开启

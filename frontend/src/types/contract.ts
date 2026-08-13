@@ -417,6 +417,15 @@ export interface ValidationResultPresentation {
   jailbreak_risk_severity?: number | null;
 }
 
+export interface ExecutionTokenView {
+  token: string;
+  intent_id: string;
+  label: string;
+  action: string;
+  target: string;
+  area: string;
+}
+
 export interface DecisionResultPresentation {
   initial_decision: DecisionLabel;
   score_decision: DecisionLabel;
@@ -714,6 +723,7 @@ export interface ReviewDecisionResult extends Record<string, unknown> {
   explanations: string[];
   review_question?: string | null;
   authorization_token?: string | null;
+  execution_tokens?: ExecutionTokenView[];
   reason_codes: string[];
   aggregate_safety_decision?: DecisionLabel | null;
   intent_safety_assessments?: IntentSafetyAssessmentPresentation[];

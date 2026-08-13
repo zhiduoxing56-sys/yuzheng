@@ -56,10 +56,12 @@ export function getTurnReasoning(turnId: string, signal?: AbortSignal): Promise<
 export function executeTurn(
   turnId: string,
   authorizationToken: string,
+  intentId?: string,
   sessionId?: string,
 ): Promise<ExecuteResult> {
   return apiClient.post<ExecuteResult>(`/api/turns/${encodeURIComponent(turnId)}/execute`, {
     authorization_token: authorizationToken,
+    intent_id: intentId,
     session_id: sessionId,
   });
 }

@@ -27,14 +27,27 @@ class ExecutionService:
         self.pipeline = pipeline
 
     def execute(
-        self, turn_id: str, raw_token: str, *, session_id: str | None = None
+        self,
+        turn_id: str,
+        raw_token: str,
+        *,
+        intent_id: str | None = None,
+        session_id: str | None = None,
     ) -> ExecuteResult:
         audit = self.pipeline.audit_repository.get_by_turn(turn_id)
         if audit is None:
             raise ValueError(f"未找到轮次: {turn_id}")
-        if len(audit.semantic_frame.intents) != 1:
-            raise AuthorizationTokenError("执行审计必须恰好包含一个正式子意图")
-        intent = audit.semantic_frame.intents[0]
+        intents = audit.semantic_frame.intents
+        if not intents:
+            raise AuthorizationTokenError("执行审计缺少子意图")
+        if intent_id is not None:
+            intent = next((item for item in intents if item.intent_id == intent_id), None)
+            if intent is None:
+                raise AuthorizationTokenError(f"意图 {intent_id} 不属于当前轮次")
+        elif len(intents) == 1:
+            intent = intents[0]
+        else:
+            raise AuthorizationTokenError("多意图执行必须指定 intent_id")
         try:
             payload, metadata = self.pipeline.authorization_service.decode_and_validate(
                 raw_token,
@@ -113,16 +126,23 @@ class ExecutionService:
                 != SemanticControlMode.FULL
             )
             identity_consistent = False
-            identity_reason = "执行前语义未产生唯一 Formal canonical command"
+            identity_reason = "执行前语义未产生匹配的 Formal canonical command"
             precheck_capability = None
-            if len(precheck.semantic_frame.intents) == 1:
+            precheck_intent = next(
+                (
+                    item
+                    for item in precheck.semantic_frame.intents
+                    if item.intent_id == intent.intent_id
+                ),
+                None,
+            )
+            if precheck_intent is not None:
                 try:
                     original_identity = (
                         self.pipeline.command_capability_registry.identity_projector.project(
                             intent, require_formal=True
                         )
                     )
-                    precheck_intent = precheck.semantic_frame.intents[0]
                     precheck_identity = (
                         self.pipeline.command_capability_registry.identity_projector.project(
                             precheck_intent, require_formal=True

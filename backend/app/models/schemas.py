@@ -1224,6 +1224,17 @@ class IntentSafetyAssessment(StrictModel):
     explanations: list[str] = Field(default_factory=list)
 
 
+class ExecutionTokenView(StrictModel):
+    """多意图放行时为每个意图签发的执行令牌展示视图。"""
+
+    token: str = Field(repr=False)
+    intent_id: str
+    label: str = ""
+    action: str = ""
+    target: str = ""
+    area: str = "unknown"
+
+
 class DecisionResult(StrictModel):
     turn_id: str
     decision: DecisionLabel
@@ -1240,6 +1251,7 @@ class DecisionResult(StrictModel):
     explanations: list[str] = Field(default_factory=list)
     review_question: str | None = None
     authorization_token: str | None = Field(default=None, repr=False)
+    execution_tokens: list[ExecutionTokenView] = Field(default_factory=list)
     jailbreak_risk: float = Field(default=0, ge=0, le=1)
     decision_confidence: float | None = Field(default=None, ge=0, le=1)
     reason_codes: list[str] = Field(default_factory=list)
@@ -1305,10 +1317,12 @@ class VehicleState(StrictModel):
     headlight_state: str | None = "OFF"
     weather: str | None = "CLEAR"
     window_state: str | None = "CLOSED"
+    sunroof_state: str | None = "CLOSED"
     navigation_active: bool | None = False
     reverse_camera_active: bool | None = False
     display_state: str | None = "ON"
     music_state: str | None = "STOPPED"
+    ac_state: str | None = "OFF"
     front_obstacle_distance: float | None = Field(default=100, ge=0)
     speed_limit: float | None = Field(default=120, ge=0)
     brake_state: str | None = "RELEASED"
@@ -1340,10 +1354,12 @@ class VehicleStatePatch(StrictModel):
     headlight_state: str | None = None
     weather: str | None = None
     window_state: str | None = None
+    sunroof_state: str | None = None
     navigation_active: bool | None = None
     reverse_camera_active: bool | None = None
     display_state: str | None = None
     music_state: str | None = None
+    ac_state: str | None = None
     front_obstacle_distance: float | None = Field(default=None, ge=0)
     speed_limit: float | None = Field(default=None, ge=0)
     brake_state: str | None = None
@@ -1819,6 +1835,7 @@ class VehicleExecutionResult(StrictModel):
 
 class ExecuteRequest(StrictModel):
     authorization_token: str = Field(min_length=20, repr=False)
+    intent_id: str | None = Field(default=None, min_length=1, max_length=128)
     session_id: str | None = Field(default=None, min_length=1, max_length=100)
 
 
