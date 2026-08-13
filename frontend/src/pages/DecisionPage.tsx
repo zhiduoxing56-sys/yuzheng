@@ -288,7 +288,7 @@ export function DecisionPage() {
     }
   }, [turnId, execToken]);
 
-  const resolveClarification = useCallback((candidateId: string | null) => {
+  const resolveClarification = useCallback((candidateIds: string[] | null) => {
     if (!clarification || clarificationBusy) return;
     const capturedKey = `${clarification.turn_id}:${clarification.clarification_id}`;
     const controller = new AbortController();
@@ -296,11 +296,14 @@ export function DecisionPage() {
     clarificationRequestRef.current = controller;
     setClarificationBusy(true);
     setClarificationError(null);
+    const selected = candidateIds?.length
+      ? (candidateIds.length === 1
+        ? { clarification_id: clarification.clarification_id, candidate_id: candidateIds[0] }
+        : { clarification_id: clarification.clarification_id, candidate_ids: candidateIds })
+      : { clarification_id: clarification.clarification_id, resolution: "NONE_OF_ABOVE" as const };
     void submitTurnClarification(
       clarification.turn_id,
-      candidateId
-        ? { clarification_id: clarification.clarification_id, candidate_id: candidateId }
-        : { clarification_id: clarification.clarification_id, resolution: "NONE_OF_ABOVE" },
+      selected,
       controller.signal,
     ).then((response) => {
       if (controller.signal.aborted) return;

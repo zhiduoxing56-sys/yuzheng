@@ -446,6 +446,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                 turn_id=turn_id,
                 clarification_id=request.clarification_id,
                 candidate_id=request.candidate_id,
+                candidate_ids=request.candidate_ids,
                 none_of_above=request.resolution == "NONE_OF_ABOVE",
             )
         except ClarificationWorkflowError as exc:

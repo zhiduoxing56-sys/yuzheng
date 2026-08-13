@@ -101,6 +101,29 @@ class ClarificationService:
         return request
 
     @classmethod
+    @classmethod
+    def _ensure_intent_indexes(cls) -> None:
+        global _intent_chinese_names, _intent_anchors
+        if _intent_chinese_names is not None and _intent_anchors is not None:
+            return
+        raw = yaml.safe_load(_UNIFIED_INTENT_REGISTRY.read_text(encoding="utf-8"))
+        definitions = raw.get("intents", []) if isinstance(raw, dict) else []
+        _intent_chinese_names = {
+            str(definition.get("intent_id")): str(definition.get("chinese_name", ""))
+            for definition in definitions
+            if isinstance(definition, dict) and definition.get("intent_id")
+        }
+        try:
+            anchor_root = yaml.safe_load(_UNIFIED_ANCHOR_SET.read_text(encoding="utf-8"))
+            anchor_intents = anchor_root.get("intents", {}) if isinstance(anchor_root, dict) else {}
+            _intent_anchors = {
+                str(key): [str(item) for item in (value.get("anchors", []) if isinstance(value, dict) else [])]
+                for key, value in anchor_intents.items()
+            }
+        except Exception:
+            _intent_anchors = {}
+
+    @classmethod
     def _readable_intent_name(cls, intent_id: str) -> str:
         """把内部 intent_id 转成一个「可重新执行」的人类可读指令。
 
@@ -111,24 +134,7 @@ class ClarificationService:
         """
         if not _INTERNAL_IDENTIFIER.fullmatch(intent_id):
             return intent_id
-        global _intent_chinese_names, _intent_anchors
-        if _intent_chinese_names is None or _intent_anchors is None:
-            raw = yaml.safe_load(_UNIFIED_INTENT_REGISTRY.read_text(encoding="utf-8"))
-            definitions = raw.get("intents", []) if isinstance(raw, dict) else []
-            _intent_chinese_names = {
-                str(definition.get("intent_id")): str(definition.get("chinese_name", ""))
-                for definition in definitions
-                if isinstance(definition, dict) and definition.get("intent_id")
-            }
-            try:
-                anchor_root = yaml.safe_load(_UNIFIED_ANCHOR_SET.read_text(encoding="utf-8"))
-                anchor_intents = anchor_root.get("intents", {}) if isinstance(anchor_root, dict) else {}
-                _intent_anchors = {
-                    str(key): [str(item) for item in (value.get("anchors", []) if isinstance(value, dict) else [])]
-                    for key, value in anchor_intents.items()
-                }
-            except Exception:
-                _intent_anchors = {}
+        cls._ensure_intent_indexes()
         chinese_name = _intent_chinese_names.get(intent_id, intent_id)
         preferred = _CANDIDATE_PREFERRED_EXECUTABLE.get(intent_id)
         if preferred and _normalize_for_cmp(preferred) != _normalize_for_cmp(chinese_name):
@@ -160,6 +166,11 @@ class ClarificationService:
     def _occurrence_candidates(
         cls, record: AuditRecord
     ) -> list[ClarificationCandidate]:
+        """多意图分组复核候选：每个「需复核的意图」一组候选。
+
+        多意图中安全裁决 REVIEW 的意图才进入复核（区域歧义不算需复核，动作已明确）。
+        每组候选取该意图锚点里可执行的表达句，并带上 group / group_label 供前端分组。
+        """
         frame = record.semantic_frame
         formal = [
             intent
@@ -167,9 +178,8 @@ class ClarificationService:
             if intent.runtime_identity == "FORMAL"
         ]
         all_resolved_are_formal = bool(formal) and len(formal) == len(frame.intents)
-        multi_protocol_review = (
-            "MULTI_INTENT_EXECUTION_UNSUPPORTED"
-            in record.final_decision.reason_codes
+        multi_review = (
+            "MULTI_INTENT_REVIEW_REQUIRED" in record.final_decision.reason_codes
             and len(formal) > 1
         )
         partial_multi_review = (
@@ -177,21 +187,71 @@ class ClarificationService:
             and bool(frame.unresolved_clauses)
         )
         if not all_resolved_are_formal or not (
-            multi_protocol_review or partial_multi_review
+            multi_review or partial_multi_review
         ):
             return []
-        return [
-            ClarificationCandidate(
-                candidate_id=cls._occurrence_candidate_id(record, intent),
-                display_text=intent.clause_text,
-                candidate_source=(
-                    ClarificationCandidateSource.SEMANTIC_REVIEW_CANDIDATE
-                ),
-                source_rank=rank,
-                confidence=intent.semantic_confidence,
-            )
-            for rank, intent in enumerate(formal[:MAX_CLARIFICATION_CANDIDATES], start=1)
+        assessments = {
+            item.clause_index: item
+            for item in (record.final_decision.intent_safety_assessments or [])
+        }
+        review_intents = [
+            intent
+            for intent in formal
+            if assessments.get(intent.clause_index)
+            and assessments[intent.clause_index].final_safety_decision
+            == DecisionLabel.REVIEW
         ]
+        candidates: list[ClarificationCandidate] = []
+        seen_groups: set[str] = set()
+        for intent in review_intents[:MAX_CLARIFICATION_CANDIDATES]:
+            group = intent.intent_id
+            if group in seen_groups:
+                continue
+            seen_groups.add(group)
+            group_label = intent.clause_text
+            executable_choices = cls._executable_choices(intent)
+            for rank, text in enumerate(executable_choices, start=1):
+                candidates.append(
+                    ClarificationCandidate(
+                        candidate_id=(
+                            "CLAC_GRP_"
+                            + hashlib.sha256(
+                                (
+                                    f"{intent.clause_index}:{intent.intent_id}:{text}"
+                                ).encode("utf-8")
+                            ).hexdigest()[:24]
+                        ),
+                        display_text=text,
+                        candidate_source=(
+                            ClarificationCandidateSource.SEMANTIC_REVIEW_CANDIDATE
+                        ),
+                        source_rank=rank,
+                        confidence=intent.semantic_confidence,
+                        group=group,
+                        group_label=group_label,
+                    )
+                )
+        return candidates
+
+    @classmethod
+    def _executable_choices(cls, intent: Any) -> list[str]:
+        """取该意图锚点里可执行的表达句（跳过与 chinese_name 相同的），最多 3 个。"""
+        cls._ensure_intent_indexes()
+        intent_id = intent.intent_id
+        chinese_name = _intent_chinese_names.get(intent_id, "")
+        anchors = _intent_anchors.get(intent_id, [])
+        choices: list[str] = []
+        normalized_cn = _normalize_for_cmp(chinese_name)
+        for anchor in anchors:
+            if _normalize_for_cmp(anchor) == normalized_cn:
+                continue
+            choices.append(anchor)
+            if len(choices) >= 3:
+                break
+        if not choices:
+            fallback = _CANDIDATE_PREFERRED_EXECUTABLE.get(intent_id)
+            choices = [fallback] if fallback else [chinese_name or intent.clause_text]
+        return choices
 
     @staticmethod
     def _deduplicate(
@@ -448,8 +508,9 @@ class ClarificationService:
         *,
         turn_id: str,
         clarification_id: str,
-        candidate_id: str | None,
-        none_of_above: bool,
+        candidate_id: str | None = None,
+        candidate_ids: list[str] | None = None,
+        none_of_above: bool = False,
     ) -> tuple[ClarificationResolutionRecord, TextCommandResponse | None]:
         with self._resolution_lock:
             request = self.pipeline.workflow_repository.get_clarification_request(
@@ -480,7 +541,17 @@ class ClarificationService:
 
             selected = None
             selected_parent_occurrence: dict[str, Any] | None = None
-            if not none_of_above:
+            grouped_choices: dict[str, str] = {}
+            if not none_of_above and candidate_ids:
+                by_id = {candidate.candidate_id: candidate for candidate in request.candidates}
+                for cid in candidate_ids:
+                    candidate = by_id.get(cid)
+                    if candidate is None or not candidate.group:
+                        raise ClarificationWorkflowError(
+                            "candidate_ids 中存在不属于当前澄清请求的候选"
+                        )
+                    grouped_choices[candidate.group] = candidate.display_text
+            elif not none_of_above:
                 selected = next(
                     (
                         candidate
@@ -530,7 +601,27 @@ class ClarificationService:
 
             command_result: TextCommandResponse | None = None
             child_turn_id: str | None = None
-            if selected is not None:
+            selected_text: str | None = None
+            confirmation_context: dict[str, Any] | None = None
+            if grouped_choices:
+                # 分组多选：明确意图保留原 clause_text，需复核意图用选中候选文本，
+                # 按原顺序用「和」连接成新的多意图指令重新处理。
+                parts: list[str] = []
+                for intent in source.semantic_frame.intents:
+                    if intent.intent_id in grouped_choices:
+                        parts.append(grouped_choices[intent.intent_id])
+                    else:
+                        parts.append(intent.clause_text)
+                selected_text = "和".join(parts)
+                confirmation_context = {
+                    "clarification_id": clarification_id,
+                    "confirmed_candidate_ids": sorted(grouped_choices),
+                    "confirmation_source": CONFIRMATION_SOURCE,
+                    "confirmed_text": selected_text,
+                    "clarification_type": request.clarification_type.value,
+                    "grouped_choices": dict(grouped_choices),
+                }
+            elif selected is not None:
                 selected_text = (
                     str(selected_parent_occurrence["clause_text"])
                     if selected_parent_occurrence is not None
@@ -544,6 +635,7 @@ class ClarificationService:
                     "clarification_type": request.clarification_type.value,
                     "selected_parent_occurrence": selected_parent_occurrence,
                 }
+            if selected_text is not None and confirmation_context is not None:
                 transcription_override = source.transcription_result.model_copy(
                     update={
                         "text": selected_text,
@@ -600,12 +692,18 @@ class ClarificationService:
                     if none_of_above
                     else ClarificationResolution.SELECTED
                 ),
-                selected_candidate_id=(selected.candidate_id if selected else None),
+                selected_candidate_id=(
+                    selected.candidate_id
+                    if selected
+                    else (sorted(grouped_choices)[0] if grouped_choices else None)
+                ),
                 selected_candidate_text=(
                     str(selected_parent_occurrence["clause_text"])
                     if selected_parent_occurrence is not None
                     else selected.display_text
                     if selected
+                    else selected_text
+                    if selected_text
                     else None
                 ),
                 child_turn_id=child_turn_id,

@@ -1916,13 +1916,12 @@ class CommandPipeline:
                 ],
             ]
             if len(frame.intents) > 1:
-                reason_codes.append("MULTI_INTENT_EXECUTION_UNSUPPORTED")
-                if final_decision == DecisionLabel.PASS:
-                    final_decision = DecisionLabel.REVIEW
-                    explanations.append(
-                        "aggregate safety 为 PASS，但当前执行协议只支持单动作；"
-                        "完整结果见 intent_safety_assessments。"
-                    )
+                # 多意图不再无条件强制 REVIEW：是否需复核由决策后的「需复核意图判定」
+                # 统一决定（有意图需复核 → 弹窗复核；全部明确 → 直接放行）。
+                reason_codes.append("MULTI_INTENT_GROUP")
+                explanations.append(
+                    "检测到多意图组合；是否需复核由后续需复核意图判定决定。"
+                )
             if frame.semantic_status == "REVIEW" and final_decision == DecisionLabel.PASS:
                 final_decision = DecisionLabel.REVIEW
                 explanations.append("SemanticFrame 为 REVIEW，整轮最终裁决至少保持 REVIEW。")
@@ -1988,38 +1987,64 @@ class CommandPipeline:
             input_trust,
             zone_permission,
         )
-        # 区域歧义检查：对车门/车窗这类「区域语义关键」的意图，若用户未指定哪一侧
-        # （area=unknown），即使安全裁决为 PASS，也应要求用户选择具体区域后再执行。
-        # 限定 DOOR/WINDOW 两个目标族，避免座椅/空调/灯光等指令过度弹窗。
-        if decision.final_decision == DecisionLabel.PASS:
-            area_ambiguous = [
-                intent.intent_id
+        # 需复核意图判定：
+        #  - 单意图：区域歧义（DOOR/WINDOW 未指定哪一侧）也算需复核 → 弹窗选区域。
+        #  - 多意图：区域歧义不算需复核（动作已明确，只是区域未指定）；只有安全裁决
+        #    REVIEW 的意图才需复核。
+        # 仅当 final_decision 为 PASS 且有需复核意图时升级 REVIEW（触发复核弹窗）；
+        # BLOCK 优先保持（BLOCK 意图不弹窗）；全部明确则保持 PASS 直接放行（多意图不签令牌）。
+        multi_intent = len(frame.intents) > 1
+        review_required_intents: list[str] = []
+        for intent in frame.intents:
+            if not multi_intent:
+                area_ambiguous = (
+                    intent.area in (None, "unknown")
+                    and intent.target in ("车门", "车窗")
+                    and any(
+                        area in allowed_areas_for_intent(intent.intent_id)
+                        for area in ("LEFT_FRONT", "RIGHT_FRONT", "LEFT_REAR", "RIGHT_REAR")
+                    )
+                )
+                if area_ambiguous:
+                    review_required_intents.append(intent.intent_id)
+                    continue
+            assessment = next(
+                (
+                    item
+                    for item in (decision.intent_safety_assessments or [])
+                    if item.clause_index == intent.clause_index
+                ),
+                None,
+            )
+            if assessment and assessment.final_safety_decision == DecisionLabel.REVIEW:
+                review_required_intents.append(intent.intent_id)
+
+        if decision.final_decision == DecisionLabel.PASS and review_required_intents:
+            all_area_only = all(
+                intent.area in (None, "unknown") and intent.target in ("车门", "车窗")
                 for intent in frame.intents
-                if intent.area in (None, "unknown")
-                and intent.target in ("车门", "车窗")
-                and any(
-                    area in allowed_areas_for_intent(intent.intent_id)
-                    for area in ("LEFT_FRONT", "RIGHT_FRONT", "LEFT_REAR", "RIGHT_REAR")
-                )
-            ]
-            if area_ambiguous:
-                decision = decision.model_copy(
-                    update={
-                        "final_decision": DecisionLabel.REVIEW,
-                        "reason_codes": list(
-                            dict.fromkeys([*decision.reason_codes, "AREA_AMBIGUOUS"])
-                        ),
-                        "explanations": [
-                            *decision.explanations,
-                            "指令未指定具体操作区域（如哪一侧车门/车窗），需用户选择后再执行。",
-                        ],
-                    }
-                )
-                emit(
-                    "AREA_AMBIGUOUS_REVIEW",
-                    "操作区域未指定，需澄清",
-                    {"intent_ids": area_ambiguous},
-                )
+                if intent.intent_id in review_required_intents
+            )
+            review_reason = (
+                "AREA_AMBIGUOUS" if all_area_only else "MULTI_INTENT_REVIEW_REQUIRED"
+            )
+            decision = decision.model_copy(
+                update={
+                    "final_decision": DecisionLabel.REVIEW,
+                    "reason_codes": list(
+                        dict.fromkeys([*decision.reason_codes, review_reason])
+                    ),
+                    "explanations": [
+                        *decision.explanations,
+                        "检测到需复核的操作，需用户确认后再执行。",
+                    ],
+                }
+            )
+            emit(
+                "REVIEW_REQUIRED_INTENTS",
+                "存在需复核的意图",
+                {"intent_ids": review_required_intents, "reason": review_reason},
+            )
         # 最终一致性复核层：用户对车辆现状的状态声明 与 本次裁决已取得的证据核验。
         # 仅在 base_decision 为 PASS 时参与；声明冲突将 PASS 提升为 REVIEW，
         # 原 REVIEW/BLOCK 保持不变（BLOCK > REVIEW > PASS 顺序永不破坏）。
@@ -2316,6 +2341,7 @@ class CommandPipeline:
             and decision.final_decision == DecisionLabel.PASS
             and not decision.gate_blocked
             and actionable
+            and len(frame.intents) <= 1
             and self.authorization_service.is_executable(frame)
         ):
             try:

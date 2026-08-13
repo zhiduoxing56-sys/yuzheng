@@ -603,14 +603,18 @@ class ReviewSubmissionResponse(StrictModel):
 class ClarificationSubmission(StrictModel):
     clarification_id: str = Field(min_length=1, max_length=128)
     candidate_id: str | None = Field(default=None, min_length=1, max_length=128)
+    # 多意图分组复核：每组各选一个候选，一次提交（与 candidate_id 二选一）
+    candidate_ids: list[str] | None = Field(default=None, max_length=16)
     resolution: Literal["NONE_OF_ABOVE"] | None = None
 
     @model_validator(mode="after")
     def validate_selection(self) -> "ClarificationSubmission":
-        selected = self.candidate_id is not None
+        selected = (self.candidate_id is not None) or bool(self.candidate_ids)
         rejected = self.resolution == "NONE_OF_ABOVE"
         if selected == rejected:
-            raise ValueError("必须且只能提交 candidate_id 或 NONE_OF_ABOVE")
+            raise ValueError("必须且只能提交 candidate_id(s) 或 NONE_OF_ABOVE")
+        if self.candidate_id is not None and self.candidate_ids:
+            raise ValueError("candidate_id 与 candidate_ids 不能同时提交")
         return self
 
 

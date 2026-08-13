@@ -386,6 +386,10 @@ class ClarificationCandidate(StrictModel):
     candidate_source: ClarificationCandidateSource
     source_rank: int = Field(ge=1)
     confidence: float | None = Field(default=None, ge=0, le=1)
+    # 分组复核：同一候选组（对应一个待复核意图）用相同 group 标识，
+    # group_label 用于前端分组标题（如「打开车窗」）。None = 非分组候选（单意图）。
+    group: str | None = None
+    group_label: str | None = None
 
 
 class ClarificationRequest(StrictModel):
@@ -394,7 +398,7 @@ class ClarificationRequest(StrictModel):
     clarification_type: ClarificationType
     prompt: str = Field(min_length=1, max_length=500)
     original_text: str = Field(max_length=2048)
-    candidates: list[ClarificationCandidate] = Field(default_factory=list, max_length=4)
+    candidates: list[ClarificationCandidate] = Field(default_factory=list, max_length=16)
 
 
 class ClarificationResolutionRecord(StrictModel):

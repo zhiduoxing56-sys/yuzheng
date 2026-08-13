@@ -409,6 +409,14 @@
 .clarification-none:hover { border-color: #7897ca; background: #dce7f7; color: #294d87; }
 .clarification-error { margin: 12px 0 0; color: #a52735; font-weight: 700; }
 
+/* 多意图分组复核：每个需复核意图一组候选，并列展示 */
+.clarification-groups { display: grid; gap: 16px; margin-top: 16px; }
+.clarification-group { padding: 12px 14px; border: 1px dashed #9db9e8; border-radius: 12px; background: #f3f7ff; }
+.clarification-group-label { margin-bottom: 10px; color: #123c82; font-size: 14px; font-weight: 900; letter-spacing: .03em; }
+.clarification-group .clarification-candidates { margin-top: 0; }
+.clarification-candidate.is-selected { border-color: #1766e8; background: #dbe9ff; box-shadow: 0 0 0 2px rgba(23, 102, 232, .18); }
+.clarification-group .clarification-none { margin-top: 10px; }
+
 /* Evidence search */
 .evidence-search-page { padding: 24px 32px 28px; }
 

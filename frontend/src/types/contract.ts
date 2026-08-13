@@ -544,6 +544,8 @@ export interface ClarificationCandidate {
   candidate_source: ClarificationCandidateSource;
   source_rank: number;
   confidence: number | null;
+  group: string | null;
+  group_label: string | null;
 }
 
 export interface ClarificationRequest {
@@ -681,6 +683,7 @@ export interface AudioCommandResponse {
 
 export type ClarificationSubmission =
   | { clarification_id: string; candidate_id: string }
+  | { clarification_id: string; candidate_ids: string[] }
   | { clarification_id: string; resolution: "NONE_OF_ABOVE" };
 
 export interface ClarificationSubmissionResponse {
