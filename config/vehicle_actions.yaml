@@ -103,6 +103,79 @@ canonical_capability_contracts:
           slots: {}
           physical_action: 打开|天窗
 
+    - intent_id: LOW_BEAM_ON
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|近光灯
+    - intent_id: LOW_BEAM_OFF
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 关闭|近光灯
+    - intent_id: HIGH_BEAM_ON
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|远光灯
+    - intent_id: HIGH_BEAM_OFF
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 关闭|远光灯
+    - intent_id: FOG_LIGHT_ON
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|雾灯
+    - intent_id: FOG_LIGHT_OFF
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 关闭|雾灯
+    - intent_id: PARKING_LIGHT_ON
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|驻车灯
+    - intent_id: PARKING_LIGHT_OFF
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 关闭|驻车灯
+    - intent_id: HAZARD_LIGHT_ON
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|危险警示灯
+    - intent_id: HAZARD_LIGHT_OFF
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 关闭|危险警示灯
+    - intent_id: TURN_INDICATOR_ON
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 打开|转向灯
+    - intent_id: TURN_INDICATOR_OFF
+      contract_version: 1
+      variants:
+        - adapters: [simulator, mock_bench, carla]
+          slots: {}
+          physical_action: 关闭|转向灯
+
 # 底层物理能力库存，可能包含不向语音执行开放的能力（例如 DISPLAY_OFF）。
 # 生产语音资格只由上面的 canonical_capability_contracts 决定。
 actions:
@@ -170,3 +243,51 @@ actions:
     operations:
       - {field: ac_state, operation: set, value: "ON"}
     feedback: 空调已开启
+  打开|近光灯:
+    operations:
+      - {field: headlight_state, operation: set, value: LOW_BEAM}
+    feedback: 近光灯已打开
+  关闭|近光灯:
+    operations:
+      - {field: headlight_state, operation: set, value: "OFF"}
+    feedback: 近光灯已关闭
+  打开|远光灯:
+    operations:
+      - {field: headlight_state, operation: set, value: HIGH_BEAM}
+    feedback: 远光灯已打开
+  关闭|远光灯:
+    operations:
+      - {field: headlight_state, operation: set, value: "OFF"}
+    feedback: 远光灯已关闭
+  打开|雾灯:
+    operations:
+      - {field: headlight_state, operation: set, value: FOG}
+    feedback: 雾灯已打开
+  关闭|雾灯:
+    operations:
+      - {field: headlight_state, operation: set, value: "OFF"}
+    feedback: 雾灯已关闭
+  打开|驻车灯:
+    operations:
+      - {field: headlight_state, operation: set, value: PARKING}
+    feedback: 驻车灯已打开
+  关闭|驻车灯:
+    operations:
+      - {field: headlight_state, operation: set, value: "OFF"}
+    feedback: 驻车灯已关闭
+  打开|危险警示灯:
+    operations:
+      - {field: headlight_state, operation: set, value: HAZARD}
+    feedback: 危险警示灯已打开
+  关闭|危险警示灯:
+    operations:
+      - {field: headlight_state, operation: set, value: "OFF"}
+    feedback: 危险警示灯已关闭
+  打开|转向灯:
+    operations:
+      - {field: headlight_state, operation: set, value: TURN_INDICATOR}
+    feedback: 转向灯已打开
+  关闭|转向灯:
+    operations:
+      - {field: headlight_state, operation: set, value: "OFF"}
+    feedback: 转向灯已关闭
