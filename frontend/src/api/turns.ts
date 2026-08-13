@@ -1,6 +1,5 @@
 import { apiClient } from "./client";
 import type {
-  AuditDetailResponse,
   AdvancedReasoningResult,
   ExecuteResult,
   ReviewSubmission,
@@ -9,6 +8,8 @@ import type {
   TurnWorkflowStatus,
   TurnPresentationResponse,
   WorkflowChainVerification,
+  ClarificationSubmission,
+  ClarificationSubmissionResponse,
 } from "../types/contract";
 
 export function getTurnPresentation(turnId: string, signal?: AbortSignal): Promise<TurnPresentationResponse> {
@@ -17,6 +18,18 @@ export function getTurnPresentation(turnId: string, signal?: AbortSignal): Promi
 
 export function submitTurnReview(turnId: string, request: ReviewSubmission): Promise<unknown> {
   return apiClient.post<unknown>(`/api/turns/${encodeURIComponent(turnId)}/review`, request);
+}
+
+export function submitTurnClarification(
+  turnId: string,
+  request: ClarificationSubmission,
+  signal?: AbortSignal,
+): Promise<ClarificationSubmissionResponse> {
+  return apiClient.post<ClarificationSubmissionResponse>(
+    `/api/turns/${encodeURIComponent(turnId)}/clarification`,
+    request,
+    { signal, timeoutMs: 60_000 },
+  );
 }
 
 export function getTurnTimeline(turnId: string, signal?: AbortSignal): Promise<unknown> {
@@ -50,5 +63,3 @@ export function executeTurn(
     session_id: sessionId,
   });
 }
-
-export type { AuditDetailResponse };

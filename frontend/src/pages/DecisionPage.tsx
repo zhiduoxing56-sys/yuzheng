@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { submitTextCommand } from "../api/command";
-import { executeTurn, getTurnPresentation } from "../api/turns";
+import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
+import { executeTurn, getTurnPresentation, submitTurnClarification } from "../api/turns";
+import { ClarificationModal } from "../components/ClarificationModal";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
-import type { EvidenceDemandPresentation, ExecuteResult, SemanticFrame, TurnPresentationResponse } from "../types/contract";
+import type { AudioCommandResponse, ClarificationRequest, ExecuteResult, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 import type { CommandInputMode, DecisionResultView } from "../types/visualModels";
 
 interface CurrentTurnData {
   turn_id: string;
   semantic_frame: SemanticFrame;
-  evidence_demand: EvidenceDemandPresentation;
 }
 
 const EMPTY_RESULT: DecisionResultView = {
@@ -27,6 +27,7 @@ function formatScoreDetail(value: number | null | undefined): string | null {
 function buildResultView(presentation: TurnPresentationResponse): DecisionResultView {
   const decision = presentation.decision_result;
   const score = presentation.score_result;
+  if (!decision || !score) return EMPTY_RESULT;
   const state: DecisionResultView["state"] = decision.final_decision === "PASS"
     ? "pass"
     : decision.final_decision === "REVIEW"
@@ -48,17 +49,23 @@ function buildResultView(presentation: TurnPresentationResponse): DecisionResult
   };
 }
 
+const MAX_WAV_SIZE_BYTES = 20 * 1024 * 1024;
+
 export function DecisionPage() {
   const [mode, setMode] = useState<CommandInputMode>("text");
   const [text, setText] = useState("");
-  const [audioFileName, setAudioFileName] = useState("");
+  const [audioFile, setAudioFile] = useState<File | null>(null);
   const [recording, setRecording] = useState(false);
   const [currentTurn, setCurrentTurn] = useState<CurrentTurnData | null>(null);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [clarification, setClarification] = useState<ClarificationRequest | null>(null);
+  const [clarificationBusy, setClarificationBusy] = useState(false);
+  const [clarificationError, setClarificationError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const activeRequestRef = useRef<AbortController | null>(null);
+  const clarificationRequestRef = useRef<AbortController | null>(null);
   const turnId = searchParams.get("turn_id")?.trim() || null;
   const [result, setResult] = useState<DecisionResultView>(EMPTY_RESULT);
   const [execToken, setExecToken] = useState<string | null>(null);
@@ -67,11 +74,21 @@ export function DecisionPage() {
 
   useEffect(() => {
     if (!turnId) {
+      clarificationRequestRef.current?.abort("turn cleared");
+      clarificationRequestRef.current = null;
+      setClarification(null);
+      setClarificationBusy(false);
+      setClarificationError(null);
       setCurrentTurn(null);
       setResult(EMPTY_RESULT);
       return;
     }
     if (currentTurn?.turn_id === turnId) return;
+    clarificationRequestRef.current?.abort("turn changed");
+    clarificationRequestRef.current = null;
+    setClarification(null);
+    setClarificationBusy(false);
+    setClarificationError(null);
     const controller = new AbortController();
     activeRequestRef.current?.abort("turn changed");
     activeRequestRef.current = controller;
@@ -83,9 +100,13 @@ export function DecisionPage() {
       setCurrentTurn({
         turn_id: presentation.turn_id,
         semantic_frame: presentation.semantic_frame,
-        evidence_demand: presentation.evidence_demand,
       });
       setResult(buildResultView(presentation));
+      setClarification(
+        presentation.decision_result?.final_decision === "REVIEW"
+          ? presentation.clarification_request || null
+          : null,
+      );
       setText(presentation.semantic_frame.raw_text);
       setFeedback(`已载入轮次 ${presentation.turn_id}`);
     }).catch((reason: unknown) => {
@@ -103,7 +124,10 @@ export function DecisionPage() {
     return () => controller.abort("decision page effect disposed");
   }, [turnId]);
 
-  useEffect(() => () => activeRequestRef.current?.abort("decision page disposed"), []);
+  useEffect(() => () => {
+    activeRequestRef.current?.abort("decision page disposed");
+    clarificationRequestRef.current?.abort("decision page disposed");
+  }, []);
 
   const changeMode = useCallback((nextMode: CommandInputMode) => {
     setMode(nextMode);
@@ -111,13 +135,87 @@ export function DecisionPage() {
     setHasError(false);
     if (nextMode !== "microphone") setRecording(false);
   }, []);
-  const selectAudio = useCallback((file: File | null) => setAudioFileName(file?.name || ""), []);
-  const submit = useCallback(() => {
-    if (mode !== "text") {
+  const selectAudio = useCallback((file: File | null) => {
+    setAudioFile(file);
+    setFeedback(null);
+    setHasError(false);
+  }, []);
+
+  const acceptResponse = useCallback((response: TextCommandResponse | AudioCommandResponse, successMessage: string) => {
+    const frame = response.semantic_frame;
+    if (frame) {
+      setCurrentTurn({ turn_id: response.turn_id, semantic_frame: frame });
+      setText(frame.raw_text);
+    } else {
+      setCurrentTurn(null);
+    }
+    const nestedClarification = (response as AudioCommandResponse).pipeline
+      ?.clarification_request;
+    setClarification(response.clarification_request || nestedClarification || null);
+    setClarificationError(null);
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("turn_id", response.turn_id);
+    setSearchParams(nextParams, { replace: true });
+    setFeedback(`${successMessage}，轮次 ${response.turn_id}`);
+  }, [searchParams, setSearchParams]);
+
+  const runAudioRequest = useCallback((request: (signal: AbortSignal) => Promise<AudioCommandResponse>, pendingMessage: string, successMessage: string) => {
+    const controller = new AbortController();
+    activeRequestRef.current?.abort("new audio command submitted");
+    activeRequestRef.current = controller;
+    setBusy(true);
+    setHasError(false);
+    setFeedback(pendingMessage);
+    void request(controller.signal).then((response) => {
+      if (controller.signal.aborted) return;
+      acceptResponse(response, successMessage);
+    }).catch((reason: unknown) => {
+      if (controller.signal.aborted) return;
       setHasError(true);
-      setFeedback("本轮只接入文本指令；音频与麦克风尚未连接。");
+      setFeedback(reason instanceof Error ? reason.message : "语音指令处理失败");
+    }).finally(() => {
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
+        setBusy(false);
+        setRecording(false);
+      }
+    });
+  }, [acceptResponse]);
+
+  const captureMicrophone = useCallback(() => {
+    setRecording(true);
+    runAudioRequest(
+      (signal) => submitMicrophoneCommand({ duration_seconds: 4, speaker_zone: "driver", speaker_role: "driver" }, signal),
+      "正在调用本机麦克风采集 4 秒语音…",
+      "本机语音处理完成",
+    );
+  }, [runAudioRequest]);
+
+  const submit = useCallback(() => {
+    if (mode === "audio") {
+      if (!audioFile) {
+        setHasError(true);
+        setFeedback("请先选择 WAV 音频文件。");
+        return;
+      }
+      if (!audioFile.name.toLowerCase().endsWith(".wav")) {
+        setHasError(true);
+        setFeedback("当前仅支持未压缩 PCM WAV 文件。");
+        return;
+      }
+      if (audioFile.size === 0 || audioFile.size > MAX_WAV_SIZE_BYTES) {
+        setHasError(true);
+        setFeedback(audioFile.size === 0 ? "WAV 文件不能为空。" : "WAV 文件不能超过 20 MiB。");
+        return;
+      }
+      runAudioRequest(
+        (signal) => submitAudioCommand(audioFile, { audio_source: "browser_upload", speaker_zone: "driver", speaker_role: "driver" }, signal),
+        "正在上传并处理 WAV 音频…",
+        "WAV 音频处理完成",
+      );
       return;
     }
+    if (mode === "microphone") return;
     const commandText = text.trim();
     if (!commandText) {
       setHasError(true);
@@ -135,6 +233,12 @@ export function DecisionPage() {
       setText(commandText);
       setExecToken((response.decision as { authorization_token?: string | null } | undefined)?.authorization_token ?? null);
       setExecResult(null);
+      setCurrentTurn({
+        turn_id: response.turn_id,
+        semantic_frame: response.semantic_frame,
+      });
+      setClarification(response.clarification_request || null);
+      setClarificationError(null);
       const nextParams = new URLSearchParams(searchParams);
       nextParams.set("turn_id", response.turn_id);
       setSearchParams(nextParams, { replace: true });
@@ -149,7 +253,7 @@ export function DecisionPage() {
         setBusy(false);
       }
     });
-  }, [mode, searchParams, setSearchParams, text]);
+  }, [audioFile, mode, runAudioRequest, searchParams, setSearchParams, text]);
 
   const execute = useCallback(async () => {
     if (!turnId || !execToken) {
@@ -174,48 +278,95 @@ export function DecisionPage() {
     }
   }, [turnId, execToken]);
 
-  return <div className="visual-page-frame decision-visual-page"><div className="decision-visual-layout">
+  const resolveClarification = useCallback((candidateId: string | null) => {
+    if (!clarification || clarificationBusy) return;
+    const capturedKey = `${clarification.turn_id}:${clarification.clarification_id}`;
+    const controller = new AbortController();
+    clarificationRequestRef.current?.abort("new clarification submitted");
+    clarificationRequestRef.current = controller;
+    setClarificationBusy(true);
+    setClarificationError(null);
+    void submitTurnClarification(
+      clarification.turn_id,
+      candidateId
+        ? { clarification_id: clarification.clarification_id, candidate_id: candidateId }
+        : { clarification_id: clarification.clarification_id, resolution: "NONE_OF_ABOVE" },
+      controller.signal,
+    ).then((response) => {
+      if (controller.signal.aborted) return;
+      const currentKey = clarification
+        ? `${clarification.turn_id}:${clarification.clarification_id}`
+        : null;
+      if (currentKey !== capturedKey) return;
+      if (response.resolution === "NONE_OF_ABOVE") {
+        setClarification(null);
+        setText("");
+        setAudioFile(null);
+        setRecording(false);
+        setFeedback("本轮已结束，请重新说一条完整指令。");
+        setHasError(false);
+        return;
+      }
+      const child = response.command_result;
+      if (!child || !response.child_turn_id) throw new Error("后端未返回确认后的 child turn");
+      setCurrentTurn({ turn_id: child.turn_id, semantic_frame: child.semantic_frame });
+      setText(child.semantic_frame.raw_text);
+      setClarification(child.clarification_request || null);
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set("turn_id", child.turn_id);
+      setSearchParams(nextParams, { replace: true });
+      setFeedback(`已按用户确认重新运行完整安全流水线，轮次 ${child.turn_id}`);
+      setHasError(false);
+    }).catch((reason: unknown) => {
+      if (controller.signal.aborted) return;
+      setClarificationError(reason instanceof Error ? reason.message : "确认提交失败，请重试");
+    }).finally(() => {
+      if (clarificationRequestRef.current === controller) {
+        clarificationRequestRef.current = null;
+        setClarificationBusy(false);
+      }
+    });
+  }, [clarification, clarificationBusy, searchParams, setSearchParams]);
+
+  return <><div className="visual-page-frame decision-visual-page"><div className="decision-visual-layout">
     <div className="decision-visual-left">
-      <CommandInputSwitcher mode={mode} text={text} audioFileName={audioFileName} recording={recording} busy={busy} feedback={feedback} hasError={hasError} onModeChange={changeMode} onTextChange={setText} onAudioChange={selectAudio} onRecordingToggle={() => setRecording((current) => !current)} onSubmit={submit} />
+      <CommandInputSwitcher mode={mode} text={text} audioFileName={audioFile?.name || ""} recording={recording} busy={busy} feedback={feedback} hasError={hasError} onModeChange={changeMode} onTextChange={setText} onAudioChange={selectAudio} onRecordingToggle={captureMicrophone} onSubmit={submit} />
       <SemanticFrameDisplay frame={currentTurn?.semantic_frame || null} />
     </div>
-    <DecisionResultDisplay result={result} />
-    <div style={{ marginTop: "1rem" }}>
-      <section style={{ background: "#0f1420", border: "1px solid #232b3b", borderRadius: 12, padding: "1rem 1.25rem" }}>
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+    <div className="decision-result-column">
+      <DecisionResultDisplay result={result} />
+      <section className="decision-execution-panel">
+        <div className="decision-execution-actions">
           <button
             type="button"
             disabled={execBusy || !execToken}
             onClick={() => void execute()}
-            style={{
-              background: execToken ? "#1b7cff" : "#2c3850",
-              color: "#fff", border: "none", borderRadius: 8,
-              padding: "0.5rem 1.1rem", cursor: execToken ? "pointer" : "not-allowed",
-              fontWeight: 600, opacity: execToken ? 1 : 0.5,
-            }}
+            className="decision-execution-button"
           >
             {execBusy ? "执行中…" : execToken ? "执行车辆动作" : "无执行令牌"}
           </button>
-          {execToken && <span style={{ color: "#5c6675", fontSize: "0.8rem" }}>令牌已签发，点击执行将把动作反映到 CARLA 车辆</span>}
+          {execToken && <span>令牌已签发，点击执行将把动作反映到 CARLA 车辆</span>}
         </div>
-        {!execToken && <p style={{ color: "#5c6675", fontSize: "0.78rem", margin: "0.5rem 0 0" }}>本指令未签发执行令牌（可能是 REVIEW/BLOCK 或不在可执行白名单）。</p>}
+        {!execToken && <p className="decision-execution-note">本指令未签发执行令牌（可能是 REVIEW/BLOCK 或不在可执行白名单）。</p>}
         {execResult && (
-          <div style={{
-            marginTop: "0.75rem", padding: "0.6rem 0.8rem", borderRadius: 8, fontSize: "0.85rem",
-            background: execResult.accepted ? "rgba(27,124,255,0.12)" : "rgba(220,60,60,0.15)",
-            color: execResult.accepted ? "#7cc4ff" : "#ff8b8b",
-          }}>
+          <div className={`decision-execution-result${execResult.accepted ? " is-accepted" : " is-rejected"}`}>
             <strong>{execResult.accepted ? "执行成功" : "执行未接受"}</strong>
-            <span style={{ marginLeft: "0.5rem" }}>{execResult.reason}</span>
-            {execResult.execution && <div style={{ marginTop: "0.3rem", color: "#aeb9cc" }}>
+            <span>{execResult.reason}</span>
+            {execResult.execution && <div>
               适配器 {execResult.execution.adapter} · 状态 {execResult.execution.status} · {execResult.execution.feedback}
             </div>}
           </div>
         )}
-        <p style={{ color: "#5c6675", fontSize: "0.78rem", margin: "0.6rem 0 0" }}>
+        <p className="decision-execution-hint">
           提示：如果执行被「签发后状态变化」拒绝，请先到「模拟器」页点「驻车/制动(0)」让车辆停稳，再重新提交执行。
         </p>
       </section>
     </div>
-  </div></div>;
+  </div></div>{clarification ? <ClarificationModal
+    error={clarificationError}
+    onNoneOfAbove={() => resolveClarification(null)}
+    onSelect={resolveClarification}
+    request={clarification}
+    submitting={clarificationBusy}
+  /> : null}</>;
 }

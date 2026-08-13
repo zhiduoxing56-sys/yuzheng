@@ -7,10 +7,10 @@ import type {
 import { VisualSectionTab } from "./VisualSectionTab";
 
 const PARAMETER_FIELDS: Array<{ key: keyof EvidenceParameterValues; label: string }> = [
-  { key: "M", label: "M" },
-  { key: "ef_construction", label: "ef_construction" },
-  { key: "ef_search", label: "ef_search" },
-  { key: "layer_count", label: "layer_count" },
+  { key: "M", label: "最大连接数" },
+  { key: "ef_construction", label: "构建搜索范围" },
+  { key: "ef_search", label: "查询搜索范围" },
+  { key: "layer_count", label: "分层数量" },
 ];
 
 function display(value: string | null) {
@@ -20,7 +20,6 @@ function display(value: string | null) {
 interface EvidenceParameterPanelProps {
   values: EvidenceParameterValues;
   applied: boolean;
-  topK: number | null;
   busy: boolean;
   feedback: string | null;
   error: string | null;
@@ -28,16 +27,15 @@ interface EvidenceParameterPanelProps {
   onApply: () => void;
 }
 
-export function EvidenceParameterPanel({ values, applied, topK, busy, feedback, error, onChange, onApply }: EvidenceParameterPanelProps) {
+export function EvidenceParameterPanel({ values, applied, busy, feedback, error, onChange, onApply }: EvidenceParameterPanelProps) {
   return <section className="evidence-parameter-panel" aria-label="关键参数">
     <VisualSectionTab>关键参数</VisualSectionTab>
     <div className="evidence-parameter-body">
       <div className="evidence-parameter-grid">
         {PARAMETER_FIELDS.map((field) => <label key={field.key} className="evidence-parameter-field">
-          <span>{field.label}:</span>
+          <span>{field.label}：</span>
           <input aria-label={field.label} inputMode="numeric" min="1" step="1" placeholder="--" value={values[field.key]} disabled={busy} onChange={(event) => onChange(field.key, event.target.value)} />
         </label>)}
-        <div className="evidence-parameter-readonly"><span>top_k:</span><strong>{topK ?? "--"}</strong></div>
       </div>
       <div className="evidence-parameter-actions">
         <button className={`visual-primary-button${applied ? " is-applied" : ""}`} type="button" aria-pressed={applied} disabled={busy} onClick={onApply}>{busy ? "正在应用…" : "应用参数"}</button>

@@ -39,7 +39,6 @@ export function EvidencePage() {
     .map((value) => value?.trim() || null)
     .find((value): value is string => Boolean(value && /^TURN_[A-Za-z0-9_-]+$/.test(value))) ?? null;
   const [parameters, setParameters] = useState<EvidenceParameterValues>(EMPTY_PARAMETERS);
-  const [topK, setTopK] = useState<number | null>(null);
   const [parametersApplied, setParametersApplied] = useState(false);
   const [parameterBusy, setParameterBusy] = useState(false);
   const [parameterFeedback, setParameterFeedback] = useState<string | null>(null);
@@ -63,7 +62,6 @@ export function EvidencePage() {
     const controller = new AbortController();
     void getIndexStatus(controller.signal).then((status) => {
       setParameters(parameterStrings(status));
-      setTopK(status.top_k);
       setParametersApplied(true);
       setParameterError(null);
     }).catch((reason: unknown) => {
@@ -144,7 +142,6 @@ export function EvidencePage() {
     setParameterFeedback("后端正在构建并切换索引…");
     void updateIndexParameters(request).then((status) => {
       setParameters(parameterStrings(status));
-      setTopK(status.top_k);
       setParametersApplied(true);
       setParameterFeedback("参数已原子生效，将影响下一条指令");
     }).catch((reason: unknown) => {
@@ -173,7 +170,7 @@ export function EvidencePage() {
     <header className="evidence-search-header"><h1 className="visual-gradient-title">HNSW证据检索</h1><p>检索时间： <strong>{retrievalTime || "--"} ms</strong></p></header>
     <div className="evidence-search-layout">
       <div className="evidence-search-left">
-        <EvidenceParameterPanel values={parameters} applied={parametersApplied} topK={topK} busy={parameterBusy} feedback={parameterFeedback} error={parameterError} onChange={changeParameter} onApply={applyParameters} />
+        <EvidenceParameterPanel values={parameters} applied={parametersApplied} busy={parameterBusy} feedback={parameterFeedback} error={parameterError} onChange={changeParameter} onApply={applyParameters} />
         <EvidenceLayerList layers={layers} statistics={statistics} onSelectLayer={setSelectedLayer} emptyMessage={emptyLayerMessage} />
       </div>
       <RecallAuditTable rows={recallAuditRows} loading={recallLoading} error={recallError} analyzingTurnId={analyzingTurnId} onAnalyze={analyze} />

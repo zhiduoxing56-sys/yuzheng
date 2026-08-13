@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, useLocation } from "react-router-dom";
-import { submitTextCommand } from "../api/command";
+import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
 import { getTurnPresentation } from "../api/turns";
 import { VisualPageNav } from "../components/VisualPageNav";
 import { DecisionPage } from "../pages/DecisionPage";
-import type { EvidenceDemandPresentation, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
+import type { AudioCommandResponse, EvidenceDemandPresentation, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 
-vi.mock("../api/command", () => ({ submitTextCommand: vi.fn() }));
+vi.mock("../api/command", () => ({ submitAudioCommand: vi.fn(), submitMicrophoneCommand: vi.fn(), submitTextCommand: vi.fn() }));
 vi.mock("../api/turns", () => ({ getTurnPresentation: vi.fn() }));
 
 const semanticFrame: SemanticFrame = {
@@ -76,7 +76,23 @@ function commandResponse(finalDecision: "PASS" | "REVIEW" | "BLOCK" = "PASS"): T
   } as unknown as TextCommandResponse;
 }
 
+function audioCommandResponse(): AudioCommandResponse {
+  return {
+    turn_id: "TURN_test",
+    voice_trust: {},
+    spectrum_analysis: {},
+    asr_result: { transcribed_text: semanticFrame.raw_text },
+    semantic_frame: semanticFrame,
+    decision: { final_decision: "PASS" },
+    audit: {},
+    accepted: true,
+    input_type: "audio",
+  } as AudioCommandResponse;
+}
+
 beforeEach(() => {
+  vi.mocked(submitAudioCommand).mockReset();
+  vi.mocked(submitMicrophoneCommand).mockReset();
   vi.mocked(submitTextCommand).mockReset();
   vi.mocked(getTurnPresentation).mockReset();
 });
@@ -89,7 +105,7 @@ describe("DecisionPage semantic-frame connection", () => {
     render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /><LocationProbe /></MemoryRouter>);
 
     await userEvent.type(screen.getByLabelText("文本指令"), semanticFrame.raw_text);
-    await userEvent.click(screen.getByRole("button", { name: "提交/上传" }));
+    await userEvent.click(screen.getByRole("button", { name: "提交指令" }));
 
     await waitFor(() => expect(submitTextCommand).toHaveBeenCalledTimes(1));
     expect(submitTextCommand).toHaveBeenCalledWith({ text: semanticFrame.raw_text }, expect.any(AbortSignal));
@@ -125,10 +141,57 @@ describe("DecisionPage semantic-frame connection", () => {
     render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter>);
 
     await userEvent.type(screen.getByLabelText("文本指令"), "打开车门");
-    await userEvent.click(screen.getByRole("button", { name: "提交/上传" }));
+    await userEvent.click(screen.getByRole("button", { name: "提交指令" }));
 
     await waitFor(() => expect(screen.getAllByText("WINDOW_OPEN")).toHaveLength(2));
     expect(screen.getAllByText("OPEN")).toHaveLength(2);
+  });
+
+  it("uploads a WAV file through the audio endpoint and renders its semantic frame", async () => {
+    vi.mocked(submitAudioCommand).mockResolvedValue(audioCommandResponse());
+    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /><LocationProbe /></MemoryRouter>);
+
+    await userEvent.click(screen.getByRole("tab", { name: "音频上传" }));
+    const wav = new File([new Uint8Array([82, 73, 70, 70])], "command.wav", { type: "audio/wav" });
+    await userEvent.upload(screen.getByLabelText("WAV 音频文件"), wav);
+    await userEvent.click(screen.getByRole("button", { name: "上传 WAV" }));
+
+    await waitFor(() => expect(submitAudioCommand).toHaveBeenCalledTimes(1));
+    expect(submitAudioCommand).toHaveBeenCalledWith(wav, {
+      audio_source: "browser_upload",
+      speaker_zone: "driver",
+      speaker_role: "driver",
+    }, expect.any(AbortSignal));
+    await waitFor(() => expect(screen.getByTestId("location").textContent).toBe("?turn_id=TURN_test"));
+    expect(screen.getAllByText("WINDOW_OPEN")).toHaveLength(2);
+  });
+
+  it("rejects a non-WAV file before calling the audio endpoint", async () => {
+    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter>);
+
+    await userEvent.click(screen.getByRole("tab", { name: "音频上传" }));
+    const mp3 = new File([new Uint8Array([1])], "command.mp3", { type: "audio/mpeg" });
+    fireEvent.change(screen.getByLabelText("WAV 音频文件"), { target: { files: [mp3] } });
+    await userEvent.click(screen.getByRole("button", { name: "上传 WAV" }));
+
+    expect((await screen.findByRole("alert")).textContent).toContain("当前仅支持未压缩 PCM WAV 文件。");
+    expect(submitAudioCommand).not.toHaveBeenCalled();
+  });
+
+  it("captures four seconds from the backend laptop microphone", async () => {
+    vi.mocked(submitMicrophoneCommand).mockResolvedValue(audioCommandResponse());
+    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /><LocationProbe /></MemoryRouter>);
+
+    await userEvent.click(screen.getByRole("tab", { name: "麦克风采集" }));
+    await userEvent.click(screen.getByRole("button", { name: "采集 4 秒语音" }));
+
+    await waitFor(() => expect(submitMicrophoneCommand).toHaveBeenCalledWith({
+      duration_seconds: 4,
+      speaker_zone: "driver",
+      speaker_role: "driver",
+    }, expect.any(AbortSignal)));
+    await waitFor(() => expect(screen.getByTestId("location").textContent).toBe("?turn_id=TURN_test"));
+    expect(screen.getAllByText("WINDOW_OPEN")).toHaveLength(2);
   });
 
   it("keeps the current turn_id when navigating among the three white pages", () => {

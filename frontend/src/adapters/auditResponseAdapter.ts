@@ -1,9 +1,8 @@
-import type { AuditDetailResponse, AuditVerificationResponse } from "../types/contract";
+import type { AuditDetailView, AuditVerificationResponse } from "../types/contract";
 import { array, boolean, nonEmptyString, number, record, string } from "./runtime";
 
 export interface AuditListViewItem {
-  auditId: string; turnId: string; createdAt: string; instructionSummary: string;
-  action: string; target: string; riskLevel: string; finalDecision: string; executionStatus: string;
+  auditId: string; createdAt: string; rawCommand: string; finalDecision: string; executionStatus: string; reviewOccurred: boolean;
 }
 export interface AuditListView { items: AuditListViewItem[]; total: number; page: number; pageSize: number; }
 
@@ -12,55 +11,28 @@ export function adaptAuditList(raw: unknown): AuditListView {
   const items = array(root.items, "audits.items");
   const adapted = items.map((value, index) => {
     const item = record(value, `audits.items[${index}]`);
-    for (const key of ["audit_id", "turn_id", "created_at", "instruction_summary", "execution_status"])
+    for (const key of ["audit_id", "created_at", "raw_command", "final_decision", "execution_status"])
       string(item[key], `audits.items[${index}].${key}`);
     const auditId = nonEmptyString(item.audit_id, `audits.items[${index}].audit_id`);
-    if ("decision" in item) {
-      for (const key of ["action", "target", "decision", "review_status", "authorization_status"])
-        string(item[key], `audits.items[${index}].${key}`);
-      record(item.integrity_summary, `audits.items[${index}].integrity_summary`);
-      return {
-        auditId,
-        turnId: nonEmptyString(item.turn_id, `audits.items[${index}].turn_id`),
-        createdAt: string(item.created_at, `audits.items[${index}].created_at`),
-        instructionSummary: string(item.instruction_summary, `audits.items[${index}].instruction_summary`),
-        action: string(item.action, `audits.items[${index}].action`),
-        target: string(item.target, `audits.items[${index}].target`),
-        riskLevel: "",
-        finalDecision: string(item.decision, `audits.items[${index}].decision`),
-        executionStatus: string(item.execution_status, `audits.items[${index}].execution_status`),
-      };
-    }
-    const finalDecision = record(item.final_decision, `audits.items[${index}].final_decision`);
-    string(finalDecision.final_decision, `audits.items[${index}].final_decision.final_decision`);
-    const semantic = record(item.semantic_frame, `audits.items[${index}].semantic_frame`);
-    const intents = array(semantic.intents, `audits.items[${index}].semantic_frame.intents`);
-    const firstIntent = intents.length ? record(intents[0], `audits.items[${index}].semantic_frame.intents[0]`) : null;
     return {
       auditId,
-      turnId: nonEmptyString(item.turn_id, `audits.items[${index}].turn_id`),
       createdAt: string(item.created_at, `audits.items[${index}].created_at`),
-      instructionSummary: string(item.instruction_summary, `audits.items[${index}].instruction_summary`),
-      action: firstIntent ? string(firstIntent.action, `audits.items[${index}].semantic_frame.intents[0].action`) : "",
-      target: firstIntent ? string(firstIntent.target, `audits.items[${index}].semantic_frame.intents[0].target`) : "",
-      riskLevel: firstIntent ? string(firstIntent.risk_level, `audits.items[${index}].semantic_frame.intents[0].risk_level`) : "",
-      finalDecision: string(finalDecision.final_decision, `audits.items[${index}].final_decision.final_decision`),
+      rawCommand: string(item.raw_command, `audits.items[${index}].raw_command`),
+      finalDecision: string(item.final_decision, `audits.items[${index}].final_decision`),
       executionStatus: string(item.execution_status, `audits.items[${index}].execution_status`),
+      reviewOccurred: boolean(item.review_occurred, `audits.items[${index}].review_occurred`),
     };
   });
   return { items: adapted, total: number(root.total, "audits.total"), page: number(root.page, "audits.page"), pageSize: number(root.page_size, "audits.page_size") };
 }
 
-export function adaptAuditDetail(raw: unknown): AuditDetailResponse {
+export function adaptAuditDetail(raw: unknown): AuditDetailView {
   const root = record(raw, "audit");
-  for (const key of ["audit_id", "turn_id", "created_at", "previous_hash", "record_hash"]) string(root[key], `audit.${key}`);
-  nonEmptyString(root.audit_id, "audit.audit_id");
-  for (const key of ["input_summary", "transcription", "semantic_frame", "evidence_demand", "retrieval_summary", "quality_metrics", "validation_result", "gate_result", "score_factors", "original_decision", "review_process", "final_decision", "authorization_status", "execution_status"])
+  for (const key of ["command_summary", "decision_summary", "llm_explanation", "authorization_summary", "execution_summary"])
     record(root[key], `audit.${key}`);
-  array(root.workflow_events, "audit.workflow_events");
-  boolean(root.audit_chain_valid, "audit.audit_chain_valid");
-  boolean(root.workflow_chain_valid, "audit.workflow_chain_valid");
-  return raw as AuditDetailResponse;
+  for (const key of ["resolved_operations", "key_evidence", "intent_decisions", "clarification_history", "execution_changes"])
+    array(root[key], `audit.${key}`);
+  return raw as AuditDetailView;
 }
 
 export function adaptAuditVerification(raw: unknown): AuditVerificationResponse {

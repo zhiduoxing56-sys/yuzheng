@@ -29,10 +29,11 @@ export interface RecallAuditRowView {
 
 export interface AuditRecordView {
   auditId: string;
-  turnId: string;
   createdAt: string;
-  rawText: EmptyDisplayValue;
-  semanticFrame: SemanticFrame | null;
+  rawCommand: string;
+  finalDecision: string;
+  executionStatus: string;
+  reviewOccurred: boolean;
 }
 
 export type CommandInputMode = "text" | "audio" | "microphone";
@@ -51,4 +52,3 @@ export interface DecisionResultView {
   score: EmptyDisplayValue;
   reason: EmptyDisplayValue;
 }
-import type { SemanticFrame } from "./contract";

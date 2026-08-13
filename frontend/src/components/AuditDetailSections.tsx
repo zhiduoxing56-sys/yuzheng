@@ -1,91 +1,91 @@
-import { Link } from "react-router-dom";
-import type { AuditDetailResponse } from "../types/contract";
-import { auditDecisionLabel, auditEventSummary, auditReviewActionLabel, booleanLabel, collectAuditRelatedTurns, collectAuditSecurityAlerts } from "../utils/auditMapper";
-import { sanitizeAuditExport } from "../utils/auditSanitizer";
-import { evidenceStatusLabel, formatDateTime, formatPercent } from "../utils/formatters";
-import { decisionPromotionReason, evidenceAlignmentLabel } from "../utils/decisionExplanation";
-import { executionStatusLabel } from "../utils/executionMapper";
+import type { AuditDetailView, AuditEvidenceFact, AuditSnapshotFact, AuditVehicleSnapshot } from "../types/contract";
+import { auditDecisionLabel, auditDecisionTone } from "../utils/auditMapper";
+import { formatDateTime } from "../utils/formatters";
 
 function AuditSection({ id, eyebrow, title, children }: { id: string; eyebrow: string; title: string; children: React.ReactNode }) {
   return <section id={id} className="audit-detail-section"><div className="audit-section-heading"><span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div>{children}</section>;
 }
 
+function visible(value: React.ReactNode) {
+  if (value === null || value === undefined || value === "") return false;
+  if (typeof value === "string" && ["unknown", "n/a", "not_applicable", "--"].includes(value.trim().toLowerCase())) return false;
+  return true;
+}
+
 function FactGrid({ items }: { items: Array<[string, React.ReactNode]> }) {
-  return <dl className="audit-fact-grid">{items.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value ?? "暂无数据"}</dd></div>)}</dl>;
+  const rendered = items.filter(([, value]) => visible(value));
+  return rendered.length ? <dl className="audit-fact-grid">{rendered.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl> : null;
 }
 
-function TagList({ values, empty = "暂无数据" }: { values: string[]; empty?: string }) {
-  return values.length ? <div className="audit-tag-list">{values.map((value, index) => <span key={`${index}:${value}`}>{value}</span>)}</div> : <p className="empty-copy">{empty}</p>;
+function valueWithUnit(item: AuditSnapshotFact | AuditEvidenceFact) {
+  return `${String(item.value)}${item.unit ? ` ${item.unit}` : ""}`;
 }
 
-export function AuditCommandSection({ data }: { data: AuditDetailResponse }) {
-  const input = data.input_summary;
-  const semantic = data.semantic_frame;
-  const intent = semantic.intents[0];
-  return <AuditSection id="audit-command" eyebrow="01 · COMMAND" title="指令理解">
-    <FactGrid items={[["输入方式", input.input_type === "audio" ? "音频" : "文本"], ["输入来源", input.input_source], ["原始识别文本", input.asr_raw_text], ["音频转写", data.transcription.transcribed_text || "暂无转写"], ["当前识别文本", input.normalized_text], ["发声位置", input.speaker_zone], ["说话人角色", input.speaker_role], ["动作", intent?.action], ["目标对象", intent?.target], ["区域 / 参数", `${intent?.area || "暂无"} / ${intent?.value || "暂无"}`], ["风险等级", intent?.risk_level], ["语义可信度", formatPercent(semantic.semantic_confidence)], ["语义歧义", formatPercent(semantic.ambiguity_score)]]} />
-    <details className="audit-raw-details"><summary>安全信号</summary><pre>{JSON.stringify(sanitizeAuditExport(semantic.security_signals), null, 2)}</pre></details>
+function SnapshotFacts({ facts }: { facts: AuditSnapshotFact[] }) {
+  return facts.length ? <dl className="audit-snapshot-facts">{facts.map((fact) => <div key={fact.key}><dt>{fact.label}</dt><dd>{valueWithUnit(fact)}{fact.source && <small>来源：{fact.source}</small>}</dd></div>)}</dl> : <p className="empty-copy">本次审计没有可可靠展示的现场字段。</p>;
+}
+
+function SnapshotCard({ snapshot, compact = false }: { snapshot: AuditVehicleSnapshot; compact?: boolean }) {
+  return <div className={compact ? "audit-snapshot-card compact" : "audit-snapshot-card"}>
+    <p className="audit-snapshot-meta">{formatDateTime(snapshot.captured_at)} · {snapshot.source}</p>
+    <div className="audit-snapshot-columns"><div><h3>车辆状态</h3><SnapshotFacts facts={snapshot.vehicle_state} /></div><div><h3>车外环境</h3><SnapshotFacts facts={snapshot.environment_state} /></div></div>
+    {snapshot.sensor_summary.length > 0 && <div className="audit-sensor-summary"><h3>传感器来源</h3>{snapshot.sensor_summary.map((sensor) => <span key={sensor.sensor}>{sensor.sensor} · 可用</span>)}</div>}
+  </div>;
+}
+
+export function AuditCommandSection({ data }: { data: AuditDetailView }) {
+  const summary = data.command_summary;
+  return <AuditSection id="audit-command" eyebrow="01 · COMMAND" title="指令与最终结果">
+    <div className="audit-command-hero"><div><span>原始指令</span><strong>{summary.raw_command}</strong></div><div><span>最终裁决</span><strong className={`status-${auditDecisionTone(summary.final_decision)}`}>{auditDecisionLabel(summary.final_decision)}</strong></div><div><span>执行结果</span><strong>{summary.execution_status}</strong></div></div>
+    <FactGrid items={[["输入方式", summary.input_type === "audio" ? "语音" : "文本"], ["时间", formatDateTime(summary.occurred_at)]]} />
   </AuditSection>;
 }
 
-export function AuditEvidenceSection({ data }: { data: AuditDetailResponse }) {
-  const demand = data.evidence_demand;
-  const demandItems = demand.intent_demands.flatMap((item) => item.demand_items);
-  const requiredEvidenceCount = demand.intent_demands.reduce((count, item) => count + item.required_types.length, 0);
-  const conflictCount = data.validation_result.conflicts.length;
-  const cited = data.decision_explanation?.evidence_citations || [];
-  return <AuditSection id="audit-evidence" eyebrow="02 · EVIDENCE" title="证据核对">
-    <div className="audit-evidence-summary"><div><span>候选证据</span><strong>{data.retrieval_summary.candidate_count}</strong></div><div><span>必需类型</span><strong>{requiredEvidenceCount}</strong></div><div><span>缺失类型</span><strong>{data.retrieval_summary.missing_types.length}</strong></div><div><span>冲突记录</span><strong>{conflictCount}</strong></div><div><span>覆盖率 ECR</span><strong>{formatPercent(data.quality_metrics.ecr)}</strong></div></div>
-    <div className="audit-split"><div><h3>证据需求状态</h3><div className="audit-demand-list">{demandItems.map((item) => <div key={`${item.evidence_type}:${item.required}`}><strong>{item.evidence_type}</strong><span className={`status-badge evidence-${item.status.toLowerCase()}`}>{evidenceStatusLabel(item.status)}</span><small>{item.reason}</small></div>)}</div></div><div><h3>实际召回证据</h3><div className="audit-citation-list">{data.retrieval_summary.candidates.map((item) => <Link key={item.node_id} to={`/evidence/${encodeURIComponent(data.turn_id)}`} title="进入当前轮次证据页"><strong>{item.display_name || item.evidence_type}</strong><code>{item.node_id}</code><span>{item.quality_label} · {item.retrieval_origin}</span></Link>)}</div></div></div>
-    <div className="audit-split"><div><h3>缺失与强制召回</h3><p>缺失证据</p><TagList values={data.retrieval_summary.missing_types} empty="无缺失证据" /><p>强制补充节点</p><TagList values={data.retrieval_summary.mandatory_supplemented_node_ids} empty="无强制补充节点" /></div><div><h3>关键裁决引用</h3>{cited.length ? <div className="audit-citation-list">{cited.map((item) => <Link key={item.node_id} to={`/evidence/${encodeURIComponent(data.turn_id)}`}><code>{item.node_id}</code><span>{item.reason}</span></Link>)}</div> : <p className="empty-copy">后端未返回节点级裁决引用。</p>}</div></div>
+export function AuditUnderstandingSection({ data }: { data: AuditDetailView }) {
+  return <AuditSection id="audit-understanding" eyebrow="02 · UNDERSTANDING" title="系统理解">
+    {data.resolved_operations.length ? <div className="audit-operation-list">{data.resolved_operations.map((operation, index) => <article key={`${index}:${operation.operation}`}><strong>{operation.operation}</strong><FactGrid items={[["位置", operation.position], ["参数 / 模式", operation.value]]} /></article>)}</div> : <p className="empty-copy">本次没有形成可确认的控制操作。</p>}
   </AuditSection>;
 }
 
-function ScoreBar({ label, value, risk = false }: { label: string; value?: number | null; risk?: boolean }) {
-  const width = value === null || value === undefined ? 0 : Math.max(0, Math.min(100, value * 100));
-  return <div className={`audit-score-row ${risk ? "risk" : ""}`}><span>{label}</span><div><i style={{ width: `${width}%` }} /></div><strong>{formatPercent(value)}</strong></div>;
-}
-
-export function AuditDecisionSection({ data }: { data: AuditDetailResponse }) {
-  const score = data.score_factors;
-  const decision = data.final_decision;
-  const requiredEvidenceCount = data.evidence_demand.intent_demands.reduce((count, item) => count + item.required_types.length, 0);
-  const promotionReason = decisionPromotionReason({ scoreDecision: decision.score_decision, finalDecision: decision.final_decision, gateBlocked: data.gate_result.blocked, requiredEvidenceCount, evidenceAlignmentRoute: data.quality_metrics.evidence_alignment_route, decisionSources: decision.decision_sources });
-  return <AuditSection id="audit-decision" eyebrow="03 · DECISION" title="决策依据">
-    <div className="audit-score-list"><ScoreBar label="语义清晰度" value={score.semantic_clarity} /><ScoreBar label="证据覆盖支持" value={score.evidence_support} /><ScoreBar label="证据可信度" value={score.evidence_trust} /><ScoreBar label="越狱风险" value={data.validation_result.jailbreak_risk} risk /><ScoreBar label="场景必要性" value={score.scene_necessity} /><ScoreBar label="安全评分" value={score.safety_score} /></div>
-    <div className="decision-judgement-grid"><div><span>评分判断</span><strong>{auditDecisionLabel(decision.score_decision)}</strong></div><div><span>证据对齐判断</span><strong>{evidenceAlignmentLabel(requiredEvidenceCount, data.quality_metrics.evidence_alignment_route)}</strong></div><div><span>最终裁决</span><strong>{auditDecisionLabel(decision.final_decision)}</strong></div></div>
-    <p className="decision-explanation">{promotionReason}</p>
-    <div className="audit-split"><div><h3>安全门</h3><p className={data.gate_result.blocked ? "audit-danger-copy" : "audit-success-copy"}>{data.gate_result.blocked ? "安全门阻断" : "安全门通过"}</p><ul className="audit-rule-list">{data.gate_result.checks.map((check) => <li key={check.rule_id} className={check.hit ? "hit" : ""}><strong>{check.rule_name}</strong><span>{check.hit ? "命中" : "未命中"} · {check.severity}</span><p>{check.reason}</p></li>)}</ul></div><div><h3>结构化结论</h3><p className="audit-final-decision">{auditDecisionLabel(decision.final_decision)}</p><p>{promotionReason}</p><details className="audit-raw-details"><summary>技术详情</summary><p>{decision.explanation}</p><p><code>{decision.decision_merge_reason}</code></p><TagList values={decision.reasons} empty="后端未返回裁决理由" />{data.decision_explanation && <><p>{data.decision_explanation.summary}</p><ul>{data.decision_explanation.decision_basis.map((item, index) => <li key={`${index}:${item}`}>{item}</li>)}</ul></>}</details></div></div>
+export function AuditSnapshotSection({ data }: { data: AuditDetailView }) {
+  return <AuditSection id="audit-snapshot" eyebrow="03 · SNAPSHOT" title="裁决时车辆现场">
+    {data.decision_snapshot ? <SnapshotCard snapshot={data.decision_snapshot} /> : <p className="empty-copy">历史记录未保存可可靠投影的裁决现场；系统未读取当前车辆状态补写。</p>}
   </AuditSection>;
 }
 
-export function AuditSecurityAlertSection({ data }: { data: AuditDetailResponse }) {
-  const alerts = collectAuditSecurityAlerts(data);
-  if (!alerts.length) return null;
-  return <AuditSection id="audit-security" eyebrow="04 · ALERT" title="安全告警"><div className="audit-alert-list">{alerts.map((alert) => <article key={alert.key}><strong>{alert.title}</strong><p>{alert.detail}</p></article>)}</div></AuditSection>;
+function EvidenceList({ facts }: { facts: AuditEvidenceFact[] }) {
+  return facts.length ? <ul className="audit-human-evidence">{facts.map((fact, index) => <li key={`${index}:${fact.label}:${fact.value}`}><strong>{fact.label}</strong><span>{valueWithUnit(fact)}</span>{fact.source && <small>来源：{fact.source}</small>}</li>)}</ul> : <p className="empty-copy">没有可独立展示的关键证据字段。</p>;
 }
 
-export function AuditReviewSection({ data }: { data: AuditDetailResponse }) {
-  const review = data.review_process;
-  return <AuditSection id="audit-review" eyebrow="05 · REVIEW" title="复核记录"><FactGrid items={[["复核状态", review.status], ["复核动作", auditReviewActionLabel(review.user_action)], ["原始指令", review.original_instruction], ["修正文本", review.corrected_text || "未修正"], ["复核轮次", review.review_turn_id || "暂无"], ["复核后裁决", auditDecisionLabel(review.review_result)], ["终态来源", data.effective_outcome?.source || "原始裁决"], ["终态审计记录", data.effective_outcome?.terminal_audit_id || "无子审计记录"]]} />{review.candidate_interpretations.length > 0 && <details className="audit-raw-details"><summary>持久化候选解释（{review.candidate_interpretations.length}）</summary><ul>{review.candidate_interpretations.map((candidate) => <li key={candidate.candidate_id}>{candidate.canonical_text}（{candidate.action} / {candidate.target}）</li>)}</ul></details>}</AuditSection>;
+export function AuditDecisionSection({ data }: { data: AuditDetailView }) {
+  const decision = data.decision_summary;
+  return <AuditSection id="audit-decision" eyebrow="04 · DECISION" title="裁决依据与 AI 说明">
+    <div className="audit-machine-facts"><h3>系统裁决依据</h3><p className={`audit-final-decision status-${auditDecisionTone(decision.final_decision)}`}>{auditDecisionLabel(decision.final_decision)}</p><FactGrid items={[["整体安全裁决", decision.aggregate_safety_decision && auditDecisionLabel(decision.aggregate_safety_decision)]]} />
+      {decision.hit_rules.length > 0 && <div><h4>命中安全规则</h4><div className="audit-tag-list">{decision.hit_rules.map((rule) => <span key={rule}>{rule}</span>)}</div></div>}
+      {decision.reason_codes.length > 0 && <div><h4>机器结构化原因</h4><div className="audit-tag-list">{decision.reason_codes.map((reason) => <span key={reason}>{reason}</span>)}</div></div>}
+      <h4>关键证据</h4><EvidenceList facts={data.key_evidence} />
+      {data.intent_decisions.length > 0 && <div className="audit-intent-decisions">{data.intent_decisions.map((item, index) => <article key={`${index}:${item.operation}`}><h4>{item.operation}</h4><strong className={`status-${auditDecisionTone(item.decision)}`}>{auditDecisionLabel(item.decision)}</strong>{item.reasons.length > 0 && <p>{item.reasons.join("；")}</p>}<EvidenceList facts={item.key_evidence} /></article>)}</div>}
+    </div>
+    <div className="audit-ai-explanation"><h3>AI 裁决说明</h3>{data.llm_explanation.status === "PENDING" ? <p>AI 裁决说明生成中…</p> : data.llm_explanation.status === "AVAILABLE" && data.llm_explanation.text ? <p>{data.llm_explanation.text}</p> : <p>AI 裁决说明暂不可用</p>}<small>该说明仅解释上方结构化事实，不能修改系统裁决。</small></div>
+  </AuditSection>;
 }
 
-export function AuditAuthorizationSection({ data }: { data: AuditDetailResponse }) {
-  const authorization = data.authorization_status;
-  return <AuditSection id="audit-authorization" eyebrow="06 · AUTHORIZATION" title="授权记录"><p className="token-security-note">安全说明：本页从不展示、复制或存储原始授权令牌。</p><FactGrid items={[["是否签发授权", booleanLabel(authorization.token_issued)], ["授权状态", authorization.token_status || "未签发"], ["过期时间", formatDateTime(authorization.expires_at)], ["是否已消费", booleanLabel(authorization.consumed)], ["当前允许执行", booleanLabel(authorization.execution_allowed)]]} /></AuditSection>;
+export function AuditReviewSection({ data }: { data: AuditDetailView }) {
+  return <AuditSection id="audit-review" eyebrow="05 · REVIEW" title="用户复核记录">
+    {data.clarification_history.length === 0 ? <p className="empty-copy">本次无用户复核</p> : data.clarification_history.map((item, index) => <article className="audit-clarification-history" key={`${index}:${item.original_text}`}>
+      <FactGrid items={[["原始输入", item.original_text], ["系统询问", item.question], ["用户选择", item.resolution === "NONE_OF_ABOVE" ? "都不是，再说一次" : item.selected_candidate], ["确认后操作", item.confirmed_operation], ["处理结果", item.command_terminated ? "本次指令终止" : item.resolution === "SELECTED" ? "用户已确认" : "等待用户选择"], ["确认后关联审计", item.child_turn_available ? "已产生" : null], ["确认后裁决", item.child_decision ? auditDecisionLabel(item.child_decision) : null]]} />
+      {item.review_reasons.length > 0 && <p>进入 REVIEW：{item.review_reasons.join("；")}</p>}
+      {item.shown_candidates.length > 0 && <div><h3>系统当时展示的候选</h3><ol>{item.shown_candidates.map((candidate, candidateIndex) => <li key={`${candidateIndex}:${candidate.display_text}`}>{candidate.display_text}</li>)}</ol></div>}
+    </article>)}
+  </AuditSection>;
 }
 
-export function AuditExecutionSection({ data }: { data: AuditDetailResponse }) {
-  const execution = data.execution_status;
-  return <AuditSection id="audit-execution" eyebrow="07 · EXECUTION" title="执行结果"><FactGrid items={[["请求状态", execution.request_status], ["执行状态", executionStatusLabel(execution.execution_status)], ["执行动作", execution.action || "尚未执行"], ["执行目标", execution.target || "尚未执行"], ["执行环境 / 适配器", execution.adapter || "暂无"], ["执行时间", formatDateTime(execution.created_at)], ["执行结果", execution.result || "尚未执行"], ["失败原因", execution.failure_reason || "无"]]} /></AuditSection>;
-}
-
-export function AuditRelationSection({ data }: { data: AuditDetailResponse }) {
-  const turns = collectAuditRelatedTurns(data);
-  return <AuditSection id="audit-relations" eyebrow="08 · RELATIONS" title="关联轮次"><div className="audit-relation-list">{turns.map((item) => <article key={item.turnId}><div><strong>{item.turnId}</strong><span>{item.roles.join("、")}</span></div><nav><Link to="/decision">实时裁决</Link><Link to={`/evidence/${encodeURIComponent(item.turnId)}`}>分层证据</Link><Link to={`/review/${encodeURIComponent(item.turnId)}`}>复核与执行状态</Link></nav></article>)}</div>{data.effective_outcome && <p className="readonly-turn-banner">原始轮次仅作为来源记录只读保留；终态审计为 {data.effective_outcome.terminal_audit_id}。</p>}</AuditSection>;
-}
-
-export function AuditTimelineSection({ data }: { data: AuditDetailResponse }) {
-  const events = [...data.workflow_events].sort((a, b) => a.sequence_no - b.sequence_no || Date.parse(a.created_at) - Date.parse(b.created_at));
-  return <AuditSection id="audit-timeline" eyebrow="09 · TIMELINE" title="工作流时间线">{events.length ? <ol className="audit-timeline">{events.map((event) => <li key={event.event_id}><span>{event.sequence_no}</span><div><strong>{event.event_type}</strong><p>{auditEventSummary(event)}</p><small>{formatDateTime(event.created_at)} · 轮次 {event.related_turn_id || event.root_turn_id}</small><details><summary>查看已脱敏原始载荷</summary><pre>{JSON.stringify(sanitizeAuditExport(event.payload), null, 2)}</pre></details></div></li>)}</ol> : <p className="empty-copy">审计详情未返回工作流事件，不补造时间线。</p>}</AuditSection>;
+export function AuditExecutionSection({ data }: { data: AuditDetailView }) {
+  const authorization = data.authorization_summary;
+  const execution = data.execution_summary;
+  return <AuditSection id="audit-execution" eyebrow="06 · EXECUTION" title="授权 / 执行 / CARLA 回执">
+    <FactGrid items={[["授权状态", authorization.authorized ? "已授权" : "未授权"], ["执行状态", execution.status], ["执行适配器", execution.adapter], ["执行时间", formatDateTime(execution.executed_at)], ["执行反馈", execution.feedback], ["失败原因", execution.failure_reason]]} />
+    {(data.execution_before_snapshot || data.execution_after_snapshot) && <div className="audit-execution-snapshots">{data.execution_before_snapshot && <div><h3>执行前</h3><SnapshotCard snapshot={data.execution_before_snapshot} compact /></div>}{data.execution_after_snapshot && <div><h3>执行后</h3><SnapshotCard snapshot={data.execution_after_snapshot} compact /></div>}</div>}
+    {data.execution_changes.length > 0 && <div className="audit-execution-changes"><h3>状态变化</h3>{data.execution_changes.map((change) => <div key={change.key}><strong>{change.label}</strong><span>{String(change.before)}{change.unit ? ` ${change.unit}` : ""} → {String(change.after)}{change.unit ? ` ${change.unit}` : ""}</span>{change.delta !== null && change.delta !== undefined && <small>变化 {change.delta > 0 ? "+" : ""}{change.delta}{change.unit ? ` ${change.unit}` : ""}</small>}</div>)}</div>}
+  </AuditSection>;
 }

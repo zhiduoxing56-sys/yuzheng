@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { listAuditRecords } from "../api/auditRecords";
+import { AuditDetailDialog } from "../components/AuditDetailDialog";
 import { AuditRecordTable } from "../components/AuditRecordTable";
-import { AuditSemanticFrameDialog } from "../components/AuditSemanticFrameDialog";
-import type { SemanticFrame } from "../types/contract";
 import type { AuditRecordView } from "../types/visualModels";
 
 type AuditLoadState = "loading" | "success" | "empty" | "error";
@@ -22,13 +21,13 @@ function mapAuditRecords(payload: unknown): AuditRecordView[] {
 
   return payload.items.map((item, index) => {
     if (!isRecord(item)) throw new Error(`审计列表第 ${index + 1} 条记录格式无效`);
-    const semanticFrame = isRecord(item.semantic_frame) ? item.semantic_frame as unknown as SemanticFrame : null;
     return {
       auditId: requiredString(item.audit_id, "audit_id"),
-      turnId: requiredString(item.turn_id, "turn_id"),
       createdAt: requiredString(item.created_at, "created_at"),
-      rawText: semanticFrame && typeof semanticFrame.raw_text === "string" ? semanticFrame.raw_text : null,
-      semanticFrame,
+      rawCommand: requiredString(item.raw_command, "raw_command"),
+      finalDecision: requiredString(item.final_decision, "final_decision"),
+      executionStatus: requiredString(item.execution_status, "execution_status"),
+      reviewOccurred: item.review_occurred === true,
     };
   });
 }
@@ -38,7 +37,7 @@ export function AuditsPage() {
   const [loadState, setLoadState] = useState<AuditLoadState>("loading");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedFrame, setSelectedFrame] = useState<SemanticFrame | null>(null);
+  const [selectedAuditId, setSelectedAuditId] = useState<string | null>(null);
   const activeControllerRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
   const inFlightRef = useRef(false);
@@ -84,8 +83,7 @@ export function AuditsPage() {
     };
   }, [loadAudits]);
 
-  const handleRecordClick = useCallback((_record: AuditRecordView) => {}, []);
-  const handleSemanticFrameClick = useCallback((record: AuditRecordView) => setSelectedFrame(record.semanticFrame), []);
+  const handleRecordClick = useCallback((record: AuditRecordView) => setSelectedAuditId(record.auditId), []);
 
   return <div className="visual-page-frame audit-records-page">
     <header className="audit-records-header"><h1 className="visual-gradient-title">审计记录</h1><button type="button" className={loading ? "is-refreshing" : ""} aria-label="刷新审计记录" disabled={loading} onClick={loadAudits}>{loading ? "加载中" : "刷新"}</button></header>
@@ -93,7 +91,7 @@ export function AuditsPage() {
     {loadState === "empty" && <p className="audit-records-status" role="status">暂无审计记录</p>}
     {loadState === "error" && <p className="audit-records-status is-error" role="alert">审计记录加载失败：{error || "请稍后重试"}</p>}
     {error && loadState !== "error" && <p className="audit-records-status is-error" role="alert">刷新失败：{error}</p>}
-    {loadState !== "error" && <AuditRecordTable records={records} onRecordClick={handleRecordClick} onSemanticFrameClick={handleSemanticFrameClick} />}
-    <AuditSemanticFrameDialog frame={selectedFrame} onClose={() => setSelectedFrame(null)} />
+    {loadState !== "error" && <AuditRecordTable records={records} onRecordClick={handleRecordClick} />}
+    <AuditDetailDialog auditId={selectedAuditId} onClose={() => setSelectedAuditId(null)} />
   </div>;
 }

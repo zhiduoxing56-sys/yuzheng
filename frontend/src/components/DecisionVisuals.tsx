@@ -34,13 +34,13 @@ export function CommandInputSwitcher(props: CommandInputSwitcherProps) {
       {props.mode === "text" && <textarea aria-label="文本指令" value={props.text} onChange={(event) => props.onTextChange(event.target.value)} />}
       {props.mode === "audio" && <button className="decision-file-picker" type="button" onClick={() => fileInputRef.current?.click()}>
         <span>{props.audioFileName || "选择音频文件"}</span>
-        <input ref={fileInputRef} type="file" accept="audio/*" onChange={(event) => props.onAudioChange(event.target.files?.[0] || null)} />
+        <input ref={fileInputRef} aria-label="WAV 音频文件" type="file" accept=".wav,audio/wav,audio/x-wav" onChange={(event) => props.onAudioChange(event.target.files?.[0] || null)} />
       </button>}
-      {props.mode === "microphone" && <button className={`decision-microphone-control${props.recording ? " is-recording" : ""}`} type="button" aria-pressed={props.recording} onClick={props.onRecordingToggle}>
-        <span aria-hidden="true" className="microphone-symbol" /><strong>{props.recording ? "停止采集" : "开始采集"}</strong>
+      {props.mode === "microphone" && <button className={`decision-microphone-control${props.recording ? " is-recording" : ""}`} type="button" aria-pressed={props.recording} disabled={props.busy} onClick={props.onRecordingToggle}>
+        <span aria-hidden="true" className="microphone-symbol" /><strong>{props.recording ? "本机麦克风采集中…" : "采集 4 秒语音"}</strong>
       </button>}
     </div>
-    <button className="decision-submit-button" type="button" disabled={props.busy} onClick={props.onSubmit}>{props.busy ? "处理中…" : "提交/上传"}</button>
+    {props.mode !== "microphone" && <button className="decision-submit-button" type="button" disabled={props.busy} onClick={props.onSubmit}>{props.busy ? "处理中…" : props.mode === "audio" ? "上传 WAV" : "提交指令"}</button>}
     {props.feedback && <p className={`decision-input-feedback${props.hasError ? " is-error" : ""}`} role={props.hasError ? "alert" : "status"}>{props.feedback}</p>}
   </section>;
 }

@@ -4,8 +4,6 @@ import { adaptTimeline, adaptWorkflowStatus } from "../adapters/workflowResponse
 import { getAudit } from "../api/audits";
 import { getTurnEvidence } from "../api/evidence";
 import { getTurnPresentation, getTurnTimelineSummary, getTurnWorkflowStatus } from "../api/turns";
-import type { AuditDetailResponse } from "../types/contract";
-import { containsRawAuditSecretField, sanitizeAuditForDisplay } from "../utils/auditSanitizer";
 import { readCache, readKeys } from "./readCache";
 
 export function prefetchPresentation(turnId: string): void {
@@ -26,9 +24,6 @@ export function prefetchReview(turnId: string): void {
 export function prefetchAudit(auditId: string): void {
   readCache.prefetch(readKeys.audit(auditId), async (signal) => {
     const adapted = adaptAuditDetail(await getAudit(auditId, signal));
-    return {
-      sensitiveFieldsRemoved: containsRawAuditSecretField(adapted),
-      data: sanitizeAuditForDisplay(adapted) as AuditDetailResponse,
-    };
+    return { data: adapted };
   }, 30_000);
 }

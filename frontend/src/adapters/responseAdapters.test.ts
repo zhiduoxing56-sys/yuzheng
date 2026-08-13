@@ -24,7 +24,7 @@ function presentation(decision = "PASS", reviewStatus = "NOT_REQUIRED", candidat
 }
 
 function auditDetail() {
-  return { audit_id: "AUD_test", turn_id: "TURN_test", created_at: "2026-08-04T00:00:00Z", previous_hash: "p", record_hash: "r", input_summary: {}, transcription: {}, semantic_frame: {}, evidence_demand: {}, retrieval_summary: {}, quality_metrics: {}, validation_result: {}, gate_result: {}, score_factors: {}, original_decision: {}, review_process: {}, final_decision: {}, authorization_status: {}, execution_status: {}, workflow_events: [], audit_chain_valid: true, workflow_chain_valid: true };
+  return { command_summary: { raw_command: "测试", input_type: "text", occurred_at: "2026-08-04T00:00:00Z", final_decision: "PASS", execution_status: "NOT_EXECUTED" }, resolved_operations: [], decision_snapshot: null, decision_summary: { final_decision: "PASS", hit_rules: [], reason_codes: [], reasons: [] }, key_evidence: [], intent_decisions: [], llm_explanation: { status: "FAILED" }, clarification_history: [], authorization_summary: { status: "NOT_AUTHORIZED", authorized: false }, execution_summary: { status: "NOT_EXECUTED" }, execution_before_snapshot: null, execution_after_snapshot: null, execution_changes: [] };
 }
 
 describe("command response adapters", () => {
@@ -71,20 +71,15 @@ describe("presentation adapter", () => {
 });
 
 describe("audit adapters", () => {
-  it("adapts compact audit rows without requiring full decisions", () => {
-    const raw = { items: [{ audit_id: "AUD_compact", turn_id: "TURN_test", created_at: "2026-08-04T00:00:00Z", instruction_summary: "测试", action: "close", target: "door", decision: "PASS", review_status: "NOT_REQUIRED", authorization_status: "NOT_ISSUED", execution_status: "NOT_EXECUTED", integrity_summary: { record_hash: "hash", verification_status: "NOT_CHECKED" } }], total: 1, page: 1, page_size: 20 };
-    expect(adaptAuditList(raw).items[0]).toMatchObject({ auditId: "AUD_compact", finalDecision: "PASS", action: "close" });
-  });
-
-  it.each(["PASS", "CANCEL"])("flattens a %s audit list item", (decision) => {
-    const raw = { items: [{ audit_id: `AUD_${decision}`, turn_id: "TURN_test", created_at: "2026-08-04T00:00:00Z", instruction_summary: "测试", execution_status: decision === "CANCEL" ? "CANCELLED" : "NOT_EXECUTED", final_decision: { final_decision: decision }, semantic_frame: { intents: [{ action: "close", target: "door", risk_level: "LOW" }] } }], total: 1, page: 1, page_size: 20 };
+  it.each(["PASS", "BLOCK"])("adapts a %s human-readable audit row", (decision) => {
+    const raw = { items: [{ audit_id: `AUD_${decision}`, created_at: "2026-08-04T00:00:00Z", raw_command: "测试", execution_status: "NOT_EXECUTED", final_decision: decision, review_occurred: false }], total: 1, page: 1, page_size: 20 };
     const item = adaptAuditList(raw).items[0];
-    expect(item.action).toBe("close");
+    expect(item.rawCommand).toBe("测试");
     expect(item.finalDecision).toBe(decision);
   });
 
   it("accepts audit detail without optional outcome fields", () => {
-    expect(adaptAuditDetail(auditDetail()).audit_id).toBe("AUD_test");
+    expect(adaptAuditDetail(auditDetail()).command_summary.raw_command).toBe("测试");
   });
 
   it("normalizes real validity and fixed boolean-map responses", () => {

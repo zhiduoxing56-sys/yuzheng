@@ -535,6 +535,26 @@ export interface ReviewCandidate {
   validation_status: "VALID" | "INVALID";
 }
 
+export type ClarificationType = "VOICE_CONFIRMATION" | "SEMANTIC_CONFIRMATION";
+export type ClarificationCandidateSource = "ASR_NBEST" | "TEXT_SIMILARITY" | "SEMANTIC_REVIEW_CANDIDATE" | "SLOT_COMPLETION";
+
+export interface ClarificationCandidate {
+  candidate_id: string;
+  display_text: string;
+  candidate_source: ClarificationCandidateSource;
+  source_rank: number;
+  confidence: number | null;
+}
+
+export interface ClarificationRequest {
+  clarification_id: string;
+  turn_id: string;
+  clarification_type: ClarificationType;
+  prompt: string;
+  original_text: string;
+  candidates: ClarificationCandidate[];
+}
+
 export interface TurnPresentationResponse {
   turn_id: string;
   created_at: string;
@@ -585,6 +605,7 @@ export interface TurnPresentationResponse {
     workflow_chain_valid: boolean;
     workflow_event_count: number;
   };
+  clarification_request?: ClarificationRequest | null;
 }
 
 export interface CausalPriorComponents {
@@ -637,6 +658,7 @@ export interface TextCommandResponse {
   decision: ReviewDecisionResult;
   semantic_frame: SemanticFrame;
   evidence_demand: EvidenceDemandPresentation;
+  clarification_request?: ClarificationRequest | null;
   [key: string]: unknown;
 }
 
@@ -654,6 +676,21 @@ export interface AudioCommandResponse {
   accepted: boolean;
   input_type: "audio";
   websocket_channel?: string | null;
+  clarification_request?: ClarificationRequest | null;
+}
+
+export type ClarificationSubmission =
+  | { clarification_id: string; candidate_id: string }
+  | { clarification_id: string; resolution: "NONE_OF_ABOVE" };
+
+export interface ClarificationSubmissionResponse {
+  clarification_id: string;
+  source_turn_id: string;
+  resolution: "SELECTED" | "NONE_OF_ABOVE";
+  selected_candidate_id: string | null;
+  selected_candidate_text: string | null;
+  child_turn_id: string | null;
+  command_result: TextCommandResponse | null;
 }
 
 export type ReviewSubmission =
@@ -734,14 +771,11 @@ export interface ExecuteResult {
 
 export interface AuditListItem {
   audit_id: string;
-  turn_id: string;
   created_at: string;
-  instruction_summary: string;
-  initial_decision: DecisionLabel;
-  original_decision: DecisionLabel;
-  final_decision: ReviewDecisionResult;
+  raw_command: string;
+  final_decision: DecisionLabel;
   execution_status: string;
-  semantic_frame: SemanticFrame;
+  review_occurred: boolean;
 }
 
 export interface AuditListResponse {
@@ -767,75 +801,23 @@ export interface TranscriptionResult {
   created_at: string;
 }
 
-export interface OriginalDecisionAuditView {
-  audit_id: string;
-  score_decision: DecisionLabel;
-  final_decision: DecisionLabel;
-  record_hash: string;
-}
-
-export interface EffectiveOutcomeAuditView {
-  final_decision: DecisionLabel;
-  source: string;
-  review_action: ReviewAction;
-  terminal_audit_id: string;
-  terminal_record_hash: string;
-  created_at: string;
-  token_issued: false;
-  execution_allowed: false;
-}
-
-export interface AuthorizationPresentation {
-  token_issued: boolean;
-  token_status?: string | null;
-  expires_at?: string | null;
-  consumed: boolean;
-  execution_allowed: boolean;
-}
-
-export interface ExecutionPresentation {
-  adapter?: string | null;
-  request_status: string;
-  execution_status: string;
-  action?: string | null;
-  target?: string | null;
-  result?: string | null;
-  failure_reason?: string | null;
-  created_at?: string | null;
-}
-
-export interface AuditDetailResponse {
-  audit_id: string;
-  turn_id: string;
-  created_at: string;
-  input_summary: InputPresentation;
-  voice_trust: Record<string, unknown>;
-  transcription: TranscriptionResult;
-  semantic_frame: SemanticFrame;
-  evidence_demand: EvidenceDemandPresentation;
-  retrieval_summary: RetrievalSummary;
-  mandatory_recall: Record<string, unknown>[];
-  evidence_graph_summary: Record<string, unknown>;
-  quality_metrics: QualityMetricsPresentation;
-  memory: Record<string, unknown>;
-  causal: Record<string, unknown>;
-  validation_result: ValidationResultPresentation;
-  gate_result: GateResultPresentation;
-  score_factors: ScoreResultPresentation;
-  initial_decision: DecisionLabel;
-  original_decision: OriginalDecisionAuditView;
-  effective_outcome?: EffectiveOutcomeAuditView | null;
-  review_process: ReviewPresentation;
-  final_decision: DecisionResultPresentation;
-  decision_explanation?: DecisionExplanation | null;
-  generation_metadata?: Record<string, unknown> | null;
-  authorization_status: AuthorizationPresentation;
-  execution_status: ExecutionPresentation;
-  workflow_events: WorkflowEvent[];
-  previous_hash: string;
-  record_hash: string;
-  audit_chain_valid: boolean;
-  workflow_chain_valid: boolean;
+export interface AuditSnapshotFact { key: string; label: string; value: string | number | boolean; unit?: string | null; source?: string | null; }
+export interface AuditVehicleSnapshot { captured_at: string; source: string; vehicle_state: AuditSnapshotFact[]; environment_state: AuditSnapshotFact[]; sensor_summary: Array<{ sensor: string; status: "AVAILABLE"; source?: string | null }>; }
+export interface AuditEvidenceFact { label: string; value: string | number | boolean; unit?: string | null; source?: string | null; }
+export interface AuditDetailView {
+  command_summary: { raw_command: string; input_type: "text" | "audio"; occurred_at: string; final_decision: DecisionLabel; execution_status: string; };
+  resolved_operations: Array<{ operation: string; position?: string | null; value?: string | number | boolean | null }>;
+  decision_snapshot?: AuditVehicleSnapshot | null;
+  decision_summary: { final_decision: DecisionLabel; aggregate_safety_decision?: DecisionLabel | null; hit_rules: string[]; reason_codes: string[]; reasons: string[]; };
+  key_evidence: AuditEvidenceFact[];
+  intent_decisions: Array<{ operation: string; decision: DecisionLabel; reasons: string[]; hit_rules: string[]; key_evidence: AuditEvidenceFact[] }>;
+  llm_explanation: { status: "PENDING" | "AVAILABLE" | "FAILED"; text?: string | null; generated_at?: string | null; };
+  clarification_history: Array<{ original_text: string; question?: string | null; review_reasons: string[]; shown_candidates: Array<{ display_text: string }>; resolution: "PENDING" | "SELECTED" | "NONE_OF_ABOVE"; selected_candidate?: string | null; confirmed_operation?: string | null; command_terminated: boolean; child_turn_available: boolean; child_decision?: DecisionLabel | null; }>;
+  authorization_summary: { status: string; authorized: boolean };
+  execution_summary: { status: string; adapter?: string | null; feedback?: string | null; failure_reason?: string | null; executed_at?: string | null; };
+  execution_before_snapshot?: AuditVehicleSnapshot | null;
+  execution_after_snapshot?: AuditVehicleSnapshot | null;
+  execution_changes: Array<{ key: string; label: string; before: string | number | boolean; after: string | number | boolean; unit?: string | null; delta?: number | null }>;
 }
 
 export interface AuditVerificationResponse {

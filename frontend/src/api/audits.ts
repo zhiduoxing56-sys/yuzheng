@@ -1,5 +1,6 @@
 import { apiClient, type QueryValue } from "./client";
 import type { AuditExportPayload } from "../types/contract";
+import type { SemanticFrame } from "../types/contract";
 
 const AUDIT_READ_TIMEOUT_MS = 60_000;
 
@@ -12,11 +13,15 @@ export interface AuditListQuery {
 }
 
 export function listAudits(query: AuditListQuery = {}, signal?: AbortSignal): Promise<unknown> {
-  return apiClient.get<unknown>("/api/audits/compact", query as Record<string, QueryValue>, { signal, timeoutMs: AUDIT_READ_TIMEOUT_MS });
+  return apiClient.get<unknown>("/api/audits", query as Record<string, QueryValue>, { signal, timeoutMs: AUDIT_READ_TIMEOUT_MS });
 }
 
 export function getAudit(auditId: string, signal?: AbortSignal): Promise<unknown> {
   return apiClient.get<unknown>(`/api/audits/${encodeURIComponent(auditId)}`, undefined, { signal, timeoutMs: AUDIT_READ_TIMEOUT_MS });
+}
+
+export function getAuditSemanticFrame(auditId: string, signal?: AbortSignal): Promise<SemanticFrame> {
+  return apiClient.get<SemanticFrame>(`/api/audits/${encodeURIComponent(auditId)}/semantic-frame`, undefined, { signal, timeoutMs: AUDIT_READ_TIMEOUT_MS });
 }
 
 export function verifyAudit(auditId: string, signal?: AbortSignal): Promise<unknown> {
