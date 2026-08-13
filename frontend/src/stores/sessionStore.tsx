@@ -14,6 +14,17 @@ const MAX_PIPELINE_EVENTS_PER_TURN = 120;
 const MAX_PIPELINE_EVENT_TURNS = 12;
 const MAX_PIPELINE_EVENTS_TOTAL = 600;
 
+export interface CoordinatedTurnChild {
+  clauseIndex: number;
+  clauseText: string;
+  turnId: string;
+}
+
+export interface CoordinatedTurnGroup {
+  parentTurnId: string;
+  children: CoordinatedTurnChild[];
+}
+
 function createSessionId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `session-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -64,6 +75,29 @@ function migrateLegacyState(): void {
 export interface RecentTurnSummary { turnId: string; instructionSummary: string | null; decision: DecisionLabel | null; createdAt: string | null; }
 
 function recentTurnsKey(sessionId: string): string { return `yuzheng.v2.turn.recent.${sessionId}`; }
+function coordinatedTurnGroupKey(sessionId: string): string { return `yuzheng.v2.turn.coordinated.${sessionId}`; }
+
+function readCoordinatedTurnGroup(sessionId: string): CoordinatedTurnGroup | null {
+  try {
+    const parsed: unknown = JSON.parse(window.sessionStorage.getItem(coordinatedTurnGroupKey(sessionId)) || "null");
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    const group = parsed as { parentTurnId?: unknown; children?: unknown };
+    if (typeof group.parentTurnId !== "string" || !Array.isArray(group.children)) return null;
+    const children = group.children.filter((item): item is CoordinatedTurnChild => Boolean(item)
+      && typeof item === "object"
+      && Number.isInteger((item as CoordinatedTurnChild).clauseIndex)
+      && typeof (item as CoordinatedTurnChild).clauseText === "string"
+      && validTurnId((item as CoordinatedTurnChild).turnId));
+    return children.length ? { parentTurnId: group.parentTurnId, children } : null;
+  } catch { return null; }
+}
+
+function writeCoordinatedTurnGroup(sessionId: string, group: CoordinatedTurnGroup | null): void {
+  try {
+    if (group) window.sessionStorage.setItem(coordinatedTurnGroupKey(sessionId), JSON.stringify(group));
+    else window.sessionStorage.removeItem(coordinatedTurnGroupKey(sessionId));
+  } catch { /* sessionStorage is optional */ }
+}
 
 function readRecentTurns(sessionId: string): RecentTurnSummary[] {
   try {
@@ -82,8 +116,11 @@ export interface SessionState {
   recentTurns: RecentTurnSummary[];
   websocketStatus: ConnectionStatus;
   eventsByTurn: Record<string, PipelineEvent[]>;
+  coordinatedTurnGroup: CoordinatedTurnGroup | null;
   newSession: () => void;
   setActiveTurn: (turnId: string | null, summary?: Omit<RecentTurnSummary, "turnId">) => void;
+  setCoordinatedTurnGroup: (group: CoordinatedTurnGroup | null) => void;
+  updateCoordinatedTurnChild: (clauseIndex: number, child: Omit<CoordinatedTurnChild, "clauseIndex">) => void;
   getPipelineEvents: (turnId: string) => PipelineEvent[];
   addPipelineEvent: (event: PipelineEvent) => void;
   clearPipelineEventsForTurn: (turnId: string) => void;
@@ -105,6 +142,24 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const recentTurnIds = useMemo(() => recentTurns.map((item) => item.turnId), [recentTurns]);
   const [websocketStatus, setWebsocketStatus] = useState<ConnectionStatus>("disconnected");
   const [eventsByTurn, setEventsByTurn] = useState<Record<string, PipelineEvent[]>>({});
+  const [coordinatedTurnGroup, setCoordinatedTurnGroupState] = useState<CoordinatedTurnGroup | null>(() => readCoordinatedTurnGroup(readSessionId()));
+
+  const setCoordinatedTurnGroup = useCallback((group: CoordinatedTurnGroup | null) => {
+    setCoordinatedTurnGroupState(group);
+    writeCoordinatedTurnGroup(sessionId, group);
+  }, [sessionId]);
+
+  const updateCoordinatedTurnChild = useCallback((clauseIndex: number, child: Omit<CoordinatedTurnChild, "clauseIndex">) => {
+    setCoordinatedTurnGroupState((current) => {
+      if (!current) return current;
+      const next = {
+        ...current,
+        children: current.children.map((item) => item.clauseIndex === clauseIndex ? { clauseIndex, ...child } : item),
+      };
+      writeCoordinatedTurnGroup(sessionId, next);
+      return next;
+    });
+  }, [sessionId]);
 
   const setActiveTurn = useCallback((turnId: string | null, summary?: Omit<RecentTurnSummary, "turnId">) => {
     if (turnId !== null && !validTurnId(turnId)) return;
@@ -126,11 +181,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
     writeStoredString(SESSION_STORAGE_KEY, created);
     writeStoredString(ACTIVE_TURN_STORAGE_KEY, null);
     try { window.sessionStorage.removeItem(recentTurnsKey(sessionId)); } catch { /* optional */ }
+    writeCoordinatedTurnGroup(sessionId, null);
     setSessionId(created);
     setSessionEpoch((value) => value + 1);
     setActiveTurnIdState(null);
     setRecentTurns([]);
     setEventsByTurn({});
+    setCoordinatedTurnGroupState(null);
     setWebsocketStatus("disconnected");
   }, [sessionId]);
 
@@ -183,14 +240,17 @@ export function SessionProvider({ children }: PropsWithChildren) {
     recentTurns,
     websocketStatus,
     eventsByTurn,
+    coordinatedTurnGroup,
     newSession,
     setActiveTurn,
+    setCoordinatedTurnGroup,
+    updateCoordinatedTurnChild,
     getPipelineEvents,
     addPipelineEvent,
     clearPipelineEventsForTurn,
     clearAllPipelineEvents,
     setWebsocketStatus,
-  }), [sessionId, sessionEpoch, activeTurnId, recentTurnIds, recentTurns, websocketStatus, eventsByTurn, newSession, setActiveTurn, getPipelineEvents, addPipelineEvent, clearPipelineEventsForTurn, clearAllPipelineEvents]);
+  }), [sessionId, sessionEpoch, activeTurnId, recentTurnIds, recentTurns, websocketStatus, eventsByTurn, coordinatedTurnGroup, newSession, setActiveTurn, setCoordinatedTurnGroup, updateCoordinatedTurnChild, getPipelineEvents, addPipelineEvent, clearPipelineEventsForTurn, clearAllPipelineEvents]);
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

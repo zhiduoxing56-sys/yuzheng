@@ -17,6 +17,8 @@ const request: ClarificationRequest = {
     candidate_source: "ASR_NBEST",
     source_rank: index + 1,
     confidence: 0.9 - index * 0.1,
+    group: null,
+    group_label: null,
   })),
 };
 

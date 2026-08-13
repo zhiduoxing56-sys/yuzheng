@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import type { ReactNode } from "react";
 import type { SemanticFrame } from "../types/contract";
 import type { CommandInputMode, DecisionResultView, DecisionVisualState } from "../types/visualModels";
 
@@ -115,10 +116,13 @@ function display(value: string | null) {
   return value?.trim() || "--";
 }
 
-export function DecisionResultDisplay({ result }: { result: DecisionResultView }) {
+export function DecisionResultDisplay({ result, selector }: { result: DecisionResultView; selector?: ReactNode }) {
   const state = result.state ? DECISION_STATE_VIEW[result.state] : null;
   return <section className={`decision-result-section state-${result.state || "empty"}`} aria-labelledby="decision-result-heading">
-    <h1 id="decision-result-heading" className="visual-gradient-title">裁决结果</h1>
+    <div className="decision-result-heading-row">
+      <h1 id="decision-result-heading" className="visual-gradient-title">裁决结果</h1>
+      {selector}
+    </div>
     <div className="decision-result-banner" role="status">
       {state && <span aria-hidden="true"><i className={state.partial ? "is-partial" : ""}>{state.symbol}</i></span>}
       <strong>{state?.label || "--"}</strong>

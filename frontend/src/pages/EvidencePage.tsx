@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { analyzeRecallAudit, getRecentRecallAudits } from "../api/recallAudits";
 import { getIndexStatus, updateIndexParameters } from "../api/system";
@@ -10,6 +10,12 @@ import type { EvidenceLayerView, EvidenceParameterValues, EvidenceStatisticsView
 
 const EMPTY_PARAMETERS: EvidenceParameterValues = { M: "", ef_construction: "", ef_search: "", layer_count: "" };
 const EMPTY_STATISTICS: EvidenceStatisticsView = { returnedItems: null, semanticCandidates: null, forcedRecallItems: null };
+
+interface RetrievalView {
+  layers: EvidenceLayerView[];
+  statistics: EvidenceStatisticsView;
+  retrievalTime: string | null;
+}
 
 function parameterStrings(values: IndexParametersRequest): EvidenceParameterValues {
   return {
@@ -34,10 +40,18 @@ export function EvidencePage() {
   const { turnId: routeTurnId } = useParams<{ turnId?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { activeTurnId } = useSession();
-  const turnId = [routeTurnId, searchParams.get("turn_id"), activeTurnId]
+  const { activeTurnId, coordinatedTurnGroup } = useSession();
+  const explicitTurnId = [routeTurnId, searchParams.get("turn_id")]
     .map((value) => value?.trim() || null)
     .find((value): value is string => Boolean(value && /^TURN_[A-Za-z0-9_-]+$/.test(value))) ?? null;
+  const switchableChildren = useMemo(() => {
+    if (!coordinatedTurnGroup) return [];
+    if (explicitTurnId && !coordinatedTurnGroup.children.some((child) => child.turnId === explicitTurnId)) return [];
+    return coordinatedTurnGroup.children;
+  }, [coordinatedTurnGroup, explicitTurnId]);
+  const turnId = explicitTurnId
+    || switchableChildren[0]?.turnId
+    || (activeTurnId && /^TURN_[A-Za-z0-9_-]+$/.test(activeTurnId) ? activeTurnId : null);
   const [parameters, setParameters] = useState<EvidenceParameterValues>(EMPTY_PARAMETERS);
   const [parametersApplied, setParametersApplied] = useState(false);
   const [parameterBusy, setParameterBusy] = useState(false);
@@ -53,6 +67,7 @@ export function EvidencePage() {
   const [recallError, setRecallError] = useState<string | null>(null);
   const [analyzingTurnId, setAnalyzingTurnId] = useState<string | null>(null);
   const [aiAudit, setAiAudit] = useState<RecallAIAuditResponse | null>(null);
+  const retrievalCache = useRef(new Map<string, RetrievalView>());
 
   useEffect(() => {
     if (turnId && routeTurnId !== turnId) navigate(`/evidence/${encodeURIComponent(turnId)}`, { replace: true });
@@ -97,22 +112,40 @@ export function EvidencePage() {
       setPresentationError(null);
       return;
     }
+    setSelectedLayer(null);
+    const cached = retrievalCache.current.get(turnId);
+    if (cached) {
+      setLayers(cached.layers);
+      setStatistics(cached.statistics);
+      setRetrievalTime(cached.retrievalTime);
+      setPresentationError(null);
+      return;
+    }
     const controller = new AbortController();
+    setLayers([]);
+    setStatistics(EMPTY_STATISTICS);
+    setRetrievalTime(null);
     setPresentationError(null);
     void getTurnPresentation(turnId, controller.signal).then((presentation) => {
       const retrieval = presentation.retrieval_summary;
-      setLayers(retrieval.layers.map((layer) => ({
+      const next: RetrievalView = {
+        layers: retrieval.layers.map((layer) => ({
         id: String(layer.layer),
         label: layer.layer_name,
         hitCount: layer.hit_count,
         nodes: layer.nodes,
-      })));
-      setStatistics({
-        returnedItems: retrieval.top_k == null ? null : String(retrieval.top_k),
-        semanticCandidates: String(retrieval.candidate_count),
-        forcedRecallItems: String(retrieval.mandatory_recall_count),
-      });
-      setRetrievalTime(retrieval.elapsed_ms == null ? null : retrieval.elapsed_ms.toFixed(2));
+        })),
+        statistics: {
+          returnedItems: retrieval.top_k == null ? null : String(retrieval.top_k),
+          semanticCandidates: String(retrieval.candidate_count),
+          forcedRecallItems: String(retrieval.mandatory_recall_count),
+        },
+        retrievalTime: retrieval.elapsed_ms == null ? null : retrieval.elapsed_ms.toFixed(2),
+      };
+      retrievalCache.current.set(turnId, next);
+      setLayers(next.layers);
+      setStatistics(next.statistics);
+      setRetrievalTime(next.retrievalTime);
     }).catch((reason: unknown) => {
       if (!controller.signal.aborted) {
         setLayers([]);
@@ -167,7 +200,24 @@ export function EvidencePage() {
   const emptyLayerMessage = useMemo(() => presentationError || (turnId ? "该轮次没有分层命中" : "请先执行指令或从其他页面选择一个轮次"), [presentationError, turnId]);
 
   return <div className="visual-page-frame evidence-search-page">
-    <header className="evidence-search-header"><h1 className="visual-gradient-title">HNSW证据检索</h1><p>检索时间： <strong>{retrievalTime || "--"} ms</strong></p></header>
+    <header className="evidence-search-header">
+      <div className="evidence-search-title-group">
+        <h1 className="visual-gradient-title">HNSW证据检索</h1>
+        {switchableChildren.length > 1 ? <label className="evidence-child-selector">
+          <span>当前子意图</span>
+          <select
+            aria-label="选择当前查看的检索子意图"
+            value={turnId || ""}
+            onChange={(event) => navigate(`/evidence/${encodeURIComponent(event.target.value)}`, { replace: true })}
+          >
+            {switchableChildren.map((child, index) => <option key={`${child.clauseIndex}:${child.turnId}`} value={child.turnId}>
+              {`子意图 ${index + 1} · ${child.clauseText}`}
+            </option>)}
+          </select>
+        </label> : null}
+      </div>
+      <p>检索时间： <strong>{retrievalTime || "--"} ms</strong></p>
+    </header>
     <div className="evidence-search-layout">
       <div className="evidence-search-left">
         <EvidenceParameterPanel values={parameters} applied={parametersApplied} busy={parameterBusy} feedback={parameterFeedback} error={parameterError} onChange={changeParameter} onApply={applyParameters} />

@@ -2,6 +2,7 @@ import { apiClient, type QueryValue } from "./client";
 import type {
   AudioCommandResponse,
   AudioCommandQuery,
+  CoordinatedTextCommandResponse,
   MicrophoneCommandRequest,
   TextCommandRequest,
   TextCommandResponse,
@@ -10,6 +11,10 @@ import type {
 /** Frozen public command endpoints. Microphone is a backend extension endpoint. */
 export function submitTextCommand(request: TextCommandRequest, signal?: AbortSignal): Promise<TextCommandResponse> {
   return apiClient.post<TextCommandResponse>("/api/command/text", request, { signal, timeoutMs: 60_000 });
+}
+
+export function submitCoordinatedTextCommand(request: TextCommandRequest, signal?: AbortSignal): Promise<CoordinatedTextCommandResponse> {
+  return apiClient.post<CoordinatedTextCommandResponse>("/api/command/coordinated", request, { signal, timeoutMs: 180_000 });
 }
 
 export function submitAudioCommand(audio: BodyInit, query: AudioCommandQuery = {}, signal?: AbortSignal): Promise<AudioCommandResponse> {

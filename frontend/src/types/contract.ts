@@ -673,6 +673,21 @@ export interface TextCommandResponse {
   [key: string]: unknown;
 }
 
+export interface CoordinatedCommandChild {
+  clause_index: number;
+  clause_text: string;
+  turn_id: string;
+  response: TextCommandResponse;
+}
+
+export interface CoordinatedTextCommandResponse {
+  mode: "SINGLE" | "MULTI";
+  parent_turn_id: string;
+  parent_frame: SemanticFrame;
+  blocked_by_parent_security: boolean;
+  children: CoordinatedCommandChild[];
+}
+
 export interface AudioCommandResponse {
   turn_id: string;
   voice_trust: Record<string, unknown>;
