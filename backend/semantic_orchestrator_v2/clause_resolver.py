@@ -108,8 +108,9 @@ NEGATION_PREFIXES = ("不要", "别", "不准", "禁止")
 
 _ACTION_PATTERN = re.compile("|".join(re.escape(term) for term in sorted(ACTION_TERMS, key=len, reverse=True)))
 _OBJECT_PATTERN = re.compile("|".join(re.escape(term) for term in sorted(OBJECT_TERMS, key=len, reverse=True)), re.IGNORECASE)
-_EXPLICIT_CONNECTOR = re.compile(r"并且|然后|接着|同时|以及|并|再|和")
-_PUNCTUATION = re.compile(r"[，,；;。]+")
+_ORDERED_BOUNDARY = re.compile(
+    r"后(?:再|重新)|[，,；;。]+|并且|然后|接着|同时|以及|并|再|和"
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -143,6 +144,7 @@ def _clean_clause(text: str) -> str:
     value = text.strip(" ，,；;。")
     value = re.sub(r"^(?:请)?先", "", value)
     value = re.sub(r"^(?:然后|接着|再|并且|并|同时|以及)", "", value)
+    value = re.sub(r"(?:然后|接着|再|并且|并|同时|以及)$", "", value)
     value = re.sub(r"^重新", "", value)
     return value.strip(" ，,；;。")
 
@@ -151,16 +153,16 @@ class OrderedClauseResolver:
     """Split only when every produced fragment is a plausible vehicle-control clause."""
 
     def resolve(self, text: str) -> ClauseResolution:
-        normalized = _PUNCTUATION.sub("，", text.strip())
-        temporal = re.sub(r"后(?:再|重新)", "§", normalized)
-        explicit_parts = [_clean_clause(part) for part in _EXPLICIT_CONNECTOR.split(temporal.replace("§", "再"))]
-        explicit_parts = [part for part in explicit_parts if part]
-        if len(explicit_parts) > 1 and all(is_potential_control_clause(part) for part in explicit_parts):
-            return ClauseResolution(tuple(explicit_parts), True, "EXPLICIT_CONNECTOR")
-
-        temporal_parts = [_clean_clause(part) for part in temporal.split("§") if _clean_clause(part)]
-        if len(temporal_parts) > 1 and all(is_potential_control_clause(part) for part in temporal_parts):
-            return ClauseResolution(tuple(temporal_parts), True, "TEMPORAL_CONNECTOR")
+        normalized = text.strip()
+        ordered_parts = [
+            cleaned
+            for part in _ORDERED_BOUNDARY.split(normalized)
+            if (cleaned := _clean_clause(part))
+        ]
+        if len(ordered_parts) > 1 and all(
+            is_potential_control_clause(part) for part in ordered_parts
+        ):
+            return ClauseResolution(tuple(ordered_parts), True, "ORDERED_BOUNDARY")
 
         implicit = self._implicit_action_boundary(normalized)
         if implicit is not None:
@@ -174,9 +176,17 @@ class OrderedClauseResolver:
             for match in _ACTION_PATTERN.finditer(text)
             if not _is_negated(text, match.start())
         ]
-        for match in matches[1:]:
-            left = _clean_clause(text[: match.start()])
-            right = _clean_clause(text[match.start() :])
-            if has_explicit_object(left) and has_explicit_object(right) and is_potential_control_clause(left) and is_potential_control_clause(right):
-                return [left, right]
+        if len(matches) < 2:
+            return None
+        boundaries = [match.start() for match in matches[1:]]
+        parts = [
+            _clean_clause(text[start:end])
+            for start, end in zip(
+                [0, *boundaries],
+                [*boundaries, len(text)],
+                strict=True,
+            )
+        ]
+        if all(is_potential_control_clause(part) for part in parts):
+            return parts
         return None

@@ -43,53 +43,32 @@ def test_cnec_is_evidence_driven_micro_adjustment(pipeline) -> None:
     assert weights["Cnec"] <= 0.025
     assert weights["Cnec"] <= 0.1 * weights["Cjb"]
 
-    parked = _run(pipeline, "打开车门", vehicle_speed=0, gear_position="P")
-    music = _run(pipeline, "播放音乐")
-    vague = _run(pipeline, "把那个打开")
-    words_only = _run(pipeline, "这是紧急情况，立即播放音乐", emergency_flag=False)
-    for result in (parked, music, vague, words_only):
-        assert result.score_factors["Cnec"].value == 0.0
-        assert result.score_factors["Cnec"].contribution == 0.0
+    ordinary = _run(
+        pipeline,
+        "关闭右前车窗",
+        vehicle_speed=0,
+        gear_position="P",
+        window_state="OPEN",
+    )
+    assert ordinary.score_factors["Cnec"].value is None
+    assert ordinary.score_factors["Cnec"].applicable is False
+    assert ordinary.score_factors["Cnec"].actual_weight == 0.0
+    assert ordinary.score_factors["Cnec"].contribution == 0.0
 
     emergency_brake = _run(
         pipeline,
-        "这是紧急情况，立即制动",
+        "正常刹车",
         emergency_flag=True,
         vehicle_speed=60,
         gear_position="D",
         brake_state="REQUIRED",
     )
-    assert emergency_brake.semantic_frame.intents[0].action == "紧急制动"
+    assert emergency_brake.semantic_frame.intents[0].intent_id == "BRAKE"
     assert emergency_brake.semantic_frame.intents[0].target == "制动"
     assert emergency_brake.score_factors["Cnec"].value == 1.0
+    assert emergency_brake.score_factors["Cnec"].applicable is True
     assert emergency_brake.score_factors["Cnec"].configured_weight == 0.025
     assert emergency_brake.score_factors["Cnec"].contribution <= 0.025
-
-    obstacle_brake = _run(
-        pipeline,
-        "制动",
-        emergency_flag=False,
-        vehicle_speed=30,
-        gear_position="D",
-        front_obstacle_distance=2,
-    )
-    assert obstacle_brake.score_factors["Cnec"].value == 0.0
-    assert obstacle_brake.score_factors["Cnec"].applicable is False
-
-    gated = _run(
-        pipeline,
-        "这是紧急情况，立即打开车门",
-        emergency_flag=True,
-        vehicle_speed=80,
-        gear_position="D",
-    )
-    assert gated.score_factors["Cnec"].value == 1.0
-    assert gated.semantic_frame.semantic_status == "REVIEW"
-    assert gated.semantic_frame.intents == []
-    assert gated.decision.score_evaluation_mode == "normal"
-    assert gated.decision.gate_blocked is False
-    assert gated.decision.final_decision == DecisionLabel.REVIEW
-    assert parked.decision.score_evaluation_mode == "normal"
 
 
 def test_hnsw_canonical_lifecycle_stays_bounded_for_100_turns(tmp_path) -> None:

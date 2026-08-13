@@ -47,7 +47,8 @@ describe("SemanticFrameDisplay", () => {
     expect(screen.getByText("打开")).toBeTruthy();
     expect(screen.getByText("车门")).toBeTruthy();
     expect(screen.getAllByText("打开车门")).toHaveLength(3);
-    expect(screen.getByText("{\"source\":\"test\",\"amount\":1}")).toBeTruthy();
+    expect(screen.queryByText("参数")).toBeNull();
+    expect(screen.queryByText("{\"source\":\"test\",\"amount\":1}")).toBeNull();
     expect(screen.getByText("车身开闭")).toBeTruthy();
     expect(screen.getByText("0")).toBeTruthy();
   });

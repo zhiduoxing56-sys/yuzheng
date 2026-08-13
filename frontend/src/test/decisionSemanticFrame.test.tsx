@@ -136,6 +136,43 @@ describe("DecisionPage semantic-frame connection", () => {
     expect(submitTextCommand).not.toHaveBeenCalled();
   });
 
+  it("shows an unscored semantic review without presenting the stored compatibility score", async () => {
+    vi.mocked(getTurnPresentation).mockResolvedValue({
+      turn_id: "TURN_review",
+      semantic_frame: {
+        ...semanticFrame,
+        turn_id: "TURN_review",
+        raw_text: "把那个打开",
+        normalized_text: "把那个打开",
+        semantic_status: "REVIEW",
+        semantic_confidence: 0,
+        ambiguity_score: 1,
+        intents: [],
+      },
+      score_result: {
+        semantic_clarity: null,
+        evidence_support: null,
+        evidence_trust: null,
+        jailbreak_suppression: null,
+        scene_necessity: null,
+        safety_score: 1,
+      },
+      decision_result: {
+        final_decision: "REVIEW",
+        reasons: ["SEMANTIC_REVIEW_TERMINAL"],
+        explanation: "语义信息不完整或存在歧义；需要用户复核。",
+      },
+    } as unknown as TurnPresentationResponse);
+
+    const view = render(<MemoryRouter initialEntries={["/decision?turn_id=TURN_review"]}><DecisionPage /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByText("人工复核")).toBeTruthy());
+    expect(view.container.querySelector(".decision-score strong")?.textContent).toBe("--");
+    const detailCells = Array.from(view.container.querySelectorAll(".decision-dimension-table tbody td:nth-child(2)"));
+    expect(detailCells).toHaveLength(5);
+    for (const cell of detailCells) expect(cell.textContent).toBe("--");
+  });
+
   it.each(["PASS", "REVIEW", "BLOCK"] as const)("does not alter the semantic frame for a %s command decision", async (finalDecision) => {
     vi.mocked(submitTextCommand).mockResolvedValue(commandResponse(finalDecision));
     render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter>);

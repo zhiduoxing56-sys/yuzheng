@@ -42,6 +42,8 @@ describe("human-readable audit list", () => {
     expect(screen.getByText("BLOCK")).toBeTruthy();
     expect(screen.getByText("NOT_EXECUTED")).toBeTruthy();
     expect(screen.getByText("否")).toBeTruthy();
+    expect(screen.queryByText("操作")).toBeNull();
+    expect(screen.queryByRole("button", { name: "查看详情" })).toBeNull();
     expect(screen.queryByText("frame_id")).toBeNull();
     expect(screen.queryByText("intent_id")).toBeNull();
   });
@@ -50,7 +52,7 @@ describe("human-readable audit list", () => {
     vi.mocked(listAuditRecords).mockResolvedValue(response());
     const user = userEvent.setup();
     mount();
-    await user.click(await screen.findByRole("button", { name: "查看详情" }));
+    await user.click(await screen.findByText("关闭前照灯"));
     expect(screen.getByRole("dialog", { name: "人类可读安全审计" })).toBeTruthy();
     expect(screen.getByText("审计编号：AUDIT-1")).toBeTruthy();
     expect(screen.queryByText("详情已打开")).toBeNull();

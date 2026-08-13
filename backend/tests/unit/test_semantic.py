@@ -167,17 +167,17 @@ def test_duplicate_intent_occurrences_bind_params_by_occurrence(
     assert [intent.value for intent in frame.intents] == [25, 75]
 
 
-def test_multiple_results_from_one_clause_keep_same_original_clause_index(
+def test_multiple_candidates_from_one_clause_do_not_become_formal_intents(
     semantic_service: SemanticOrchestratorService,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     run = OrchestratorRun(
         output={
-            "status": "OK",
-            "sub_intents": [
-                {"intent_id": "DOOR_OPEN", "params": {}},
-                {"intent_id": "WINDOW_OPEN", "params": {}},
-            ],
+            "status": "REVIEW",
+            "resolved_sub_intents": [],
+            "review_candidates": ["DOOR_OPEN", "WINDOW_OPEN"],
+            "unresolved_clauses": ["打开车门和车窗"],
+            "reasons": ["MULTI_INTENT_INCOMPLETE"],
             "security_signals": [],
         },
         metrics={},
@@ -186,7 +186,7 @@ def test_multiple_results_from_one_clause_keep_same_original_clause_index(
                 {
                     "clause": "打开车门和车窗",
                     "accepted_intent_ids": ["DOOR_OPEN", "WINDOW_OPEN"],
-                    "reliable": True,
+                    "reliable": False,
                     "evidence": {},
                 }
             ]
@@ -196,7 +196,67 @@ def test_multiple_results_from_one_clause_keep_same_original_clause_index(
 
     frame = semantic_service.parse("TURN_SAME_CLAUSE", "打开车门和车窗")
 
-    assert [intent.clause_index for intent in frame.intents] == [0, 0]
+    assert frame.semantic_status == "REVIEW"
+    assert frame.intents == []
+    assert frame.unresolved_clauses == ["打开车门和车窗"]
+    assert frame.review_candidates == ["DOOR_OPEN", "WINDOW_OPEN"]
+
+
+def test_review_binds_only_authoritative_reliable_occurrences(
+    semantic_service: SemanticOrchestratorService,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    run = OrchestratorRun(
+        output={
+            "status": "REVIEW",
+            "resolved_sub_intents": [
+                {"intent_id": "DOOR_OPEN", "params": {}},
+                {"intent_id": "SUNROOF_OPEN", "params": {}},
+            ],
+            "review_candidates": ["WINDOW_CLOSE"],
+            "unresolved_clauses": ["关闭未知车窗"],
+            "reasons": ["MULTI_INTENT_INCOMPLETE"],
+            "security_signals": [],
+        },
+        metrics={},
+        debug={
+            "clause_results": [
+                {
+                    "clause": "打开右前门",
+                    "accepted_intent_ids": ["DOOR_OPEN"],
+                    "reliable": True,
+                    "evidence": {},
+                },
+                {
+                    "clause": "关闭未知车窗",
+                    "accepted_intent_ids": ["WINDOW_CLOSE"],
+                    "reliable": False,
+                    "evidence": {},
+                },
+                {
+                    "clause": "打开天窗",
+                    "accepted_intent_ids": ["SUNROOF_OPEN"],
+                    "reliable": True,
+                    "evidence": {},
+                },
+            ]
+        },
+    )
+    monkeypatch.setattr(semantic_service._orchestrator, "run", lambda text: run)
+
+    frame = semantic_service.parse(
+        "TURN_PARTIAL_REVIEW",
+        "打开右前门，关闭未知车窗，打开天窗",
+    )
+
+    assert frame.semantic_status == "REVIEW"
+    assert [intent.intent_id for intent in frame.intents] == [
+        "DOOR_OPEN",
+        "SUNROOF_OPEN",
+    ]
+    assert [intent.clause_index for intent in frame.intents] == [0, 2]
+    assert frame.unresolved_clauses == ["关闭未知车窗"]
+    assert frame.review_candidates == ["WINDOW_CLOSE"]
 
 
 def test_security_signal_collection_is_preserved_without_compression(

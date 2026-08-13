@@ -29,7 +29,10 @@ from .action_direction_guard import ActionDirectionGuard
 from .candidate_consistency_guard import CandidateConsistencyGuard
 from .clause_resolver import OrderedClauseResolver
 from .ellipsis_guard import EllipsisGuard
-from .multi_intent_guard import MultiIntentCompletenessGuard
+from .multi_intent_guard import (
+    MultiIntentCompletenessGuard,
+    ResolvedIntentOccurrence,
+)
 from .security_claim_guard import SecurityClaimGuard
 from .semantic_contract_guard import SemanticContractGuard
 
@@ -185,6 +188,31 @@ class SemanticOrchestratorV2:
             "evidence": run.evidence,
         }
 
+    @staticmethod
+    def _occurrence_rows(
+        clause_results: list[dict[str, Any]],
+        resolved_occurrences: tuple[ResolvedIntentOccurrence, ...],
+    ) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any]] = []
+        for occurrence in resolved_occurrences:
+            result = clause_results[occurrence.clause_index]
+            selected = list(result["accepted_intent_ids"])
+            if not result["reliable"] or selected != [occurrence.intent_id]:
+                raise RuntimeError(
+                    "reliable occurrence does not match its authoritative clause result"
+                )
+            rows.append(
+                {
+                    "intent_id": occurrence.intent_id,
+                    "params": dict(
+                        result.get("resolved_params", {}).get(
+                            occurrence.intent_id, {}
+                        )
+                    ),
+                }
+            )
+        return rows
+
     def run(self, text: str) -> OrchestratorRun:
         started = perf_counter()
         resolution = self.clause_resolver.resolve(text)
@@ -210,13 +238,11 @@ class SemanticOrchestratorV2:
             (result["suggested_text"] for result in clause_results if result["suggested_text"]),
             None,
         )
-        resolved_ids: list[str] = []
         unresolved_clauses: list[str] = []
         reasons: list[str] = []
+        multi = self.multi_guard.check(clause_results)
 
         if resolution.split:
-            multi = self.multi_guard.check(clause_results)
-            resolved_ids = list(multi.resolved_sub_intents)
             unresolved_clauses = list(multi.unresolved_clauses)
             if multi.incomplete:
                 status = "REVIEW"
@@ -228,13 +254,18 @@ class SemanticOrchestratorV2:
                 status = "OK"
         else:
             result = clause_results[0]
-            resolved_ids = list(result["accepted_intent_ids"]) if result["reliable"] else []
             if result["guard_triggers"]:
                 status = "REVIEW"
                 reasons.extend(result["guard_triggers"])
                 unresolved_clauses = [result["clause"]]
             elif result["base_status"] == "OK":
-                status = "OK"
+                if multi.incomplete:
+                    status = "REVIEW"
+                    reasons.append("MULTI_INTENT_INCOMPLETE")
+                    all_triggers.append("MULTI_INTENT_INCOMPLETE")
+                    unresolved_clauses = list(multi.unresolved_clauses)
+                else:
+                    status = "OK"
             elif result["base_status"] == "NO_MATCH":
                 status = "NO_MATCH"
             else:
@@ -250,14 +281,10 @@ class SemanticOrchestratorV2:
 
         all_triggers = _unique(all_triggers)
         reasons = _unique(reasons)
-        occurrence_rows = [
-            {
-                "intent_id": intent_id,
-                "params": dict(result.get("resolved_params", {}).get(intent_id, {})),
-            }
-            for result in clause_results
-            for intent_id in result["accepted_intent_ids"]
-        ]
+        occurrence_rows = self._occurrence_rows(
+            clause_results,
+            multi.resolved_occurrences,
+        )
         output = {
             "status": status,
             "sub_intents": occurrence_rows if status == "OK" else [],

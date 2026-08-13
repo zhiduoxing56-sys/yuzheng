@@ -164,14 +164,14 @@ class SemanticOrchestratorService:
             None,
         )
         if target is None:
-            return 0.5, 0.5
+            return 0.5, 0.0
         scores = [
             float(channel["score"])
             for channel in target.get("channels", {}).values()
             if channel.get("score") is not None
         ]
         confidence = max(0.0, min(1.0, mean(scores))) if scores else 0.5
-        return round(confidence, 6), round(1.0 - confidence, 6)
+        return round(confidence, 6), 0.0
 
     def _intent_metadata(
         self, intent_id: str
@@ -229,67 +229,70 @@ class SemanticOrchestratorService:
     def parse(self, turn_id: str, text: str) -> SemanticFrame:
         run = self._orchestrator.run(text)
         authoritative_occurrences = self._authoritative_occurrences(run)
-        occurrence_index = 0
         intents: list[SemanticIntent] = []
         status = str(run.output.get("status", "NO_MATCH"))
-        for original_index, clause in enumerate(run.debug.get("clause_results", [])):
-            for intent_id_value in clause.get("accepted_intent_ids", []):
-                intent_id = str(intent_id_value)
-                if occurrence_index >= len(authoritative_occurrences):
-                    raise RuntimeError(
-                        "冻结语义 clause_results 多于权威子意图 occurrence"
-                    )
-                occurrence = authoritative_occurrences[occurrence_index]
-                expected_intent_id = str(occurrence["intent_id"])
-                if intent_id != expected_intent_id:
-                    raise RuntimeError(
-                        "冻结语义 occurrence 顺序不一致: "
-                        f"clause={intent_id}, authoritative={expected_intent_id}"
-                    )
-                occurrence_index += 1
-                (
-                    action,
-                    target,
-                    runtime_identity,
-                    control_attribute,
-                    domain,
-                    risk_level,
-                    risk_tags,
-                ) = self._intent_metadata(intent_id)
-                confidence, ambiguity = self._confidence(clause, intent_id)
-                params = dict(occurrence.get("params", {}))
-                allowed_areas = allowed_areas_for_intent(intent_id)
-                supplied_area = canonical_area(params.get("area"))
-                if supplied_area not in allowed_areas:
-                    supplied_area = None
-                resolved_area = supplied_area or resolve_explicit_area(
-                    str(clause.get("clause", "")),
-                    allowed_areas,
-                )
-                intents.append(
-                    SemanticIntent(
-                        clause_index=int(clause.get("clause_index", original_index)),
-                        clause_text=str(clause.get("clause", "")),
-                        intent_id=intent_id,
-                        runtime_identity=runtime_identity,
-                        action=action,
-                        target=target,
-                        area=resolved_area or "unknown",
-                        value=params.get("value"),
-                        mode=params.get("mode"),
-                        direction=params.get("direction"),
-                        control_attribute=control_attribute,
-                        control_domain=domain,
-                        risk_level=risk_level,
-                        risk_tags=risk_tags,
-                        semantic_confidence=confidence,
-                        ambiguity_score=ambiguity,
-                    )
-                )
-
-        if occurrence_index != len(authoritative_occurrences):
+        reliable_clause_results = [
+            (original_index, clause)
+            for original_index, clause in enumerate(
+                run.debug.get("clause_results", [])
+            )
+            if clause.get("reliable")
+            and len(clause.get("accepted_intent_ids", [])) == 1
+        ]
+        if len(reliable_clause_results) != len(authoritative_occurrences):
             raise RuntimeError(
-                "冻结语义权威子意图 occurrence 无法完整绑定到 clause_results"
+                "冻结语义可靠 clause occurrence 与权威子意图数量不一致"
+            )
+        for occurrence, (original_index, clause) in zip(
+            authoritative_occurrences,
+            reliable_clause_results,
+            strict=True,
+        ):
+            intent_id = str(occurrence["intent_id"])
+            accepted_intent_id = str(clause["accepted_intent_ids"][0])
+            if intent_id != accepted_intent_id:
+                raise RuntimeError(
+                    "冻结语义 occurrence 顺序不一致: "
+                    f"clause={accepted_intent_id}, authoritative={intent_id}"
+                )
+            (
+                action,
+                target,
+                runtime_identity,
+                control_attribute,
+                domain,
+                risk_level,
+                risk_tags,
+            ) = self._intent_metadata(intent_id)
+            confidence, ambiguity = self._confidence(clause, intent_id)
+            params = dict(occurrence.get("params", {}))
+            allowed_areas = allowed_areas_for_intent(intent_id)
+            supplied_area = canonical_area(params.get("area"))
+            if supplied_area not in allowed_areas:
+                supplied_area = None
+            resolved_area = supplied_area or resolve_explicit_area(
+                str(clause.get("clause", "")),
+                allowed_areas,
+            )
+            intents.append(
+                SemanticIntent(
+                    clause_index=int(clause.get("clause_index", original_index)),
+                    clause_text=str(clause.get("clause", "")),
+                    intent_id=intent_id,
+                    runtime_identity=runtime_identity,
+                    action=action,
+                    target=target,
+                    area=resolved_area or "unknown",
+                    value=params.get("value"),
+                    mode=params.get("mode"),
+                    direction=params.get("direction"),
+                    control_attribute=control_attribute,
+                    control_domain=domain,
+                    risk_level=risk_level,
+                    risk_tags=risk_tags,
+                    semantic_confidence=confidence,
+                    ambiguity_score=ambiguity,
+                )
             )
 
         semantic_confidence = min(

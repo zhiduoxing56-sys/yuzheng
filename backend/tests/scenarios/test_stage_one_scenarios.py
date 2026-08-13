@@ -70,9 +70,10 @@ def test_moving_driver_open_door_hits_hard_gate_and_blocks(pipeline) -> None:
     assert result.decision.score_decision == DecisionLabel.PASS
     assert result.decision.final_decision == DecisionLabel.BLOCK
     assert result.decision.gate_blocked is True
-    assert result.decision.soft_safety_score < 1.0
-    assert result.decision.safety_score < 1.0
-    assert result.decision.score_factors.five_factors["Cnec"].value == 0.0
+    assert result.decision.soft_safety_score == 1.0
+    assert result.decision.safety_score == 1.0
+    assert result.decision.score_factors.five_factors["Cnec"].value is None
+    assert result.decision.score_factors.five_factors["Cnec"].applicable is False
     assert result.decision.score_evaluation_mode == "diagnostic_after_gate"
     stored = pipeline.audit_repository.get_by_turn(result.turn_id)
     assert stored.final_decision.decision == stored.final_decision.score_decision
@@ -87,13 +88,12 @@ def test_ambiguous_target_requests_review_and_is_audited(pipeline) -> None:
     assert result.safety_gate.mandatory_evidence_missing is False
     assert result.decision.decision == DecisionLabel.REVIEW
     assert result.decision.final_decision == DecisionLabel.REVIEW
-    assert result.decision.soft_safety_score == 0.0
+    # Compatibility scalar remains populated; empty five_factors marks this turn unscored.
+    assert result.decision.soft_safety_score == 1.0
+    assert result.decision.score_factors.five_factors == {}
     assert result.decision.score_factors.evidence_coverage is None
     assert result.decision.score_factors.evidence_coverage_applicable is False
-    assert result.decision.score_factors.applied_weights == {
-        "semantic_quality": 1.0,
-        "evidence_coverage": 0.0,
-    }
+    assert result.decision.score_factors.applied_weights == {}
     assert result.decision.review_question is not None
     assert pipeline.audit_repository.get_by_turn(result.turn_id) is not None
 

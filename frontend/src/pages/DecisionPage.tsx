@@ -28,6 +28,14 @@ function buildResultView(presentation: TurnPresentationResponse): DecisionResult
   const decision = presentation.decision_result;
   const score = presentation.score_result;
   if (!decision || !score) return EMPTY_RESULT;
+  const dimensionValues = [
+    score.semantic_clarity,
+    score.evidence_support,
+    score.evidence_trust,
+    score.jailbreak_suppression,
+    score.scene_necessity,
+  ];
+  const scored = dimensionValues.some((value) => value !== null && value !== undefined && Number.isFinite(value));
   const state: DecisionResultView["state"] = decision.final_decision === "PASS"
     ? "pass"
     : decision.final_decision === "REVIEW"
@@ -44,7 +52,7 @@ function buildResultView(presentation: TurnPresentationResponse): DecisionResult
       { id: "C_jb", dimension: "C_jb", detail: formatScoreDetail(score.jailbreak_suppression) },
       { id: "C_nec", dimension: "C_nec", detail: formatScoreDetail(score.scene_necessity) },
     ],
-    score: formatScoreDetail(score.safety_score),
+    score: scored ? formatScoreDetail(score.safety_score) : null,
     reason: decision.explanation?.trim() || decision.reasons?.join("、") || null,
   };
 }
@@ -347,9 +355,7 @@ export function DecisionPage() {
           >
             {execBusy ? "执行中…" : execToken ? "执行车辆动作" : "无执行令牌"}
           </button>
-          {execToken && <span>令牌已签发，点击执行将把动作反映到 CARLA 车辆</span>}
         </div>
-        {!execToken && <p className="decision-execution-note">本指令未签发执行令牌（可能是 REVIEW/BLOCK 或不在可执行白名单）。</p>}
         {execResult && (
           <div className={`decision-execution-result${execResult.accepted ? " is-accepted" : " is-rejected"}`}>
             <strong>{execResult.accepted ? "执行成功" : "执行未接受"}</strong>
@@ -359,9 +365,6 @@ export function DecisionPage() {
             </div>}
           </div>
         )}
-        <p className="decision-execution-hint">
-          提示：如果执行被「签发后状态变化」拒绝，请先到「模拟器」页点「驻车/制动(0)」让车辆停稳，再重新提交执行。
-        </p>
       </section>
     </div>
   </div></div>{clarification ? <ClarificationModal

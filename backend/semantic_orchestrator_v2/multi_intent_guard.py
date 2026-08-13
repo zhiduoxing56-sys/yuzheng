@@ -5,24 +5,35 @@ from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
+class ResolvedIntentOccurrence:
+    clause_index: int
+    intent_id: str
+
+
+@dataclass(frozen=True, slots=True)
 class MultiIntentDecision:
     incomplete: bool
-    resolved_sub_intents: tuple[str, ...]
+    resolved_occurrences: tuple[ResolvedIntentOccurrence, ...]
     unresolved_clauses: tuple[str, ...]
 
 
 class MultiIntentCompletenessGuard:
     def check(self, clause_results: list[dict[str, Any]]) -> MultiIntentDecision:
-        resolved: list[str] = []
+        resolved: list[ResolvedIntentOccurrence] = []
         unresolved: list[str] = []
-        for result in clause_results:
+        for clause_index, result in enumerate(clause_results):
             selected = list(result["accepted_intent_ids"])
             if result["reliable"] and len(selected) == 1:
-                resolved.append(str(selected[0]))
+                resolved.append(
+                    ResolvedIntentOccurrence(
+                        clause_index=clause_index,
+                        intent_id=str(selected[0]),
+                    )
+                )
             else:
                 unresolved.append(str(result["clause"]))
         return MultiIntentDecision(
             incomplete=bool(unresolved) or len(resolved) != len(clause_results),
-            resolved_sub_intents=tuple(resolved),
+            resolved_occurrences=tuple(resolved),
             unresolved_clauses=tuple(unresolved),
         )

@@ -91,7 +91,6 @@ export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null })
               <div><dt>动作</dt><dd>{formatSemanticValue(intent.action)}</dd></div>
               <div><dt>对象</dt><dd>{formatSemanticValue(intent.target)}</dd></div>
               <div><dt>区域</dt><dd>{formatSemanticValue(intent.area)}</dd></div>
-              <div><dt>参数</dt><dd>{formatSemanticValue(intent.value)}</dd></div>
               <div><dt>控制域</dt><dd>{formatSemanticValue(intent.control_domain)}</dd></div>
               <div><dt>风险等级</dt><dd>{formatSemanticValue(intent.risk_level)}</dd></div>
               <div><dt>风险标签</dt><dd>{formatList(intent.risk_tags)}</dd></div>

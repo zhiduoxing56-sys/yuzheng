@@ -1400,7 +1400,12 @@ class CommandPipeline:
         mixed_runtime_identity = bool(formal_occurrences) and len(formal_occurrences) != len(
             semantic_occurrences
         )
-        if frame.semantic_status != "OK":
+        continue_review_security_diagnostics = (
+            frame.semantic_status == "REVIEW"
+            and bool(formal_occurrences)
+            and bool(frame.security_signals)
+        )
+        if frame.semantic_status != "OK" and not continue_review_security_diagnostics:
             return self._semantic_terminal_response(
                 frame=frame,
                 demand=EvidenceDemand(turn_id=frame.turn_id, intent_demands=[]),

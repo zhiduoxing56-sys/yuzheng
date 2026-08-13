@@ -361,6 +361,11 @@ class DecisionService:
         )
         cjb = self._clamp(1.0 - validation.jailbreak_risk)
         cnec, necessity_reason = self._necessity_score(frame, evidence)
+        critical_intents = self.necessity.get("safety_critical_intent_ids", {})
+        cnec_applicable = any(
+            float(critical_intents.get(intent.intent_id, 0.0)) > 0
+            for intent in frame.intents
+        )
 
         values: dict[str, tuple[float | None, bool, str]] = {
             "Csem": (csem, True, "语义置信度经歧义惩罚"),
@@ -368,8 +373,8 @@ class DecisionService:
             "Ctrust": (ctrust, trust_applicable, trust_reason),
             "Cjb": (cjb, True, "1 减越狱风险"),
             "Cnec": (
-                cnec,
-                True,
+                cnec if cnec_applicable else None,
+                cnec_applicable,
                 f"Cnec=max(emergency_score,safety_critical_score)：{necessity_reason}；紧急措辞不计入",
             ),
         }
