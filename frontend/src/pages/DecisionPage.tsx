@@ -1,15 +1,39 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
+import { submitAudioCommand, submitCoordinatedTextCommand, submitMicrophoneCommand } from "../api/command";
 import { executeTurn, getTurnPresentation, submitTurnClarification } from "../api/turns";
 import { ClarificationModal } from "../components/ClarificationModal";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
-import type { AudioCommandResponse, ClarificationRequest, ExecuteResult, ExecutionTokenView, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
+import { useSession } from "../stores/sessionStore";
+import type { AudioCommandResponse, ClarificationRequest, CoordinatedCommandChild, ExecuteResult, ExecutionTokenView, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 import type { CommandInputMode, DecisionResultView } from "../types/visualModels";
 
 interface CurrentTurnData {
   turn_id: string;
   semantic_frame: SemanticFrame;
+}
+
+interface BoundExecutionToken extends ExecutionTokenView {
+  turnId: string;
+}
+
+function executionTokensFor(response: TextCommandResponse): BoundExecutionToken[] {
+  const issuedTokens = response.decision?.execution_tokens || [];
+  if (issuedTokens.length) {
+    return issuedTokens.map((token) => ({ ...token, turnId: response.turn_id }));
+  }
+  const token = response.decision?.authorization_token;
+  const intent = response.semantic_frame.intents?.[0];
+  if (!token || !intent) return [];
+  return [{
+    token,
+    turnId: response.turn_id,
+    intent_id: intent.intent_id,
+    label: `${intent.action} ${intent.target}`,
+    action: intent.action,
+    target: intent.target,
+    area: intent.area,
+  }];
 }
 
 const EMPTY_RESULT: DecisionResultView = {
@@ -57,9 +81,65 @@ function buildResultView(presentation: TurnPresentationResponse): DecisionResult
   };
 }
 
+function asFiniteNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function commandScoreValues(response: TextCommandResponse) {
+  const decision = response.decision;
+  const firstIntentId = response.semantic_frame.intents?.[0]?.intent_id;
+  const assessment = decision.intent_safety_assessments?.find((item) => item.intent_id === firstIntentId)
+    || decision.intent_safety_assessments?.[0];
+  if (assessment?.score) return assessment.score;
+
+  const scoreFactors = decision.score_factors;
+  if (!scoreFactors || typeof scoreFactors !== "object") return null;
+  const fiveFactors = (scoreFactors as { five_factors?: unknown }).five_factors;
+  if (!fiveFactors || typeof fiveFactors !== "object") return null;
+  const factorValue = (name: string) => {
+    const factor = (fiveFactors as Record<string, unknown>)[name];
+    return factor && typeof factor === "object"
+      ? asFiniteNumber((factor as { value?: unknown }).value)
+      : null;
+  };
+  return {
+    semantic_clarity: factorValue("Csem"),
+    evidence_support: factorValue("Ccov"),
+    evidence_trust: factorValue("Ctrust"),
+    jailbreak_suppression: factorValue("Cjb"),
+    scene_necessity: factorValue("Cnec"),
+    safety_score: asFiniteNumber(decision.safety_score) ?? 0,
+  };
+}
+
+function buildCommandResultView(response: TextCommandResponse): DecisionResultView {
+  const decision = response.decision;
+  const score = commandScoreValues(response);
+  const state: DecisionResultView["state"] = decision.final_decision === "PASS"
+    ? "pass"
+    : decision.final_decision === "REVIEW"
+      ? "review"
+      : decision.final_decision === "BLOCK"
+        ? "reject"
+        : null;
+  return {
+    state,
+    dimensions: [
+      { id: "C_sem", dimension: "C_sem", detail: formatScoreDetail(score?.semantic_clarity) },
+      { id: "C_cov", dimension: "C_cov", detail: formatScoreDetail(score?.evidence_support) },
+      { id: "C_trust", dimension: "C_trust", detail: formatScoreDetail(score?.evidence_trust) },
+      { id: "C_jb", dimension: "C_jb", detail: formatScoreDetail(score?.jailbreak_suppression) },
+      { id: "C_nec", dimension: "C_nec", detail: formatScoreDetail(score?.scene_necessity) },
+    ],
+    score: formatScoreDetail(asFiniteNumber(decision.safety_score)),
+    reason: decision.explanations?.join("、") || decision.gate_reasons?.join("、") || null,
+  };
+}
+
 const MAX_WAV_SIZE_BYTES = 20 * 1024 * 1024;
 
 export function DecisionPage() {
+  const { setCoordinatedTurnGroup, updateCoordinatedTurnChild } = useSession();
   const [mode, setMode] = useState<CommandInputMode>("text");
   const [text, setText] = useState("");
   const [audioFile, setAudioFile] = useState<File | null>(null);
@@ -76,9 +156,13 @@ export function DecisionPage() {
   const clarificationRequestRef = useRef<AbortController | null>(null);
   const turnId = searchParams.get("turn_id")?.trim() || null;
   const [result, setResult] = useState<DecisionResultView>(EMPTY_RESULT);
-  const [execTokens, setExecTokens] = useState<ExecutionTokenView[]>([]);
-  const [execResult, setExecResult] = useState<ExecuteResult | null>(null);
-  const [execBusy, setExecBusy] = useState(false);
+  const [execTokens, setExecTokens] = useState<BoundExecutionToken[]>([]);
+  const [execResults, setExecResults] = useState<Record<string, ExecuteResult>>({});
+  const [execBusyTurnId, setExecBusyTurnId] = useState<string | null>(null);
+  const [childResults, setChildResults] = useState<CoordinatedCommandChild[]>([]);
+  const [selectedChildIndex, setSelectedChildIndex] = useState<number | null>(null);
+  const [parentSecurityBlocked, setParentSecurityBlocked] = useState(false);
+  const [clarificationChildIndex, setClarificationChildIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!turnId) {
@@ -91,6 +175,7 @@ export function DecisionPage() {
       setResult(EMPTY_RESULT);
       return;
     }
+    if (currentTurn?.turn_id === turnId) return;
     const preserveCurrentClarification = currentTurn?.turn_id === turnId;
     clarificationRequestRef.current?.abort("turn changed");
     clarificationRequestRef.current = null;
@@ -152,6 +237,9 @@ export function DecisionPage() {
   }, []);
 
   const acceptResponse = useCallback((response: TextCommandResponse | AudioCommandResponse, successMessage: string) => {
+    setCoordinatedTurnGroup(null);
+    setChildResults([]);
+    setSelectedChildIndex(null);
     const frame = response.semantic_frame;
     if (frame) {
       setCurrentTurn({ turn_id: response.turn_id, semantic_frame: frame });
@@ -167,7 +255,7 @@ export function DecisionPage() {
     nextParams.set("turn_id", response.turn_id);
     setSearchParams(nextParams, { replace: true });
     setFeedback(`${successMessage}，轮次 ${response.turn_id}`);
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setCoordinatedTurnGroup, setSearchParams]);
 
   const runAudioRequest = useCallback((request: (signal: AbortSignal) => Promise<AudioCommandResponse>, pendingMessage: string, successMessage: string) => {
     const controller = new AbortController();
@@ -238,38 +326,41 @@ export function DecisionPage() {
     setBusy(true);
     setHasError(false);
     setFeedback("正在解析语义帧…");
-    void submitTextCommand({ text: commandText }, controller.signal).then((response) => {
+    void submitCoordinatedTextCommand({ text: commandText }, controller.signal).then((response) => {
       if (controller.signal.aborted) return;
       setText(commandText);
-      const decision = response.decision as {
-        authorization_token?: string | null;
-        execution_tokens?: ExecutionTokenView[];
-      } | undefined;
-      setExecTokens(
-        decision?.execution_tokens?.length
-          ? decision.execution_tokens
-          : (decision?.authorization_token
-            ? [{
-                token: decision.authorization_token,
-                intent_id: response.semantic_frame.intents?.[0]?.intent_id ?? "",
-                label: "",
-                action: response.semantic_frame.intents?.[0]?.action ?? "",
-                target: response.semantic_frame.intents?.[0]?.target ?? "",
-                area: response.semantic_frame.intents?.[0]?.area ?? "unknown",
-              }]
-            : []),
-      );
-      setExecResult(null);
-      setCurrentTurn({
-        turn_id: response.turn_id,
-        semantic_frame: response.semantic_frame,
-      });
-      setClarification(response.clarification_request || null);
+      setExecResults({});
+      setExecBusyTurnId(null);
+      const children = response.mode === "MULTI" ? response.children : [];
+      setChildResults(children);
+      setSelectedChildIndex(children[0]?.clause_index ?? null);
+      setCoordinatedTurnGroup(children.length ? {
+        parentTurnId: response.parent_turn_id,
+        children: children.map((child) => ({ clauseIndex: child.clause_index, clauseText: child.clause_text, turnId: child.turn_id })),
+      } : null);
+      setParentSecurityBlocked(response.blocked_by_parent_security);
+      setClarificationChildIndex(null);
       setClarificationError(null);
       const nextParams = new URLSearchParams(searchParams);
-      nextParams.set("turn_id", response.turn_id);
-      setSearchParams(nextParams, { replace: true });
-      setFeedback(`语义帧解析完成，轮次 ${response.turn_id}`);
+      if (response.mode === "SINGLE" && response.children[0]) {
+        const child = response.children[0].response;
+        setExecTokens(executionTokensFor(child));
+        setResult(buildCommandResultView(child));
+        setCurrentTurn({ turn_id: child.turn_id, semantic_frame: child.semantic_frame });
+        setClarification(child.clarification_request || null);
+        nextParams.set("turn_id", child.turn_id);
+        setSearchParams(nextParams, { replace: true });
+      } else {
+        setExecTokens([]);
+        setCurrentTurn({ turn_id: response.parent_turn_id, semantic_frame: response.parent_frame });
+        setResult(EMPTY_RESULT);
+        setClarification(null);
+      }
+      setFeedback(response.blocked_by_parent_security
+        ? "父级安全检查已阻止全部子句处理"
+        : response.mode === "MULTI"
+          ? `已按原始顺序完成 ${response.children.length} 个独立子轮次`
+          : `语义帧解析完成，轮次 ${response.children[0]?.turn_id ?? response.parent_turn_id}`);
     }).catch((reason: unknown) => {
       if (controller.signal.aborted) return;
       setHasError(true);
@@ -280,20 +371,20 @@ export function DecisionPage() {
         setBusy(false);
       }
     });
-  }, [audioFile, mode, runAudioRequest, searchParams, setSearchParams, text]);
+  }, [audioFile, mode, runAudioRequest, searchParams, setCoordinatedTurnGroup, setSearchParams, text]);
 
-  const execute = useCallback(async (token: string, intentId?: string) => {
-    if (!turnId || !token) {
+  const execute = useCallback(async (executionTurnId: string, token: string, intentId?: string) => {
+    if (!executionTurnId || !token) {
       setHasError(true);
       setFeedback("当前轮次没有可用的执行令牌。");
       return;
     }
-    setExecBusy(true);
+    setExecBusyTurnId(executionTurnId);
     setHasError(false);
     setFeedback("正在执行车辆动作…");
     try {
-      const result = await executeTurn(turnId, token, intentId);
-      setExecResult(result);
+      const result = await executeTurn(executionTurnId, token, intentId);
+      setExecResults((existing) => ({ ...existing, [executionTurnId]: result }));
       setFeedback(result.accepted
         ? `执行成功 ✓ ${result.execution?.feedback ?? result.reason}`
         : `执行未接受：${result.reason}`);
@@ -301,9 +392,9 @@ export function DecisionPage() {
       setHasError(true);
       setFeedback(reason instanceof Error ? reason.message : "执行失败");
     } finally {
-      setExecBusy(false);
+      setExecBusyTurnId(null);
     }
-  }, [turnId]);
+  }, []);
 
   const resolveClarification = useCallback((candidateIds: string[] | null) => {
     if (!clarification || clarificationBusy) return;
@@ -330,18 +421,38 @@ export function DecisionPage() {
       if (currentKey !== capturedKey) return;
       if (response.resolution === "NONE_OF_ABOVE") {
         setClarification(null);
-        setText("");
-        setAudioFile(null);
-        setRecording(false);
-        setFeedback("本轮已结束，请重新说一条完整指令。");
+        if (clarificationChildIndex === null) {
+          setText("");
+          setAudioFile(null);
+          setRecording(false);
+        }
+        setClarificationChildIndex(null);
+        setFeedback(clarificationChildIndex === null
+          ? "本轮已结束，请重新说一条完整指令。"
+          : "本次复核已结束；其余子句结果保持不变。请重新提交完整指令以开始新的安全轮次。");
         setHasError(false);
         return;
       }
       const child = response.command_result;
       if (!child || !response.child_turn_id) throw new Error("后端未返回确认后的 child turn");
+      if (clarificationChildIndex !== null) {
+        setChildResults((existing) => existing.map((item) => (
+          item.clause_index === clarificationChildIndex
+            ? { ...item, turn_id: child.turn_id, clause_text: child.semantic_frame.raw_text, response: child }
+            : item
+        )));
+        updateCoordinatedTurnChild(clarificationChildIndex, { turnId: child.turn_id, clauseText: child.semantic_frame.raw_text });
+        setClarification(child.clarification_request || null);
+        setClarificationChildIndex(child.clarification_request ? clarificationChildIndex : null);
+        setFeedback(`复核澄清已作为新的完整安全轮次处理：${child.turn_id}`);
+        setHasError(false);
+        return;
+      }
       setCurrentTurn({ turn_id: child.turn_id, semantic_frame: child.semantic_frame });
       setText(child.semantic_frame.raw_text);
       setClarification(child.clarification_request || null);
+      setExecTokens(executionTokensFor(child));
+      setResult(buildCommandResultView(child));
       const nextParams = new URLSearchParams(searchParams);
       nextParams.set("turn_id", child.turn_id);
       setSearchParams(nextParams, { replace: true });
@@ -356,7 +467,25 @@ export function DecisionPage() {
         setClarificationBusy(false);
       }
     });
-  }, [clarification, clarificationBusy, searchParams, setSearchParams]);
+  }, [clarification, clarificationBusy, clarificationChildIndex, searchParams, setSearchParams, updateCoordinatedTurnChild]);
+
+  const selectedChild = childResults.find((child) => child.clause_index === selectedChildIndex) || childResults[0] || null;
+  const visibleResult = selectedChild ? buildCommandResultView(selectedChild.response) : result;
+  const visibleExecTokens = selectedChild ? executionTokensFor(selectedChild.response) : execTokens;
+  const visibleTurnId = selectedChild?.turn_id || currentTurn?.turn_id || turnId;
+  const visibleExecResult = visibleTurnId ? execResults[visibleTurnId] || null : null;
+  const childSelector = childResults.length > 1 ? <label className="decision-child-selector">
+    <span>当前子意图</span>
+    <select
+      aria-label="选择当前查看的子意图"
+      value={selectedChild?.clause_index ?? ""}
+      onChange={(event) => setSelectedChildIndex(Number(event.target.value))}
+    >
+      {childResults.map((child, index) => <option key={`${child.clause_index}:${child.turn_id}`} value={child.clause_index}>
+        {`子意图 ${index + 1} · ${child.clause_text}`}
+      </option>)}
+    </select>
+  </label> : null;
 
   return <><div className="visual-page-frame decision-visual-page"><div className="decision-visual-layout">
     <div className="decision-visual-left">
@@ -364,33 +493,47 @@ export function DecisionPage() {
       <SemanticFrameDisplay frame={currentTurn?.semantic_frame || null} />
     </div>
     <div className="decision-result-column">
-      <DecisionResultDisplay result={result} />
-      <section className="decision-execution-panel">
+      <div className="decision-child-detail-card">
+        <DecisionResultDisplay result={visibleResult} selector={childSelector} />
+        <section className="decision-execution-panel">
         <div className="decision-execution-actions">
-          {execTokens.length === 0 ? <button
+          {visibleExecTokens.length === 0 ? <button
             type="button"
             disabled
             className="decision-execution-button"
-          >无执行令牌</button> : execTokens.map((executionToken) => <button
+          >无执行令牌</button> : visibleExecTokens.map((executionToken) => <button
             key={executionToken.token}
             type="button"
-            disabled={execBusy}
-            onClick={() => void execute(executionToken.token, executionToken.intent_id || undefined)}
+            disabled={execBusyTurnId === executionToken.turnId}
+            onClick={() => void execute(executionToken.turnId, executionToken.token, executionToken.intent_id || undefined)}
             className="decision-execution-button"
           >
-            {execBusy ? "执行中…" : executionToken.label ? `执行${executionToken.label}` : "执行车辆动作"}
+            {execBusyTurnId === executionToken.turnId ? "执行中…" : executionToken.label ? `执行${executionToken.label}` : "执行车辆动作"}
           </button>)}
+          {selectedChild?.response.clarification_request ? <button
+            className="decision-child-review-button"
+            disabled={clarificationBusy}
+            onClick={() => {
+              setClarificationChildIndex(selectedChild.clause_index);
+              setClarification(selectedChild.response.clarification_request || null);
+            }}
+            type="button"
+          >处理此子意图复核</button> : null}
         </div>
-        {execResult && (
-          <div className={`decision-execution-result${execResult.accepted ? " is-accepted" : " is-rejected"}`}>
-            <strong>{execResult.accepted ? "执行成功" : "执行未接受"}</strong>
-            <span>{execResult.reason}</span>
-            {execResult.execution && <div>
-              适配器 {execResult.execution.adapter} · 状态 {execResult.execution.status} · {execResult.execution.feedback}
+        {visibleExecResult && (
+          <div className={`decision-execution-result${visibleExecResult.accepted ? " is-accepted" : " is-rejected"}`}>
+            <strong>{visibleExecResult.accepted ? "执行成功" : "执行未接受"}</strong>
+            <span>{visibleExecResult.reason}</span>
+            {visibleExecResult.execution && <div>
+              适配器 {visibleExecResult.execution.adapter} · 状态 {visibleExecResult.execution.status} · {visibleExecResult.execution.feedback}
             </div>}
           </div>
         )}
-      </section>
+        </section>
+      </div>
+      {parentSecurityBlocked ? <section className="decision-child-results is-blocked" role="alert">
+        父语义帧检测到安全信号，未创建任何子轮次，也未产生授权令牌。
+      </section> : null}
     </div>
   </div></div>{clarification ? <ClarificationModal
     error={clarificationError}

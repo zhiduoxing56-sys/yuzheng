@@ -73,11 +73,13 @@ from app.core.performance import mark_stage
 from app.services.presentation.assembler import PresentationAssembler
 from app.services.review.adapter import adapt_review_submission
 from app.services.read_cache import BoundedSingleFlightCache
+from app.services.multi_action import MultiActionCommandResponse, MultiActionCoordinator
 
 
 def build_router(pipeline: CommandPipeline) -> APIRouter:
     router = APIRouter(prefix="/api")
     presentation = PresentationAssembler(pipeline)
+    multi_action_coordinator = MultiActionCoordinator(pipeline)
     read_cache: BoundedSingleFlightCache[object] = BoundedSingleFlightCache(128)
     contract_errors = {
         404: {"model": ErrorResponse},
@@ -135,6 +137,32 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         )
         mark_stage("service_returned")
         return response
+
+    @router.post(
+        "/command/coordinated",
+        response_model=MultiActionCommandResponse,
+    )
+    def command_coordinated(
+        request: TextCommandRequest,
+    ) -> MultiActionCommandResponse:
+        result = multi_action_coordinator.process(request)
+        websocket_channel = (
+            f"/ws/pipeline/{request.session_id}" if request.session_id else None
+        )
+        children = [
+            child.model_copy(
+                update={
+                    "response": child.response.model_copy(
+                        update={"websocket_channel": websocket_channel}
+                    )
+                }
+            )
+            for child in result.children
+        ]
+        for child in children:
+            invalidate_turn_reads(child.turn_id)
+        mark_stage("service_returned")
+        return result.model_copy(update={"children": children})
 
     @router.post("/command/audio", response_model=AudioCommandResponse)
     async def command_audio(

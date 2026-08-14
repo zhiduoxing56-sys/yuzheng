@@ -62,7 +62,7 @@ describe("HNSW frontend formal contract", () => {
   it("renders backend parameters, one row per layer, and real node details", async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect((screen.getByLabelText("M") as HTMLInputElement).value).toBe("16"));
+    await waitFor(() => expect((screen.getByLabelText("最大连接数") as HTMLInputElement).value).toBe("16"));
     expect(screen.getByText("命中 1 个")).toBeTruthy();
     expect(screen.getByText("强制补召数量:").parentElement?.textContent).toContain("1");
     await user.click(screen.getByRole("listitem"));
@@ -74,8 +74,8 @@ describe("HNSW frontend formal contract", () => {
   it("sends the four formal parameters and uses the returned status", async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect((screen.getByLabelText("M") as HTMLInputElement).value).toBe("16"));
-    const m = screen.getByLabelText("M");
+    await waitFor(() => expect((screen.getByLabelText("最大连接数") as HTMLInputElement).value).toBe("16"));
+    const m = screen.getByLabelText("最大连接数");
     await user.clear(m);
     await user.type(m, "12");
     await user.click(screen.getByRole("button", { name: "应用参数" }));
@@ -92,5 +92,52 @@ describe("HNSW frontend formal contract", () => {
     await waitFor(() => expect(analyzeRecallAudit).toHaveBeenCalledWith("TURN_1"));
     expect(screen.getByRole("dialog", { name: "DeepSeek AI审计" })).toBeTruthy();
     expect(screen.getByText("证据充分")).toBeTruthy();
+  });
+
+  it("switches layered retrieval by child intent without resetting HNSW parameters", async () => {
+    const user = userEvent.setup();
+    window.localStorage.setItem("yuzheng.v2.session.id", "evidence-session");
+    window.sessionStorage.setItem("yuzheng.v2.turn.coordinated.evidence-session", JSON.stringify({
+      parentTurnId: "TURN_PARENT",
+      children: [
+        { clauseIndex: 0, clauseText: "打开左前车窗", turnId: "TURN_A" },
+        { clauseIndex: 1, clauseText: "关闭天窗", turnId: "TURN_B" },
+      ],
+    }));
+    vi.mocked(getTurnPresentation).mockImplementation(async (turnId) => ({
+      retrieval_summary: {
+        top_k: turnId === "TURN_A" ? 20 : 10,
+        candidate_count: turnId === "TURN_A" ? 7 : 3,
+        mandatory_recall_count: turnId === "TURN_A" ? 1 : 2,
+        elapsed_ms: turnId === "TURN_A" ? 11.11 : 22.22,
+        layers: [{
+          layer: turnId === "TURN_A" ? 1 : 2,
+          layer_name: turnId === "TURN_A" ? "子意图一检索层" : "子意图二检索层",
+          hit_count: turnId === "TURN_A" ? 1 : 2,
+          nodes: [],
+        }],
+      },
+    }) as never);
+
+    renderPage("/evidence/TURN_A");
+
+    const selector = await screen.findByRole("combobox", { name: "选择当前查看的检索子意图" });
+    expect(within(selector).getAllByRole("option")).toHaveLength(2);
+    expect(await screen.findByText("子意图一检索层")).toBeTruthy();
+    await waitFor(() => expect(screen.getByText("11.11 ms")).toBeTruthy());
+
+    const maxConnections = await screen.findByLabelText("最大连接数");
+    await user.clear(maxConnections);
+    await user.type(maxConnections, "12");
+    await user.selectOptions(selector, "TURN_B");
+
+    expect(await screen.findByText("子意图二检索层")).toBeTruthy();
+    expect(screen.getByText("22.22 ms")).toBeTruthy();
+    expect((screen.getByLabelText("最大连接数") as HTMLInputElement).value).toBe("12");
+    expect(screen.getByText("挡位状态")).toBeTruthy();
+
+    await user.selectOptions(selector, "TURN_A");
+    expect(await screen.findByText("子意图一检索层")).toBeTruthy();
+    expect(vi.mocked(getTurnPresentation).mock.calls.filter(([id]) => id === "TURN_A")).toHaveLength(1);
   });
 });

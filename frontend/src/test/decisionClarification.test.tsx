@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { DecisionPage } from "../pages/DecisionPage";
+import { SessionProvider } from "../stores/sessionStore";
 
 const mocks = vi.hoisted(() => ({
   submitText: vi.fn(),
@@ -14,7 +15,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../api/command", () => ({
-  submitTextCommand: mocks.submitText,
+  submitCoordinatedTextCommand: mocks.submitText,
   submitAudioCommand: mocks.submitAudio,
   submitMicrophoneCommand: mocks.submitMicrophone,
 }));
@@ -38,6 +39,25 @@ const frame = (turnId: string, rawText: string) => ({
   intents: [],
 });
 
+const decision = (finalDecision: "PASS" | "REVIEW", safetyScore: number, explanation: string) => ({
+  final_decision: finalDecision,
+  safety_score: safetyScore,
+  explanations: [explanation],
+  execution_tokens: [],
+  intent_safety_assessments: [{
+    clause_index: 0,
+    intent_id: "MODE_SET",
+    score: {
+      semantic_clarity: safetyScore,
+      evidence_support: safetyScore,
+      evidence_trust: safetyScore,
+      jailbreak_suppression: safetyScore,
+      scene_necessity: safetyScore,
+      safety_score: safetyScore,
+    },
+  }],
+});
+
 const clarification = {
   clarification_id: "CLA_1",
   turn_id: "TURN_A",
@@ -56,15 +76,22 @@ const clarification = {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.submitText.mockResolvedValue({
-    turn_id: "TURN_A",
-    semantic_frame: frame("TURN_A", "运动莫斯"),
-    clarification_request: clarification,
+    mode: "SINGLE",
+    parent_turn_id: "TURN_A",
+    parent_frame: frame("TURN_A", "运动莫斯"),
+    blocked_by_parent_security: false,
+    children: [{ clause_index: 0, clause_text: "运动莫斯", turn_id: "TURN_A", response: {
+      turn_id: "TURN_A",
+      semantic_frame: frame("TURN_A", "运动莫斯"),
+      decision: decision("REVIEW", 0.55, "等待用户确认"),
+      clarification_request: clarification,
+    }}],
   });
 });
 afterEach(cleanup);
 
 async function submitOriginal() {
-  render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter>);
+  render(<SessionProvider><MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter></SessionProvider>);
   await userEvent.type(screen.getByRole("textbox", { name: "文本指令" }), "运动莫斯");
   await userEvent.click(screen.getByRole("button", { name: "提交指令" }));
   await screen.findByRole("dialog", { name: "需要确认" });
@@ -82,6 +109,7 @@ describe("DecisionPage clarification closure", () => {
       command_result: {
         turn_id: "TURN_B",
         semantic_frame: { ...frame("TURN_B", "运动模式"), semantic_status: "OK", review_reasons: [], unresolved_clauses: [] },
+        decision: decision("PASS", 0.92, "复核后证据完整并通过"),
         clarification_request: null,
       },
     });
@@ -96,6 +124,8 @@ describe("DecisionPage clarification closure", () => {
     ));
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "需要确认" })).toBeNull());
     expect((screen.getByRole("textbox", { name: "文本指令" }) as HTMLTextAreaElement).value).toBe("运动模式");
+    expect(screen.getAllByText("92.0%").length).toBeGreaterThan(0);
+    expect(screen.getByText("复核后证据完整并通过")).toBeTruthy();
   });
 
   it("点击遮罩提交 NONE_OF_ABOVE，关闭弹窗并恢复空输入", async () => {
@@ -124,11 +154,18 @@ describe("DecisionPage clarification closure", () => {
 
   it("REVIEW 但 clarification_request=null 时不弹窗", async () => {
     mocks.submitText.mockResolvedValue({
-      turn_id: "TURN_SAFE_REVIEW",
-      semantic_frame: frame("TURN_SAFE_REVIEW", "打开车门"),
-      clarification_request: null,
+      mode: "SINGLE",
+      parent_turn_id: "TURN_SAFE_REVIEW",
+      parent_frame: frame("TURN_SAFE_REVIEW", "打开车门"),
+      blocked_by_parent_security: false,
+      children: [{ clause_index: 0, clause_text: "打开车门", turn_id: "TURN_SAFE_REVIEW", response: {
+        turn_id: "TURN_SAFE_REVIEW",
+        semantic_frame: frame("TURN_SAFE_REVIEW", "打开车门"),
+        decision: decision("REVIEW", 0.61, "安全复核但无需语义澄清"),
+        clarification_request: null,
+      }}],
     });
-    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter>);
+    render(<SessionProvider><MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter></SessionProvider>);
     await userEvent.type(screen.getByRole("textbox", { name: "文本指令" }), "打开车门");
     await userEvent.click(screen.getByRole("button", { name: "提交指令" }));
     await waitFor(() => expect(mocks.submitText).toHaveBeenCalled());

@@ -4,13 +4,14 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, useLocation } from "react-router-dom";
-import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
+import { submitAudioCommand, submitCoordinatedTextCommand, submitMicrophoneCommand } from "../api/command";
 import { getTurnPresentation } from "../api/turns";
 import { VisualPageNav } from "../components/VisualPageNav";
 import { DecisionPage } from "../pages/DecisionPage";
+import { SessionProvider } from "../stores/sessionStore";
 import type { AudioCommandResponse, EvidenceDemandPresentation, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 
-vi.mock("../api/command", () => ({ submitAudioCommand: vi.fn(), submitMicrophoneCommand: vi.fn(), submitTextCommand: vi.fn() }));
+vi.mock("../api/command", () => ({ submitAudioCommand: vi.fn(), submitCoordinatedTextCommand: vi.fn(), submitMicrophoneCommand: vi.fn(), submitTextCommand: vi.fn() }));
 vi.mock("../api/turns", () => ({ getTurnPresentation: vi.fn() }));
 
 const semanticFrame: SemanticFrame = {
@@ -67,6 +68,10 @@ function LocationProbe() {
   return <output data-testid="location">{useLocation().search}</output>;
 }
 
+function renderDecision(entry: string, withLocation = false) {
+  return render(<SessionProvider><MemoryRouter initialEntries={[entry]}><DecisionPage />{withLocation ? <LocationProbe /> : null}</MemoryRouter></SessionProvider>);
+}
+
 function commandResponse(finalDecision: "PASS" | "REVIEW" | "BLOCK" = "PASS"): TextCommandResponse {
   return {
     turn_id: "TURN_test",
@@ -74,6 +79,11 @@ function commandResponse(finalDecision: "PASS" | "REVIEW" | "BLOCK" = "PASS"): T
     evidence_demand: evidenceDemand,
     decision: { final_decision: finalDecision },
   } as unknown as TextCommandResponse;
+}
+
+function coordinatedResponse(finalDecision: "PASS" | "REVIEW" | "BLOCK" = "PASS") {
+  const child = commandResponse(finalDecision);
+  return { mode: "SINGLE" as const, parent_turn_id: child.turn_id, parent_frame: child.semantic_frame, blocked_by_parent_security: false, children: [{ clause_index: 0, clause_text: child.semantic_frame.raw_text, turn_id: child.turn_id, response: child }] };
 }
 
 function audioCommandResponse(): AudioCommandResponse {
@@ -93,7 +103,7 @@ function audioCommandResponse(): AudioCommandResponse {
 beforeEach(() => {
   vi.mocked(submitAudioCommand).mockReset();
   vi.mocked(submitMicrophoneCommand).mockReset();
-  vi.mocked(submitTextCommand).mockReset();
+  vi.mocked(submitCoordinatedTextCommand).mockReset();
   vi.mocked(getTurnPresentation).mockReset();
 });
 
@@ -101,14 +111,14 @@ afterEach(cleanup);
 
 describe("DecisionPage semantic-frame connection", () => {
   it("submits only text, preserves duplicate intent occurrences, and writes turn_id to the URL", async () => {
-    vi.mocked(submitTextCommand).mockResolvedValue(commandResponse());
-    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /><LocationProbe /></MemoryRouter>);
+    vi.mocked(submitCoordinatedTextCommand).mockResolvedValue(coordinatedResponse());
+    renderDecision("/decision", true);
 
     await userEvent.type(screen.getByLabelText("文本指令"), semanticFrame.raw_text);
     await userEvent.click(screen.getByRole("button", { name: "提交指令" }));
 
-    await waitFor(() => expect(submitTextCommand).toHaveBeenCalledTimes(1));
-    expect(submitTextCommand).toHaveBeenCalledWith({ text: semanticFrame.raw_text }, expect.any(AbortSignal));
+    await waitFor(() => expect(submitCoordinatedTextCommand).toHaveBeenCalledTimes(1));
+    expect(submitCoordinatedTextCommand).toHaveBeenCalledWith({ text: semanticFrame.raw_text }, expect.any(AbortSignal));
     await waitFor(() => expect(screen.getByTestId("location").textContent).toBe("?turn_id=TURN_test"));
 
     const cards = document.querySelectorAll(".semantic-intent-card");
@@ -128,12 +138,12 @@ describe("DecisionPage semantic-frame connection", () => {
       evidence_demand: evidenceDemand,
     } as TurnPresentationResponse);
 
-    render(<MemoryRouter initialEntries={["/decision?turn_id=TURN_test"]}><DecisionPage /></MemoryRouter>);
+    renderDecision("/decision?turn_id=TURN_test");
 
     await waitFor(() => expect(getTurnPresentation).toHaveBeenCalledWith("TURN_test", expect.any(AbortSignal)));
     await waitFor(() => expect(screen.getAllByText("WINDOW_OPEN")).toHaveLength(2));
     expect((screen.getByLabelText("文本指令") as HTMLTextAreaElement).value).toBe(semanticFrame.raw_text);
-    expect(submitTextCommand).not.toHaveBeenCalled();
+    expect(submitCoordinatedTextCommand).not.toHaveBeenCalled();
   });
 
   it("shows an unscored semantic review without presenting the stored compatibility score", async () => {
@@ -164,7 +174,7 @@ describe("DecisionPage semantic-frame connection", () => {
       },
     } as unknown as TurnPresentationResponse);
 
-    const view = render(<MemoryRouter initialEntries={["/decision?turn_id=TURN_review"]}><DecisionPage /></MemoryRouter>);
+    const view = renderDecision("/decision?turn_id=TURN_review");
 
     await waitFor(() => expect(screen.getByText("人工复核")).toBeTruthy());
     expect(view.container.querySelector(".decision-score strong")?.textContent).toBe("--");
@@ -174,8 +184,8 @@ describe("DecisionPage semantic-frame connection", () => {
   });
 
   it.each(["PASS", "REVIEW", "BLOCK"] as const)("does not alter the semantic frame for a %s command decision", async (finalDecision) => {
-    vi.mocked(submitTextCommand).mockResolvedValue(commandResponse(finalDecision));
-    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter>);
+    vi.mocked(submitCoordinatedTextCommand).mockResolvedValue(coordinatedResponse(finalDecision));
+    renderDecision("/decision");
 
     await userEvent.type(screen.getByLabelText("文本指令"), "打开车门");
     await userEvent.click(screen.getByRole("button", { name: "提交指令" }));
@@ -186,7 +196,7 @@ describe("DecisionPage semantic-frame connection", () => {
 
   it("uploads a WAV file through the audio endpoint and renders its semantic frame", async () => {
     vi.mocked(submitAudioCommand).mockResolvedValue(audioCommandResponse());
-    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /><LocationProbe /></MemoryRouter>);
+    renderDecision("/decision", true);
 
     await userEvent.click(screen.getByRole("tab", { name: "音频上传" }));
     const wav = new File([new Uint8Array([82, 73, 70, 70])], "command.wav", { type: "audio/wav" });
@@ -204,7 +214,7 @@ describe("DecisionPage semantic-frame connection", () => {
   });
 
   it("rejects a non-WAV file before calling the audio endpoint", async () => {
-    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /></MemoryRouter>);
+    renderDecision("/decision");
 
     await userEvent.click(screen.getByRole("tab", { name: "音频上传" }));
     const mp3 = new File([new Uint8Array([1])], "command.mp3", { type: "audio/mpeg" });
@@ -217,7 +227,7 @@ describe("DecisionPage semantic-frame connection", () => {
 
   it("captures four seconds from the backend laptop microphone", async () => {
     vi.mocked(submitMicrophoneCommand).mockResolvedValue(audioCommandResponse());
-    render(<MemoryRouter initialEntries={["/decision"]}><DecisionPage /><LocationProbe /></MemoryRouter>);
+    renderDecision("/decision", true);
 
     await userEvent.click(screen.getByRole("tab", { name: "麦克风采集" }));
     await userEvent.click(screen.getByRole("button", { name: "采集 4 秒语音" }));

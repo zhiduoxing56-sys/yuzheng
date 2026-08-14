@@ -44,6 +44,7 @@ ACTION_TERMS = (
     "制动",
     "鸣笛",
     "按喇叭",
+    "播放",
     "掀开",
     "开",
     "关",
@@ -130,14 +131,24 @@ def _is_negated(text: str, start: int) -> bool:
 
 
 def has_positive_action(text: str) -> bool:
-    return any(not _is_negated(text, match.start()) for match in _ACTION_PATTERN.finditer(text))
+    return any(_is_action_start(text, match) for match in _ACTION_PATTERN.finditer(text))
+
+
+def _is_action_start(text: str, match: re.Match[str]) -> bool:
+    if _is_negated(text, match.start()):
+        return False
+    # “调”可以独立充当动作（如“温度调高一点”），但“空调”里的“调”是
+    # 名词组成部分，不能成为隐式多动作边界。
+    return not (
+        match.group(0) == "调"
+        and match.start() > 0
+        and text[match.start() - 1] == "空"
+    )
 
 
 def is_potential_control_clause(text: str) -> bool:
     stripped = text.strip()
-    if not stripped or not has_positive_action(stripped):
-        return False
-    return has_explicit_object(stripped) or any(term in stripped for term in SELF_CONTAINED_ACTIONS)
+    return bool(stripped and has_positive_action(stripped))
 
 
 def _clean_clause(text: str) -> str:
@@ -174,7 +185,7 @@ class OrderedClauseResolver:
         matches = [
             match
             for match in _ACTION_PATTERN.finditer(text)
-            if not _is_negated(text, match.start())
+            if _is_action_start(text, match)
         ]
         if len(matches) < 2:
             return None
