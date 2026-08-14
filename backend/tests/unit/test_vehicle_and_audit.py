@@ -4,6 +4,7 @@ import hashlib
 import json
 import sqlite3
 
+from app.core.pipeline import CommandPipeline
 from app.models.schemas import TextCommandRequest, VehicleStatePatch
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 
@@ -15,6 +16,26 @@ def test_simulator_update_is_visible_in_snapshot() -> None:
     assert updated.vehicle_speed == 37
     assert snapshot.vehicle_speed == 37
     assert snapshot.gear_position == "D"
+
+
+def test_weather_ambient_light_link() -> None:
+    """夜间/低照度天气应联动降低环境照度，显式照度不被覆盖。"""
+    link = CommandPipeline._link_weather_ambient_light
+
+    night = link(VehicleStatePatch(weather="NIGHT"))
+    assert night.ambient_light == CommandPipeline._LOW_LIGHT_AMBIENT_LUX
+
+    sunset = link(VehicleStatePatch(weather="SUNSET"))
+    assert sunset.ambient_light == CommandPipeline._LOW_LIGHT_AMBIENT_LUX
+
+    day = link(VehicleStatePatch(weather="CLEAR"))
+    assert day.ambient_light == CommandPipeline._HIGH_LIGHT_AMBIENT_LUX
+
+    explicit = link(VehicleStatePatch(weather="NIGHT", ambient_light=90))
+    assert explicit.ambient_light == 90
+
+    untouched = link(VehicleStatePatch(vehicle_speed=40))
+    assert untouched.ambient_light is None
 
 
 def test_audit_hash_chain_detects_database_tampering(pipeline) -> None:

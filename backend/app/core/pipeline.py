@@ -2560,6 +2560,33 @@ class CommandPipeline:
     def causal_status(self):
         return self.causal_service.status()
 
+    # 天气 → 环境照度联动:夜间/低照度天气自动反映为低照度,晴朗/多云恢复高照度。
+    # 安全规则 LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED 依赖 ambient_light 判定"夜间/低照度",
+    # 若不联动,用户只设 weather=NIGHT 时 ambient_light 仍为白天值,夜间关前照灯会漏拦截。
+    _LOW_LIGHT_WEATHERS = frozenset(
+        {"NIGHT", "SUNSET", "RAIN", "FOG", "夜间", "黄昏", "雨", "雾"}
+    )
+    _HIGH_LIGHT_WEATHERS = frozenset({"CLEAR", "CLOUDY", "晴朗", "多云"})
+    _LOW_LIGHT_AMBIENT_LUX = 5
+    _HIGH_LIGHT_AMBIENT_LUX = 100
+
+    @staticmethod
+    def _link_weather_ambient_light(patch: VehicleStatePatch) -> VehicleStatePatch:
+        updates = patch.model_dump(exclude_unset=True)
+        weather = updates.get("weather")
+        if weather is None or "ambient_light" in updates:
+            return patch
+        code = str(weather).strip().upper()
+        if code in CommandPipeline._LOW_LIGHT_WEATHERS:
+            return patch.model_copy(
+                update={"ambient_light": CommandPipeline._LOW_LIGHT_AMBIENT_LUX}
+            )
+        if code in CommandPipeline._HIGH_LIGHT_WEATHERS:
+            return patch.model_copy(
+                update={"ambient_light": CommandPipeline._HIGH_LIGHT_AMBIENT_LUX}
+            )
+        return patch
+
     def get_vehicle_state(self) -> VehicleState:
         return self.vehicle.get_state()
 
@@ -2567,7 +2594,9 @@ class CommandPipeline:
         with self._command_lock:
             update_turn_id = make_id("STATE_UPDATE")
             self.evidence_repository.begin_turn(update_turn_id)
-            state = self.vehicle.update_state(patch)
+            state = self.vehicle.update_state(
+                self._link_weather_ambient_light(patch)
+            )
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
                 None,
