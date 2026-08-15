@@ -148,6 +148,16 @@ class CarlaVehicleAdapter:
         precipitation = float(weather.precipitation or 0)
         fog = float(weather.fog_density or 0)
         cloudiness = float(weather.cloudiness or 0)
+        try:
+            sun = float(getattr(weather, "sun_altitude_angle", 90) or 90)
+        except Exception:
+            sun = 90.0
+        # 先用太阳高度区分昼夜/黄昏：夜间预设(ClearNight)的 fog_density 也偏高，
+        # 若用 fog 判断会误判为 FOG
+        if sun < -5:
+            return "NIGHT"
+        if sun < 18:
+            return "SUNSET"
         if precipitation > 20:
             return "RAIN"
         if fog > 20:
