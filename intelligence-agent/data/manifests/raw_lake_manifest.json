@@ -1,0 +1,78 @@
+{
+  "total_files": 12,
+  "total_records": 140727,
+  "files": [
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\cn\\CN-AUTOQUALITY_20260814_195456.jsonl",
+      "record_count": 25,
+      "sha256": "392af42f5691c9f8",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\cn\\CN-AUTOQUALITY_20260814_195510.jsonl",
+      "record_count": 18,
+      "sha256": "58452da384ee4a12",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\cyber\\CYBER-NVD_20260814_194710.jsonl",
+      "record_count": 20,
+      "sha256": "494b3190a0ea82ab",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\eu\\EU-DVSA-RCL_20260814_201444.jsonl",
+      "record_count": 644,
+      "sha256": "3a42ef91892e565e",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-CSI_20260814_194834.jsonl",
+      "record_count": 7315,
+      "sha256": "726b13fb8083fd83",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-CSI_20260814_200546.jsonl",
+      "record_count": 7315,
+      "sha256": "575fbdcb4d04dd65",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-CSI_BULK_20260814_204513.jsonl",
+      "record_count": 28242,
+      "sha256": "c3e7ca3b0e671472",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-CSI_BULK_20260814_205559.jsonl",
+      "record_count": 87780,
+      "sha256": "64ccea3feb645900",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-CSI_BULK_20260814_205848.jsonl",
+      "record_count": 9065,
+      "sha256": "74a7ec410b94dd00",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-RCL_20260814_194550.jsonl",
+      "record_count": 0,
+      "sha256": "e3b0c44298fc1c14",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-RCL_20260814_194608.jsonl",
+      "record_count": 0,
+      "sha256": "e3b0c44298fc1c14",
+      "generation": "2026-08-15"
+    },
+    {
+      "file": "C:\\Users\\Leo\\AppData\\Local\\Temp\\opencode\\yuzheng_clean\\data\\safety_intelligence\\raw\\us\\US-NHTSA-RCL_20260814_194629.jsonl",
+      "record_count": 303,
+      "sha256": "cde8f53895fc1ae9",
+      "generation": "2026-08-15"
+    }
+  ]
+}
