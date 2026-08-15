@@ -473,6 +473,8 @@ pre { max-width: 100%; overflow: auto; padding: 9px; border-radius: 4px; backgro
 .evidence-side-card { padding: 14px; }
 .evidence-side-card h2, .evidence-node-drawer h2 { margin: 3px 0 12px; font-size: 16px; }
 .evidence-side-card h3 { margin: 14px 0 7px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.knowledge-augmented-block { margin: 6px 0 8px; padding: 6px 9px; border-left: 3px solid #6366f1; border-radius: 4px; background: rgba(99, 102, 241, 0.08); font-size: 12px; }
+.knowledge-augmented-block p { margin: 2px 0; }
 .evidence-facts, .retrieval-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0; }
 .evidence-facts div, .retrieval-stats div { min-width: 0; padding: 7px; border: 1px solid #203b4b; border-radius: 4px; background: #081720; }
 .evidence-facts dt, .retrieval-stats dt, .node-detail-grid dt, .quality-mini-grid dt, .quality-summary-grid dt { color: var(--muted); font-size: 9px; }

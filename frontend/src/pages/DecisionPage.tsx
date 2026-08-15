@@ -11,6 +11,7 @@ import type { CommandInputMode, DecisionResultView } from "../types/visualModels
 interface CurrentTurnData {
   turn_id: string;
   semantic_frame: SemanticFrame;
+  evidence_demand?: TurnPresentationResponse["evidence_demand"];
 }
 
 interface BoundExecutionToken extends ExecutionTokenView {
@@ -195,6 +196,7 @@ export function DecisionPage() {
       setCurrentTurn({
         turn_id: presentation.turn_id,
         semantic_frame: presentation.semantic_frame,
+        evidence_demand: presentation.evidence_demand,
       });
       setResult(buildResultView(presentation));
       setClarification((existing) => (
@@ -242,7 +244,11 @@ export function DecisionPage() {
     setSelectedChildIndex(null);
     const frame = response.semantic_frame;
     if (frame) {
-      setCurrentTurn({ turn_id: response.turn_id, semantic_frame: frame });
+      setCurrentTurn({
+        turn_id: response.turn_id,
+        semantic_frame: frame,
+        evidence_demand: (response as TextCommandResponse).evidence_demand,
+      });
       setText(frame.raw_text);
     } else {
       setCurrentTurn(null);
@@ -346,7 +352,11 @@ export function DecisionPage() {
         const child = response.children[0].response;
         setExecTokens(executionTokensFor(child));
         setResult(buildCommandResultView(child));
-        setCurrentTurn({ turn_id: child.turn_id, semantic_frame: child.semantic_frame });
+        setCurrentTurn({
+          turn_id: child.turn_id,
+          semantic_frame: child.semantic_frame,
+          evidence_demand: child.evidence_demand,
+        });
         setClarification(child.clarification_request || null);
         nextParams.set("turn_id", child.turn_id);
         setSearchParams(nextParams, { replace: true });
@@ -491,6 +501,9 @@ export function DecisionPage() {
     <div className="decision-visual-left">
       <CommandInputSwitcher mode={mode} text={text} audioFileName={audioFile?.name || ""} recording={recording} busy={busy} feedback={feedback} hasError={hasError} onModeChange={changeMode} onTextChange={setText} onAudioChange={selectAudio} onRecordingToggle={captureMicrophone} onSubmit={submit} />
       <SemanticFrameDisplay frame={currentTurn?.semantic_frame || null} />
+      {currentTurn?.evidence_demand?.intent_demands.some((item) => item.knowledge_augmented_types?.length) ? <div className="knowledge-augmented-block">
+        {currentTurn.evidence_demand.intent_demands.map((intent) => intent.knowledge_augmented_types?.length ? <p key={intent.intent_id}><strong>📚 知识库追加（{intent.intent_id}）</strong>：{intent.knowledge_augmented_types.join("、")}{intent.knowledge_hits?.length ? <span> · 命中 {intent.knowledge_hits.map((hit) => hit.title ?? hit.node_id).join("；")}</span> : null}</p> : null)}
+      </div> : null}
     </div>
     <div className="decision-result-column">
       <div className="decision-child-detail-card">

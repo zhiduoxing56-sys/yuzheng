@@ -221,12 +221,20 @@ export interface EvidenceDemandItem {
   reason: string;
 }
 
+export interface KnowledgeHit {
+  node_id?: string;
+  title?: string;
+  canonical_action?: string;
+  trust_level?: string;
+}
+
 export interface EvidenceDemandPresentation {
   demand_id: string;
   turn_id: string;
   intent_demands: Array<{
     intent_id: string; clause_index: number; action: string; target: string; area: string;
     risk_level: string; query_text: string; required_types: string[]; optional_types: string[];
+    knowledge_augmented_types?: string[]; knowledge_hits?: KnowledgeHit[];
     priority: number; retrieval_scope: string; demand_items: EvidenceDemandItem[];
   }>;
 }

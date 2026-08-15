@@ -80,6 +80,7 @@ from app.services.evidence.resolution import project_evidence_resolutions
 from app.services.execution.service import ExecutionService
 from app.services.graph.builder import EvidenceSubgraphBuilder
 from app.services.index.hnsw import HNSWIndexService
+from app.services.index.trusted_knowledge import TrustedKnowledgeIndexService
 from app.services.interpreter.service import InterpreterService
 from app.services.presentation.audit_snapshot import AuditSnapshotBuilder
 from app.services.runtime.capability import RuntimeCapabilityService
@@ -120,6 +121,7 @@ class CommandPipeline:
         token_secret: bytes | None = None,
         event_broker: PipelineEventBroker | None = None,
         audit_database_role: AuditDatabaseRole = AuditDatabaseRole.PRODUCTION,
+        knowledge_data_path: Path | None = None,
     ) -> None:
         self._command_lock = RLock()
         audit_database_role = AuditDatabaseRole(audit_database_role)
@@ -189,6 +191,19 @@ class CommandPipeline:
         )
         safety_config = load_yaml("safety_rules.yaml")
         self.index = HNSWIndexService(load_yaml("index.yaml"), self.embedder)
+        # Trusted 安全知识库：知识库辅助证据需求（追加并集）
+        knowledge_config = load_yaml("knowledge.yaml")
+        env_knowledge_path = os.getenv("YUZHENG_KNOWLEDGE_DATA_PATH")
+        if env_knowledge_path:
+            knowledge_config = {**knowledge_config, "data_path": env_knowledge_path}
+        if knowledge_data_path is not None:
+            knowledge_config = {**knowledge_config, "data_path": str(knowledge_data_path)}
+        self.knowledge_index = TrustedKnowledgeIndexService(
+            knowledge_config,
+            self.embedder,
+            self.evidence_demand_registry.canonical_evidence_types,
+        )
+        self.knowledge_index.load()
         self.runtime_capability_service = RuntimeCapabilityService(self.embedder, self.index)
         self.recall_service = MandatoryRecallService(self.evidence_repository, self.embedder)
         self.quality_service = EvidenceQualityService(quality_config)
@@ -1441,6 +1456,7 @@ class CommandPipeline:
                 terminal_kind="KNOWN_NON_EXECUTABLE",
             )
         demand = self.demand_service.build(frame)
+        demand = self.knowledge_index.augment(demand)
         zone_permission: ZonePermissionResult | None = None
         zone_results: list[ZonePermissionResult] = []
         if (

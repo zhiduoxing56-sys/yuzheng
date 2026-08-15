@@ -289,6 +289,17 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     def index_parameters(request: IndexParametersRequest) -> IndexStatus:
         return pipeline.update_index_parameters(request)
 
+    @router.get("/knowledge/status")
+    def knowledge_status() -> dict[str, object]:
+        """Trusted 安全知识库状态：ready/enabled/data_path/node_count/top_k/degraded/load_error。"""
+        return pipeline.knowledge_index.status()
+
+    @router.post("/knowledge/reload")
+    def knowledge_reload() -> dict[str, object]:
+        """重载知识库（数据文件更新后无需重启后端）。"""
+        pipeline.knowledge_index.load()
+        return pipeline.knowledge_index.status()
+
     @router.get("/recall-audits/recent", response_model=RecallAuditRecentResponse)
     def recent_recall_audits(limit: int = Query(default=20, ge=1, le=20)) -> RecallAuditRecentResponse:
         rows = pipeline.audit_repository.recent_recall_audits(limit)

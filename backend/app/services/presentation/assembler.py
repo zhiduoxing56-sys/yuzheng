@@ -285,6 +285,8 @@ class PresentationAssembler:
                     query_text=intent_demand.query_text,
                     required_types=intent_demand.required_types,
                     optional_types=intent_demand.optional_types,
+                    knowledge_augmented_types=intent_demand.knowledge_augmented_types,
+                    knowledge_hits=intent_demand.knowledge_hits,
                     priority=intent_demand.priority,
                     retrieval_scope=intent_demand.retrieval_scope,
                     demand_items=items,

@@ -46,6 +46,9 @@ export function DecisionResultPanel({ data, immediate, loading, error, onRetry }
       <div><span>最终裁决</span><strong>{decisionLabel(decision.final_decision)}</strong></div>
     </div>
     <p className="decision-explanation">{promotionReason}</p>
+    {data.evidence_demand.intent_demands.some((item) => item.knowledge_augmented_types?.length) ? <div className="knowledge-augmented-block">
+      {data.evidence_demand.intent_demands.map((intent) => intent.knowledge_augmented_types?.length ? <p key={intent.intent_id}><strong>📚 知识库追加（{intent.intent_id}）</strong>：{intent.knowledge_augmented_types.join("、")}{intent.knowledge_hits?.length ? <span> · 命中 {intent.knowledge_hits.map((hit) => hit.title ?? hit.node_id).join("；")}</span> : null}</p> : null)}
+    </div> : null}
     <details className="decision-technical-details"><summary>技术详情</summary><p>{decision.explanation}</p><p><code>{decision.decision_merge_reason}</code></p><ul className="reason-list">{decision.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></details>
     <div className="decision-flags"><span>安全门：{data.gate_result.blocked ? "已阻断" : "已通过"}</span><span>复核：{decision.review_required ? "需要" : "不需要"}</span><span>授权：{data.authorization.token_status || (data.authorization.token_issued ? "已签发" : "未签发")}</span><span>执行：{executionStatusLabel(data.execution.execution_status)}</span></div>
     <div className="decision-action-links">
