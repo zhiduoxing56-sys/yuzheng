@@ -260,6 +260,27 @@ class CarlaVehicleAdapter:
                     best = spawn
         return best
 
+    def _road_points_ahead(self, distance: float = 40.0, count: int = 8) -> list[Any]:
+        """沿当前车道返回一系列候选道路点(从近到远)，供车辆障碍生成逐个尝试。"""
+        try:
+            waypoint = self._world.get_map().get_waypoint(
+                self._vehicle.get_transform().location
+            )
+        except Exception:
+            return []
+        points: list[Any] = []
+        target: Any = waypoint
+        traveled = 0.0
+        while len(points) < count and traveled < distance + 20:
+            nxt = target.next(5.0)
+            if not nxt:
+                break
+            target = nxt[0]
+            traveled += 5.0
+            if traveled >= 8:  # 跳过太近的位置
+                points.append(target.transform)
+        return points
+
     def _cleanup_stale_obstacles(self) -> None:
         """清理可能遗留的障碍物 actor（后端重启后 _spawned_obstacles 丢失追踪）。
 
@@ -286,9 +307,14 @@ class CarlaVehicleAdapter:
                 if not candidates:
                     candidates = blueprints.filter("vehicle.*")
                 blueprint = candidates[self._obstacle_counter % len(candidates)]
-                location = self._road_point_ahead()
-                if location is None:
-                    return False
+                self._obstacle_counter += 1
+                # 沿车道尝试多个候选点，避免单点碰撞导致生成失败
+                for location in self._road_points_ahead():
+                    actor = self._world.try_spawn_actor(blueprint, location)
+                    if actor is not None:
+                        self._spawned_obstacles.append(actor)
+                        return True
+                return False
             elif kind == "obstacle":
                 candidates = blueprints.filter("static.prop.trafficcone01")
                 if not candidates:
