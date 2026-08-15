@@ -12,7 +12,7 @@ source_freezes:
     sha256: 6d7f1c8f7a7e3ad8c380e446d66071f38dcd84fef24621ba1d1968162ad196bb
   known:
     path: data/nlu/spec/audits/known_non_executable_semantic_freeze_final_v4.yaml
-    sha256: 5a8319f5ba9ddb3f1cf74f8274260db20810e0a9360541d1fc269aac56d1b238
+    sha256: f863ca1ccfa1d59f14ad0f1a2307f2db5dbb49a174ce8a2a2ffea8fec2902bc7
   product_removals:
     path: data/nlu/spec/audits/known_non_executable_product_removals_v2.yaml
     sha256: dad730e6bb4859f6ab8c26a47a23a5c93a9116a93a36893a498f81d3410122ce

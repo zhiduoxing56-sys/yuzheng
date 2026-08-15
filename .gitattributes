@@ -5,3 +5,6 @@ backend/intent_recall_v1/config.yaml text eol=lf
 data/nlu/spec/intent_registry_unified_v1.yaml text eol=lf
 挂靠/intent_cards_unified_v1.yaml text eol=lf
 挂靠/intent_anchor_set_unified_v1.yaml text eol=lf
+data/nlu/spec/audits/known_non_executable_semantic_freeze_final_v4.yaml text eol=lf
+data/nlu/spec/intent_registry_r4_final.yaml text eol=lf
+data/nlu/spec/audits/known_non_executable_product_removals_v2.yaml text eol=lf
