@@ -281,6 +281,27 @@ class CarlaVehicleAdapter:
                 points.append(target.transform)
         return points
 
+    def _ordered_vehicle_spawns(self, limit: int = 20) -> list[Any]:
+        """返回自车前方按(横向偏移+距离)排序的地图车辆出生点，供障碍车逐个尝试。
+
+        地图 spawn_points 是车辆可出生位置；按前方优先、横向接近排序，
+        第一个能成功 spawn 的位置即为有效点(waypoint 点常因车辆碰撞体放不下)。
+        """
+        transform = self._vehicle.get_transform()
+        yaw_rad = math.radians(transform.rotation.yaw)
+        forward = (math.cos(yaw_rad), math.sin(yaw_rad))
+        scored: list[tuple[float, Any]] = []
+        for spawn in self._world.get_map().get_spawn_points():
+            dx = spawn.location.x - transform.location.x
+            dy = spawn.location.y - transform.location.y
+            ahead = dx * forward[0] + dy * forward[1]
+            if ahead <= 5:
+                continue
+            lateral = abs(-dx * forward[1] + dy * forward[0])
+            scored.append((lateral + ahead, spawn))
+        scored.sort(key=lambda item: item[0])
+        return [spawn for _, spawn in scored[:limit]]
+
     def _cleanup_stale_obstacles(self) -> None:
         """清理可能遗留的障碍物 actor（后端重启后 _spawned_obstacles 丢失追踪）。
 
@@ -308,9 +329,9 @@ class CarlaVehicleAdapter:
                     candidates = blueprints.filter("vehicle.*")
                 blueprint = candidates[self._obstacle_counter % len(candidates)]
                 self._obstacle_counter += 1
-                # 沿车道尝试多个候选点，避免单点碰撞导致生成失败
-                for location in self._road_points_ahead():
-                    actor = self._world.try_spawn_actor(blueprint, location)
+                # 用地图车辆出生点(保证可 spawn)沿前方逐个尝试
+                for spawn in self._ordered_vehicle_spawns():
+                    actor = self._world.try_spawn_actor(blueprint, spawn)
                     if actor is not None:
                         self._spawned_obstacles.append(actor)
                         return True
