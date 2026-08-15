@@ -898,4 +898,4 @@ intents:
     canonical_action: SWITCH_MODE
     canonical_target: INTERIOR_LIGHT
     control_attribute: MODE
-source_registry_sha256: 54e18d5e748412ad9f5d3ea7f9bc6eea7a92d7ea98408cbc99cba36799b4c52c
+source_registry_sha256: 67ff5015145bc5aaad07ce1063417dcf6332696de70b77c36ca5e8cb240b8121
