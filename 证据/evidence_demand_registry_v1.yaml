@@ -493,12 +493,14 @@ intent_requirements:
       SURROUNDING_OBJECT_STATE: 周边车辆、行人和障碍物的位置/相对运动会改变动作安全性。
       LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
   HIGH_BEAM_OFF:
-    mandatory: []
+    mandatory:
+    - VEHICLE_SPEED
+    - ENVIRONMENT_CONDITIONS
     recommended:
     - LIGHTING_STATE
-    - ENVIRONMENT_CONDITIONS
     conditional_mandatory: []
     rationale:
+      VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
       LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
       ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
   FOG_LIGHT_ON:

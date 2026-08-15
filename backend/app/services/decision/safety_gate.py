@@ -251,10 +251,12 @@ class SafetyGateService:
             )
             or intent.intent_id in off_intent_ids
         )
+        # 行驶判定：speed 未知/不可用时按 fail-closed 拦截(无法证明已驻车)，
+        # 避免某些 intent 的 VEHICLE_SPEED 证据缺失导致夜间关灯被放行
+        moving = not (is_finite_number(speed_value) and speed_value == 0)
         hit = (
             intent_match
-            and is_finite_number(speed_value)
-            and speed_value > 0
+            and moving
             and low
         )
         nodes = [node.node_id for node in (speed, light) if node]
