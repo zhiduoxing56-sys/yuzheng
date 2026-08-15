@@ -31,6 +31,14 @@ const GEAR_OPTIONS = [
   { value: "N", label: "空挡 N" },
 ];
 
+function shortCollisionTarget(target?: string | null): string {
+  if (!target) return "";
+  if (target.includes("pedestrian")) return "(行人)";
+  if (target.includes("vehicle")) return "(车辆)";
+  if (target.includes("cone") || target.includes("prop")) return "(障碍物)";
+  return `(${target})`;
+}
+
 export function CarlaPage() {
   const { data, refresh } = useVehicleState();
   const [weather, setWeather] = useState("CLEAR");
@@ -140,12 +148,19 @@ export function CarlaPage() {
 
   const state = data;
 
+  const collided = state?.collision_state === "COLLIDED" || state?.collision_state === true;
+  const objects = state?.surrounding_objects ?? [];
+
   const stateItems = [
     ["车速", state?.vehicle_speed != null ? `${Math.round(state.vehicle_speed)} km/h` : "--"],
     ["挡位", state?.gear_position || "--"],
     ["天气", state?.weather || "--"],
     ["前照灯", state?.headlight_state || "--"],
     ["制动", state?.brake_state || "--"],
+    ["前方障碍", state?.front_obstacle_distance != null ? `${state.front_obstacle_distance} m` : "--"],
+    ["后方障碍", state?.rear_obstacle_distance != null ? `${state.rear_obstacle_distance} m` : "--"],
+    ["碰撞状态", collided ? `已碰撞 ${shortCollisionTarget(state?.collision_target)}` : "无碰撞"],
+    ["周边目标", objects.length > 0 ? `${objects.length} 个` : "无"],
     ["车门", state?.door_state || "--"],
     ["车窗", state?.window_state || "--"],
     ["音乐", state?.music_state || "--"],

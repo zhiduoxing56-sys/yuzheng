@@ -31,6 +31,9 @@ const labels: Record<keyof VehicleState, string> = {
   surround_camera_state: "环视摄像头",
   emergency_flag: "紧急状态",
   collision_state: "碰撞状态",
+  collision_target: "碰撞目标",
+  collision_at: "碰撞时间",
+  surrounding_objects: "周边目标",
   safety_constraint: "安全约束",
   updated_at: "更新时间",
 };
@@ -59,6 +62,10 @@ export function formatVehicleStateValue(key: keyof VehicleState, value: unknown)
   if (typeof value === "boolean") return value ? "是" : "否";
   if (key === "vehicle_speed" || key === "speed_limit") return `${value} km/h`;
   if (["front_obstacle_distance", "rear_obstacle_distance", "ultrasonic_distance"].includes(key)) return `${value} m`;
+  if (key === "surrounding_objects") {
+    const list = Array.isArray(value) ? value : [];
+    return list.length ? `${list.length} 个目标` : "暂无数据";
+  }
   return String(value);
 }
 

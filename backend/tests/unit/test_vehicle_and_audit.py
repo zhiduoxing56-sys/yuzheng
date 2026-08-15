@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import datetime
 import hashlib
 import json
 import sqlite3
+import threading
 
+from app.core.config import load_yaml
 from app.core.pipeline import CommandPipeline
-from app.models.schemas import TextCommandRequest, VehicleStatePatch
+from app.models.schemas import TextCommandRequest, VehicleState, VehicleStatePatch, utc_now
+from app.services.evidence.repository import EvidenceRepository
+from app.services.vehicle.carla import CarlaVehicleAdapter
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 
 
@@ -95,3 +100,64 @@ def test_audit_hash_chain_survives_compatible_model_evolution(pipeline) -> None:
     assert restored.final_decision.final_decision == restored.final_decision.decision
     assert restored.final_decision.score_factors.evidence_coverage_applicable is True
     assert pipeline.audit_repository.verify_chain() is True
+
+
+def test_vehicle_state_sensor_fields_defaults() -> None:
+    """VehicleState 传感器字段默认值：无碰撞、无周边对象列表。"""
+    state = VehicleState()
+    assert state.collision_state == "NONE"
+    assert state.collision_target is None
+    assert state.collision_at is None
+    assert state.surrounding_objects == []
+
+
+def test_carla_sensor_classify_and_collision_reset() -> None:
+    """传感器类型归一化；碰撞事件超过阈值自动复位为 NONE。"""
+    assert CarlaVehicleAdapter._classify("vehicle.tesla.model3") == "vehicle"
+    assert CarlaVehicleAdapter._classify("walker.pedestrian.0000") == "pedestrian"
+    assert CarlaVehicleAdapter._classify("static.prop.trafficcone01") == "obstacle"
+    assert CarlaVehicleAdapter._classify("traffic.traffic_light") == "other"
+
+    adapter = object.__new__(CarlaVehicleAdapter)
+    adapter._lock = threading.RLock()
+    adapter._COLLISION_RESET_SECONDS = 3.0
+    adapter._sensor_state = {
+        "front_obstacle_distance": 2.0,
+        "rear_obstacle_distance": None,
+        "collision_state": "COLLIDED",
+        "collision_target": "static.prop.trafficcone01",
+        "collision_at": utc_now(),
+        "surrounding_objects": [],
+    }
+    # 刚碰撞：保持 COLLIDED
+    assert adapter._sensor_snapshot()["collision_state"] == "COLLIDED"
+    # 碰撞已过 10 秒：复位 NONE
+    adapter._sensor_state["collision_at"] = utc_now() - datetime.timedelta(seconds=10)
+    assert adapter._sensor_snapshot()["collision_state"] == "NONE"
+
+
+def test_surrounding_object_state_flows_into_evidence() -> None:
+    """CARLA 扫描到的周边对象应进入 SURROUNDING_OBJECT_STATE 证据的 objects。"""
+    state = VehicleState(
+        front_obstacle_distance=3.2,
+        rear_obstacle_distance=9.0,
+        collision_state="NONE",
+        collision_target="walker.pedestrian.0000",
+        surrounding_objects=[
+            {"type": "pedestrian", "distance": 3.2, "ahead": True, "actor_id": 101},
+            {"type": "vehicle", "distance": 9.0, "ahead": False, "actor_id": 202},
+        ],
+    )
+    nodes = EvidenceRepository(load_yaml("evidence_quality.yaml")).ingest_vehicle_state(
+        state,
+        None,
+        "TURN_SENSOR_FLOW",
+    )
+    by_type = {node.evidence_type: node for node in nodes}
+    payload = by_type["SURROUNDING_OBJECT_STATE"].value
+    assert payload["front_obstacle_distance"] == 3.2
+    assert payload["rear_obstacle_distance"] == 9.0
+    assert payload["objects"] == state.surrounding_objects
+    # 传感器字段保留在 VehicleState 供 get_state/前端读取，但不进 SURROUNDING_OBJECT_STATE 证据
+    assert state.collision_target == "walker.pedestrian.0000"
+    assert state.collision_at is None

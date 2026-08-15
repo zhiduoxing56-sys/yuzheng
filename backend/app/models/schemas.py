@@ -1332,6 +1332,9 @@ class VehicleState(StrictModel):
     surround_camera_state: str | None = "AVAILABLE"
     emergency_flag: bool | None = False
     collision_state: str | bool | None = "NONE"
+    collision_target: str | None = None
+    collision_at: datetime | None = None
+    surrounding_objects: list[dict[str, Any]] = Field(default_factory=list)
     safety_constraint: str | None = "ENABLED"
     updated_at: datetime = Field(default_factory=utc_now)
 

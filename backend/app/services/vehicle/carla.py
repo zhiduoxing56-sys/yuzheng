@@ -38,6 +38,15 @@ class CarlaVehicleAdapter:
         "SUNSET": "ClearSunset",
     }
 
+    # 传感器扫描关注的相关 actor 前缀：车辆 / 行人 / 静态障碍物。
+    _OBSTACLE_ACTOR_PREFIXES = (
+        "vehicle.",
+        "walker.pedestrian.",
+        "static.prop.",
+    )
+    # 碰撞后延迟复位为 NONE 的秒数，避免状态永远粘住。
+    _COLLISION_RESET_SECONDS = 3.0
+
     def __init__(
         self,
         action_config: dict[str, Any] | None = None,
@@ -82,6 +91,18 @@ class CarlaVehicleAdapter:
         self._connected = True
         # 默认假设车辆处于自动驾驶；后续 set_autopilot 调用会同步更新此标志
         self._autopilot_enabled = True
+        # —— 传感器子系统（碰撞 + 障碍物/行人扫描）——
+        self._sensor_state: dict[str, Any] = {
+            "front_obstacle_distance": None,
+            "rear_obstacle_distance": None,
+            "collision_state": "NONE",
+            "collision_target": None,
+            "collision_at": None,
+            "surrounding_objects": [],
+        }
+        self._collision_sensor: Any | None = None
+        self._ensure_collision_sensor()
+        threading.Thread(target=self._scan_surroundings, daemon=True).start()
         threading.Thread(target=self._stuck_monitor, daemon=True).start()
 
     # ------------------------------------------------------------------ 内部
@@ -342,6 +363,113 @@ class CarlaVehicleAdapter:
                 pass
         return True
 
+    # ------------------------------------------------------------------ 传感器
+
+    @staticmethod
+    def _classify(type_id: str) -> str:
+        """把 CARLA actor type_id 归一化为 vehicle / pedestrian / obstacle。"""
+        if type_id.startswith("vehicle."):
+            return "vehicle"
+        if type_id.startswith("walker.pedestrian."):
+            return "pedestrian"
+        if type_id.startswith("static.prop."):
+            return "obstacle"
+        return "other"
+
+    def _ensure_collision_sensor(self) -> None:
+        """确保碰撞传感器已挂到自车；失败置 None 由扫描线程重试。"""
+        if self._vehicle is None or not self._vehicle.is_alive:
+            return
+        if self._collision_sensor is not None and self._collision_sensor.is_alive:
+            return
+        try:
+            blueprint = self._world.get_blueprint_library().find(
+                "sensor.other.collision"
+            )
+            blueprint.set_attribute("sensor_tick", "0.5")
+            sensor = self._world.spawn_actor(
+                blueprint,
+                self._carla.Transform(self._carla.Location(x=0, y=0, z=0)),
+                attach_to=self._vehicle,
+            )
+            sensor.listen(self._on_collision)
+            self._collision_sensor = sensor
+        except Exception:
+            self._collision_sensor = None
+
+    def _on_collision(self, event: Any) -> None:
+        """碰撞回调：记录碰撞状态、对象类型与时间。"""
+        other = getattr(event, "other_actor", None)
+        with self._lock:
+            self._sensor_state["collision_state"] = "COLLIDED"
+            self._sensor_state["collision_target"] = (
+                other.type_id if other is not None else None
+            )
+            self._sensor_state["collision_at"] = utc_now()
+
+    def _scan_surroundings(self) -> None:
+        """低频(~5Hz)遍历场景 actor，维护前后最近障碍物与 surrounding_objects。"""
+        while True:
+            time.sleep(0.2)
+            try:
+                if self._vehicle is None or not self._vehicle.is_alive:
+                    continue
+                self._ensure_collision_sensor()
+                transform = self._vehicle.get_transform()
+                vehicle_loc = transform.location
+                yaw = math.radians(transform.rotation.yaw)
+                forward = (math.cos(yaw), math.sin(yaw))
+                front: tuple[int, float] | None = None
+                rear: tuple[int, float] | None = None
+                objects: list[dict[str, Any]] = []
+                for actor in self._world.get_actors():
+                    try:
+                        if actor.id == self._vehicle.id or not actor.is_alive:
+                            continue
+                        type_id = actor.type_id
+                        if not type_id.startswith(self._OBSTACLE_ACTOR_PREFIXES):
+                            continue
+                        loc = actor.get_location()
+                        dx = loc.x - vehicle_loc.x
+                        dy = loc.y - vehicle_loc.y
+                        dist = math.hypot(dx, dy)
+                        dot = dx * forward[0] + dy * forward[1]
+                        objects.append(
+                            {
+                                "type": self._classify(type_id),
+                                "distance": round(dist, 1),
+                                "ahead": dot >= 0,
+                                "actor_id": actor.id,
+                            }
+                        )
+                        if dot >= 0 and (front is None or dist < front[1]):
+                            front = (actor.id, dist)
+                        elif dot < 0 and (rear is None or dist < rear[1]):
+                            rear = (actor.id, dist)
+                    except Exception:
+                        continue
+                with self._lock:
+                    self._sensor_state["front_obstacle_distance"] = (
+                        round(front[1], 1) if front is not None else None
+                    )
+                    self._sensor_state["rear_obstacle_distance"] = (
+                        round(rear[1], 1) if rear is not None else None
+                    )
+                    self._sensor_state["surrounding_objects"] = objects
+            except Exception:
+                with self._lock:
+                    self._connected = False
+
+    def _sensor_snapshot(self) -> dict[str, Any]:
+        """返回传感器状态快照；碰撞超过 3 秒自动复位 COLLIDED → NONE。"""
+        with self._lock:
+            snapshot = dict(self._sensor_state)
+        if snapshot.get("collision_at") is not None:
+            age = (utc_now() - snapshot["collision_at"]).total_seconds()
+            if age > self._COLLISION_RESET_SECONDS:
+                snapshot["collision_state"] = "NONE"
+        return snapshot
+
     @staticmethod
     def _apply_operation(state_data: dict[str, Any], operation: dict[str, Any]) -> None:
         field = str(operation["field"])
@@ -385,6 +513,9 @@ class CarlaVehicleAdapter:
                         "ON" if light == self._carla.VehicleLightState.LowBeam else "OFF"
                     )
                     state_data["weather"] = self._weather_to_code(self._world.get_weather())
+                    for key, value in self._sensor_snapshot().items():
+                        if value is not None:
+                            state_data[key] = value
                     state_data["updated_at"] = utc_now()
                     self._connected = True
             except Exception:
@@ -486,6 +617,10 @@ class CarlaVehicleAdapter:
                 },
             )
             self._last_feedback = None
+            # 复位后传感器环境已变，清空碰撞痕迹，障碍物由扫描线程重新计算
+            self._sensor_state["collision_state"] = "NONE"
+            self._sensor_state["collision_target"] = None
+            self._sensor_state["collision_at"] = None
             try:
                 self._world.set_weather(self._carla.WeatherParameters.ClearNoon)
                 self._apply_headlight(False)
@@ -493,3 +628,15 @@ class CarlaVehicleAdapter:
             except Exception:
                 self._connected = False
             return self.get_state()
+
+    def close(self) -> None:
+        """销毁碰撞传感器；供进程退出/适配器更换时的清理钩子调用。"""
+        with self._lock:
+            sensor, self._collision_sensor = self._collision_sensor, None
+        if sensor is not None:
+            try:
+                if sensor.is_alive:
+                    sensor.stop()
+                sensor.destroy()
+            except Exception:
+                pass

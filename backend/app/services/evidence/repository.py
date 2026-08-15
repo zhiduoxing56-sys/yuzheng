@@ -319,7 +319,7 @@ class EvidenceRepository:
                     "front_obstacle_distance": state.front_obstacle_distance,
                     "rear_obstacle_distance": state.rear_obstacle_distance,
                     "collision_state": state.collision_state,
-                    "objects": None,
+                    "objects": state.surrounding_objects or None,
                 },
             ),
             ("SPEED_LIMIT_STATE", state.speed_limit),

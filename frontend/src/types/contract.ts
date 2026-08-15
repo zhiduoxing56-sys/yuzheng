@@ -959,8 +959,19 @@ export interface VehicleState {
   surround_camera_state?: string;
   emergency_flag?: boolean;
   collision_state?: string | boolean;
+  collision_target?: string | null;
+  collision_at?: string | null;
+  surrounding_objects?: SurroundingObject[];
   safety_constraint?: string;
   updated_at: string;
+}
+
+/** CARLA 传感器扫描到的周边目标(车辆/行人/静态障碍物)。 */
+export interface SurroundingObject {
+  type?: string;
+  distance?: number;
+  ahead?: boolean;
+  actor_id?: number;
 }
 
 /** 车辆状态部分更新请求(对应后端 VehicleStatePatch,不含元数据字段)。 */
