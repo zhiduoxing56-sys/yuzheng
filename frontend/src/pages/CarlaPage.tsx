@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { clearObstacles, patchVehicleState, resetVehicleState, setTrafficLight, spawnObstacle } from "../api/carla";
 import { useVehicleState } from "../hooks/useVehicleState";
 import type { VehicleStatePatch } from "../types/contract";
@@ -39,6 +39,14 @@ function shortCollisionTarget(target?: string | null): string {
   return `(${target})`;
 }
 
+// 超过该距离视为"无障碍"，不显示具体距离
+const OBSTACLE_VISIBLE_RANGE = 150;
+
+function formatObstacleDistance(distance?: number | null): string {
+  if (distance == null || distance > OBSTACLE_VISIBLE_RANGE) return "无障碍";
+  return `${distance} m`;
+}
+
 export function CarlaPage() {
   const { data, refresh } = useVehicleState();
   const [weather, setWeather] = useState("CLEAR");
@@ -49,6 +57,14 @@ export function CarlaPage() {
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
+
+  // 传感器字段(前方/后方障碍/周边目标/碰撞)随模拟器环境实时刷新
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      void refresh();
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [refresh]);
 
   const apply = useCallback(async (patch: VehicleStatePatch, message: string) => {
     setBusy(true);
@@ -149,7 +165,10 @@ export function CarlaPage() {
   const state = data;
 
   const collided = state?.collision_state === "COLLIDED" || state?.collision_state === true;
-  const objects = state?.surrounding_objects ?? [];
+  // 仅统计 150m 内有效障碍，之外的视为无障碍
+  const objects = (state?.surrounding_objects ?? []).filter(
+    (o) => o.distance != null && o.distance <= OBSTACLE_VISIBLE_RANGE
+  );
 
   const stateItems = [
     ["车速", state?.vehicle_speed != null ? `${Math.round(state.vehicle_speed)} km/h` : "--"],
@@ -157,8 +176,8 @@ export function CarlaPage() {
     ["天气", state?.weather || "--"],
     ["前照灯", state?.headlight_state || "--"],
     ["制动", state?.brake_state || "--"],
-    ["前方障碍", state?.front_obstacle_distance != null ? `${state.front_obstacle_distance} m` : "--"],
-    ["后方障碍", state?.rear_obstacle_distance != null ? `${state.rear_obstacle_distance} m` : "--"],
+    ["前方障碍", formatObstacleDistance(state?.front_obstacle_distance)],
+    ["后方障碍", formatObstacleDistance(state?.rear_obstacle_distance)],
     ["碰撞状态", collided ? `已碰撞 ${shortCollisionTarget(state?.collision_target)}` : "无碰撞"],
     ["周边目标", objects.length > 0 ? `${objects.length} 个` : "无"],
     ["车门", state?.door_state || "--"],

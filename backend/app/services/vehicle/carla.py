@@ -513,9 +513,9 @@ class CarlaVehicleAdapter:
                         "ON" if light == self._carla.VehicleLightState.LowBeam else "OFF"
                     )
                     state_data["weather"] = self._weather_to_code(self._world.get_weather())
-                    for key, value in self._sensor_snapshot().items():
-                        if value is not None:
-                            state_data[key] = value
+                    # 全量合并传感器快照：无障碍方向 front/rear 显式置 None，
+                    # 避免默认值 100 被前端误判为 100m 障碍
+                    state_data.update(self._sensor_snapshot())
                     state_data["updated_at"] = utc_now()
                     self._connected = True
             except Exception:
