@@ -223,8 +223,27 @@ class CarlaVehicleAdapter:
         return self._carla.Transform(location, transform.rotation)
 
     def _road_point_ahead(self, distance: float = 30.0) -> Any | None:
-        """找一个位于自车前方、且在同一条车道方向上的道路出生点(供车辆使用)。"""
+        """找一个位于自车前方、且在同一条车道方向上的道路点(供车辆障碍生成)。
+
+        优先用地图 waypoint 沿当前车道前进(保证在道路上，任意停车位可用)；
+        失败再回退到放宽横向/前方条件的 spawn point 搜索。
+        """
         transform = self._vehicle.get_transform()
+        try:
+            waypoint = self._world.get_map().get_waypoint(transform.location)
+            target: Any = waypoint
+            traveled = 0.0
+            while traveled < distance:
+                nxt = target.next(5.0)
+                if not nxt:
+                    break
+                target = nxt[0]
+                traveled += 5.0
+            if target is not None:
+                return target.transform
+        except Exception:
+            pass
+        # 回退：前方一定范围、横向容忍较大的最近 spawn point
         yaw_rad = math.radians(transform.rotation.yaw)
         forward = (math.cos(yaw_rad), math.sin(yaw_rad))
         best: Any | None = None
@@ -234,8 +253,8 @@ class CarlaVehicleAdapter:
             dy = spawn.location.y - transform.location.y
             ahead = dx * forward[0] + dy * forward[1]
             lateral = abs(-dx * forward[1] + dy * forward[0])
-            if ahead > distance - 15 and lateral < 6:
-                score = ahead + lateral
+            if ahead > 5 and lateral < 12:
+                score = lateral + abs(ahead - distance)
                 if score < best_score:
                     best_score = score
                     best = spawn
