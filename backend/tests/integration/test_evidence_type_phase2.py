@@ -227,6 +227,8 @@ def test_mandatory_recall_creates_only_canonical_missing_node() -> None:
     [
         ("MOVING_DOOR_OPEN_PROHIBITED", _frame("DOOR_OPEN", "打开", "车门"), VehicleState(vehicle_speed=1), ["VEHICLE_SPEED"]),
         ("LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED", _frame("HEADLIGHT_SET_MODE", "设置", "前照灯", mode="OFF"), VehicleState(vehicle_speed=1, ambient_light=5), ["VEHICLE_SPEED", "ENVIRONMENT_CONDITIONS"]),
+        ("LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED", _frame("LOW_BEAM_OFF", "关闭", "近光灯"), VehicleState(vehicle_speed=1, ambient_light=5), ["VEHICLE_SPEED", "ENVIRONMENT_CONDITIONS"]),
+        ("LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED", _frame("HIGH_BEAM_OFF", "关闭", "远光灯"), VehicleState(vehicle_speed=1, ambient_light=5), ["VEHICLE_SPEED", "ENVIRONMENT_CONDITIONS"]),
         ("DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED", _frame("DEFROST_OFF", "关闭", "前挡风除雾"), VehicleState(weather="DENSE_FOG"), ["ENVIRONMENT_CONDITIONS"]),
         ("NON_DRIVER_DRIVING_CONTROL_PROHIBITED", _frame("ACCELERATE", "加速", "速度"), VehicleState(occupant_role="passenger"), ["AUTHORIZATION_STATE"]),
         ("FRONT_OBSTACLE_ACCELERATION_PROHIBITED", _frame("ACCELERATE", "加速", "速度"), VehicleState(front_obstacle_distance=2), ["SURROUNDING_OBJECT_STATE"]),

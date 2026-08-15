@@ -242,9 +242,17 @@ class SafetyGateService:
             or is_finite_number(light_value)
             and light_value < float(rule.get("low_light_lux", 20))
         )
+        # off_intent_ids 覆盖 LOW_BEAM_OFF/HIGH_BEAM_OFF 这类"本身就是关闭"的意图
+        off_intent_ids = {str(item) for item in rule.get("off_intent_ids", [])}
+        intent_match = (
+            (
+                intent.intent_id in {str(item) for item in rule.get("intent_ids", [])}
+                and intent.mode == rule.get("mode")
+            )
+            or intent.intent_id in off_intent_ids
+        )
         hit = (
-            intent.intent_id in {str(item) for item in rule.get("intent_ids", [])}
-            and intent.mode == rule.get("mode")
+            intent_match
             and is_finite_number(speed_value)
             and speed_value > 0
             and low

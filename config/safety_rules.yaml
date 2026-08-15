@@ -25,9 +25,10 @@ gate_rules:
   - id: LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED
     evaluator: low_light_headlight
     intent_ids: [HEADLIGHT_SET_MODE]
+    off_intent_ids: [LOW_BEAM_OFF, HIGH_BEAM_OFF]
     mode: "OFF"
     low_light_lux: 20
-    reason: 夜间或低照度行驶中禁止关闭前照灯
+    reason: 夜间或低照度行驶中禁止关闭前照灯/近光灯/远光灯
   - id: DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED
     evaluator: dense_fog_defog
     intent_ids: [DEFROST_OFF]
