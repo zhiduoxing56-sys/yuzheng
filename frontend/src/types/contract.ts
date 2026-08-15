@@ -553,6 +553,9 @@ export interface ClarificationCandidate {
   candidate_source: ClarificationCandidateSource;
   source_rank: number;
   confidence: number | null;
+  canonical_intent_id?: string | null;
+  canonical_runtime_identity?: "FORMAL" | "KNOWN_NON_EXECUTABLE" | null;
+  canonical_slots?: Record<string, unknown>;
   group: string | null;
   group_label: string | null;
 }

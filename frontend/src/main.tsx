@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
 import { loadRuntimeConfig } from "./config";
 import { SessionProvider } from "./stores/sessionStore";
+import { AuthProvider } from "./stores/authStore";
 import "./styles/global.css";
 import "./styles/visual-pages.css";
 
@@ -12,9 +13,9 @@ async function bootstrap() {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <BrowserRouter>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
+        <AuthProvider>
+          <SessionProvider><App /></SessionProvider>
+        </AuthProvider>
       </BrowserRouter>
     </StrictMode>,
   );

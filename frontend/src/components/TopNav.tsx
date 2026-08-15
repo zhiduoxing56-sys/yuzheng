@@ -1,4 +1,5 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../stores/authStore";
 import { useSession } from "../stores/sessionStore";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { StatusBadge } from "./StatusBadge";
@@ -8,6 +9,8 @@ const primaryLinks = [
 ];
 
 export function TopNav() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const { websocketStatus, sessionId, activeTurnId, newSession } = useSession();
   const location = useLocation();
   const realtimeEnabled = location.pathname === "/decision";
@@ -40,6 +43,7 @@ export function TopNav() {
             <NavLink to="/demo">场景演示</NavLink>
             <NavLink to="/system">系统状态</NavLink>
             <button type="button" onClick={newSession}>新建会话</button>
+            <button type="button" onClick={() => { logout(); navigate("/login", { replace: true }); }}>退出登录</button>
             <small title={sessionId}>会话已保存</small>
           </div>
         </details>

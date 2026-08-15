@@ -6,6 +6,8 @@ import { DecisionPage } from "./pages/DecisionPage";
 import { DemoPage } from "./pages/DemoPage";
 import { SystemPage } from "./pages/SystemPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { LoginPage } from "./pages/LoginPage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const EvidencePage = lazy(() => import("./pages/EvidencePage").then((module) => ({ default: module.EvidencePage })));
 const ReviewPage = lazy(() => import("./pages/ReviewPage").then((module) => ({ default: module.ReviewPage })));
@@ -16,6 +18,8 @@ export function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/decision" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route element={<ProtectedRoute />}>
       <Route element={<VisualPageShell />}>
         <Route path="/decision" element={<DecisionPage />} />
         <Route path="/evidence" element={<Suspense fallback={<div className="loading-state"><span className="loading-dot" />正在加载证据页面……</div>}><EvidencePage /></Suspense>} />
@@ -30,6 +34,7 @@ export function App() {
         <Route path="/system" element={<SystemPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   );
 }

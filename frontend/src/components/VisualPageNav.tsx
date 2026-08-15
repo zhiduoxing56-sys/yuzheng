@@ -1,4 +1,5 @@
-import { NavLink, useSearchParams } from "react-router-dom";
+import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../stores/authStore";
 
 const PAGE_LINKS = [
   { to: "/decision", label: "裁决" },
@@ -8,6 +9,8 @@ const PAGE_LINKS = [
 ];
 
 export function VisualPageNav() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [searchParams] = useSearchParams();
   const turnId = searchParams.get("turn_id")?.trim();
   const pageHref = (path: string) => turnId ? `${path}?${new URLSearchParams({ turn_id: turnId })}` : path;
@@ -20,5 +23,6 @@ export function VisualPageNav() {
         className={({ isActive }) => isActive ? "visual-page-nav-link is-active" : "visual-page-nav-link"}
       >{link.label}</NavLink>)}
     </nav>
+    <button className="visual-logout-button" type="button" onClick={() => { logout(); navigate("/login", { replace: true }); }}>退出登录</button>
   </header>;
 }

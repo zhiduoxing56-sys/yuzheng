@@ -53,7 +53,7 @@ describe("SemanticFrameDisplay", () => {
     expect(screen.getByText("0")).toBeTruthy();
   });
 
-  it("shows review reasons, candidates, unresolved clauses, and security signals without turning candidates into intents", () => {
+  it("does not expose internal review candidates while showing review diagnostics", () => {
     render(<SemanticFrameDisplay frame={frame({
       semantic_status: "REVIEW",
       review_reasons: ["ASR_REVIEW"],
@@ -63,7 +63,7 @@ describe("SemanticFrameDisplay", () => {
     })} />);
 
     expect(screen.getByText("ASR_REVIEW")).toBeTruthy();
-    expect(screen.getByText("打开运动模式")).toBeTruthy();
+    expect(screen.queryByText("打开运动模式")).toBeNull();
     expect(screen.getByText("打开运动魔石")).toBeTruthy();
     expect(screen.getByText("SECURITY_SIGNAL")).toBeTruthy();
     expect(screen.getAllByText("DOOR_OPEN")).toHaveLength(1);

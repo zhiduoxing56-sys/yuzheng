@@ -78,7 +78,6 @@ export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null })
           <div><dt>整体语义置信度</dt><dd>{formatScore(frame.semantic_confidence)}</dd></div>
           <div><dt>整体歧义度</dt><dd>{formatScore(frame.ambiguity_score)}</dd></div>
           <div><dt>复核原因</dt><dd>{formatList(frame.review_reasons)}</dd></div>
-          <div><dt>候选/修正建议</dt><dd>{formatList(frame.review_candidates)}</dd></div>
           <div><dt>未解析子句</dt><dd>{formatList(frame.unresolved_clauses)}</dd></div>
           <div><dt>安全信号</dt><dd>{formatList(frame.security_signals)}</dd></div>
         </dl>
