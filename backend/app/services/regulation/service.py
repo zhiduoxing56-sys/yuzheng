@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -177,13 +179,21 @@ class RegulationKnowledgeBase:
 
     def save(self, path: Path) -> None:
         path.mkdir(parents=True, exist_ok=True)
-        self._index.save_index(str(path / "index.bin"))
+        # hnswlib 的 C fopen 在 Windows 中文路径下失败，用 ASCII 临时目录中转。
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_bin = Path(tmp) / "index.bin"
+            self._index.save_index(str(tmp_bin))
+            shutil.copy2(tmp_bin, path / "index.bin")
         (path / "documents.json").write_text(
             json.dumps(self._documents, ensure_ascii=False, indent=2), encoding="utf-8"
         )
 
     def load(self, path: Path) -> None:
-        self._index.load_index(str(path / "index.bin"))
+        # 同上：先复制到 ASCII 临时路径再 load_index。
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_bin = Path(tmp) / "index.bin"
+            shutil.copy2(path / "index.bin", tmp_bin)
+            self._index.load_index(str(tmp_bin))
         self._documents = json.loads(
             (path / "documents.json").read_text(encoding="utf-8")
         )

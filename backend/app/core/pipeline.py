@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -38,6 +39,8 @@ from app.models.schemas import (
     OccurrenceLayerNavigation,
     MemoryRelationType,
     PipelineEvent,
+    RegulationHit,
+    RegulationRationale,
     RetrievalMetadata,
     RuntimeCapabilityStatus,
     RuntimeSafetyContext,
@@ -85,6 +88,7 @@ from app.services.index.hnsw import HNSWIndexService
 from app.services.index.trusted_knowledge import TrustedKnowledgeIndexService
 from app.services.interpreter.service import InterpreterService
 from app.services.presentation.audit_snapshot import AuditSnapshotBuilder
+from app.services.regulation.service import RegulationKnowledgeBase
 from app.services.runtime.capability import RuntimeCapabilityService
 from app.services.memory.service import DualMemoryService
 from app.services.quality.evaluator import EvidenceQualityService
@@ -259,6 +263,9 @@ class CommandPipeline:
         self.causal_service = CausalCorrectionService(load_yaml("causal_policy.yaml"))
         self.gate_service = SafetyGateService(safety_config)
         self.decision_service = DecisionService(load_yaml("decision_policy.yaml"))
+        self.regulation_kb_dir = PROJECT_ROOT / "data" / "regulation_kb_v8"
+        self.regulation_kb = RegulationKnowledgeBase(self.embedder)
+        self._init_regulation_kb()
         self.audit_repository = AuditRepository(
             database_path
             or PROJECT_ROOT / "data" / "database" / "yuzheng_evidence_v3.db",
@@ -294,6 +301,54 @@ class CommandPipeline:
         self.runtime_capability_service.embedder = self.embedder
         self.runtime_capability_service.index = self.index
         return self.runtime_capability_service.status()
+
+    def _init_regulation_kb(self) -> None:
+        """加载法规知识库；index.bin 与当前 hnswlib 不兼容时从 documents.json 重建。
+
+        法规库仅作裁决后的法规依据附加展示，不参与安全裁决。
+        """
+        try:
+            self.regulation_kb.load(self.regulation_kb_dir)
+            return
+        except Exception:
+            self.regulation_kb = RegulationKnowledgeBase(self.embedder)
+        try:
+            documents = json.loads(
+                (self.regulation_kb_dir / "documents.json").read_text(encoding="utf-8")
+            )
+            for doc in documents:
+                self.regulation_kb.add_document(
+                    content=str(doc.get("content", "")),
+                    standard_id=str(doc.get("standard_id", "")),
+                    clause=str(doc.get("clause", "")),
+                    source=str(doc.get("source", "")),
+                )
+            self.regulation_kb.save(self.regulation_kb_dir)
+            self.regulation_kb.load(self.regulation_kb_dir)
+        except Exception:
+            self.regulation_kb = None
+
+    def _regulation_rationale(
+        self, demand_text: str, top_k: int = 3
+    ) -> RegulationRationale | None:
+        if self.regulation_kb is None or not demand_text:
+            return None
+        rationale = self.regulation_kb.rationale(demand_text, k=top_k)
+        return RegulationRationale(
+            demand_text=rationale.demand_text,
+            hits=[
+                RegulationHit(
+                    standard_id=hit.standard_id,
+                    clause=hit.clause,
+                    content=hit.content,
+                    source=hit.source,
+                    score=hit.score,
+                    evidence_types=list(hit.evidence_types),
+                )
+                for hit in rationale.hits
+            ],
+            missing_types=list(rationale.missing_types),
+        )
 
     @staticmethod
     def _candidate_copy(node: EvidenceNode) -> EvidenceNode:
@@ -2575,6 +2630,10 @@ class CommandPipeline:
                 response_decision.authorization_token or response_decision.execution_tokens
             ),
         )
+        regulation_rationale = self._regulation_rationale(
+            " ".join(item.query_text for item in demand.intent_demands)
+            or frame.raw_text
+        )
         response = TextCommandResponse(
             turn_id=turn_id,
             root_turn_id=root_turn_id,
@@ -2615,6 +2674,7 @@ class CommandPipeline:
             runtime_capability=runtime_capability,
             interaction_request=interaction_request,
             clarification_request=clarification_request,
+            regulation_rationale=regulation_rationale,
         )
         mark_stage("response_ready")
         # 原始令牌只存在于本次返回对象；内存缓存与 SQLite 均保存去敏版本。

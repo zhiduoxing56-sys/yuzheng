@@ -677,6 +677,21 @@ class LayerIndexStatus(StrictModel):
     build_id: str
 
 
+class LayerPoint(StrictModel):
+    """HNSW 分层索引中某一层的单个点（证据节点），对外暴露层内全部节点。"""
+
+    layer: int = Field(ge=0)
+    label: int = Field(ge=0)               # 该层 hnswlib 索引内的 label
+    internal_key: str                       # 索引内部稳定 key（evidence_key 复合）
+    node_id: str                            # 证据节点 id
+    evidence_type: str
+    display_name: str
+    security_class: SecurityClass | None = None
+    security_rank: int | None = Field(default=None, ge=0, le=3)
+    hnsw_max_layer: int | None = Field(default=None, ge=0)
+    evidence_key: str                       # stable physical identity（evidence_key(node)）
+
+
 class LayerCandidate(StrictModel):
     node_id: str
     evidence_type: str
@@ -1702,6 +1717,25 @@ class ReviewOutcomeRecord(StrictModel):
 AuditChainRecord = AuditRecord | ReviewOutcomeRecord
 
 
+class RegulationHit(StrictModel):
+    """法规检索命中的单条条文。"""
+
+    standard_id: str
+    clause: str
+    content: str
+    source: str
+    score: float = Field(ge=0, le=1)
+    evidence_types: list[str] = Field(default_factory=list)
+
+
+class RegulationRationale(StrictModel):
+    """一条指令检索到的法规依据集合（附加展示，不参与裁决）。"""
+
+    demand_text: str
+    hits: list[RegulationHit] = Field(default_factory=list)
+    missing_types: list[str] = Field(default_factory=list)
+
+
 class TextCommandResponse(StrictModel):
     turn_id: str
     root_turn_id: str | None = None
@@ -1741,6 +1775,7 @@ class TextCommandResponse(StrictModel):
     websocket_channel: str | None = None
     interaction_request: InteractionRequest | None = None
     clarification_request: ClarificationRequest | None = None
+    regulation_rationale: RegulationRationale | None = None
 
 
 class AudioCommandResponse(StrictModel):

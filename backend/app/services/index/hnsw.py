@@ -21,6 +21,7 @@ from app.models.schemas import (
     LayerCandidate,
     LayerIndexStatus,
     LayerNavigationAvailability,
+    LayerPoint,
     LayerSearchStep,
     RetrievalMetadata,
     RetrievalVisualizationPath,
@@ -68,7 +69,7 @@ def evidence_text(node: EvidenceNode) -> str:
         part
         for part in [
             node.evidence_type,
-            str(definition["name_zh"]),
+            str(definition["display_name"]),
             str(definition["description"]),
             area,
         ]
@@ -950,6 +951,89 @@ class HNSWIndexService:
     def label_for_key(self, key: str) -> int | None:
         with self._lock:
             return self._key_labels.get(key)
+
+    def _to_layer_point(
+        self, layer: int, label: int, internal_key: str, node: EvidenceNode
+    ) -> LayerPoint:
+        return LayerPoint(
+            layer=layer,
+            label=label,
+            internal_key=internal_key,
+            node_id=node.node_id,
+            evidence_type=node.evidence_type,
+            display_name=str(node.metadata.get("display_name", node.evidence_type)),
+            security_class=node.security_class,
+            security_rank=node.security_rank,
+            hnsw_max_layer=node.hnsw_max_layer,
+            evidence_key=evidence_key(node),
+        )
+
+    def layer_points(self, layer: int) -> list[LayerPoint]:
+        """返回指定安全层的全部点（该层 hnswlib 索引的所有节点，label 升序）。
+
+        与查询候选不同，这里列出该层索引的完整点集；快照为空或层不存在返回 []。
+        """
+        with self._lock:
+            snapshot = self._snapshot
+            if snapshot is None or layer not in snapshot.layer_labels:
+                return []
+            labels = snapshot.layer_labels[layer]
+            nodes = snapshot.nodes
+            return [
+                self._to_layer_point(layer, label, labels[label], nodes[labels[label]])
+                for label in sorted(labels)
+            ]
+
+    def all_layer_points(self) -> dict[int, list[LayerPoint]]:
+        """所有安全层的点，key 为层号（0..max_layer），同一快照原子返回。"""
+        with self._lock:
+            snapshot = self._snapshot
+            result: dict[int, list[LayerPoint]] = {}
+            for layer in range(self.max_layer + 1):
+                if snapshot is None or layer not in snapshot.layer_labels:
+                    result[layer] = []
+                    continue
+                labels = snapshot.layer_labels[layer]
+                nodes = snapshot.nodes
+                result[layer] = [
+                    self._to_layer_point(
+                        layer, label, labels[label], nodes[labels[label]]
+                    )
+                    for label in sorted(labels)
+                ]
+            return result
+
+    def node_evidence_map(self) -> dict[str, list[str]]:
+        """节点↔证据映射（反向）：evidence_type → [node_id, ...]。
+
+        基于层 0 全部点——每个 canonical 节点都至少属于层 0，故层 0 恒含全部节点。
+        """
+        with self._lock:
+            snapshot = self._snapshot
+            if snapshot is None or 0 not in snapshot.layer_labels:
+                return {}
+            labels = snapshot.layer_labels[0]
+            nodes = snapshot.nodes
+            mapping: dict[str, list[str]] = {}
+            for label in sorted(labels):
+                node = nodes[labels[label]]
+                mapping.setdefault(node.evidence_type, []).append(node.node_id)
+            return mapping
+
+    def point_by_node_id(self, node_id: str) -> LayerPoint | None:
+        """按证据节点 id 定位索引点（在层 0 中查找）；未命中返回 None。"""
+        with self._lock:
+            snapshot = self._snapshot
+            if snapshot is None or 0 not in snapshot.layer_labels:
+                return None
+            labels = snapshot.layer_labels[0]
+            nodes = snapshot.nodes
+            for label in sorted(labels):
+                key = labels[label]
+                node = nodes[key]
+                if node.node_id == node_id:
+                    return self._to_layer_point(0, label, key, node)
+            return None
 
     def _reconfigured_copy(self, request: IndexParametersRequest) -> "HNSWIndexService":
         config = dict(self._config)

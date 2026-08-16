@@ -141,6 +141,34 @@ def test_augment_merges_required_evidence(tmp_path: Path) -> None:
     assert intent.knowledge_hits[0]["canonical_action"] == "WINDOW_OPEN"
 
 
+def test_augment_exact_match_only_no_cross_intent_leak(tmp_path) -> None:
+    """「打开车门」不得命中「打开车窗」节点，禁止跨意图证据串扰。
+
+    回归：此前相似度兜底把 WINDOW.001 的 [OCCUPANT_STATE, WINDOW_STATE]
+    错误追加到 DOOR_OPEN，导致 OCCUPANT_STATE 缺失 → 安全门 BLOCK。
+    """
+    service = _service(_valid_mock(tmp_path))
+    embedder = DeterministicHashEmbeddingService(768)
+    registry = EvidenceDemandRegistry()
+    demand_service = EvidenceDemandService(registry=registry, embedder=embedder)
+    demand = demand_service.build(_frame("DOOR_OPEN", "打开", "车门"))
+    before = set(demand.intent_demands[0].required_types)
+    augmented = service.augment(demand)
+    intent = augmented.intent_demands[0]
+    after = set(intent.required_types)
+    # 无精确匹配节点：required_types 不变，不追加车窗/乘员证据
+    assert after == before
+    assert "OCCUPANT_STATE" not in after
+    assert "WINDOW_STATE" not in after
+    assert intent.knowledge_augmented_types == []
+    assert intent.knowledge_hits == []
+    # 精确匹配（WINDOW_OPEN↔WINDOW.001）仍应正常追加，证明只限制了跨意图
+    demand_win = demand_service.build(_frame("WINDOW_OPEN", "打开", "车窗"))
+    aug_win = service.augment(demand_win)
+    assert "OCCUPANT_STATE" in set(aug_win.intent_demands[0].required_types)
+    assert "WINDOW_STATE" in set(aug_win.intent_demands[0].required_types)
+
+
 def test_augment_noop_when_file_absent() -> None:
     service = _service(data_path=MISSING_PATH)
     assert service.status()["ready"] is False

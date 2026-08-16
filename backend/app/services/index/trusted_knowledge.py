@@ -151,26 +151,19 @@ class TrustedKnowledgeIndexService:
     def augment(self, demand: EvidenceDemand) -> EvidenceDemand:
         """把命中知识节点的 required_evidence 并集追加进各 intent 的 required_types。
 
+        只做确定性精确匹配：知识节点 canonical_action 必须与意图 intent_id 完全一致，
+        避免跨意图串扰（如「打开车门」误命中「打开车窗」节点导致其证据被强制追加）。
         追加后重算 query_text / query_vector，保证下游证据 HNSW 检索一致。
         知识库未就绪时原样返回，不影响现有裁决。
         """
         if not self._ready or not demand.intent_demands:
             return demand
+        nodes_by_action: dict[str, list[KnowledgeNode]] = {}
+        for node in self._nodes:
+            nodes_by_action.setdefault(node.canonical_action, []).append(node)
         augmented: list[IntentEvidenceDemand] = []
         for intent_demand in demand.intent_demands:
-            hits = self.search(intent_demand.query_vector)  # list[(node, similarity)]
-            # 精准追加：优先取 canonical_action 与意图精确匹配的节点（避免跨意图串扰）；
-            # 无精确匹配时，仅取相似度达标的命中（并集 Top-K）
-            exact_matches = [
-                node
-                for node, _ in hits
-                if node.canonical_action == intent_demand.intent_id
-            ]
-            chosen = exact_matches or [
-                node
-                for node, similarity in hits
-                if similarity >= self._min_similarity
-            ]
+            chosen = nodes_by_action.get(intent_demand.intent_id, [])
             added: list[str] = []
             hit_nodes: list[dict[str, Any]] = []
             for node in chosen:
