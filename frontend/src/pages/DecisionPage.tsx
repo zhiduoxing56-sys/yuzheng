@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
 import { executeTurn, getTurnPresentation, submitTurnInteraction } from "../api/turns";
 import { InteractionModal } from "../components/InteractionModal";
-import { RequestRoutingDisplay } from "../components/RequestRoutingDisplay";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
 import { useSession } from "../stores/sessionStore";
 import type { AudioCommandResponse, ExecuteResult, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
@@ -187,7 +186,6 @@ export function DecisionPage() {
     <div className="decision-visual-left">
       <CommandInputSwitcher mode={mode} text={text} audioFileName={audioFile?.name || ""} recording={recording} busy={busy} feedback={feedback} hasError={hasError} onModeChange={setMode} onTextChange={setText} onAudioChange={setAudioFile} onRecordingToggle={() => { setMode("microphone"); setRecording(true); submit(); }} onSubmit={submit} />
       <SemanticFrameDisplay frame={currentTurn?.semantic_frame || null} />
-      <RequestRoutingDisplay routing={currentTurn?.request_routing} />
     </div>
     <div className="decision-result-column"><div className="decision-child-detail-card">
       <DecisionResultDisplay result={result} />

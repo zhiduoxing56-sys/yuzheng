@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -50,26 +50,27 @@ describe("安全知识检索页面", () => {
     expect(await screen.findByRole("heading", { name: "安全知识检索" })).toBeTruthy();
   });
 
-  it("展示 K0-K3、完整查询和已进入上下文", async () => {
+  it("只展示最终知识结果、完整查询和已进入上下文", async () => {
     renderPage();
-    expect(await screen.findByText("第一层：动作匹配知识")).toBeTruthy();
-    expect(screen.getByText("第二层：语义相似度排序")).toBeTruthy();
-    expect(screen.getByText("第三层：相似度阈值筛选")).toBeTruthy();
-    expect(screen.getByText("第四层：动态证据需求")).toBeTruthy();
+    expect(await screen.findByText("知识检索结果")).toBeTruthy();
+    expect(screen.getByText("开门前检查速度与周边目标")).toBeTruthy();
+    expect(screen.queryByText("第一层：动作匹配知识")).toBeNull();
+    expect(screen.queryByText("合法知识节点")).toBeNull();
+    expect(screen.queryByText("向量维数")).toBeNull();
+    expect(screen.queryByText("相似度阈值")).toBeNull();
     expect(screen.getByText(/意图=DOOR_OPEN/)).toBeTruthy();
-    expect(screen.getByText("车辆速度（VEHICLE_SPEED）")).toBeTruthy();
+    expect(screen.getAllByText("车辆速度（VEHICLE_SPEED）")).toHaveLength(2);
     expect(screen.queryByLabelText("最大连接数")).toBeNull();
     expect(screen.queryByText("强制召回审计")).toBeNull();
   });
 
-  it("点击分层展示该层全部知识节点详情", async () => {
+  it("点击最终结果展开业务详情", async () => {
     const user = userEvent.setup(); renderPage();
-    await user.click(await screen.findByText("第二层：语义相似度排序"));
-    const dialog = screen.getByRole("dialog", { name: "第二层：语义相似度排序" });
-    expect(within(dialog).getByText("车门开启速度核查")).toBeTruthy();
-    expect(within(dialog).getByText("82.00%")).toBeTruthy();
-    await user.click(within(dialog).getByText("查看完整节点详情"));
-    expect(within(dialog).getByText("开门前检查速度与周边目标")).toBeTruthy();
+    await user.click(await screen.findByText("开门前检查速度与周边目标"));
+    expect(screen.getByText("车门开启速度核查")).toBeTruthy();
+    expect(screen.getByText("车辆运动")).toBeTruthy();
+    expect(screen.getByText("标准")).toBeTruthy();
+    expect(screen.queryByText("82.00%")).toBeNull();
   });
 
   it("展示未进入查询字段及中文排除原因", async () => {

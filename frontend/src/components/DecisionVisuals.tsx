@@ -81,8 +81,9 @@ function intentDisplayName(intent: SemanticIntent): string {
 
 function controlValue(intent: SemanticIntent): string | null {
   const direction = intent.direction ? DIRECTION_LABEL[intent.direction] || intent.direction : null;
-  if (direction && intent.value !== null && intent.value !== undefined) return `${direction} ${formatSemanticValue(intent.value)}`;
-  return direction || (intent.value !== null && intent.value !== undefined ? formatSemanticValue(intent.value) : null);
+  const hasScalarValue = intent.value !== null && intent.value !== undefined && typeof intent.value !== "object";
+  if (direction && hasScalarValue) return `${direction} ${formatSemanticValue(intent.value)}`;
+  return direction || (hasScalarValue ? formatSemanticValue(intent.value) : null);
 }
 
 export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null }) {
@@ -92,11 +93,7 @@ export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null })
       {frame && <>
         <dl className="semantic-frame-summary">
           <div><dt>原始指令</dt><dd>{formatSemanticValue(frame.raw_text)}</dd></div>
-          <div><dt>规范化指令</dt><dd>{formatSemanticValue(frame.normalized_text)}</dd></div>
           <div><dt>语义状态</dt><dd>{formatSemanticValue(frame.semantic_status)}</dd></div>
-          <div><dt>整体语义置信度</dt><dd>{formatScore(frame.semantic_confidence)}</dd></div>
-          <div><dt>整体歧义度</dt><dd>{formatScore(frame.ambiguity_score)}</dd></div>
-          <div><dt>复核原因</dt><dd>{formatList(frame.review_reasons)}</dd></div>
           <div><dt>未解析子句</dt><dd>{formatList(frame.unresolved_clauses)}</dd></div>
           <div><dt>安全信号</dt><dd>{formatList(frame.security_signals)}</dd></div>
         </dl>
@@ -116,8 +113,6 @@ export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null })
               {intent.mode && <div><dt>模式</dt><dd>{formatSemanticValue(intent.mode)}</dd></div>}
               {intent.control_attribute && <div><dt>控制属性</dt><dd>{formatSemanticValue(intent.control_attribute)}</dd></div>}
               <div><dt>控制域</dt><dd>{formatSemanticValue(intent.control_domain)}</dd></div>
-              <div><dt>风险等级</dt><dd>{formatSemanticValue(intent.risk_level)}</dd></div>
-              <div><dt>风险标签</dt><dd>{formatList(intent.risk_tags)}</dd></div>
               <div><dt>语义置信度</dt><dd>{formatScore(intent.semantic_confidence)}</dd></div>
               <div><dt>歧义度</dt><dd>{formatScore(intent.ambiguity_score)}</dd></div>
             </dl>
@@ -135,8 +130,65 @@ const DECISION_STATE_VIEW: Record<DecisionVisualState, { label: string; symbol: 
   reject: { label: "拒绝", symbol: "×", partial: false },
 };
 
-function display(value: string | null) {
+const DECISION_LABELS: Record<string, string> = {
+  PASS: "允许执行",
+  EVIDENCE_PASS: "允许执行",
+  REVIEW: "需要人工复核",
+  EVIDENCE_REVIEW: "需要人工复核",
+  BLOCK: "拒绝执行",
+  EVIDENCE_BLOCK: "拒绝执行",
+  NOT_APPLICABLE: "不适用",
+  NOT_REQUIRED: "不适用",
+};
+
+const DECISION_SOURCE_LABELS: Record<string, string> = {
+  SAFETY_GATE: "硬性安全门",
+  EVIDENCE_ALIGNMENT: "证据对齐",
+  SAFETY_SCORE: "安全评分",
+  RUNTIME_CAPABILITY: "运行能力约束",
+  VOICE_TRUST: "语音可信约束",
+  ZONE_PERMISSION: "区域权限约束",
+  USER_REVIEW: "用户复核",
+  LEGACY_COMPATIBILITY: "兼容记录",
+};
+
+function diagnosticDisplay(value: string | null) {
   return value?.trim() || "--";
+}
+
+function decisionDisplay(value: string | null | undefined): string {
+  const normalized = value?.trim().toUpperCase();
+  return normalized ? DECISION_LABELS[normalized] || "未识别状态" : "暂无结果";
+}
+
+function decisionSourceDisplay(value: string): string {
+  return DECISION_SOURCE_LABELS[value.trim().toUpperCase()] || "未识别来源";
+}
+
+function mergeReasonDisplay(value: string | null | undefined): string {
+  if (!value?.trim()) return "暂无原因";
+  const aggregate = value.trim().match(/^Intent safety aggregate=([^;]+); top-level score is conservative projection from (\d+) occurrence assessments$/i);
+  if (aggregate) return `各意图安全评价汇总为${decisionDisplay(aggregate[1])}；顶层评分采用 ${aggregate[2]} 个意图评价的保守投影`;
+  const knownLabels = { ...DECISION_LABELS, ...DECISION_SOURCE_LABELS };
+  const translated = value.trim()
+    .replace(/Previously merged constraints preserve/gi, "先前合并的约束继续保持")
+    .replace(/constrained final_decision to/gi, "将最终裁决限制为")
+    .replace(/required REVIEW and conservative severity merge produced/gi, "要求人工复核，按保守严重度合并后得到")
+    .replace(/EVIDENCE_ALIGNMENT passed/gi, "证据对齐通过")
+    .replace(/final_decision equals/gi, "最终裁决等于")
+    .replace(/from score_decision=/gi, "，原评分判断为")
+    .replace(/score_decision=/gi, "评分判断=")
+    .replace(/final_decision=/gi, "最终裁决=")
+    .replace(/hit_rules=/gi, "命中规则=")
+    .replace(/applied_constraints=/gi, "附加约束=")
+    .replace(/preserved/gi, "保持不变")
+    .replace(/produced/gi, "得到")
+    .replace(/\bNONE\b/g, "无")
+    .replace(/\bUNSPECIFIED\b/g, "未说明");
+  return Object.entries(knownLabels).reduce(
+    (text, [token, label]) => text.replace(new RegExp(`\\b${token}\\b`, "g"), label),
+    translated,
+  );
 }
 
 export function DecisionResultDisplay({ result, selector }: { result: DecisionResultView; selector?: ReactNode }) {
@@ -151,17 +203,17 @@ export function DecisionResultDisplay({ result, selector }: { result: DecisionRe
       <strong>{state?.label || "--"}</strong>
     </div>
     <dl className="decision-primary-basis">
-      <div><dt>安全门</dt><dd>{result.gateBlocked == null ? "--" : result.gateBlocked ? "已阻断" : "已通过"}</dd></div>
-      <div><dt>证据对齐</dt><dd>{display(result.evidenceAlignment || null)}</dd></div>
-      <div><dt>评分判断</dt><dd>{display(result.scoreDecision || null)}</dd></div>
-      <div><dt>最终裁决</dt><dd>{display(result.finalDecision || null)}</dd></div>
-      <div className="decision-merge-basis"><dt>裁决来源</dt><dd>{result.decisionSources?.join("、") || "--"}</dd></div>
-      <div className="decision-merge-basis"><dt>合并原因</dt><dd>{display(result.mergeReason || null)}</dd></div>
+      <div><dt>安全门</dt><dd>{result.gateBlocked == null ? "暂无结果" : result.gateBlocked ? "已阻断" : "已通过"}</dd></div>
+      <div><dt>证据对齐</dt><dd>{decisionDisplay(result.evidenceAlignment)}</dd></div>
+      <div><dt>评分判断</dt><dd>{decisionDisplay(result.scoreDecision)}</dd></div>
+      <div><dt>最终裁决</dt><dd>{decisionDisplay(result.finalDecision)}</dd></div>
+      <div className="decision-merge-basis"><dt>裁决来源</dt><dd>{result.decisionSources?.length ? result.decisionSources.map(decisionSourceDisplay).join("、") : "暂无来源"}</dd></div>
+      <div className="decision-merge-basis"><dt>合并原因</dt><dd>{mergeReasonDisplay(result.mergeReason)}</dd></div>
     </dl>
     <div className="decision-reason"><h2>具体原因：</h2><div>{result.reason?.trim() || "暂无"}</div></div>
     <details className="decision-diagnostic-score"><summary>诊断评分（不覆盖安全门）</summary>
-      <div className="decision-dimension-table"><table><thead><tr><th>维度</th><th>得分</th></tr></thead><tbody>{result.dimensions.map((row) => <tr key={row.id}><td>{row.dimension}</td><td>{display(row.detail)}</td></tr>)}</tbody></table></div>
-      <p className="decision-score">五维安全评分： <strong>{display(result.score)}</strong></p>
+      <div className="decision-dimension-table"><table><thead><tr><th>维度</th><th>得分</th></tr></thead><tbody>{result.dimensions.map((row) => <tr key={row.id}><td>{row.dimension}</td><td>{diagnosticDisplay(row.detail)}</td></tr>)}</tbody></table></div>
+      <p className="decision-score">五维安全评分： <strong>{diagnosticDisplay(result.score)}</strong></p>
     </details>
   </section>;
 }

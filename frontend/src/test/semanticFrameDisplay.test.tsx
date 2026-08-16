@@ -49,7 +49,12 @@ describe("SemanticFrameDisplay", () => {
     expect(screen.getAllByText("打开车门")).toHaveLength(3);
     expect(screen.queryByText("参数")).toBeNull();
     expect(screen.queryByText("{\"source\":\"test\",\"amount\":1}")).toBeNull();
-    expect(screen.getByText("车身开闭")).toBeTruthy();
+    expect(screen.queryByText("车身开闭")).toBeNull();
+    expect(screen.queryByText("规范化指令")).toBeNull();
+    expect(screen.queryByText("整体语义置信度")).toBeNull();
+    expect(screen.queryByText("整体歧义度")).toBeNull();
+    expect(screen.queryByText("风险等级")).toBeNull();
+    expect(screen.queryByText("风险标签")).toBeNull();
     expect(screen.getByText("0")).toBeTruthy();
   });
 
@@ -62,7 +67,7 @@ describe("SemanticFrameDisplay", () => {
       security_signals: ["SECURITY_SIGNAL"],
     })} />);
 
-    expect(screen.getByText("ASR_REVIEW")).toBeTruthy();
+    expect(screen.queryByText("ASR_REVIEW")).toBeNull();
     expect(screen.queryByText("打开运动模式")).toBeNull();
     expect(screen.getByText("打开运动魔石")).toBeTruthy();
     expect(screen.getByText("SECURITY_SIGNAL")).toBeTruthy();
@@ -79,7 +84,7 @@ describe("SemanticFrameDisplay", () => {
       intents: [],
     })} />);
 
-    expect(screen.getAllByText("把那个打开")).toHaveLength(2);
+    expect(screen.getAllByText("把那个打开")).toHaveLength(1);
     expect(screen.getByText("NO_MATCH")).toBeTruthy();
     expect(screen.getByText("当前语义帧没有可展示的子意图")).toBeTruthy();
     expect(screen.queryByText("DOOR_OPEN")).toBeNull();
