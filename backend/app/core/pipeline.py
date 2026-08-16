@@ -350,6 +350,11 @@ class CommandPipeline:
             missing_types=list(rationale.missing_types),
         )
 
+    def regulation_for_text(self, demand_text: str, top_k: int = 3) -> list[RegulationHit]:
+        """公开入口：按文本检索法规依据，返回命中条文列表（证据节点详情用）。"""
+        rationale = self._regulation_rationale(demand_text, top_k=top_k)
+        return list(rationale.hits) if rationale else []
+
     @staticmethod
     def _candidate_copy(node: EvidenceNode) -> EvidenceNode:
         return node.model_copy(

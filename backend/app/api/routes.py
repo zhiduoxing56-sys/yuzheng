@@ -378,7 +378,17 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             )
         detail = presentation.node_detail(record, node_id)
         if detail is not None:
-            return detail
+            demand_text = (
+                " ".join(
+                    item.query_text for item in record.evidence_demand.intent_demands
+                )
+                or record.semantic_frame.raw_text
+            )
+            return detail.model_copy(
+                update={
+                    "regulation_hits": pipeline.regulation_for_text(demand_text, top_k=3)
+                }
+            )
         if presentation.node_exists(node_id):
             raise ContractError(
                 409,

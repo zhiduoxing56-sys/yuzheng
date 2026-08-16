@@ -5,7 +5,7 @@ import { executeTurn, getTurnPresentation, submitTurnInteraction } from "../api/
 import { InteractionModal } from "../components/InteractionModal";
 import { RequestRoutingDisplay } from "../components/RequestRoutingDisplay";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
-import type { AudioCommandResponse, ExecuteResult, ExecutionTokenView, InteractionAction, InteractionRequest, RegulationRationale, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
+import type { AudioCommandResponse, ExecuteResult, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 import type { CommandInputMode, DecisionResultView } from "../types/visualModels";
 
 interface CurrentTurnData {
@@ -13,7 +13,6 @@ interface CurrentTurnData {
   semantic_frame: SemanticFrame;
   request_routing?: RequestRouting | null;
   evidence_demand?: TurnPresentationResponse["evidence_demand"];
-  regulation_rationale?: RegulationRationale | null;
 }
 interface BoundExecutionToken extends ExecutionTokenView { turnId: string; }
 const MAX_WAV_SIZE_BYTES = 20 * 1024 * 1024;
@@ -59,7 +58,7 @@ export function DecisionPage() {
       : response as TextCommandResponse;
     const frame = textResponse?.semantic_frame ?? response.semantic_frame;
     if (frame) {
-      setCurrentTurn({ turn_id: response.turn_id, semantic_frame: frame, request_routing: textResponse?.request_routing ?? null, regulation_rationale: textResponse?.regulation_rationale ?? null });
+      setCurrentTurn({ turn_id: response.turn_id, semantic_frame: frame, request_routing: textResponse?.request_routing ?? null });
       setText(frame.raw_text);
     }
     if (textResponse?.semantic_frame) {
@@ -120,13 +119,6 @@ export function DecisionPage() {
     <div className="decision-visual-left">
       <CommandInputSwitcher mode={mode} text={text} audioFileName={audioFile?.name || ""} recording={recording} busy={busy} feedback={feedback} hasError={hasError} onModeChange={setMode} onTextChange={setText} onAudioChange={setAudioFile} onRecordingToggle={() => { setMode("microphone"); setRecording(true); submit(); }} onSubmit={submit} />
       <SemanticFrameDisplay frame={currentTurn?.semantic_frame || null} />
-      {currentTurn?.evidence_demand?.intent_demands.some((item) => item.knowledge_augmented_types?.length) ? <div className="knowledge-augmented-block">
-        {currentTurn.evidence_demand.intent_demands.map((intent) => intent.knowledge_augmented_types?.length ? <p key={intent.intent_id}><strong>📚 知识库追加（{intent.intent_id}）</strong>：{intent.knowledge_augmented_types.join("、")}{intent.knowledge_hits?.length ? <span> · 命中 {intent.knowledge_hits.map((hit) => hit.title ?? hit.node_id).join("；")}</span> : null}</p> : null)}
-      </div> : null}
-      {currentTurn?.regulation_rationale?.hits?.length ? <div className="regulation-rationale-block">
-        <p><strong>📜 法规依据</strong></p>
-        {currentTurn.regulation_rationale.hits.map((hit, index) => <p key={index}><span className="regulation-score">[{hit.score.toFixed(3)}]</span> {hit.standard_id} {hit.clause}：{hit.content?.slice(0, 90)}{hit.evidence_types?.length ? <span> · 证据：{hit.evidence_types.join("、")}</span> : null}</p>)}
-      </div> : null}
       <RequestRoutingDisplay routing={currentTurn?.request_routing} />
     </div>
     <div className="decision-result-column"><div className="decision-child-detail-card">

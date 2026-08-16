@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { getEvidenceNode } from "../api/evidence";
 import { analyzeRecallAudit, getRecentRecallAudits } from "../api/recallAudits";
 import { getIndexStatus, updateIndexParameters } from "../api/system";
 import { getTurnPresentation } from "../api/turns";
 import { EvidenceLayerList, EvidenceParameterPanel, RecallAuditTable } from "../components/EvidenceSearchVisuals";
 import { useSession } from "../stores/sessionStore";
-import type { IndexParametersRequest, RecallAIAuditResponse } from "../types/contract";
+import type { EvidenceNodeDetail, IndexParametersRequest, RecallAIAuditResponse } from "../types/contract";
 import type { EvidenceLayerView, EvidenceParameterValues, EvidenceStatisticsView, RecallAuditRowView } from "../types/visualModels";
 
 const EMPTY_PARAMETERS: EvidenceParameterValues = { M: "", ef_construction: "", ef_search: "", layer_count: "" };
@@ -56,6 +57,10 @@ export function EvidencePage() {
   const [retrievalTime, setRetrievalTime] = useState<string | null>(null);
   const [presentationError, setPresentationError] = useState<string | null>(null);
   const [selectedLayer, setSelectedLayer] = useState<EvidenceLayerView | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedNode, setSelectedNode] = useState<EvidenceNodeDetail | null>(null);
+  const [nodeDetailLoading, setNodeDetailLoading] = useState(false);
+  const [nodeDetailError, setNodeDetailError] = useState<string | null>(null);
   const [recallAuditRows, setRecallAuditRows] = useState<RecallAuditRowView[]>([]);
   const [recallLoading, setRecallLoading] = useState(true);
   const [recallError, setRecallError] = useState<string | null>(null);
@@ -193,6 +198,17 @@ export function EvidencePage() {
 
   const emptyLayerMessage = useMemo(() => presentationError || (turnId ? "该轮次没有分层命中" : "请先执行指令或从其他页面选择一个轮次"), [presentationError, turnId]);
 
+  const openNodeDetail = useCallback((nodeId: string) => {
+    if (!turnId) return;
+    setSelectedNodeId(nodeId);
+    setSelectedNode(null);
+    setNodeDetailError(null);
+    setNodeDetailLoading(true);
+    getEvidenceNode(turnId, nodeId)
+      .then((detail) => { setSelectedNode(detail); setNodeDetailLoading(false); })
+      .catch((error: unknown) => { setNodeDetailError(error instanceof Error ? error.message : "节点详情加载失败"); setNodeDetailLoading(false); });
+  }, [turnId]);
+
   return <div className="visual-page-frame evidence-search-page">
     <header className="evidence-search-header">
       <div className="evidence-search-title-group">
@@ -211,7 +227,7 @@ export function EvidencePage() {
     {selectedLayer && <div className="evidence-dialog-backdrop" role="presentation" onMouseDown={() => setSelectedLayer(null)}>
       <section className="evidence-detail-dialog" role="dialog" aria-modal="true" aria-label={`${selectedLayer.label}节点详情`} onMouseDown={(event) => event.stopPropagation()}>
         <header><div><h2>{selectedLayer.label}</h2><p>真实命中 {selectedLayer.hitCount} 个唯一 EvidenceNode</p></div><button type="button" onClick={() => setSelectedLayer(null)}>关闭</button></header>
-        <div className="evidence-layer-node-table"><table><thead><tr><th>节点</th><th>证据类型</th><th>SAS</th><th>层内排名</th><th>命中意图</th></tr></thead><tbody>{selectedLayer.nodes.map((node) => <tr key={node.node_id}><td><strong>{node.display_name}</strong><code>{node.node_id}</code></td><td>{node.evidence_type}</td><td>{node.sas.toFixed(4)}</td><td>{node.rank}</td><td>{node.matched_intents.join("、") || "--"}</td></tr>)}</tbody></table></div>
+        <div className="evidence-layer-node-table"><table><thead><tr><th>节点</th><th>证据类型</th><th>SAS</th><th>层内排名</th><th>命中意图</th><th></th></tr></thead><tbody>{selectedLayer.nodes.map((node) => <tr key={node.node_id} onClick={() => openNodeDetail(node.node_id)} className="evidence-node-row" title="点击查看节点详情"><td><strong>{node.display_name}</strong><code>{node.node_id}</code></td><td>{node.evidence_type}</td><td>{node.sas.toFixed(4)}</td><td>{node.rank}</td><td>{node.matched_intents.join("、") || "--"}</td><td><button type="button" onClick={(event) => { event.stopPropagation(); openNodeDetail(node.node_id); }}>详情</button></td></tr>)}</tbody></table></div>
       </section>
     </div>}
 
@@ -221,6 +237,22 @@ export function EvidencePage() {
         <div className={`recall-ai-result ${aiAudit.status === "FAILED" ? "is-error" : aiAudit.attention_required ? "is-warning" : "is-safe"}`}><strong>{aiAudit.status === "FAILED" ? "审计失败" : aiAudit.attention_required ? "需要关注" : "未发现明显缺项"}</strong><p>{aiAudit.audit_comment}</p></div>
         <h3>可能遗漏的重要证据</h3>
         {aiAudit.potential_missing_evidence.length ? <ul>{aiAudit.potential_missing_evidence.map((item) => <li key={item}>{item}</li>)}</ul> : <p>无</p>}
+      </section>
+    </div>}
+
+    {selectedNodeId && <div className="evidence-dialog-backdrop" role="presentation" onMouseDown={() => setSelectedNodeId(null)}>
+      <section className="evidence-node-detail-dialog" role="dialog" aria-modal="true" aria-label="证据节点详情" onMouseDown={(event) => event.stopPropagation()}>
+        <header><div><h2>证据节点详情</h2><p>{selectedNodeId}</p></div><button type="button" onClick={() => setSelectedNodeId(null)}>关闭</button></header>
+        {nodeDetailLoading ? <p>加载中…</p> : nodeDetailError ? <p className="is-error">{nodeDetailError}</p> : selectedNode ? <>
+          <dl className="evidence-node-detail-grid">
+            <div><dt>证据类型</dt><dd>{selectedNode.evidence_type}</dd></div>
+            <div><dt>质量</dt><dd>{selectedNode.quality_label}</dd></div>
+            <div><dt>安全等级</dt><dd>{selectedNode.security_class || "--"}</dd></div>
+            <div><dt>所属意图</dt><dd>{selectedNode.intent_ids?.join("、") || "--"}</dd></div>
+          </dl>
+          {selectedNode.knowledge_hits?.length ? <section className="node-detail-section"><h3>📚 安全知识命中</h3>{selectedNode.knowledge_hits.map((hit, index) => <p key={index}><strong>{hit.title || hit.node_id}</strong>{hit.canonical_action ? `（${hit.canonical_action}）` : ""}{hit.trust_level ? ` · ${hit.trust_level}` : ""}</p>)}</section> : null}
+          {selectedNode.regulation_hits?.length ? <section className="node-detail-section"><h3>📜 法律法规</h3>{selectedNode.regulation_hits.map((hit, index) => <p key={index}><strong>[{hit.score.toFixed(3)}]</strong> {hit.standard_id} {hit.clause}：{hit.content}{hit.evidence_types?.length ? ` · 证据：${hit.evidence_types.join("、")}` : ""}</p>)}</section> : null}
+        </> : null}
       </section>
     </div>}
   </div>;

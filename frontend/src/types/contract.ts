@@ -234,6 +234,9 @@ export interface EvidenceNodeDetail extends Omit<EvidenceNode,
   incoming_propagation: Record<string, unknown>[];
   causal_parents: string[];
   causal_occurrence_weights: CausalNodeWeight[];
+  intent_ids?: string[];
+  knowledge_hits?: Array<{ node_id?: string; title?: string; canonical_action?: string; trust_level?: string; intent_id?: string }>;
+  regulation_hits?: RegulationHit[];
 }
 
 export interface EvidenceDemandItem {

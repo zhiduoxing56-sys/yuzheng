@@ -28,6 +28,7 @@ from app.models.schemas import (
     ClarificationRequest,
     InteractionRequest,
     RecoveryRecommendation,
+    RegulationHit,
     RetrievalOrigin,
     ReviewCandidateInterpretation,
     InterpreterGenerationMetadata,
@@ -547,6 +548,9 @@ class EvidenceNodeDetail(StrictModel):
     incoming_propagation: list[MemoryPropagationStep] = Field(default_factory=list)
     causal_parents: list[str] = Field(default_factory=list)
     causal_occurrence_weights: list[CausalNodeWeight] = Field(default_factory=list)
+    intent_ids: list[str] = Field(default_factory=list)
+    knowledge_hits: list[dict[str, Any]] = Field(default_factory=list)
+    regulation_hits: list[RegulationHit] = Field(default_factory=list)
 
 
 class ReviewSubmission(StrictModel):
