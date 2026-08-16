@@ -27,7 +27,7 @@ from semantic_registry_v1.registry import (  # noqa: E402
 
 from .action_direction_guard import ActionDirectionGuard
 from .candidate_consistency_guard import CandidateConsistencyGuard
-from .clause_resolver import OrderedClauseResolver
+from .deterministic_candidate_selector import DeterministicCandidateSelector
 from .ellipsis_guard import EllipsisGuard
 from .multi_intent_guard import (
     MultiIntentCompletenessGuard,
@@ -71,6 +71,13 @@ class OrchestratorRun:
     debug: dict[str, Any]
 
 
+@dataclass(frozen=True, slots=True)
+class OrderedUnitResolution:
+    clauses: tuple[str, ...]
+    split: bool
+    strategy: str = "ORDERED_SEMANTIC_UNITS"
+
+
 class SemanticOrchestratorV2:
     """Deterministic layer that may split or downgrade, but never invent an intent."""
 
@@ -100,7 +107,6 @@ class SemanticOrchestratorV2:
         self.registry = UnifiedSemanticRegistry(REGISTRY_PATH, INTENT_CARDS, V13_ANCHOR)
         cards_root = yaml.safe_load(INTENT_CARDS.read_text(encoding="utf-8"))
         cards = cards_root.get("intents", {})
-        self.clause_resolver = OrderedClauseResolver()
         self.direction_guard = ActionDirectionGuard(cards)
         self.ellipsis_guard = EllipsisGuard()
         self.candidate_guard = CandidateConsistencyGuard(
@@ -109,6 +115,11 @@ class SemanticOrchestratorV2:
         self.multi_guard = MultiIntentCompletenessGuard()
         self.security_guard = SecurityClaimGuard()
         self.semantic_contract_guard = SemanticContractGuard(self.registry)
+        self.deterministic_selector = DeterministicCandidateSelector(
+            self.semantic_contract_guard,
+            self.direction_guard,
+            self.gate.config["direct_accept"]["strong_consensus"],
+        )
 
     def close(self) -> None:
         self.gate.close()
@@ -128,10 +139,27 @@ class SemanticOrchestratorV2:
             "v1_3_recall_config": _sha256(V13_RECALL_CONFIG),
         }
 
-    def _run_clause(self, clause: str) -> dict[str, Any]:
-        run = self.gate.run(clause)
+    def _run_clause(
+        self,
+        clause: str,
+        *,
+        clause_index: int = 0,
+        allow_model_fallback: bool = True,
+    ) -> dict[str, Any]:
+        run = self.gate.run(
+            clause,
+            allow_model_fallback=allow_model_fallback,
+        )
         selected_ids = _intent_ids(run)
         top8 = [str(value) for value in run.evidence["fused_top8"]]
+        selected_params: dict[str, dict[str, Any]] = {}
+        gate_path = run.gate_path
+        if not selected_ids and not allow_model_fallback:
+            selection = self.deterministic_selector.select(clause, run)
+            if selection.intent_id is not None:
+                selected_ids = [selection.intent_id]
+                selected_params[selection.intent_id] = selection.params
+                gate_path = str(selection.gate_path)
         guard_triggers: list[str] = []
         guard_details: dict[str, Any] = {}
 
@@ -161,18 +189,19 @@ class SemanticOrchestratorV2:
             if decision.conflict:
                 guard_triggers.append("ACTION_DIRECTION_CONFLICT")
             contract = self.semantic_contract_guard.check(clause, intent_id)
-            resolved_params[intent_id] = dict(contract.params)
+            resolved_params[intent_id] = dict(selected_params.get(intent_id, contract.params))
             guard_triggers.extend(contract.review_reasons)
         if direction_rows:
             guard_details["action_direction"] = direction_rows
 
-        base_status = str(run.output["semantic_status"])
+        base_status = "OK" if selected_ids and not guard_triggers else str(run.output["semantic_status"])
         semantic_conflict = bool(guard_triggers)
         reliable = base_status == "OK" and bool(selected_ids) and not semantic_conflict
         return {
+            "clause_index": clause_index,
             "clause": clause,
             "base_status": base_status,
-            "gate_path": run.gate_path,
+            "gate_path": gate_path,
             "accepted_intent_ids": selected_ids,
             "resolved_params": resolved_params,
             "reliable": reliable,
@@ -195,7 +224,10 @@ class SemanticOrchestratorV2:
     ) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
         for occurrence in resolved_occurrences:
-            result = clause_results[occurrence.clause_index]
+            result = next(
+                item for ordinal, item in enumerate(clause_results)
+                if int(item.get("clause_index", ordinal)) == occurrence.clause_index
+            )
             selected = list(result["accepted_intent_ids"])
             if not result["reliable"] or selected != [occurrence.intent_id]:
                 raise RuntimeError(
@@ -213,10 +245,27 @@ class SemanticOrchestratorV2:
             )
         return rows
 
-    def run(self, text: str) -> OrchestratorRun:
+    def _run_ordered_units(
+        self,
+        raw_text: str,
+        *,
+        units: list[dict[str, Any]],
+    ) -> OrchestratorRun:
         started = perf_counter()
-        resolution = self.clause_resolver.resolve(text)
-        clause_results = [self._run_clause(clause) for clause in resolution.clauses]
+        text = raw_text
+        ordered_units = units
+        allow_model_fallback = False
+        resolution = OrderedUnitResolution(
+            tuple(str(unit["normalized_text"]) for unit in ordered_units),
+            len(ordered_units) > 1,
+        )
+        clause_indexes = [int(unit["unit_index"]) for unit in ordered_units]
+        clause_results = [
+            self._run_clause(
+                clause, clause_index=clause_index, allow_model_fallback=False,
+            )
+            for clause, clause_index in zip(resolution.clauses, clause_indexes, strict=True)
+        ]
         stage1_security = any(result["stage1_security_signal"] for result in clause_results)
         security = self.security_guard.check(text, stage1_signal=stage1_security)
         all_triggers = _unique(
@@ -240,9 +289,11 @@ class SemanticOrchestratorV2:
         )
         unresolved_clauses: list[str] = []
         reasons: list[str] = []
-        multi = self.multi_guard.check(clause_results)
+        multi = self.multi_guard.check(clause_results) if clause_results else None
 
-        if resolution.split:
+        if not clause_results:
+            status = "OK"
+        elif resolution.split:
             unresolved_clauses = list(multi.unresolved_clauses)
             if multi.incomplete:
                 status = "REVIEW"
@@ -281,10 +332,7 @@ class SemanticOrchestratorV2:
 
         all_triggers = _unique(all_triggers)
         reasons = _unique(reasons)
-        occurrence_rows = self._occurrence_rows(
-            clause_results,
-            multi.resolved_occurrences,
-        )
+        occurrence_rows = self._occurrence_rows(clause_results, multi.resolved_occurrences) if multi else []
         output = {
             "status": status,
             "sub_intents": occurrence_rows if status == "OK" else [],
@@ -295,7 +343,7 @@ class SemanticOrchestratorV2:
             "unresolved_clauses": unresolved_clauses if status == "REVIEW" else [],
             "suggested_target": suggested_target,
             "suggested_text": suggested_text,
-            "security_signals": ["安全注入"] if security.final_signal else [],
+            "security_signals": ["瀹夊叏娉ㄥ叆"] if security.final_signal else [],
         }
         metrics = {
             "full_orchestrator_wall_ms": round((perf_counter() - started) * 1000, 3),
@@ -323,3 +371,14 @@ class SemanticOrchestratorV2:
             "clause_results": clause_results,
         }
         return OrchestratorRun(output=output, metrics=metrics, debug=debug)
+
+    def run_single_unit(self, standard_control_text: str, unit_index: int) -> OrchestratorRun:
+        """Run exactly one already-normalized control unit without splitting or model fallback."""
+        return self._run_ordered_units(
+            standard_control_text,
+            [{"unit_index": unit_index, "normalized_text": standard_control_text}],
+        )
+
+    def run_ordered_units(self, raw_text: str, units: list[dict[str, Any]]) -> OrchestratorRun:
+        """Aggregate model-ordered control units without splitting or model fallback."""
+        return self._run_ordered_units(raw_text, units=units)

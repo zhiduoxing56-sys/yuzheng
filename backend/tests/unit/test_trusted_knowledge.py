@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+import pytest
+
 from app.core.config import PROJECT_ROOT
 from app.models.knowledge import KnowledgeNode, load_trusted_nodes
 from app.models.schemas import SemanticFrame, SemanticIntent
@@ -55,15 +60,36 @@ def _service(data_path=None):
     return service
 
 
-def test_load_filters_trusted_and_drops_invalid_evidence() -> None:
-    nodes = load_trusted_nodes(MOCK_PATH, CANONICAL_EVIDENCE_TYPES)
+def _valid_mock(tmp_path: Path) -> Path:
+    path = tmp_path / "trusted_nodes.valid.mock.jsonl"
+    rows = [json.loads(line) for line in MOCK_PATH.read_text(encoding="utf-8").splitlines()]
+    for row in rows:
+        row["required_evidence"] = [
+            value
+            for value in row.get("required_evidence", [])
+            if value != "NON_CANONICAL_TYPE"
+        ]
+    path.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_load_trusted_nodes_fails_fast_for_invalid_evidence() -> None:
+    with pytest.raises(ValueError, match="NON_CANONICAL_TYPE"):
+        load_trusted_nodes(MOCK_PATH, CANONICAL_EVIDENCE_TYPES)
+
+
+def test_load_keeps_valid_trusted_nodes_without_silent_filtering(tmp_path: Path) -> None:
+    nodes = load_trusted_nodes(_valid_mock(tmp_path), CANONICAL_EVIDENCE_TYPES)
     ids = {node.node_id for node in nodes}
     assert "知识.安全知识.WINDOW.001" in ids
     assert "知识.Trusted.HEADLIGHT.001" in ids
     assert "知识.安全知识.MIRROR.001" in ids
     # 候选节点不进入（Leakage=0）
     assert "知识.候选风险.BRAKE.001" not in ids
-    # 非 canonical 证据类型被净化
+    # 输入已显式迁移；加载器只去重，不再静默净化非法 ID。
     mirror = next(node for node in nodes if node.node_id == "知识.安全知识.MIRROR.001")
     assert mirror.required_evidence == ["LANE_STATE"]
 
@@ -81,8 +107,8 @@ def test_is_trusted_accepts_both_representations() -> None:
     assert not KnowledgeNode(node_id="d", node_type="安全知识", metadata={}).is_trusted
 
 
-def test_search_top_k_and_k_guard() -> None:
-    service = _service()
+def test_search_top_k_and_k_guard(tmp_path: Path) -> None:
+    service = _service(_valid_mock(tmp_path))
     status = service.status()
     assert status["ready"] is True
     assert status["node_count"] == 3
@@ -91,8 +117,8 @@ def test_search_top_k_and_k_guard() -> None:
     assert len(service.search(query, top_k=999)) == 3  # k 保护
 
 
-def test_augment_merges_required_evidence() -> None:
-    service = _service()
+def test_augment_merges_required_evidence(tmp_path: Path) -> None:
+    service = _service(_valid_mock(tmp_path))
     embedder = DeterministicHashEmbeddingService(768)
     registry = EvidenceDemandRegistry()
     demand_service = EvidenceDemandService(registry=registry, embedder=embedder)
@@ -130,7 +156,7 @@ def test_augment_noop_when_file_absent() -> None:
     )
 
 
-def test_degraded_exact_fallback(monkeypatch) -> None:
+def test_degraded_exact_fallback(monkeypatch, tmp_path: Path) -> None:
     real_import = __import__
 
     def fake_import(name, *args, **kwargs):
@@ -139,7 +165,7 @@ def test_degraded_exact_fallback(monkeypatch) -> None:
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
-    service = _service()
+    service = _service(_valid_mock(tmp_path))
     assert service.status()["degraded"] is True
     query = [0.0] * 768
     assert len(service.search(query)) >= 1  # 精确余弦回退仍返回节点

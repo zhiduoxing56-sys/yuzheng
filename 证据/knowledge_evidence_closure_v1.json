@@ -1,0 +1,3728 @@
+{
+  "version": "knowledge-evidence-closure-v1.0.1",
+  "production_node_count": 120,
+  "canonical_evidence_type_count": 38,
+  "knowledge_plane_counts": {
+    "NON_PHYSICAL": 49,
+    "PHYSICAL_SAFETY": 71
+  },
+  "action_status_counts": {
+    "FORMAL_ONLINE_ACTION": 67,
+    "OUTSIDE_REALTIME_ACTION_REGISTRY": 53
+  },
+  "classification_basis": "EXPLICIT_NODE_SEMANTICS_NOT_ACTION_FORMALITY",
+  "physical_nodes_outside_action_registry": [
+    "知识.法规合规.车速限制.009",
+    "知识.法规合规.安全车距.010",
+    "知识.法规合规.人行横道让行.011",
+    "知识.法规合规.故障停车警示.012"
+  ],
+  "class_a_aliases": {
+    "WEATHER": "ENVIRONMENT_CONDITIONS",
+    "VEHICLE_STATIONARY": "VEHICLE_SPEED",
+    "ACCELERATION_STATE": "VEHICLE_ACCELERATION",
+    "AUTHENTICATION_STATE": "AUTHORIZATION_STATE",
+    "ADS_STATE": "SYSTEM_MODE",
+    "SYSTEM_FAILURE_STATE": "SYSTEM_MODE",
+    "EMERGENCY_STATE": "SYSTEM_MODE"
+  },
+  "class_a_expected_historical_occurrences": {
+    "WEATHER": 3,
+    "VEHICLE_STATIONARY": 2,
+    "ACCELERATION_STATE": 1,
+    "AUTHENTICATION_STATE": 5,
+    "ADS_STATE": 2,
+    "SYSTEM_FAILURE_STATE": 1,
+    "EMERGENCY_STATE": 1
+  },
+  "class_a_migrated_this_run": {
+    "WEATHER": 0,
+    "VEHICLE_STATIONARY": 0,
+    "ACCELERATION_STATE": 0,
+    "AUTHENTICATION_STATE": 0,
+    "ADS_STATE": 0,
+    "SYSTEM_FAILURE_STATE": 0,
+    "EMERGENCY_STATE": 0
+  },
+  "class_b_evidence_space_gaps": [
+    "BATTERY_STATE"
+  ],
+  "class_c_non_realtime_physical_evidence": [
+    "ACCESS_LOG",
+    "APP_INTEGRITY_STATE",
+    "ASSET_STATE",
+    "COMMAND_VALIDITY_STATE",
+    "COMMUNICATION_LOG",
+    "COMMUNICATION_STATE",
+    "CSMS_STATE",
+    "DATA_ACCESS_STATE",
+    "DATA_ANONYMIZATION_STATE",
+    "DATA_CATEGORY",
+    "DATA_CLASSIFICATION_STATE",
+    "DATA_COLLECTION_STATE",
+    "DATA_DELETE_STATE",
+    "DATA_ENCRYPTION_STATE",
+    "DATA_INTEGRITY_STATE",
+    "DATA_LOCATION_STATE",
+    "DATA_SECURITY_MANAGEMENT_STATE",
+    "DATA_STORAGE_STATE",
+    "DATA_USE_STATE",
+    "DATA_VALIDITY_STATE",
+    "EMERGENCY_PLAN_STATE",
+    "INTERFACE_STATE",
+    "KEY_STATE",
+    "LOG_RETENTION_STATE",
+    "NOTIFICATION_STATE",
+    "PACKAGE_INTEGRITY_STATE",
+    "PRODUCT_COMPLIANCE_STATE",
+    "RISK_ASSESSMENT_STATE",
+    "SECURITY_EVENT_STATE",
+    "SECURITY_LEVEL_STATE",
+    "SECURITY_LOG_STATE",
+    "SECURITY_MANAGEMENT_STATE",
+    "SECURITY_STATE",
+    "SOFTWARE_VERSION",
+    "STORAGE_STATE",
+    "THREAT_STATE",
+    "UPDATE_STATE",
+    "USER_CONSENT_STATE",
+    "VULNERABILITY_STATE"
+  ],
+  "post_migration_noncanonical_ids": [
+    "ACCESS_LOG",
+    "APP_INTEGRITY_STATE",
+    "ASSET_STATE",
+    "BATTERY_STATE",
+    "COMMAND_VALIDITY_STATE",
+    "COMMUNICATION_LOG",
+    "COMMUNICATION_STATE",
+    "CSMS_STATE",
+    "DATA_ACCESS_STATE",
+    "DATA_ANONYMIZATION_STATE",
+    "DATA_CATEGORY",
+    "DATA_CLASSIFICATION_STATE",
+    "DATA_COLLECTION_STATE",
+    "DATA_DELETE_STATE",
+    "DATA_ENCRYPTION_STATE",
+    "DATA_INTEGRITY_STATE",
+    "DATA_LOCATION_STATE",
+    "DATA_SECURITY_MANAGEMENT_STATE",
+    "DATA_STORAGE_STATE",
+    "DATA_USE_STATE",
+    "DATA_VALIDITY_STATE",
+    "EMERGENCY_PLAN_STATE",
+    "INTERFACE_STATE",
+    "KEY_STATE",
+    "LOG_RETENTION_STATE",
+    "NOTIFICATION_STATE",
+    "PACKAGE_INTEGRITY_STATE",
+    "PRODUCT_COMPLIANCE_STATE",
+    "RISK_ASSESSMENT_STATE",
+    "SECURITY_EVENT_STATE",
+    "SECURITY_LEVEL_STATE",
+    "SECURITY_LOG_STATE",
+    "SECURITY_MANAGEMENT_STATE",
+    "SECURITY_STATE",
+    "SOFTWARE_VERSION",
+    "STORAGE_STATE",
+    "THREAT_STATE",
+    "UPDATE_STATE",
+    "USER_CONSENT_STATE",
+    "VULNERABILITY_STATE"
+  ],
+  "classification_occurrence_counts": {
+    "B_EVIDENCE_SPACE_GAP": 2,
+    "CANONICAL": 273,
+    "C_NON_REALTIME_PHYSICAL_EVIDENCE": 99
+  },
+  "condition_predicates": {
+    "VEHICLE_STATIONARY": {
+      "evidence_type": "VEHICLE_SPEED",
+      "operator": "EQ",
+      "value": 0,
+      "unit": "km/h"
+    }
+  },
+  "stationary_condition_violation_count": 0,
+  "online_physical_eligible_count": 71,
+  "online_physical_excluded_count": 49,
+  "physical_required_unknown_count": 0,
+  "physical_optional_unknown_count": 0,
+  "unknown_reference_count": 0,
+  "online_required_evidence_silent_loss_risk_count": 0,
+  "nodes": [
+    {
+      "node_id": "知识.行驶控制.车辆控制行驶安全.001",
+      "knowledge_id": "SAFETY-BRAKE-00001",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "PARKING_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.乘用车列车安全.002",
+      "knowledge_id": "SAFETY-BRAKE-00002",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.行车制动控制.003",
+      "knowledge_id": "SAFETY-BRAKE-00003",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.行车制动性能.004",
+      "knowledge_id": "SAFETY-BRAKE-00004",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.制动系统部件要求.005",
+      "knowledge_id": "SAFETY-BRAKE-00005",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.气压制动系统.006",
+      "knowledge_id": "SAFETY-BRAKE-00006",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.液压制动系统.007",
+      "knowledge_id": "SAFETY-BRAKE-00007",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.应急制动功能.008",
+      "knowledge_id": "SAFETY-EMERGENCY_BRAKE-00008",
+      "canonical_action": "EMERGENCY_BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.行车制动失效应急.009",
+      "knowledge_id": "SAFETY-EMERGENCY_BRAKE-00009",
+      "canonical_action": "EMERGENCY_BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.防抱制动装置.010",
+      "knowledge_id": "SAFETY-BRAKE-00010",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.制动报警.011",
+      "knowledge_id": "SAFETY-BRAKE-00011",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.制动加速辅助互锁.012",
+      "knowledge_id": "SAFETY-BRAKE-00012",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "CRUISE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.车辆仪表要求.013",
+      "knowledge_id": "SAFETY-BRAKE-00013",
+      "canonical_action": "BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.换道通用约束.014",
+      "knowledge_id": "SAFETY-LANE_CHANGE-00014",
+      "canonical_action": "LANE_CHANGE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.换道前系统自检.015",
+      "knowledge_id": "SAFETY-LANE_CHANGE-00015",
+      "canonical_action": "LANE_CHANGE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.换道过程转向信号灯.016",
+      "knowledge_id": "SAFETY-LANE_CHANGE-00016",
+      "canonical_action": "LANE_CHANGE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.换道过程中驾驶员监测.017",
+      "knowledge_id": "SAFETY-LANE_CHANGE-00017",
+      "canonical_action": "LANE_CHANGE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "OCCUPANT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.换道横向中断控制.018",
+      "knowledge_id": "SAFETY-LANE_CHANGE-00018",
+      "canonical_action": "LANE_CHANGE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.换道安全空间核查.019",
+      "knowledge_id": "SAFETY-LANE_CHANGE-00019",
+      "canonical_action": "LANE_CHANGE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.车道保持辅助.020",
+      "knowledge_id": "SAFETY-LANE_KEEP-00020",
+      "canonical_action": "LANE_KEEP",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.驾驶员监测脱手检测.021",
+      "knowledge_id": "SAFETY-LANE_KEEP-00021",
+      "canonical_action": "LANE_KEEP",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "OCCUPANT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.车道保持横向控制.022",
+      "knowledge_id": "SAFETY-LANE_KEEP-00022",
+      "canonical_action": "LANE_KEEP",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.巡航激活条件.023",
+      "knowledge_id": "SAFETY-CRUISE_ENABLE-00023",
+      "canonical_action": "CRUISE_ENABLE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "CRUISE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.巡航跟车时距.024",
+      "knowledge_id": "SAFETY-CRUISE_SET_GAP-00024",
+      "canonical_action": "CRUISE_SET_GAP",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "CRUISE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.超速报警.025",
+      "knowledge_id": "SAFETY-CRUISE_SET_SPEED-00025",
+      "canonical_action": "CRUISE_SET_SPEED",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SPEED_LIMIT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.限速功能.026",
+      "knowledge_id": "SAFETY-CRUISE_SET_SPEED-00026",
+      "canonical_action": "CRUISE_SET_SPEED",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SPEED_LIMIT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.换挡齿轮互锁.027",
+      "knowledge_id": "SAFETY-GEAR_SET-00027",
+      "canonical_action": "GEAR_SET",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "PARKING_BRAKE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.智能网联汽车操纵件.028",
+      "knowledge_id": "SAFETY-EMERGENCY_BRAKE-00028",
+      "canonical_action": "EMERGENCY_BRAKE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.前照灯配置.001",
+      "knowledge_id": "SAFETY-HEADLIGHT_SET_MODE-00001",
+      "canonical_action": "HEADLIGHT_SET_MODE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.前照灯功能调整.002",
+      "knowledge_id": "SAFETY-HEADLIGHT_SET_MODE-00002",
+      "canonical_action": "HEADLIGHT_SET_MODE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.远光光束发光强度.003",
+      "knowledge_id": "SAFETY-HEADLIGHT_SET_MODE-00003",
+      "canonical_action": "HEADLIGHT_SET_MODE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.光束照射位置.004",
+      "knowledge_id": "SAFETY-HEADLIGHT_SET_MODE-00004",
+      "canonical_action": "HEADLIGHT_SET_MODE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.远光指示信号.005",
+      "knowledge_id": "SAFETY-HIGH_BEAM_ON-00005",
+      "canonical_action": "HIGH_BEAM_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.近光灯要求.006",
+      "knowledge_id": "SAFETY-LOW_BEAM_ON-00006",
+      "canonical_action": "LOW_BEAM_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.雾灯要求.007",
+      "knowledge_id": "SAFETY-FOG_LIGHT_ON-00007",
+      "canonical_action": "FOG_LIGHT_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.驻车灯示廓灯.008",
+      "knowledge_id": "SAFETY-PARKING_LIGHT_ON-00008",
+      "canonical_action": "PARKING_LIGHT_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.危险警告信号.009",
+      "knowledge_id": "SAFETY-HAZARD_LIGHT_ON-00009",
+      "canonical_action": "HAZARD_LIGHT_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.转向信号灯可见性.010",
+      "knowledge_id": "SAFETY-TURN_INDICATOR_ON-00010",
+      "canonical_action": "TURN_INDICATOR_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.转向信号迁延开关.011",
+      "knowledge_id": "SAFETY-TURN_INDICATOR_ON-00011",
+      "canonical_action": "TURN_INDICATOR_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.对称灯具一致性.012",
+      "knowledge_id": "SAFETY-HEADLIGHT_SET_MODE-00012",
+      "canonical_action": "HEADLIGHT_SET_MODE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.乘客门开启.001",
+      "knowledge_id": "SAFETY-DOOR_OPEN-00001",
+      "canonical_action": "DOOR_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "DOOR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "OCCUPANT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.车门开启档位速度核查.002",
+      "knowledge_id": "SAFETY-DOOR_OPEN-00002",
+      "canonical_action": "DOOR_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "DOOR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "OCCUPANT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.车门车窗启闭.003",
+      "knowledge_id": "SAFETY-DOOR_CLOSE-00003",
+      "canonical_action": "DOOR_CLOSE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "DOOR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "OCCUPANT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.遥控钥匙锁止.004",
+      "knowledge_id": "SAFETY-DOOR_LOCK-00004",
+      "canonical_action": "DOOR_LOCK",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "DOOR_LOCK_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "OCCUPANT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.安全玻璃要求.005",
+      "knowledge_id": "SAFETY-WINDOW_OPEN-00005",
+      "canonical_action": "WINDOW_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "WINDOW_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "DOOR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.两侧车窗设置.006",
+      "knowledge_id": "SAFETY-WINDOW_OPEN-00006",
+      "canonical_action": "WINDOW_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "WINDOW_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.电动窗控制装置.007",
+      "knowledge_id": "SAFETY-WINDOW_OPEN-00007",
+      "canonical_action": "WINDOW_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "WINDOW_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.天窗控制.008",
+      "knowledge_id": "SAFETY-SUNROOF_OPEN-00008",
+      "canonical_action": "SUNROOF_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SUNROOF_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.行李箱舱门要求.009",
+      "knowledge_id": "SAFETY-TRUNK_OPEN-00009",
+      "canonical_action": "TRUNK_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "TRUNK_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.视野.后视镜设置.001",
+      "knowledge_id": "SAFETY-MIRROR_SET_ANGLE-00001",
+      "canonical_action": "MIRROR_SET_ANGLE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "MIRROR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.视野.外后视镜折叠.002",
+      "knowledge_id": "SAFETY-MIRROR_FOLD-00002",
+      "canonical_action": "MIRROR_FOLD",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "MIRROR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.视野.前风窗刮水器.003",
+      "knowledge_id": "SAFETY-WIPER_SET_MODE-00003",
+      "canonical_action": "WIPER_SET_MODE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "WIPER_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.视野.前风窗除雾除霜.004",
+      "knowledge_id": "SAFETY-DEFROST_ON-00004",
+      "canonical_action": "DEFROST_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "DEFROST_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.泊车驻车.自动泊车启用.001",
+      "knowledge_id": "SAFETY-AUTO_PARK_ENABLE-00001",
+      "canonical_action": "AUTO_PARK_ENABLE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "FREE_SPACE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "PARKING_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.泊车驻车.驻车制动施加.002",
+      "knowledge_id": "SAFETY-PARKING_BRAKE_APPLY-00002",
+      "canonical_action": "PARKING_BRAKE_APPLY",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "PARKING_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.泊车驻车.驻车制动力要求.003",
+      "knowledge_id": "SAFETY-PARKING_BRAKE_APPLY-00003",
+      "canonical_action": "PARKING_BRAKE_APPLY",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "PARKING_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.泊车驻车.驻车制动解除.004",
+      "knowledge_id": "SAFETY-PARKING_BRAKE_RELEASE-00004",
+      "canonical_action": "PARKING_BRAKE_RELEASE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "PARKING_BRAKE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SERVICE_BRAKE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.动力传动.电子稳定性控制.001",
+      "knowledge_id": "SAFETY-ESC_ENABLE-00001",
+      "canonical_action": "ESC_ENABLE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "ESC_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.行驶控制.避让转向.029",
+      "knowledge_id": "SAFETY-EVASIVE_STEER-00029",
+      "canonical_action": "EVASIVE_STEER",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "STEERING_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.喇叭声级.010",
+      "knowledge_id": "SAFETY-HORN_ACTIVATE-00010",
+      "canonical_action": "HORN_ACTIVATE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.网络安全.安全启动.001",
+      "knowledge_id": "SAFETY-SEC_SECURE_BOOT-00001",
+      "canonical_action": "SEC_SECURE_BOOT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.访问控制.002",
+      "knowledge_id": "SAFETY-SEC_ACCESS_CONTROL-00002",
+      "canonical_action": "SEC_ACCESS_CONTROL",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "ACCESS_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "optional_evidence",
+          "evidence_type": "ACCESS_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.身份认证.003",
+      "knowledge_id": "SAFETY-SEC_IDENTITY_AUTH-00003",
+      "canonical_action": "SEC_IDENTITY_AUTH",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "optional_evidence",
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.密钥管理.004",
+      "knowledge_id": "SAFETY-SEC_KEY_MANAGEMENT-00004",
+      "canonical_action": "SEC_KEY_MANAGEMENT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "KEY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "KEY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.防篡改.005",
+      "knowledge_id": "SAFETY-SEC_ANTI_TAMPER-00005",
+      "canonical_action": "SEC_ANTI_TAMPER",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.关键指令防重放.006",
+      "knowledge_id": "SAFETY-SEC_ANTI_REPLAY-00006",
+      "canonical_action": "SEC_ANTI_REPLAY",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "COMMAND_VALIDITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "COMMAND_VALIDITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.通信安全.007",
+      "knowledge_id": "SAFETY-SEC_COMMUNICATION-00007",
+      "canonical_action": "SEC_COMMUNICATION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "COMMUNICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "COMMUNICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.敏感信息加密.008",
+      "knowledge_id": "SAFETY-SEC_SENSITIVE_ENCRYPT-00008",
+      "canonical_action": "SEC_SENSITIVE_ENCRYPT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_ENCRYPTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_ENCRYPTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.恶意数据识别.009",
+      "knowledge_id": "SAFETY-SEC_MALICIOUS_DATA-00009",
+      "canonical_action": "SEC_MALICIOUS_DATA",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_VALIDITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_VALIDITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.安全日志.010",
+      "knowledge_id": "SAFETY-SEC_LOG_AUDIT-00010",
+      "canonical_action": "SEC_LOG_AUDIT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "SECURITY_EVENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_EVENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.升级包安全.011",
+      "knowledge_id": "SAFETY-SEC_OTA_PACKAGE-00011",
+      "canonical_action": "SEC_OTA_PACKAGE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "PACKAGE_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "PACKAGE_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.外部接口保护.012",
+      "knowledge_id": "SAFETY-SEC_OBD_PROTECTION-00012",
+      "canonical_action": "SEC_OBD_PROTECTION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "INTERFACE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "INTERFACE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.第三方应用安全.013",
+      "knowledge_id": "SAFETY-SEC_THIRD_PARTY_APP-00013",
+      "canonical_action": "SEC_THIRD_PARTY_APP",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "APP_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "APP_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.网络安全管理体系.014",
+      "knowledge_id": "SAFETY-SEC_CSMS-00014",
+      "canonical_action": "SEC_CSMS",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "CSMS_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "CSMS_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.TARA风险评估.015",
+      "knowledge_id": "SAFETY-SEC_TARA-00015",
+      "canonical_action": "SEC_TARA",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "ASSET_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "THREAT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "ASSET_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "THREAT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.漏洞管理.016",
+      "knowledge_id": "SAFETY-SEC_VULNERABILITY-00016",
+      "canonical_action": "SEC_VULNERABILITY",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "VULNERABILITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "THREAT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "VULNERABILITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "THREAT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.网络安全.信息安全事件应急.017",
+      "knowledge_id": "SAFETY-SEC_INCIDENT_RESPONSE-00017",
+      "canonical_action": "SEC_INCIDENT_RESPONSE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SECURITY_EVENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "EMERGENCY_PLAN_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_EVENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "EMERGENCY_PLAN_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.OTA升级.升级先决条件.001",
+      "knowledge_id": "SAFETY-OTA_PRECONDITION-00001",
+      "canonical_action": "OTA_PRECONDITION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "BATTERY_STATE",
+          "classification": "B_EVIDENCE_SPACE_GAP"
+        },
+        {
+          "evidence_type": "DOOR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "BATTERY_STATE",
+          "classification": "B_EVIDENCE_SPACE_GAP"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.OTA升级.升级电量保障.002",
+      "knowledge_id": "SAFETY-OTA_BATTERY-00002",
+      "canonical_action": "OTA_BATTERY",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "BATTERY_STATE",
+          "classification": "B_EVIDENCE_SPACE_GAP"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "BATTERY_STATE",
+          "classification": "B_EVIDENCE_SPACE_GAP"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.OTA升级.升级失败回滚.003",
+      "knowledge_id": "SAFETY-OTA_ROLLBACK-00003",
+      "canonical_action": "OTA_ROLLBACK",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "UPDATE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "UPDATE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.OTA升级.软件识别号.004",
+      "knowledge_id": "SAFETY-OTA_RXSWIN-00004",
+      "canonical_action": "OTA_RXSWIN",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.OTA升级.升级用户告知.005",
+      "knowledge_id": "SAFETY-OTA_NOTIFY-00005",
+      "canonical_action": "OTA_NOTIFY",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "NOTIFICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "NOTIFICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.OTA升级.升级事件日志.006",
+      "knowledge_id": "SAFETY-OTA_LOG-00006",
+      "canonical_action": "OTA_LOG",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "SOFTWARE_VERSION",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.事故记录.事件记录触发.001",
+      "knowledge_id": "SAFETY-DSSAD_TRIGGER-00001",
+      "canonical_action": "DSSAD_TRIGGER",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SYSTEM_MODE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.事故记录.碰撞事件记录.002",
+      "knowledge_id": "SAFETY-DSSAD_COLLISION-00002",
+      "canonical_action": "DSSAD_COLLISION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_ACCELERATION",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SYSTEM_MODE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.事故记录.数据记录存储.003",
+      "knowledge_id": "SAFETY-DSSAD_STORAGE-00003",
+      "canonical_action": "DSSAD_STORAGE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.事故记录.记录信息安全.004",
+      "knowledge_id": "SAFETY-DSSAD_SECURITY-00004",
+      "canonical_action": "DSSAD_SECURITY",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_INTEGRITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.事故记录.数据读取.005",
+      "knowledge_id": "SAFETY-DSSAD_READ-00005",
+      "canonical_action": "DSSAD_READ",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_ACCESS_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_ACCESS_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.等级保护.001",
+      "knowledge_id": "SAFETY-LAW_CLASSIFIED_PROTECTION-00001",
+      "canonical_action": "LAW_CLASSIFIED_PROTECTION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "SECURITY_LEVEL_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "LOG_RETENTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "SECURITY_MANAGEMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_LEVEL_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "LOG_RETENTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "SECURITY_MANAGEMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.产品安全义务.002",
+      "knowledge_id": "SAFETY-LAW_PRODUCT_SAFETY-00002",
+      "canonical_action": "LAW_PRODUCT_SAFETY",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "PRODUCT_COMPLIANCE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "VULNERABILITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "PRODUCT_COMPLIANCE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "VULNERABILITY_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "SECURITY_LOG_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.数据境内存储.003",
+      "knowledge_id": "SAFETY-LAW_DATA_DOMESTIC-00003",
+      "canonical_action": "LAW_DATA_DOMESTIC",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_LOCATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_LOCATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.数据分类分级.004",
+      "knowledge_id": "SAFETY-LAW_DATA_CLASSIFICATION-00004",
+      "canonical_action": "LAW_DATA_CLASSIFICATION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_CLASSIFICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CLASSIFICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.数据处理安全.005",
+      "knowledge_id": "SAFETY-LAW_DATA_PROCESSING_SECURITY-00005",
+      "canonical_action": "LAW_DATA_PROCESSING_SECURITY",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_SECURITY_MANAGEMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_SECURITY_MANAGEMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.图像采集限制.006",
+      "knowledge_id": "SAFETY-LAW_IMAGE_COLLECTION-00006",
+      "canonical_action": "LAW_IMAGE_COLLECTION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.敏感个人信息.007",
+      "knowledge_id": "SAFETY-LAW_SENSITIVE_PERSONAL-00007",
+      "canonical_action": "LAW_SENSITIVE_PERSONAL",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.影响评估.008",
+      "knowledge_id": "SAFETY-LAW_IMPACT_ASSESSMENT-00008",
+      "canonical_action": "LAW_IMPACT_ASSESSMENT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.法规合规.车速限制.009",
+      "knowledge_id": "SAFETY-LAW_SPEED_LIMIT-00009",
+      "canonical_action": "LAW_SPEED_LIMIT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SPEED_LIMIT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.法规合规.安全车距.010",
+      "knowledge_id": "SAFETY-LAW_SAFE_DISTANCE-00010",
+      "canonical_action": "LAW_SAFE_DISTANCE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ROAD_FRICTION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "LANE_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.法规合规.人行横道让行.011",
+      "knowledge_id": "SAFETY-LAW_CROSSWALK-00011",
+      "canonical_action": "LAW_CROSSWALK",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "TRAFFIC_LIGHT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.法规合规.故障停车警示.012",
+      "knowledge_id": "SAFETY-LAW_HAZARD_LIGHT-00012",
+      "canonical_action": "LAW_HAZARD_LIGHT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SYSTEM_MODE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.前雾灯安装.001",
+      "knowledge_id": "SAFETY-FOG_LIGHT_ON-00001",
+      "canonical_action": "FOG_LIGHT_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.后雾灯安装.002",
+      "knowledge_id": "SAFETY-FOG_LIGHT_ON-00002",
+      "canonical_action": "FOG_LIGHT_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.驻车灯安装.003",
+      "knowledge_id": "SAFETY-PARKING_LIGHT_ON-00003",
+      "canonical_action": "PARKING_LIGHT_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.灯光.近光会车.004",
+      "knowledge_id": "SAFETY-HIGH_BEAM_ON-00004",
+      "canonical_action": "HIGH_BEAM_ON",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "LIGHTING_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "ENVIRONMENT_CONDITIONS",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.数据安全.个人同意.001",
+      "knowledge_id": "SAFETY-DATA_CONSENT-00001",
+      "canonical_action": "DATA_CONSENT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.个人信息收集.002",
+      "knowledge_id": "SAFETY-DATA_COLLECT-00002",
+      "canonical_action": "DATA_COLLECT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_COLLECTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_COLLECTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.个人信息存储.003",
+      "knowledge_id": "SAFETY-DATA_STORAGE-00003",
+      "canonical_action": "DATA_STORAGE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.个人信息使用.004",
+      "knowledge_id": "SAFETY-DATA_USE-00004",
+      "canonical_action": "DATA_USE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_USE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_USE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.数据传输加密.005",
+      "knowledge_id": "SAFETY-DATA_TRANSFER-00005",
+      "canonical_action": "DATA_TRANSFER",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_ENCRYPTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_ENCRYPTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "COMMUNICATION_LOG",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.个人信息删除.006",
+      "knowledge_id": "SAFETY-DATA_DELETE-00006",
+      "canonical_action": "DATA_DELETE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_DELETE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_DELETE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.数据出境.007",
+      "knowledge_id": "SAFETY-DATA_EXPORT-00007",
+      "canonical_action": "DATA_EXPORT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_LOCATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_LOCATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.匿名化处理.008",
+      "knowledge_id": "SAFETY-DATA_ANONYMIZE-00008",
+      "canonical_action": "DATA_ANONYMIZE",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_ANONYMIZATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_ANONYMIZATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.重要数据保护.009",
+      "knowledge_id": "SAFETY-DATA_IMPORTANT-00009",
+      "canonical_action": "DATA_IMPORTANT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_ENCRYPTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_ENCRYPTION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.数据分类分级.010",
+      "knowledge_id": "SAFETY-DATA_CLASSIFICATION-00010",
+      "canonical_action": "DATA_CLASSIFICATION",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_CLASSIFICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CLASSIFICATION_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.座舱数据保护.011",
+      "knowledge_id": "SAFETY-DATA_INCABIN-00011",
+      "canonical_action": "DATA_INCABIN",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "DATA_STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "USER_CONSENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "optional_evidence",
+          "evidence_type": "DATA_STORAGE_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.数据安全负责人.012",
+      "knowledge_id": "SAFETY-DATA_SECURITY_OFFICER-00012",
+      "canonical_action": "DATA_SECURITY_OFFICER",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "DATA_SECURITY_MANAGEMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_SECURITY_MANAGEMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.数据安全.数据风险评估.013",
+      "knowledge_id": "SAFETY-DATA_RISK_ASSESSMENT-00013",
+      "canonical_action": "DATA_RISK_ASSESSMENT",
+      "action_status": "OUTSIDE_REALTIME_ACTION_REGISTRY",
+      "knowledge_plane": "NON_PHYSICAL",
+      "required_evidence": [
+        {
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [
+        {
+          "field": "required_evidence",
+          "evidence_type": "RISK_ASSESSMENT_STATE",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        },
+        {
+          "field": "required_evidence",
+          "evidence_type": "DATA_CATEGORY",
+          "classification": "C_NON_REALTIME_PHYSICAL_EVIDENCE"
+        }
+      ],
+      "online_physical_eligible": false
+    },
+    {
+      "node_id": "知识.行驶控制.加速限速核查.001",
+      "knowledge_id": "SAFETY-ACCELERATE-00001",
+      "canonical_action": "ACCELERATE",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SPEED_LIMIT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "TRAFFIC_LIGHT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.行李箱开启核查.001",
+      "knowledge_id": "SAFETY-TRUNK_OPEN-00001",
+      "canonical_action": "TRUNK_OPEN",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "GEAR_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "TRUNK_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "SURROUNDING_OBJECT_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    },
+    {
+      "node_id": "知识.车身.行李箱锁闭.002",
+      "knowledge_id": "SAFETY-TRUNK_LOCK-00002",
+      "canonical_action": "TRUNK_LOCK",
+      "action_status": "FORMAL_ONLINE_ACTION",
+      "knowledge_plane": "PHYSICAL_SAFETY",
+      "required_evidence": [
+        {
+          "evidence_type": "TRUNK_LOCK_STATE",
+          "classification": "CANONICAL"
+        },
+        {
+          "evidence_type": "AUTHORIZATION_STATE",
+          "classification": "CANONICAL"
+        }
+      ],
+      "optional_evidence": [
+        {
+          "evidence_type": "VEHICLE_SPEED",
+          "classification": "CANONICAL"
+        }
+      ],
+      "noncanonical_references": [],
+      "online_physical_eligible": true
+    }
+  ]
+}

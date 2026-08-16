@@ -12,13 +12,13 @@ source_freezes:
     sha256: 6d7f1c8f7a7e3ad8c380e446d66071f38dcd84fef24621ba1d1968162ad196bb
   known:
     path: data/nlu/spec/audits/known_non_executable_semantic_freeze_final_v4.yaml
-    sha256: f863ca1ccfa1d59f14ad0f1a2307f2db5dbb49a174ce8a2a2ffea8fec2902bc7
+    sha256: f560c11b9c14ae338cbf584c97b9a313bb39e2302a69c774c3044390544d5acd
   product_removals:
     path: data/nlu/spec/audits/known_non_executable_product_removals_v2.yaml
     sha256: dad730e6bb4859f6ab8c26a47a23a5c93a9116a93a36893a498f81d3410122ce
   contract_catalog:
     path: data/nlu/spec/intent_registry_r4_final_candidate.yaml
-    sha256: 55bbb90780a969cb249f73833d7d34d9e464d99c65e1a6352ead15aa34db4440
+    sha256: fb6dc4810964d2b4d7ce5b8a1a3ac8ee1e1cf24335f1973dc1baeb88ead05666
 enums:
   scope_status:
   - IN_SCOPE
@@ -554,6 +554,9 @@ direction_contracts:
   SUNROOF_TILT_UP_DOWN:
   - UP
   - DOWN
+  TEMPERATURE_INCREASE_DECREASE:
+  - INCREASE
+  - DECREASE
   TURN_INDICATOR_LEFT_RIGHT:
   - LEFT
   - RIGHT
@@ -958,6 +961,17 @@ mode_surface_mappings:
     RAIN_SENSOR:
     - RAIN_SENSOR
 direction_surface_mappings:
+  TEMPERATURE_INCREASE_DECREASE:
+    INCREASE:
+    - 升高
+    - 调高
+    - 升温
+    - 再高一点
+    DECREASE:
+    - 降低
+    - 调低
+    - 降温
+    - 再低一点
   SEAT_FORWARD_BACKWARD:
     FORWARD:
     - 往前
@@ -4181,7 +4195,7 @@ intents:
   - REAR
   value_contract: SOURCE_TEMPERATURE_REQUIRED
   mode_contract: null
-  direction_contract: null
+  direction_contract: TEMPERATURE_INCREASE_DECREASE
   conditional_slot_contract: null
   value_mapping_contract: null
   runtime_identity: KNOWN_NON_EXECUTABLE
@@ -4420,7 +4434,7 @@ intents:
   allowed_areas: []
   value_contract: SOURCE_TEMPERATURE_REQUIRED
   mode_contract: null
-  direction_contract: null
+  direction_contract: TEMPERATURE_INCREASE_DECREASE
   conditional_slot_contract: null
   value_mapping_contract: null
   runtime_identity: KNOWN_NON_EXECUTABLE

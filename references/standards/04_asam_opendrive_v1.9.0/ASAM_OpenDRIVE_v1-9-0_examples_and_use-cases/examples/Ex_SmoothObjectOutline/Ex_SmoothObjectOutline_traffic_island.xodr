@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OpenDRIVE>
+    <header name="blender_dsc" revMajor="1" revMinor="5" date="2025-12-03 09:55:34.628345" north="0.0" south="0.0" east="0.0" west="0.0"/>
+    <road rule="RHT" id="2" junction="-1" length="50.0">
+        <link/>
+        <planView>
+            <geometry s="0" x="0.0" y="0.0" hdg="0.0" length="50.0">
+                <line/>
+            </geometry>
+        </planView>
+        <elevationProfile>
+            <elevation s="0" a="0.0" b="0" c="0" d="0"/>
+        </elevationProfile>
+        <lateralProfile/>
+        <lanes>
+            <laneOffset s="0" a="0.0" b="0.0" c="0.0" d="-0.0"/>
+            <laneSection s="0">
+                <left>
+                    <lane id="3" type="border" level="false">
+                        <link/>
+                        <width a="0.5" b="0.0" c="0.0" d="0.0" sOffset="0"/>
+                        <roadMark sOffset="0" type="none" weight="standard" color="standard" height="0.02"/>
+                    </lane>
+                    <lane id="2" type="driving" level="false">
+                        <link/>
+                        <width a="3.5" b="0.0" c="0.0" d="0.0" sOffset="0"/>
+                        <roadMark sOffset="0" type="solid" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                    <lane id="1" type="driving" level="false">
+                        <link/>
+                        <width a="4.0" b="0.0" c="0.0" d="0.0" sOffset="0"/>
+                        <roadMark sOffset="0" type="broken" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                </left>
+                <center>
+                    <lane id="0" type="none" level="false">
+                        <roadMark sOffset="0" type="broken" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                </center>
+                <right>
+                    <lane id="-1" type="driving" level="false">
+                        <link/>
+                        <width a="3.5" b="0.0" c="0.0" d="0.0" sOffset="0"/>
+                        <roadMark sOffset="0" type="solid" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                    <lane id="-2" type="border" level="false">
+                        <link/>
+                        <width a="0.5" b="0.0" c="0.0" d="0.0" sOffset="0"/>
+                        <roadMark sOffset="0" type="none" weight="standard" color="standard" height="0.02"/>
+                    </lane>
+                </right>
+            </laneSection>
+        </lanes>
+<!-- tag::example[] -->
+        <objects>
+            <object type="trafficIsland" subtype="island" id="0" s="20.0" t="0.0" zOffset="0.0" orientation="none" length="32.566370964050293" width="4.0" height="0.3" hdg="0.0" pitch="0.0" roll="0.0">
+                <outlines>
+                    <outline id="0" outer="true">
+                        <curveLocal u="0.0" v="0.0" z="0.0" height="0.3" hdg="0.0" length="10.0">
+                            <line/>
+                        </curveLocal>
+                        <curveLocal u="10.0" v="0.0" z="0.0" height="0.3" hdg="0.0" length="6.2831854820251465">
+                            <arc curvature="0.5"/>
+                        </curveLocal>
+                        <curveLocal u="10.0" v="4.0" z="0.0" height="0.3" hdg="-1.5707963267948966" length="10.0">
+                            <line/>
+                        </curveLocal>
+                        <curveLocal u="0.0" v="4.0" z="0.0" height="0.3" hdg="-1.5707963267948966" length="6.2831854820251465">
+                            <arc curvature="0.5"/>
+                        </curveLocal>
+                    </outline>
+                </outlines>
+            </object>
+<!-- end::example[] -->
+            <object type="trafficIsland" subtype="island" id="1" s="20.0" t="0.0" zOffset="0.0" orientation="none" length="4.0" width="4.0" height="0.3" hdg="0.0" pitch="0.0" roll="0.0">
+                <outlines>
+                    <outline id="1" outer="true" closed="true">
+                        <cornerLocal u="0.0" v="0.0" z="0.0" height="0.3" id="0"/>
+                        <cornerLocal u="10.0" v="0.0" z="0.0" height="0.3" id="1"/>
+                        <cornerLocal u="10.518" v="0.134" z="0.0" height="0.3" id="2"/>
+                        <cornerLocal u="11.414" v="0.586" z="0.0" height="0.3" id="3"/>
+                        <cornerLocal u="12.0" v="2.0" z="0.0" height="0.3" id="4"/>
+                        <cornerLocal u="11.414" v="3.414" z="0.0" height="0.3" id="5"/>
+                        <cornerLocal u="10.518" v="3.866" z="0.0" height="0.3" id="6"/>
+                        <cornerLocal u="10.0" v="4.0" z="0.0" height="0.3" id="7"/>
+                        <cornerLocal u="0.0" v="4.0" z="0.0" height="0.3" id="8"/>
+                        <cornerLocal u="-0.518" v="3.866" z="0.0" height="0.3" id="9"/>
+                        <cornerLocal u="-1.414" v="3.414" z="0.0" height="0.3" id="10"/>
+                        <cornerLocal u="-2.0" v="2.0" z="0.0" height="0.3" id="11"/>
+                        <cornerLocal u="-1.414" v="0.586" z="0.0" height="0.3" id="12"/>
+                        <cornerLocal u="-0.518" v="0.134" z="0.0" height="0.3" id="13"/>
+                    </outline>
+                </outlines>
+            </object>
+<!-- tag::example[] -->
+        </objects>
+<!-- end::example[] -->
+    </road>
+    <road rule="RHT" id="7" junction="-1" length="10.0">
+        <link/>
+        <planView>
+            <geometry s="0" x="20.0" y="0.0" hdg="9.592618255283014e-08" length="10.0">
+                <line/>
+            </geometry>
+        </planView>
+        <elevationProfile>
+            <elevation s="0" a="0.0" b="0" c="0" d="0"/>
+        </elevationProfile>
+        <lateralProfile/>
+        <lanes>
+            <laneOffset s="0" a="0.0" b="0.0" c="0.0" d="-0.0"/>
+            <laneSection s="0">
+                <center>
+                    <lane id="0" type="none" level="false">
+                        <roadMark sOffset="0" type="solid" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                </center>
+            </laneSection>
+        </lanes>
+    </road>
+    <road rule="RHT" id="8" junction="-1" length="6.2831854820251465">
+        <link/>
+        <planView>
+            <geometry s="0" x="30.0" y="0.0" hdg="0.0" length="6.2831854820251465">
+                <arc curvature="0.5"/>
+            </geometry>
+        </planView>
+        <elevationProfile>
+            <elevation s="0" a="0.0" b="0" c="0" d="0"/>
+        </elevationProfile>
+        <lateralProfile/>
+        <lanes>
+            <laneOffset s="0" a="0.0" b="0.0" c="0.0" d="-0.0"/>
+            <laneSection s="0">
+                <center>
+                    <lane id="0" type="none" level="false">
+                        <roadMark sOffset="0" type="solid" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                </center>
+            </laneSection>
+        </lanes>
+    </road>
+    <road rule="RHT" id="9" junction="-1" length="10.000000000000759">
+        <link/>
+        <planView>
+            <geometry s="0" x="30.0" y="4.0" hdg="3.141592511093961" length="10.000000000000759">
+                <line/>
+            </geometry>
+        </planView>
+        <elevationProfile>
+            <elevation s="0" a="0.0" b="0" c="0" d="0"/>
+        </elevationProfile>
+        <lateralProfile/>
+        <lanes>
+            <laneOffset s="0" a="0.0" b="0.0" c="0.0" d="-0.0"/>
+            <laneSection s="0">
+                <center>
+                    <lane id="0" type="none" level="false">
+                        <roadMark sOffset="0" type="solid" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                </center>
+            </laneSection>
+        </lanes>
+    </road>
+    <road rule="RHT" id="10" junction="-1" length="6.283183574676514">
+        <link/>
+        <planView>
+            <geometry s="0" x="20.0" y="4.0" hdg="-9.424778302453094" length="6.283183574676514">
+                <arc curvature="0.5"/>
+            </geometry>
+        </planView>
+        <elevationProfile>
+            <elevation s="0" a="0.0" b="0" c="0" d="0"/>
+        </elevationProfile>
+        <lateralProfile/>
+        <lanes>
+            <laneOffset s="0" a="0.0" b="0.0" c="0.0" d="-0.0"/>
+            <laneSection s="0">
+                <center>
+                    <lane id="0" type="none" level="false">
+                        <roadMark sOffset="0" type="solid" weight="standard" color="white" height="0.02"/>
+                    </lane>
+                </center>
+            </laneSection>
+        </lanes>
+    </road>
+</OpenDRIVE>

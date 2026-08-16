@@ -126,9 +126,9 @@ def _nodes(state: VehicleState) -> list:
     )
 
 
-def test_catalog_and_runtime_mapping_cover_exactly_32_without_compatibility_fields() -> None:
+def test_catalog_and_runtime_mapping_cover_evidence_space_v1_without_compatibility_fields() -> None:
     mapping = evidence_runtime_mapping()
-    assert len(CANONICAL_EVIDENCE_TYPES) == 32
+    assert len(CANONICAL_EVIDENCE_TYPES) == 38
     assert set(mapping) == CANONICAL_EVIDENCE_TYPES
     forbidden = {"legacy_type", "old_name", "aliases", "fallback_names", "compatibility"}
     assert not any(forbidden & set(entry) for entry in mapping.values())
@@ -136,7 +136,7 @@ def test_catalog_and_runtime_mapping_cover_exactly_32_without_compatibility_fiel
         "DIRECT", "DERIVED", "STATIC", "SIMULATED", "UNAVAILABLE"
     }
     assert sum(entry["runtime_mode"] == "SIMULATED" for entry in mapping.values()) == 13
-    assert sum(entry["runtime_mode"] == "UNAVAILABLE" for entry in mapping.values()) == 19
+    assert sum(entry["runtime_mode"] == "UNAVAILABLE" for entry in mapping.values()) == 25
     assert all("usability" in entry for entry in mapping.values())
 
 

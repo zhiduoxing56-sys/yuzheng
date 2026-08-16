@@ -222,7 +222,12 @@ class HybridConfidenceGate:
             ),
         }
 
-    def run(self, text: str) -> GateRun:
+    def run(
+        self,
+        text: str,
+        *,
+        allow_model_fallback: bool = True,
+    ) -> GateRun:
         chain_started = perf_counter()
         recall_result, diagnostic, score_map = self._extract_evidence(text)
         sample = {"input": text, "diagnostic": diagnostic}
@@ -255,6 +260,10 @@ class HybridConfidenceGate:
         elif open_set_no_match(sample, self.config["open_set_no_match"]):
             gate_path = "OPEN_SET_NO_MATCH"
             semantic_status = "NO_MATCH"
+            accepted_ids = []
+        elif not allow_model_fallback:
+            gate_path = "DETERMINISTIC_GATE_INSUFFICIENT"
+            semantic_status = "REVIEW"
             accepted_ids = []
         else:
             model_called = True

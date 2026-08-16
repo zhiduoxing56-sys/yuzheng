@@ -19,7 +19,7 @@ class EvidenceSecurityClassification:
             layering.get("unknown_type_strategy", "UNCLASSIFIED_BASE_ONLY")
         )
         if set(self.evidence_type_mapping) != CANONICAL_EVIDENCE_TYPES:
-            raise ValueError("security_layering evidence_type_mapping must cover exactly 32 types")
+            raise ValueError("security_layering evidence_type_mapping must cover the canonical catalog")
         for name, definition in self.security_classes.items():
             if "rank" not in definition or "node_layer_label" not in definition:
                 raise ValueError(f"security class {name} lacks rank/node_layer_label")

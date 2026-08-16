@@ -21,7 +21,8 @@ class MultiIntentCompletenessGuard:
     def check(self, clause_results: list[dict[str, Any]]) -> MultiIntentDecision:
         resolved: list[ResolvedIntentOccurrence] = []
         unresolved: list[str] = []
-        for clause_index, result in enumerate(clause_results):
+        for ordinal, result in enumerate(clause_results):
+            clause_index = int(result.get("clause_index", ordinal))
             selected = list(result["accepted_intent_ids"])
             if result["reliable"] and len(selected) == 1:
                 resolved.append(

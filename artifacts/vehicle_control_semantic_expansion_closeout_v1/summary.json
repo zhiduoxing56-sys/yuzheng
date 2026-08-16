@@ -1,0 +1,40 @@
+{
+  "previous_candidate_count": 177,
+  "previous_function_domain_stat_scope": "全部177个候选，而不是84个缺失候选；原报告标签错误。",
+  "previous_missing_count": 84,
+  "previous_missing_by_function_domain_recomputed": {
+    "驾驶辅助": 2,
+    "车身": 9,
+    "座舱": 62,
+    "底盘": 3,
+    "动力": 8
+  },
+  "candidate_classification_before_user_merge": {
+    "confirmed_existing": 111,
+    "rejected_low_level": 48,
+    "unresolved_candidates": 4,
+    "new_known_candidates": 14
+  },
+  "final_user_level_semantic_universe_estimate": 159,
+  "existing_formal_count": 71,
+  "existing_known_count": 78,
+  "recommended_new_known_count": 10,
+  "rejected_count": 19,
+  "unresolved_count": 3,
+  "confirmed_existing_count": 65,
+  "final_coverage_by_function_domain": {
+    "驾驶辅助": 12,
+    "车身": 29,
+    "座舱": 46,
+    "底盘": 3,
+    "动力": 7
+  },
+  "new_known_by_function_domain": {
+    "座舱": 5,
+    "动力": 5
+  },
+  "duplicate_decision_source_count": 70,
+  "duplicate_decision_note": "A=确认等价，B=部分重叠/仍需人工边界判断，C=底层执行器差异归并，D=真正缺失。",
+  "source_candidate_rows_accounted_for": 177,
+  "note": "177行源候选经过用户级语义归并后输出；四表中的一行可对应多个底层候选编号。"
+}

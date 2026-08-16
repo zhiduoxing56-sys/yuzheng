@@ -3,6 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+import yaml
 
 from app.models.frontend_contract import ClarificationSubmission
 from app.models.schemas import (
@@ -12,6 +13,7 @@ from app.models.schemas import (
     ClarificationResolution,
     ClarificationType,
     DecisionLabel,
+    ReviewCandidateInterpretation,
     SemanticFrame,
     SemanticIntent,
     TranscriptionResult,
@@ -22,6 +24,7 @@ from app.services.clarification.service import (
 )
 from app.services.workflow.repository import WorkflowRepository
 from app.models.schemas import ClarificationResolutionRecord, WorkflowEventType
+from semantic_registry_v1.registry import ANCHOR_PATH
 
 
 class FakeWorkflowRepository:
@@ -194,6 +197,104 @@ def test_missing_continuous_value_does_not_create_guessed_candidates_or_ids():
     assert request.candidates == []
 
 
+def test_stage1_review_candidates_never_become_user_clarification_candidates():
+    pipeline = FakePipeline()
+    service = ClarificationService(pipeline, {})
+    record = make_record(
+        text="打开车窗",
+        reasons=["FORCED_REVIEW_FOR_REGRESSION"],
+        review_candidates=["WINDOW_OPEN", "WINDOW_CLOSE", "SUNROOF_OPEN"],
+    )
+
+    request = service.build_for_audit(record)
+
+    assert request is not None
+    assert request.candidates == []
+
+
+def test_first_100_formal_anchor_top8_rows_cannot_pollute_user_candidates():
+    anchor_root = yaml.safe_load(ANCHOR_PATH.read_text(encoding="utf-8"))
+    intents = anchor_root["intents"]
+    samples = [
+        (intent_id, text)
+        for intent_id, definition in intents.items()
+        if definition.get("runtime_identity") == "FORMAL"
+        for text in definition.get("anchors", [])
+    ][:100]
+
+    assert len(samples) == 100
+    shown_candidate_count = 0
+    for intent_id, text in samples:
+        service = ClarificationService(FakePipeline(), {})
+        record = make_record(
+            text=text,
+            reasons=["FORCED_REVIEW_FOR_P0_AUDIT"],
+            review_candidates=[intent_id],
+        )
+        request = service.build_for_audit(record)
+        assert request is not None
+        shown_candidate_count += len(request.candidates)
+
+    assert shown_candidate_count == 0
+
+
+def test_semantic_candidate_must_preserve_resolved_canonical_identity():
+    pipeline = FakePipeline()
+    service = ClarificationService(pipeline, {})
+    intent = SemanticIntent(
+        clause_index=0,
+        clause_text="打开全部车窗",
+        intent_id="WINDOW_OPEN",
+        action="打开",
+        target="车窗",
+        area="ALL",
+        control_domain="车身控制",
+        risk_level="R3",
+        semantic_confidence=0.9,
+        ambiguity_score=0.2,
+    )
+    record = make_record(
+        text="打开全部车窗",
+        reasons=["FORCED_REVIEW_FOR_REGRESSION"],
+        intents=[intent],
+    )
+    record.candidate_interpretations = [
+        ReviewCandidateInterpretation(
+            candidate_id="OPEN",
+            turn_id="TURN_A",
+            canonical_text="打开全部车窗",
+            action="打开",
+            target="车窗",
+            parameters={"area": "ALL"},
+            control_domain="车身控制",
+            risk_level="R3",
+            why_possible="test",
+            source="SEMANTIC_FRAME",
+            validation_status="VALID",
+        ),
+        ReviewCandidateInterpretation(
+            candidate_id="CLOSE",
+            turn_id="TURN_A",
+            canonical_text="关闭全部车窗",
+            action="关闭",
+            target="车窗",
+            parameters={"area": "ALL"},
+            control_domain="车身控制",
+            risk_level="R3",
+            why_possible="test",
+            source="SEMANTIC_FRAME",
+            validation_status="VALID",
+        ),
+    ]
+
+    request = service.build_for_audit(record)
+
+    assert request is not None
+    assert [candidate.display_text for candidate in request.candidates] == ["打开全部车窗"]
+    assert request.candidates[0].canonical_intent_id == "WINDOW_OPEN"
+    assert request.candidates[0].canonical_slots == {"area": "ALL"}
+
+
 def test_safety_review_without_language_uncertainty_has_no_clarification():
     pipeline = FakePipeline()
     service = ClarificationService(pipeline, {})
@@ -218,6 +319,9 @@ def test_selection_uses_persisted_candidate_and_creates_child_without_confidence
                 candidate_source=ClarificationCandidateSource.SLOT_COMPLETION,
                 source_rank=1,
                 confidence=0.9,
+                canonical_intent_id="DOOR_OPEN",
+                canonical_runtime_identity="FORMAL",
+                canonical_slots={"area": "RIGHT_FRONT"},
             )
         ],
     )
@@ -243,6 +347,11 @@ def test_selection_uses_persisted_candidate_and_creates_child_without_confidence
     context = kwargs["audio_input_metadata"]["clarification_context"]
     assert context["confirmation_source"] == "USER_EXPLICIT_CONFIRMATION"
     assert context["confirmed_candidate_id"] == "CAND_1"
+    assert context["expected_canonical_identity"] == {
+        "intent_id": "DOOR_OPEN",
+        "runtime_identity": "FORMAL",
+        "slots": {"area": "RIGHT_FRONT"},
+    }
 
 
 def test_none_of_above_is_terminal_without_child_or_pipeline_call():

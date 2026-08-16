@@ -2,35 +2,21 @@ import { apiClient } from "./client";
 import type {
   AdvancedReasoningResult,
   ExecuteResult,
-  ReviewSubmission,
-  ReviewSubmissionResponse,
   TimelineResponse,
   TurnWorkflowStatus,
   TurnPresentationResponse,
   WorkflowChainVerification,
-  ClarificationSubmission,
-  ClarificationSubmissionResponse,
+  InteractionAction,
 } from "../types/contract";
 
 export function getTurnPresentation(turnId: string, signal?: AbortSignal): Promise<TurnPresentationResponse> {
   return apiClient.get<TurnPresentationResponse>(`/api/turns/${encodeURIComponent(turnId)}/presentation`, undefined, { signal, timeoutMs: 45_000 });
 }
 
-export function submitTurnReview(turnId: string, request: ReviewSubmission): Promise<unknown> {
-  return apiClient.post<unknown>(`/api/turns/${encodeURIComponent(turnId)}/review`, request);
+export function submitTurnInteraction(turnId: string, request: { interaction_id: string; action: InteractionAction; candidate_id?: string; text?: string; parameters?: Record<string, unknown>; }): Promise<{ interaction_id: string; command_result: import("../types/contract").TextCommandResponse | null }> {
+  return apiClient.post(`/api/turns/${encodeURIComponent(turnId)}/interaction`, request, { timeoutMs: 60_000 });
 }
 
-export function submitTurnClarification(
-  turnId: string,
-  request: ClarificationSubmission,
-  signal?: AbortSignal,
-): Promise<ClarificationSubmissionResponse> {
-  return apiClient.post<ClarificationSubmissionResponse>(
-    `/api/turns/${encodeURIComponent(turnId)}/clarification`,
-    request,
-    { signal, timeoutMs: 60_000 },
-  );
-}
 
 export function getTurnTimeline(turnId: string, signal?: AbortSignal): Promise<unknown> {
   return apiClient.get<unknown>(`/api/turns/${encodeURIComponent(turnId)}/timeline`, undefined, { signal });
@@ -56,11 +42,13 @@ export function getTurnReasoning(turnId: string, signal?: AbortSignal): Promise<
 export function executeTurn(
   turnId: string,
   authorizationToken: string,
+  interactionId: string,
   intentId?: string,
   sessionId?: string,
 ): Promise<ExecuteResult> {
   return apiClient.post<ExecuteResult>(`/api/turns/${encodeURIComponent(turnId)}/execute`, {
     authorization_token: authorizationToken,
+    interaction_id: interactionId,
     intent_id: intentId,
     session_id: sessionId,
   });

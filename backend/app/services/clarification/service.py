@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import unicodedata
+from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock
 from typing import TYPE_CHECKING, Any
@@ -82,6 +83,17 @@ class ClarificationWorkflowError(ValueError):
     pass
 
 
+@dataclass(frozen=True, slots=True)
+class _CandidateSeed:
+    display_text: str
+    candidate_source: ClarificationCandidateSource
+    source_rank: int
+    confidence: float | None
+    canonical_intent_id: str | None = None
+    canonical_runtime_identity: str | None = None
+    canonical_slots: dict[str, Any] | None = None
+
+
 class ClarificationService:
     """Builds clarification snapshots only from already-authoritative results."""
 
@@ -149,6 +161,41 @@ class ClarificationService:
         return chinese_name
 
     @staticmethod
+    def _slots_for_intent(intent: Any, *, area: str | None = None) -> dict[str, Any]:
+        values = {
+            "area": area if area is not None else getattr(intent, "area", None),
+            "value": getattr(intent, "value", None),
+            "mode": getattr(intent, "mode", None),
+            "direction": getattr(intent, "direction", None),
+        }
+        return {
+            key: value
+            for key, value in values.items()
+            if value is not None and value != "unknown"
+        }
+
+    @classmethod
+    def _seed_from_intent(
+        cls,
+        *,
+        display_text: str,
+        source: ClarificationCandidateSource,
+        source_rank: int,
+        confidence: float | None,
+        intent: Any,
+        area: str | None = None,
+    ) -> _CandidateSeed:
+        return _CandidateSeed(
+            display_text=display_text,
+            candidate_source=source,
+            source_rank=source_rank,
+            confidence=confidence,
+            canonical_intent_id=str(intent.intent_id),
+            canonical_runtime_identity=str(intent.runtime_identity),
+            canonical_slots=cls._slots_for_intent(intent, area=area),
+        )
+
+    @staticmethod
     def _occurrence_candidate_id(record: AuditRecord, intent: Any) -> str:
         payload = {
             "audit_id": record.audit_id,
@@ -179,7 +226,8 @@ class ClarificationService:
         ]
         all_resolved_are_formal = bool(formal) and len(formal) == len(frame.intents)
         multi_review = (
-            "MULTI_INTENT_REVIEW_REQUIRED" in record.final_decision.reason_codes
+            "MULTI_INTENT_REVIEW_REQUIRED"
+            in getattr(record.final_decision, "reason_codes", [])
             and len(formal) > 1
         )
         partial_multi_review = (
@@ -227,6 +275,9 @@ class ClarificationService:
                         ),
                         source_rank=rank,
                         confidence=intent.semantic_confidence,
+                        canonical_intent_id=intent.intent_id,
+                        canonical_runtime_identity=intent.runtime_identity,
+                        canonical_slots=cls._slots_for_intent(intent),
                         group=group,
                         group_label=group_label,
                     )
@@ -254,35 +305,93 @@ class ClarificationService:
         return choices
 
     @staticmethod
+    def _identity_key(seed: _CandidateSeed) -> str:
+        if seed.canonical_intent_id:
+            return json.dumps(
+                {
+                    "intent_id": seed.canonical_intent_id,
+                    "runtime_identity": seed.canonical_runtime_identity,
+                    "slots": seed.canonical_slots or {},
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        return "text:" + _normalize_for_cmp(seed.display_text)
+
+    @staticmethod
+    def _is_compatible(seed: _CandidateSeed, record: AuditRecord) -> bool:
+        """Allow user candidates only when their canonical identity fits resolved semantics."""
+        intents = record.semantic_frame.intents
+        if not intents:
+            # ASR text correction has no reliable semantic contract yet; it may be
+            # shown, but internal retrieval candidates never reach this method.
+            return seed.canonical_intent_id is None
+        if not seed.canonical_intent_id:
+            # Once action/object/slots have been resolved, a text-only candidate
+            # cannot prove that it preserves them.
+            return False
+        for intent in intents:
+            if (
+                seed.canonical_intent_id != intent.intent_id
+                or seed.canonical_runtime_identity != intent.runtime_identity
+            ):
+                continue
+            expected = ClarificationService._slots_for_intent(intent)
+            actual = seed.canonical_slots or {}
+            if all(actual.get(key) == value for key, value in expected.items()):
+                return True
+            # Coarse area is the sole permitted refinement: a generated child
+            # area must be registry-legal and preserve the original side/row.
+            original_area = expected.get("area")
+            candidate_area = actual.get("area")
+            if (
+                original_area in {"RIGHT_SIDE", "LEFT_SIDE"}
+                and candidate_area in allowed_areas_for_intent(intent.intent_id)
+                and candidate_area.startswith(original_area.split("_")[0])
+                and {key: value for key, value in actual.items() if key != "area"}
+                == {key: value for key, value in expected.items() if key != "area"}
+            ):
+                return True
+        return False
+
+    @classmethod
     def _deduplicate(
-        candidates: list[tuple[str, ClarificationCandidateSource, int, float | None]],
+        cls,
+        candidates: list[_CandidateSeed],
+        record: AuditRecord,
     ) -> list[ClarificationCandidate]:
         result: list[ClarificationCandidate] = []
         seen: set[str] = set()
-        for display_text, source, source_rank, confidence in candidates:
-            normalized = " ".join(display_text.strip().split())
+        for seed in candidates:
+            normalized = " ".join(seed.display_text.strip().split())
+            identity_key = cls._identity_key(seed)
             if (
                 not normalized
-                or normalized in seen
+                or identity_key in seen
                 or _INTERNAL_IDENTIFIER.fullmatch(normalized)
+                or not cls._is_compatible(seed, record)
             ):
                 continue
-            seen.add(normalized)
+            seen.add(identity_key)
             result.append(
                 ClarificationCandidate(
                     candidate_id=make_id("CLAC"),
                     display_text=normalized,
-                    candidate_source=source,
-                    source_rank=source_rank,
-                    confidence=confidence,
+                    candidate_source=seed.candidate_source,
+                    source_rank=seed.source_rank,
+                    confidence=seed.confidence,
+                    canonical_intent_id=seed.canonical_intent_id,
+                    canonical_runtime_identity=seed.canonical_runtime_identity,
+                    canonical_slots=seed.canonical_slots or {},
                 )
             )
             if len(result) == MAX_CLARIFICATION_CANDIDATES:
                 break
         return result
 
-    @staticmethod
-    def _slot_candidates(record: AuditRecord) -> list[tuple[str, ClarificationCandidateSource, int, float | None]]:
+    @classmethod
+    def _slot_candidates(cls, record: AuditRecord) -> list[_CandidateSeed]:
         frame = record.semantic_frame
         if len(frame.intents) != 1:
             return []
@@ -304,18 +413,20 @@ class ClarificationService:
                 ("左侧车门", "左前车门", "LEFT_FRONT"),
                 ("左侧车门", "左后车门", "LEFT_REAR"),
             ]
-        values: list[tuple[str, ClarificationCandidateSource, int, float | None]] = []
+        values: list[_CandidateSeed] = []
         used_areas: set[str] = set()
         for old, new, area in replacements:
             if old not in raw or area in used_areas:
                 continue
             used_areas.add(area)
             values.append(
-                (
-                    raw.replace(old, new, 1),
-                    ClarificationCandidateSource.SLOT_COMPLETION,
-                    len(values) + 1,
-                    intent.semantic_confidence,
+                cls._seed_from_intent(
+                    display_text=raw.replace(old, new, 1),
+                    source=ClarificationCandidateSource.SLOT_COMPLETION,
+                    source_rank=len(values) + 1,
+                    confidence=intent.semantic_confidence,
+                    intent=intent,
+                    area=area,
                 )
             )
         # 未指定侧的车门/车窗等区域歧义：生成具体区域候选（如 打开左前车门）。
@@ -331,11 +442,13 @@ class ClarificationService:
                     if not candidate:
                         continue
                     values.append(
-                        (
-                            candidate,
-                            ClarificationCandidateSource.SLOT_COMPLETION,
-                            len(values) + 1,
-                            intent.semantic_confidence,
+                        cls._seed_from_intent(
+                            display_text=candidate,
+                            source=ClarificationCandidateSource.SLOT_COMPLETION,
+                            source_rank=len(values) + 1,
+                            confidence=intent.semantic_confidence,
+                            intent=intent,
+                            area=area,
                         )
                     )
         return values
@@ -377,9 +490,7 @@ class ClarificationService:
             and confirmation_context.get("confirmed_text") == frame.raw_text
         )
 
-        raw_candidates: list[
-            tuple[str, ClarificationCandidateSource, int, float | None]
-        ] = []
+        raw_candidates: list[_CandidateSeed] = []
         occurrence_candidates = self._occurrence_candidates(record)
         clarification_type: ClarificationType | None = None
         prompt = record.interpreter_review_question or "您想执行哪个操作？"
@@ -391,11 +502,11 @@ class ClarificationService:
             clarification_type = ClarificationType.VOICE_CONFIRMATION
             prompt = "您是否说："
             raw_candidates.extend(
-                (
-                    text,
-                    ClarificationCandidateSource.ASR_NBEST,
-                    source_rank,
-                    confidence,
+                _CandidateSeed(
+                    display_text=text,
+                    candidate_source=ClarificationCandidateSource.ASR_NBEST,
+                    source_rank=source_rank,
+                    confidence=confidence,
                 )
                 for text, source_rank, confidence in sorted(
                     asr_nbest,
@@ -403,65 +514,44 @@ class ClarificationService:
                 )
             )
         else:
-            area_ambiguous = "AREA_AMBIGUOUS" in record.final_decision.reason_codes
+            area_ambiguous = "AREA_AMBIGUOUS" in getattr(
+                record.final_decision, "reason_codes", []
+            )
             semantic_language_review = bool(
                 frame.semantic_status != "OK"
                 or frame.review_reasons
-                or frame.review_candidates
                 or frame.unresolved_clauses
                 or area_ambiguous
             )
-            low_asr_confidence = (
-                is_audio
-                and transcription.asr_confidence is not None
-                and transcription.asr_confidence
-                < float(self.config.get("asr_clarification_threshold", 0.75))
-                and not repeated_voice_confirmation
-            )
-            if low_asr_confidence and frame.review_candidates:
-                clarification_type = ClarificationType.VOICE_CONFIRMATION
-                prompt = "您是否说："
-                raw_candidates.extend(
-                    (
-                        text,
-                        ClarificationCandidateSource.TEXT_SIMILARITY,
-                        rank,
-                        None,
-                    )
-                    for rank, text in enumerate(frame.review_candidates, start=1)
-                )
-            elif semantic_language_review:
+            if semantic_language_review:
                 clarification_type = ClarificationType.SEMANTIC_CONFIRMATION
                 continuous_value_missing = bool(
                     _CONTINUOUS_VALUE_CUE.search(frame.raw_text)
                     and not re.search(r"\d", frame.raw_text)
                 )
                 if not continuous_value_missing:
-                    raw_candidates.extend(
-                        (
-                            self._readable_intent_name(text),
-                            ClarificationCandidateSource.SEMANTIC_REVIEW_CANDIDATE,
-                            rank,
-                            frame.semantic_confidence,
-                        )
-                        for rank, text in enumerate(frame.review_candidates, start=1)
-                    )
                     start = len(raw_candidates) + 1
                     raw_candidates.extend(
-                        (
-                            candidate.canonical_text,
-                            ClarificationCandidateSource.SEMANTIC_REVIEW_CANDIDATE,
-                            start + offset,
-                            None,
+                        self._seed_from_intent(
+                            display_text=candidate.canonical_text,
+                            source=ClarificationCandidateSource.SEMANTIC_REVIEW_CANDIDATE,
+                            source_rank=start + offset,
+                            confidence=None,
+                            intent=intent,
                         )
                         for offset, candidate in enumerate(record.candidate_interpretations)
+                        for intent in frame.intents
+                        if candidate.turn_id == record.turn_id
                         if candidate.validation_status == "VALID"
+                        if candidate.action == intent.action
+                        and candidate.target == intent.target
+                        and candidate.parameters == self._slots_for_intent(intent)
                     )
                 slot_candidates = self._slot_candidates(record)
                 if slot_candidates:
                     prompt = (
                         "您想打开哪扇车门？"
-                        if any("车门" in item[0] for item in slot_candidates)
+                        if any("车门" in item.display_text for item in slot_candidates)
                         else prompt
                     )
                     raw_candidates = [*slot_candidates, *raw_candidates]
@@ -477,7 +567,7 @@ class ClarificationService:
             candidates=(
                 occurrence_candidates
                 if occurrence_candidates
-                else self._deduplicate(raw_candidates)
+                else self._deduplicate(raw_candidates, record)
             ),
         )
         persisted = self.pipeline.workflow_repository.save_clarification_request(
@@ -588,6 +678,9 @@ class ClarificationService:
                         ),
                         source_rank=formal_occurrences.index(occurrence) + 1,
                         confidence=occurrence.semantic_confidence,
+                        canonical_intent_id=occurrence.intent_id,
+                        canonical_runtime_identity=occurrence.runtime_identity,
+                        canonical_slots=self._slots_for_intent(occurrence),
                     )
                     if selected != expected:
                         raise ClarificationWorkflowError(
@@ -633,6 +726,15 @@ class ClarificationService:
                     "confirmation_source": CONFIRMATION_SOURCE,
                     "confirmed_text": selected_text,
                     "clarification_type": request.clarification_type.value,
+                    "expected_canonical_identity": (
+                        {
+                            "intent_id": selected.canonical_intent_id,
+                            "runtime_identity": selected.canonical_runtime_identity,
+                            "slots": selected.canonical_slots,
+                        }
+                        if selected.canonical_intent_id is not None
+                        else None
+                    ),
                     "selected_parent_occurrence": selected_parent_occurrence,
                 }
             if selected_text is not None and confirmation_context is not None:
@@ -675,7 +777,9 @@ class ClarificationService:
                 # 防无限循环：确认的候选若本身不完整，重新处理后又产生「原文相同」
                 # 的澄清（如候选「设置主灯模式」缺 MODE，处理后仍 REVIEW 又弹同样
                 # 候选），则抑制 child 的澄清弹窗，让用户重新描述，避免死循环。
-                child_clarification = command_result.clarification_request
+                child_clarification = getattr(
+                    command_result, "clarification_request", None
+                )
                 if (
                     child_clarification is not None
                     and child_clarification.original_text == selected_text

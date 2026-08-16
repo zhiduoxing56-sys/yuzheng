@@ -32,6 +32,7 @@ SCHEMA_TOKENS = frozenset(
 _FORBIDDEN_MAPPING_FIELDS = frozenset(
     {"legacy_type", "old_name", "aliases", "fallback_names", "compatibility"}
 )
+MAPPING_KINDS = frozenset({"DIRECT_STANDARD", "DERIVED", "INTERNAL_SECURITY"})
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -46,9 +47,25 @@ def _load_yaml(path: Path) -> dict[str, Any]:
 def evidence_type_catalog() -> dict[str, dict[str, Any]]:
     raw = _load_yaml(CATALOG_PATH)
     values = raw.get("evidence_types")
-    if not isinstance(values, dict) or len(values) != 32:
-        raise ValueError("evidence_type_catalog_v1.yaml must define exactly 32 evidence types")
-    return {str(name): dict(definition) for name, definition in values.items()}
+    expected_count = raw.get("canonical_type_count")
+    if not isinstance(values, dict) or not isinstance(expected_count, int):
+        raise ValueError("evidence catalog must define evidence_types and canonical_type_count")
+    if len(values) != expected_count:
+        raise ValueError(
+            f"evidence catalog count mismatch: expected {expected_count}, got {len(values)}"
+        )
+    catalog = {str(name): dict(definition) for name, definition in values.items()}
+    required = {
+        "display_name", "domain", "description", "standard_name",
+        "standard_version", "mapping_kind", "standard_mappings",
+    }
+    for name, definition in catalog.items():
+        missing = required - set(definition)
+        if missing:
+            raise ValueError(f"catalog entry {name} missing fields: {sorted(missing)}")
+        if definition["mapping_kind"] not in MAPPING_KINDS:
+            raise ValueError(f"invalid mapping_kind for {name}")
+    return catalog
 
 
 CANONICAL_EVIDENCE_TYPES = frozenset(evidence_type_catalog())
@@ -57,7 +74,7 @@ CANONICAL_EVIDENCE_TYPES = frozenset(evidence_type_catalog())
 def require_canonical_evidence_type(value: str) -> str:
     if value not in CANONICAL_EVIDENCE_TYPES:
         raise ValueError(
-            f"evidence_type must be one of the 32 canonical types; got {value!r}"
+            f"evidence_type must be a canonical catalog type; got {value!r}"
         )
     return value
 
@@ -79,6 +96,8 @@ def evidence_runtime_mapping() -> dict[str, dict[str, Any]]:
         "derivation",
         "availability",
         "notes",
+        "sources",
+        "field_provenance",
     }
     for raw_entry in entries:
         if not isinstance(raw_entry, dict):
@@ -98,10 +117,44 @@ def evidence_runtime_mapping() -> dict[str, dict[str, Any]]:
             raise ValueError(f"invalid runtime_mode for {canonical_type}: {mode}")
         _validate_value_schema(canonical_type, entry["value_schema"])
         _validate_usability(canonical_type, entry["value_schema"], entry["usability"])
+        _validate_field_provenance(
+            canonical_type, entry["value_schema"], entry["field_provenance"]
+        )
         mapped[canonical_type] = entry
     if set(mapped) != CANONICAL_EVIDENCE_TYPES:
-        raise ValueError("runtime mapping must cover the canonical 32-type catalog exactly")
+        raise ValueError("runtime mapping must cover the canonical catalog exactly")
     return mapped
+
+
+def _schema_leaf_paths(schema: Any, prefix: str = "") -> set[str]:
+    definition = {"type": schema} if isinstance(schema, str) else dict(schema)
+    base_type = str(definition["type"]).removeprefix("nullable_")
+    if base_type == "object":
+        paths: set[str] = set()
+        for name, child in dict(definition.get("fields", {})).items():
+            child_prefix = f"{prefix}.{name}" if prefix else str(name)
+            paths.update(_schema_leaf_paths(child, child_prefix))
+        return paths
+    if base_type == "array" and "items" in definition:
+        return _schema_leaf_paths(definition["items"], f"{prefix}[]")
+    return {prefix or "value"}
+
+
+def _validate_field_provenance(
+    canonical_type: str, schema: Any, provenance: Any
+) -> None:
+    if not isinstance(provenance, dict):
+        raise ValueError(f"field_provenance for {canonical_type} must be an object")
+    missing = _schema_leaf_paths(schema) - set(provenance)
+    if missing:
+        raise ValueError(
+            f"field_provenance missing leaf fields for {canonical_type}: {sorted(missing)}"
+        )
+    for field_name, definition in provenance.items():
+        if not isinstance(definition, dict):
+            raise ValueError(f"invalid provenance for {canonical_type}.{field_name}")
+        if definition.get("mapping_kind") not in MAPPING_KINDS:
+            raise ValueError(f"invalid mapping_kind for {canonical_type}.{field_name}")
 
 
 def _validate_value_schema(canonical_type: str, schema: Any) -> None:

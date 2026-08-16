@@ -5,7 +5,6 @@ import { getExecutionEligibility } from "../utils/executionMapper";
 import { isCurrentTurnWritable } from "../utils/workflowMapper";
 import { getReviewNavigation, type SafeReviewResult } from "../utils/reviewMapper";
 import { useHealthStatus } from "./useHealthStatus";
-import { useReviewSubmission } from "./useReviewSubmission";
 import { useReviewTimeline } from "./useReviewTimeline";
 import { useReviewTurn } from "./useReviewTurn";
 import { useTurnExecution } from "./useTurnExecution";
@@ -84,20 +83,13 @@ export function useReviewPageController(routeTurnId?: string) {
   }, [cancelReads, navigate, refreshAll, setActiveTurn, turnId]);
 
   const writable = Boolean(turnId && activeTurnId === turnId && isCurrentTurnWritable(turnId, turn.presentation, turn.workflow));
-  const submission = useReviewSubmission({
-    turnId,
-    writable,
-    onAuthorizationToken: execution.acceptAuthorization,
-    onCompleted: handleReviewCompleted,
-  });
-
   const executionEligibility = useMemo(() => getExecutionEligibility({
     turnId: turnId || "",
     presentation: turn.presentation,
     workflow: turn.workflow,
     hasAuthorizationToken: execution.hasAuthorizationToken,
-    writeBusy: submission.busy || execution.busy,
-  }), [turnId, turn.presentation, turn.workflow, execution.hasAuthorizationToken, submission.busy, execution.busy]);
+    writeBusy: execution.busy,
+  }), [turnId, turn.presentation, turn.workflow, execution.hasAuthorizationToken, execution.busy]);
 
   const requestExecution = useCallback(() => execution.requestConfirmation(executionEligibility.allowed), [execution, executionEligibility.allowed]);
   const confirmExecution = useCallback(() => { void execution.confirmExecution(executionEligibility.allowed); }, [execution, executionEligibility.allowed]);
@@ -108,7 +100,6 @@ export function useReviewPageController(routeTurnId?: string) {
     timeline,
     chain,
     health,
-    submission,
     execution,
     executionEligibility,
     writable,

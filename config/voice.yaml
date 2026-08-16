@@ -1,5 +1,8 @@
 voice_trust_mode: enforce
 
+# 音频/麦克风输入保持启用；LA/PA 模型保留但暂不加载或推理。
+antispoof_enabled: false
+
 audio:
   target_sample_rate: 16000
   minimum_duration_seconds: 0.35

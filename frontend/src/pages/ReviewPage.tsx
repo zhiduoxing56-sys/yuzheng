@@ -2,9 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { AuthorizationPanel } from "../components/AuthorizationPanel";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
-import { ExecutionPanel } from "../components/ExecutionPanel";
 import { RecognitionResultPanel } from "../components/RecognitionResultPanel";
-import { ReviewActionPanel } from "../components/ReviewActionPanel";
 import { ReviewReasonPanel } from "../components/ReviewReasonPanel";
 import { ReviewResultPanel } from "../components/ReviewResultPanel";
 import { ReviewTimelinePanel } from "../components/ReviewTimelinePanel";
@@ -18,7 +16,7 @@ export function ReviewPage() {
   const controller = useReviewPageController(routeTurnId);
   if (!controller.turnId) return <div className="review-page"><EmptyState title="无法复核" description="地址中没有有效 turnId。请从实时裁决或分层证据页面进入具体轮次。" /></div>;
 
-  const { turn, submission, execution } = controller;
+  const { turn, execution } = controller;
   const primaryFailed = Boolean(turn.presentationError && !turn.presentation && !turn.presentationLoading);
   return <div className="review-page">
     <ReviewTurnHeader turnId={controller.turnId} presentation={turn.presentation} workflow={turn.workflow} refreshing={controller.refreshing} onRefresh={() => { void controller.refreshAll(); }} />
@@ -34,41 +32,13 @@ export function ReviewPage() {
         <ReviewReasonPanel data={turn.presentation} />
       </div>
       <div className="review-column">
-        <ReviewActionPanel
-          candidates={turn.presentation?.review.candidate_interpretations || []}
-          writable={controller.writable}
-          action={submission.action}
-          selectedCandidateId={submission.selectedCandidateId}
-          correctedText={submission.correctedText}
-          status={submission.status}
-          error={submission.error}
-          busy={submission.busy}
-          cancellationConfirmationOpen={submission.cancellationConfirmationOpen}
-          onActionChange={submission.setAction}
-          onCandidateChange={submission.setSelectedCandidateId}
-          onCorrectedTextChange={submission.setCorrectedText}
-          onSubmit={submission.submit}
-          onConfirmCancellation={submission.confirmCancellation}
-          onCloseConfirmation={submission.closeConfirmation}
-        />
-        <ReviewResultPanel presentation={turn.presentation} result={submission.latestResult} />
+        <div className="readonly-turn-banner"><span>实时澄清与安全复核仅在实时裁决页进行；此页仅保留历史与审计信息。</span></div>
+        <ReviewResultPanel presentation={turn.presentation} result={null} />
       </div>
       <div className="review-column">
         <WorkflowStatusPanel workflow={turn.workflow} presentation={turn.presentation} />
         <AuthorizationPanel presentation={turn.presentation} workflow={turn.workflow} hasToken={execution.hasAuthorizationToken} />
-        <ExecutionPanel
-          presentation={turn.presentation}
-          health={controller.health.data}
-          eligibility={controller.executionEligibility}
-          status={execution.status}
-          error={execution.error}
-          result={execution.result}
-          busy={execution.busy}
-          confirmationOpen={execution.confirmationOpen}
-          onRequest={controller.requestExecution}
-          onConfirm={controller.confirmExecution}
-          onCancel={execution.closeConfirmation}
-        />
+        <div className="readonly-turn-banner"><span>历史页只展示执行历史；新的执行必须回到实时决策页，并经过后端生成的执行确认交互。</span></div>
         <WorkflowChainPanel data={controller.chain.data} loading={controller.chain.loading} error={controller.chain.error || turn.workflowError} verifiedAt={controller.chain.verifiedAt} onRefresh={() => { void controller.refreshChain(); }} />
       </div>
     </section>}

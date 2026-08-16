@@ -1,0 +1,88 @@
+name: OSI CI Builds
+
+on:
+  push:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    - uses: rojopolis/spellcheck-github-actions@0.36.0
+      name: Spellcheck
+      with:
+        config_path: .github/.pyspelling.yml
+
+  run-tests:
+    name: Run tests
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout OSI
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+
+    - name: Install Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements_tests.txt
+
+    - name: Run Python Tests
+      run: python -m unittest discover tests
+
+  build-docs:
+    name: Build docs
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout OSI
+      uses: actions/checkout@v4
+
+    - name: Install Doxygen
+      run: sudo apt-get install doxygen graphviz
+
+    - name: Install proto2cpp
+      run: git clone --depth 1 https://github.com/OpenSimulationInterface/proto2cpp.git
+
+    - name: Prepare Build
+      run: mkdir build
+
+    - name: Add Development Version Suffix
+      if: ${{ !startsWith(github.ref, 'refs/tags') }}
+      run: |
+        echo "VERSION_SUFFIX = .dev`date -u '+%Y%m%d%H%M%S'`" >> VERSION
+
+    - name: Get git Version
+      id: get_version
+      run: echo "VERSION=$(git describe --tags --always)" >> $GITHUB_OUTPUT
+
+    - name: Prepare Documentation Build
+      run: |
+        sed -i 's/PROJECT_NUMBER\s*= @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@/PROJECT_NUMBER = master (${{ steps.get_version.outputs.VERSION }})/g' doxygen_config.cmake.in
+        echo "EXCLUDE_PATTERNS = */osi3/* */protobuf-*/* */proto2cpp/* */flatbuffers/*" >> doxygen_config.cmake.in
+        echo "GENERATE_TREEVIEW = YES" >> doxygen_config.cmake.in
+
+    - name: Configure Build
+      working-directory: build
+      run: cmake -D FILTER_PROTO2CPP_PY_PATH=$GITHUB_WORKSPACE/proto2cpp ..
+
+    - name: Build
+      working-directory: build
+      run: cmake --build . --config Release -j 4
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v4
+      with:
+        name: doxygen-doc
+        path: |
+          doc/html/
+          doc/images/

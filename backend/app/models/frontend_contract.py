@@ -26,6 +26,7 @@ from app.models.schemas import (
     CausalNodeWeight,
     CausalPriorComponents,
     ClarificationRequest,
+    InteractionRequest,
     RecoveryRecommendation,
     RetrievalOrigin,
     ReviewCandidateInterpretation,
@@ -35,6 +36,7 @@ from app.models.schemas import (
     SecurityLayerNavigation,
     ReviewAction,
     SafetyGateResult,
+    RequestRouting,
     SemanticFrame,
     SpectrumAnalysisResult,
     StrictModel,
@@ -464,6 +466,7 @@ class TurnPresentationResponse(StrictModel):
     voice_trust_mode: Literal["enforce", "observe"]
     input: InputPresentation
     semantic_frame: SemanticFrame
+    request_routing: RequestRouting | None = None
     evidence_demand: EvidenceDemandPresentation
     retrieval_summary: RetrievalSummary
     evidence: EvidencePresentation
@@ -475,6 +478,7 @@ class TurnPresentationResponse(StrictModel):
     authorization: AuthorizationPresentation
     execution: ExecutionPresentation
     audit: TurnAuditPresentation
+    interaction_request: InteractionRequest | None = None
     clarification_request: ClarificationRequest | None = None
 
 

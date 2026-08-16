@@ -1,0 +1,49 @@
+﻿source_candidate_ids,建议规范名称,重复判定,判定类别,判定依据,当前对应意图编号
+VCC-001,启用ABS,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,ABS_ENABLE
+VCC-002,停用ABS,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,ABS_DISABLE
+VCC-003;VCC-004,设置巡航跟车间距,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,CRUISE_SET_GAP
+VCC-007,启用巡航,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,CRUISE_ENABLE
+VCC-008,停用巡航,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,CRUISE_DISABLE
+VCC-009,设置巡航速度,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,CRUISE_SET_SPEED
+VCC-010,启用EBA,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,EBA_ENABLE
+VCC-011,停用EBA,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,EBA_DISABLE
+VCC-012,启用ESC,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,ESC_ENABLE
+VCC-013,停用ESC,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,ESC_DISABLE
+VCC-014,打开发动机舱盖,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,HOOD_OPEN
+VCC-015,关闭发动机舱盖,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,HOOD_CLOSE
+VCC-017,切换模式发动机舱盖,C,rejected_low_level,VSS 的通用 Switch 是底层开闭驱动接口；用户语义已由打开/关闭/设置位置等能力覆盖。,
+VCC-018,开启喇叭,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,HORN_ACTIVATE
+VCC-019,关闭喇叭,C,rejected_low_level,该字段主要表示状态或由车辆控制器管理，不能作为独立用户命令；存在可用的上层控制入口。,
+VCC-020;VCC-026;VCC-034,开启灯光,C,rejected_low_level,该字段主要表示状态或由车辆控制器管理，不能作为独立用户命令；存在可用的上层控制入口。,LIGHT_GENERIC
+VCC-021;VCC-027;VCC-035,关闭灯光,C,rejected_low_level,该字段主要表示状态或由车辆控制器管理，不能作为独立用户命令；存在可用的上层控制入口。,LIGHT_GENERIC
+VCC-022;VCC-024;VCC-028;VCC-030;VCC-032;VCC-037;VCC-039,开启灯光,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,LIGHT_GENERIC
+VCC-023;VCC-025;VCC-029;VCC-031;VCC-033;VCC-038;VCC-040,关闭灯光,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,LIGHT_GENERIC
+VCC-041,打开后视镜,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,MIRROR_UNFOLD
+VCC-042;VCC-044,关闭后视镜,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,MIRROR_FOLD;MIRROR_HEATING_OFF
+VCC-043,开启后视镜,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,MIRROR_HEATING_ON
+VCC-050,设置PowerOptimizeLevel,C,rejected_low_level,非车辆控制语义、系统设置、媒体/导航接口或内部功率优化参数；不应进入车控意图空间。,
+VCC-054,打开后备箱,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,TRUNK_OPEN
+VCC-055,关闭后备箱,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,TRUNK_CLOSE
+VCC-057,切换模式后备箱,C,rejected_low_level,VSS 的通用 Switch 是底层开闭驱动接口；用户语义已由打开/关闭/设置位置等能力覆盖。,
+VCC-058,开启雨刮,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,MIRROR_HEATING_ON
+VCC-059,关闭雨刮,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,MIRROR_HEATING_OFF
+VCC-064;VCC-067,打开车门,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,DOOR_OPEN;SHADE_OPEN
+VCC-065;VCC-068,关闭车门,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,DOOR_CLOSE;SHADE_CLOSE
+VCC-070;VCC-071,切换模式车门,C,rejected_low_level,VSS 的通用 Switch 是底层开闭驱动接口；用户语义已由打开/关闭/设置位置等能力覆盖。,
+VCC-072,打开车窗,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,WINDOW_OPEN
+VCC-073,关闭车窗,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,WINDOW_CLOSE
+VCC-075,切换模式车窗,C,rejected_low_level,VSS 的通用 Switch 是底层开闭驱动接口；用户语义已由打开/关闭/设置位置等能力覆盖。,
+VCC-084,设置空调,C,rejected_low_level,非车辆控制语义、系统设置、媒体/导航接口或内部功率优化参数；不应进入车控意图空间。,
+VCC-087;VCC-090,设置空调,C,confirmed_existing,VSS 的分区风量字段归并到现有空调风量设置。,HVAC_SET_FAN_SPEED;HVAC_SET_TEMPERATURE
+VCC-091,设置车载信息娱乐参数,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,DISPLAY_SET_BRIGHTNESS
+VCC-115,设置车载信息娱乐参数,C,rejected_low_level,非车辆控制语义、系统设置、媒体/导航接口或内部功率优化参数；不应进入车控意图空间。,
+VCC-129,设置PowerOptimizeLevel,C,rejected_low_level,非车辆控制语义、系统设置、媒体/导航接口或内部功率优化参数；不应进入车控意图空间。,
+VCC-130,打开遮阳帘,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,SHADE_OPEN
+VCC-131,关闭遮阳帘,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,SHADE_CLOSE
+VCC-133,切换模式遮阳帘,C,rejected_low_level,VSS 的通用 Switch 是底层开闭驱动接口；用户语义已由打开/关闭/设置位置等能力覆盖。,
+VCC-134,设置后视镜,B,unresolved_candidates,标准存在控制字段，但当前无法仅凭公开语义可靠判断其是否是普通用户直接操控的座舱能力，保留人工复核。,
+VCC-150,设置座椅,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,SEAT_EXISTING_OR_MERGED
+VCC-160,打开天窗,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,SHADE_OPEN
+VCC-161,关闭天窗,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,SHADE_CLOSE
+VCC-163,切换模式天窗,C,rejected_low_level,VSS 的通用 Switch 是底层开闭驱动接口；用户语义已由打开/关闭/设置位置等能力覆盖。,
+VCC-164,切换模式天窗,A,confirmed_existing,按动作与对象语义直接覆盖，区域差异归并；若为同族多字段则按用户级能力合并。,SUNROOF_OPEN_CLOSE_TILT

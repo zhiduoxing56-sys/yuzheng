@@ -33,10 +33,28 @@ class ExecutionService:
         *,
         intent_id: str | None = None,
         session_id: str | None = None,
+        interaction_id: str | None = None,
     ) -> ExecuteResult:
         audit = self.pipeline.audit_repository.get_by_turn(turn_id)
         if audit is None:
             raise ValueError(f"未找到轮次: {turn_id}")
+        if not interaction_id:
+            raise AuthorizationTokenError("执行必须绑定已确认的执行交互")
+        confirmation = self.pipeline.workflow_repository.get_interaction_request(interaction_id)
+        if (
+            confirmation is None
+            or confirmation.turn_id != turn_id
+            or confirmation.interaction_type.value != "EXECUTION_CONFIRMATION"
+            or not confirmation.consumed
+            or not any(
+                event.event_type == WorkflowEventType.INTERACTION_CONFIRMED
+                and event.payload.get("interaction_id") == interaction_id
+                for event in self.pipeline.workflow_repository.events(
+                    self.pipeline.audit_repository.root_turn_id_for_turn(turn_id) or turn_id
+                )
+            )
+        ):
+            raise AuthorizationTokenError("执行确认未完成或已被取消")
         intents = audit.semantic_frame.intents
         if not intents:
             raise AuthorizationTokenError("执行审计缺少子意图")
@@ -75,7 +93,7 @@ class ExecutionService:
             root_turn_id=root,
             related_turn_id=turn_id,
             event_type=WorkflowEventType.EXECUTION_REQUESTED,
-            payload={"token_id": metadata.token_id, "token_digest": metadata.token_digest},
+            payload={"token_id": metadata.token_id, "token_digest": metadata.token_digest, "interaction_id": interaction_id},
         )
         with self.pipeline._command_lock:
             event_sequence = 0

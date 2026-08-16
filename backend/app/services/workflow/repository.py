@@ -17,6 +17,7 @@ from app.models.schemas import (
     WorkflowEventType,
     ClarificationRequest,
     ClarificationResolutionRecord,
+    InteractionRequest,
     make_id,
     utc_now,
 )
@@ -135,6 +136,16 @@ class WorkflowRepository:
                     FOREIGN KEY(clarification_id)
                         REFERENCES clarification_requests(clarification_id)
                 );
+                CREATE TABLE IF NOT EXISTS interaction_requests (
+                    interaction_id TEXT PRIMARY KEY,
+                    root_turn_id TEXT NOT NULL,
+                    turn_id TEXT NOT NULL,
+                    request_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    consumed_at TEXT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_interaction_turn
+                    ON interaction_requests(turn_id, created_at);
                 """
             )
             migration_id = "2026-08-13.authorization-token-canonical-identity-v1"
@@ -232,6 +243,60 @@ class WorkflowRepository:
             )
             connection.commit()
             return event
+
+    def save_interaction_request(
+        self, request: InteractionRequest, *, root_turn_id: str
+    ) -> InteractionRequest:
+        with self._lock, self._connect() as connection:
+            connection.execute(
+                """
+                INSERT OR IGNORE INTO interaction_requests (
+                    interaction_id, root_turn_id, turn_id, request_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    request.interaction_id,
+                    root_turn_id,
+                    request.turn_id,
+                    json.dumps(request.model_dump(mode="json"), ensure_ascii=False, sort_keys=True),
+                    utc_now().isoformat(),
+                ),
+            )
+            connection.commit()
+        persisted = self.get_interaction_request(request.interaction_id)
+        if persisted is None:
+            raise RuntimeError("interaction request persistence failed")
+        return persisted
+
+    def get_interaction_request(self, interaction_id: str) -> InteractionRequest | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT request_json, consumed_at FROM interaction_requests WHERE interaction_id = ?",
+                (interaction_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        request = InteractionRequest.model_validate_json(str(row["request_json"]))
+        return request.model_copy(update={"consumed": row["consumed_at"] is not None})
+
+    def interaction_for_turn(self, turn_id: str) -> InteractionRequest | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT interaction_id FROM interaction_requests WHERE turn_id = ? "
+                "ORDER BY created_at DESC LIMIT 1",
+                (turn_id,),
+            ).fetchone()
+        return self.get_interaction_request(str(row["interaction_id"])) if row else None
+
+    def consume_interaction(self, interaction_id: str) -> bool:
+        with self._lock, self._connect() as connection:
+            cursor = connection.execute(
+                "UPDATE interaction_requests SET consumed_at = ? "
+                "WHERE interaction_id = ? AND consumed_at IS NULL",
+                (utc_now().isoformat(), interaction_id),
+            )
+            connection.commit()
+            return cursor.rowcount == 1
 
     def save_clarification_request(
         self,

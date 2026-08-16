@@ -1,5 +1,11 @@
 export type DecisionLabel = "PASS" | "REVIEW" | "BLOCK" | (string & {});
 export type ReviewAction = "CONFIRM" | "CORRECT" | "CANCEL";
+export type InteractionState = "NEEDS_CLARIFICATION" | "PASS" | "NEEDS_REVIEW" | "BLOCK";
+export type InteractionType = "MULTI_INTENT_SELECTION" | "PARAMETER_COMPLETION" | "SEMANTIC_DISAMBIGUATION" | "UNRESOLVED_VEHICLE_CONTROL" | "SAFETY_REVIEW" | "EXECUTION_CONFIRMATION";
+export type InteractionAction = "SELECT_CANDIDATE" | "REPHRASE" | "CANCEL" | "CONFIRM" | "CLOSE" | "EXECUTE" | "SUBMIT_PARAMETERS";
+export interface InteractionCandidate { candidate_id: string; display_text: string; canonical_text: string; canonical_intent_id: string | null; canonical_slots: Record<string, unknown>; source: string; }
+export interface UserReason { code: string; title: string; description: string; details: Record<string, unknown>[]; }
+export interface InteractionRequest { interaction_id: string; turn_id: string; unit_index: number | null; intent_id: string | null; state: InteractionState; interaction_type: InteractionType; canonical_operation: string | null; reason_codes: string[]; reason_details: Record<string, unknown>[]; allowed_actions: InteractionAction[]; candidates: InteractionCandidate[]; user_reason: UserReason; payload: Record<string, unknown>; expires_at: string | null; consumed: boolean; }
 export type AuthorizationTokenStatus = "ISSUED" | "CONSUMED" | "EXPIRED" | "REVOKED" | "REJECTED";
 export type ReviewSubmissionStatus = "idle" | "validating" | "confirming" | "submitting" | "refreshing" | "completed" | "failed";
 export type ExecutionSubmissionStatus = "idle" | "confirming" | "submitting" | "reconciling" | "completed" | "failed" | "uncertain";
@@ -74,7 +80,9 @@ export interface MicrophoneCommandRequest {
 
 export interface SemanticIntent {
   clause_index: number; clause_text: string; intent_id: string;
+  runtime_identity?: "FORMAL" | "KNOWN_NON_EXECUTABLE";
   action: string; target: string; area: string; value?: unknown;
+  direction?: string | null; mode?: string | null; control_attribute?: string | null;
   control_domain: string; risk_level: string; risk_tags: string[];
   semantic_confidence: number; ambiguity_score: number;
 }
@@ -84,6 +92,23 @@ export interface SemanticFrame {
   semantic_confidence: number; ambiguity_score: number; semantic_status: string;
   review_reasons: string[]; review_candidates: string[]; unresolved_clauses: string[];
   security_signals: string[]; intents: SemanticIntent[];
+}
+
+export type SemanticUnitKind = "CONTEXT" | "ASSISTANT" | "UNCERTAIN" | "VEHICLE_CONTROL";
+
+export interface OrderedSemanticUnit {
+  unit_index: number;
+  kind: SemanticUnitKind;
+  normalized_text: string;
+}
+
+export interface RequestRouting {
+  raw_text: string;
+  units: OrderedSemanticUnit[];
+  contains_vehicle_control: boolean;
+  enters_vehicle_safety_chain: boolean;
+  model_call_count: number;
+  model_metrics: Record<string, unknown>;
 }
 
 export interface EvidenceNode {
@@ -586,6 +611,7 @@ export interface TurnPresentationResponse {
   voice_trust_mode: "enforce" | "observe";
   input: InputPresentation;
   semantic_frame: SemanticFrame;
+  request_routing?: RequestRouting | null;
   evidence_demand: EvidenceDemandPresentation;
   retrieval_summary: RetrievalSummary;
   evidence: {
@@ -627,6 +653,7 @@ export interface TurnPresentationResponse {
     workflow_chain_valid: boolean;
     workflow_event_count: number;
   };
+  interaction_request?: InteractionRequest | null;
   clarification_request?: ClarificationRequest | null;
 }
 
@@ -679,24 +706,11 @@ export interface TextCommandResponse {
   websocket_channel?: string | null;
   decision: ReviewDecisionResult;
   semantic_frame: SemanticFrame;
+  request_routing?: RequestRouting | null;
   evidence_demand: EvidenceDemandPresentation;
+  interaction_request?: InteractionRequest | null;
   clarification_request?: ClarificationRequest | null;
   [key: string]: unknown;
-}
-
-export interface CoordinatedCommandChild {
-  clause_index: number;
-  clause_text: string;
-  turn_id: string;
-  response: TextCommandResponse;
-}
-
-export interface CoordinatedTextCommandResponse {
-  mode: "SINGLE" | "MULTI";
-  parent_turn_id: string;
-  parent_frame: SemanticFrame;
-  blocked_by_parent_security: boolean;
-  children: CoordinatedCommandChild[];
 }
 
 export interface AudioCommandResponse {
@@ -713,6 +727,7 @@ export interface AudioCommandResponse {
   accepted: boolean;
   input_type: "audio";
   websocket_channel?: string | null;
+  interaction_request?: InteractionRequest | null;
   clarification_request?: ClarificationRequest | null;
 }
 

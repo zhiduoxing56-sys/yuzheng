@@ -72,7 +72,10 @@ export function useTurnExecution({ turnId, sessionId, onSettled, onResultUnknown
     setStatus("submitting");
     setError(null);
     try {
-      const executionResult = await executeTurn(requestTurnId, rawAuthorizationToken, sessionId);
+      // Historical pages never manufacture an execution confirmation.  The
+      // backend rejects this path until the active unified interaction has
+      // supplied its identifier.
+      const executionResult = await executeTurn(requestTurnId, rawAuthorizationToken, "", undefined, sessionId);
       rawAuthorizationToken = null;
       if (!mounted.current || activeTurn.current !== requestTurnId) return;
       invalidateTurnReads(requestTurnId);

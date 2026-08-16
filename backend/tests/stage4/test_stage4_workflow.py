@@ -112,6 +112,11 @@ def test_review_confirm_correct_cancel_limits_expiry_and_block_protection(tmp_pa
         "candidate_source",
         "source_rank",
         "confidence",
+        "canonical_intent_id",
+        "canonical_runtime_identity",
+        "canonical_slots",
+        "group",
+        "group_label",
     }
     confirm_candidate = confirmable.clarification_request.candidates[0]
     assert confirm_candidate.candidate_id.startswith("CLAC_OCC_")

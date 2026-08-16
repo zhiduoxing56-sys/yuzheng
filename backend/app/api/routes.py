@@ -16,6 +16,7 @@ from app.models.schemas import (
     CurrentEvidenceResponse,
     EvidenceSubgraph,
     ExecuteRequest,
+    InteractionSubmission,
     ExecuteResult,
     HealthResponse,
     IndexRebuildRequest,
@@ -73,13 +74,11 @@ from app.core.performance import mark_stage
 from app.services.presentation.assembler import PresentationAssembler
 from app.services.review.adapter import adapt_review_submission
 from app.services.read_cache import BoundedSingleFlightCache
-from app.services.multi_action import MultiActionCommandResponse, MultiActionCoordinator
 
 
 def build_router(pipeline: CommandPipeline) -> APIRouter:
     router = APIRouter(prefix="/api")
     presentation = PresentationAssembler(pipeline)
-    multi_action_coordinator = MultiActionCoordinator(pipeline)
     read_cache: BoundedSingleFlightCache[object] = BoundedSingleFlightCache(128)
     contract_errors = {
         404: {"model": ErrorResponse},
@@ -105,7 +104,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         return HealthResponse(
             status="ok",
             service="语证后端",
-            stage="阶段五：可信语音输入、LA/PA 检测与 ASR 链路",
+            stage="阶段五：语音输入与 ASR 链路（LA/PA 已停用）",
             database=pipeline.audit_repository.health(),
             model_ready=capability.real_model_inference,
             embedding_implementation=capability.embedding_implementation,
@@ -137,32 +136,6 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         )
         mark_stage("service_returned")
         return response
-
-    @router.post(
-        "/command/coordinated",
-        response_model=MultiActionCommandResponse,
-    )
-    def command_coordinated(
-        request: TextCommandRequest,
-    ) -> MultiActionCommandResponse:
-        result = multi_action_coordinator.process(request)
-        websocket_channel = (
-            f"/ws/pipeline/{request.session_id}" if request.session_id else None
-        )
-        children = [
-            child.model_copy(
-                update={
-                    "response": child.response.model_copy(
-                        update={"websocket_channel": websocket_channel}
-                    )
-                }
-            )
-            for child in result.children
-        ]
-        for child in children:
-            invalidate_turn_reads(child.turn_id)
-        mark_stage("service_returned")
-        return result.model_copy(update={"children": children})
 
     @router.post("/command/audio", response_model=AudioCommandResponse)
     async def command_audio(
@@ -417,59 +390,11 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         responses=contract_errors,
     )
     def turn_review(turn_id: str, request: ReviewSubmission) -> ReviewSubmissionResponse:
-        try:
-            result = pipeline.review_service.review(
-                turn_id, adapt_review_submission(request)
-            )
-        except ReviewWorkflowError as exc:
-            invalidate_workflow_reads(turn_id)
-            message = SensitiveDataRedactor.redact_exception(exc)
-            if "未找到轮次" in message:
-                code, status_code = ErrorCode.TURN_NOT_FOUND, 404
-            elif "工作流已终止" in message:
-                code, status_code = ErrorCode.TURN_ALREADY_FINALIZED, 409
-            else:
-                code, status_code = ErrorCode.REVIEW_NOT_ALLOWED, 409
-            raise ContractError(
-                status_code, code, message, turn_id=turn_id
-            ) from exc
-        invalidate_workflow_reads(turn_id)
-        if not result.accepted:
-            try:
-                code = ErrorCode(result.rejection_code or ErrorCode.REVIEW_NOT_ALLOWED.value)
-            except ValueError:
-                code = ErrorCode.REVIEW_NOT_ALLOWED
-            raise ContractError(
-                result.rejection_status_code or 409,
-                code,
-                result.reason,
-                turn_id=turn_id,
-            )
-        related = pipeline.audit_repository.get_by_turn(result.related_turn_id)
-        original = pipeline.audit_repository.get_by_turn(turn_id)
-        audit = related or original
-        if audit is None:
-            raise ContractError(
-                404, ErrorCode.TURN_NOT_FOUND, "未找到指定轮次", turn_id=turn_id
-            )
-        return ReviewSubmissionResponse(
-            original_turn_id=turn_id,
-            review_turn_id=result.related_turn_id,
-            user_action=result.action,
-            new_decision=result.decision.final_decision,
-            token_issued=result.decision.authorization_token is not None,
-            execution_status=result.workflow_status.status,
-            audit_id=result.terminal_audit_id or audit.audit_id,
-            accepted=result.accepted,
-            message=result.reason,
-            root_turn_id=result.root_turn_id,
-            related_turn_id=result.related_turn_id,
-            action=result.action,
-            reason=result.reason,
-            workflow_status=result.workflow_status,
-            decision=result.decision,
-            review_question=result.review_question,
-            command_result=result.command_result,
+        raise ContractError(
+            409,
+            ErrorCode.REVIEW_NOT_ALLOWED,
+            "旧复核接口已退役；请使用统一 interaction 接口",
+            turn_id=turn_id,
         )
 
     @router.post(
@@ -480,37 +405,28 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     def turn_clarification(
         turn_id: str, request: ClarificationSubmission
     ) -> ClarificationSubmissionResponse:
-        try:
-            resolution, command_result = pipeline.clarification_service.resolve(
-                turn_id=turn_id,
-                clarification_id=request.clarification_id,
-                candidate_id=request.candidate_id,
-                candidate_ids=request.candidate_ids,
-                none_of_above=request.resolution == "NONE_OF_ABOVE",
-            )
-        except ClarificationWorkflowError as exc:
-            message = SensitiveDataRedactor.redact_exception(exc)
-            if "candidate_id" in message:
-                code, status_code = ErrorCode.CLARIFICATION_CANDIDATE_NOT_FOUND, 404
-            elif "不存在" in message or "未找到" in message:
-                code, status_code = ErrorCode.CLARIFICATION_NOT_FOUND, 404
-            else:
-                code, status_code = ErrorCode.REVIEW_NOT_ALLOWED, 409
-            raise ContractError(
-                status_code, code, message, turn_id=turn_id
-            ) from exc
-        invalidate_workflow_reads(turn_id)
-        if resolution.child_turn_id:
-            invalidate_workflow_reads(resolution.child_turn_id)
-        return ClarificationSubmissionResponse(
-            clarification_id=resolution.clarification_id,
-            source_turn_id=resolution.source_turn_id,
-            resolution=resolution.resolution.value,
-            selected_candidate_id=resolution.selected_candidate_id,
-            selected_candidate_text=resolution.selected_candidate_text,
-            child_turn_id=resolution.child_turn_id,
-            command_result=command_result,
+        raise ContractError(
+            409,
+            ErrorCode.REVIEW_NOT_ALLOWED,
+            "旧澄清接口已退役；请使用统一 interaction 接口",
+            turn_id=turn_id,
         )
+
+    @router.post("/turns/{turn_id}/interaction", responses=contract_errors)
+    def turn_interaction(turn_id: str, request: InteractionSubmission):
+        try:
+            result = pipeline.interaction_service.resolve(
+                turn_id=turn_id,
+                interaction_id=request.interaction_id,
+                action=request.action,
+                candidate_id=request.candidate_id,
+                text=request.text,
+                parameters=request.parameters,
+            )
+        except Exception as exc:
+            raise ContractError(409, ErrorCode.REVIEW_NOT_ALLOWED, str(exc), turn_id=turn_id) from exc
+        invalidate_workflow_reads(turn_id)
+        return {"interaction_id": request.interaction_id, "command_result": result}
 
     @router.post("/turns/{turn_id}/execute", response_model=ExecuteResult)
     def turn_execute(turn_id: str, request: ExecuteRequest) -> ExecuteResult:
@@ -520,6 +436,7 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                 request.authorization_token,
                 intent_id=request.intent_id,
                 session_id=request.session_id,
+                interaction_id=request.interaction_id,
             )
             invalidate_workflow_reads(turn_id)
             return result

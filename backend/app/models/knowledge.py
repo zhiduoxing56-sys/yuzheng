@@ -11,7 +11,7 @@ class KnowledgeNode(BaseModel):
     """主系统侧的知识节点模型，对齐 intelligence-agent 的 KnowledgeNode v2 JSONL。
 
     - `canonical_action` 存的是主系统 intent_id（如 HEADLIGHT_SET_MODE）。
-    - `required_evidence` / `optional_evidence` 取值空间是主系统 32 类 canonical evidence type。
+    - `required_evidence` / `optional_evidence` 取值空间是 Evidence Space v1 的 canonical evidence type。
     """
 
     model_config = ConfigDict(extra="ignore")
@@ -44,7 +44,7 @@ class KnowledgeNode(BaseModel):
 def load_trusted_nodes(
     path: Path, canonical_types: frozenset[str]
 ) -> list[KnowledgeNode]:
-    """逐行解析知识节点 JSONL，仅保留 Trusted 节点并净化证据类型。
+    """逐行解析知识节点 JSONL，仅保留 Trusted 节点并严格校验证据类型。
 
     单行 JSON 损坏跳过不抛；按 node_id 去重；非 Trusted(候选/PENDING) 直接排除，保证 Leakage=0。
     """
@@ -64,21 +64,36 @@ def load_trusted_nodes(
             if not node.is_trusted:
                 continue
             node.required_evidence = _canonical_unique(
-                node.required_evidence, canonical_types
+                node.required_evidence,
+                canonical_types,
+                node_id=node.node_id,
+                field_name="required_evidence",
             )
             node.optional_evidence = _canonical_unique(
-                node.optional_evidence, canonical_types
+                node.optional_evidence,
+                canonical_types,
+                node_id=node.node_id,
+                field_name="optional_evidence",
             )
             nodes[node.node_id] = node
     return list(nodes.values())
 
 
 def _canonical_unique(
-    values: list[str], canonical_types: frozenset[str]
+    values: list[str],
+    canonical_types: frozenset[str],
+    *,
+    node_id: str,
+    field_name: str,
 ) -> list[str]:
-    """过滤到 canonical 证据类型并保持顺序去重。"""
+    """严格要求 canonical 证据类型，并在验证后保持顺序去重。"""
+    invalid = list(dict.fromkeys(value for value in values if value not in canonical_types))
+    if invalid:
+        raise ValueError(
+            f"trusted knowledge node {node_id!r} has non-canonical "
+            f"{field_name}: {invalid}"
+        )
     seen: dict[str, None] = {}
     for value in values:
-        if value in canonical_types:
-            seen.setdefault(value, None)
+        seen.setdefault(value, None)
     return list(seen)

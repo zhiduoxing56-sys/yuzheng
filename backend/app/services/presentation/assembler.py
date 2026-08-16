@@ -815,6 +815,7 @@ class PresentationAssembler:
             voice_trust_mode=self.pipeline.voice_trust_mode,
             input=self.input_summary(record),
             semantic_frame=record.semantic_frame,
+            request_routing=record.request_routing,
             evidence_demand=demand,
             retrieval_summary=retrieval,
             evidence=EvidencePresentation(
@@ -888,6 +889,9 @@ class PresentationAssembler:
                 audit_chain_valid=cached_chain_valid,
                 workflow_chain_valid=workflow_verification.valid,
                 workflow_event_count=workflow_verification.event_count,
+            ),
+            interaction_request=self.pipeline.interaction_service.active_for_turn(
+                record.turn_id
             ),
             clarification_request=self.pipeline.clarification_service.active_for_turn(
                 record.turn_id

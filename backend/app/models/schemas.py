@@ -174,6 +174,41 @@ class ReviewAction(str, Enum):
     CANCEL = "CANCEL"
 
 
+class InteractionState(str, Enum):
+    """The only backend-authoritative state for a turn's user interaction."""
+
+    NEEDS_CLARIFICATION = "NEEDS_CLARIFICATION"
+    PASS = "PASS"
+    NEEDS_REVIEW = "NEEDS_REVIEW"
+    BLOCK = "BLOCK"
+
+
+class InteractionType(str, Enum):
+    """The sole user-facing interaction taxonomy.
+
+    ``None`` means the turn is terminal and deliberately has no modal.
+    Decision labels and semantic reason codes are internal inputs to the
+    interaction generator; clients must never infer this value themselves.
+    """
+
+    MULTI_INTENT_SELECTION = "MULTI_INTENT_SELECTION"
+    PARAMETER_COMPLETION = "PARAMETER_COMPLETION"
+    SEMANTIC_DISAMBIGUATION = "SEMANTIC_DISAMBIGUATION"
+    UNRESOLVED_VEHICLE_CONTROL = "UNRESOLVED_VEHICLE_CONTROL"
+    SAFETY_REVIEW = "SAFETY_REVIEW"
+    EXECUTION_CONFIRMATION = "EXECUTION_CONFIRMATION"
+
+
+class InteractionAction(str, Enum):
+    SELECT_CANDIDATE = "SELECT_CANDIDATE"
+    REPHRASE = "REPHRASE"
+    CANCEL = "CANCEL"
+    CONFIRM = "CONFIRM"
+    CLOSE = "CLOSE"
+    EXECUTE = "EXECUTE"
+    SUBMIT_PARAMETERS = "SUBMIT_PARAMETERS"
+
+
 class AuthorizationTokenStatus(str, Enum):
     ISSUED = "ISSUED"
     CONSUMED = "CONSUMED"
@@ -196,6 +231,7 @@ class WorkflowEventType(str, Enum):
     REVIEW_CONFIRMED = "REVIEW_CONFIRMED"
     REVIEW_CORRECTED = "REVIEW_CORRECTED"
     REVIEW_CANCELLED = "REVIEW_CANCELLED"
+    INTERACTION_CONFIRMED = "INTERACTION_CONFIRMED"
     CLARIFICATION_REQUESTED = "CLARIFICATION_REQUESTED"
     CLARIFICATION_RESOLVED = "CLARIFICATION_RESOLVED"
     FINAL_DECISION_UPDATED = "FINAL_DECISION_UPDATED"
@@ -363,6 +399,47 @@ class SemanticFrame(StrictModel):
     intents: list[SemanticIntent] = Field(default_factory=list)
 
 
+class RequestDomain(str, Enum):
+    VEHICLE_CONTROL = "VEHICLE_CONTROL"
+    MEDIA_SERVICE = "MEDIA_SERVICE"
+    NAVIGATION_SERVICE = "NAVIGATION_SERVICE"
+    COMMUNICATION_SERVICE = "COMMUNICATION_SERVICE"
+    CABIN_APP_SERVICE = "CABIN_APP_SERVICE"
+    INFORMATION_QUERY = "INFORMATION_QUERY"
+    GENERAL_ASSISTANT = "GENERAL_ASSISTANT"
+    UNKNOWN = "UNKNOWN"
+
+
+class ControlRelevance(str, Enum):
+    VEHICLE_CONTROL = "VEHICLE_CONTROL"
+    NON_CONTROL = "NON_CONTROL"
+    UNCERTAIN = "UNCERTAIN"
+
+
+class SemanticUnitKind(str, Enum):
+    CONTEXT = "CONTEXT"
+    ASSISTANT = "ASSISTANT"
+    UNCERTAIN = "UNCERTAIN"
+    VEHICLE_CONTROL = "VEHICLE_CONTROL"
+
+
+class OrderedSemanticUnit(StrictModel):
+    """The 4B normalizer's ordered, text-only production contract."""
+
+    unit_index: int = Field(ge=0)
+    kind: SemanticUnitKind
+    normalized_text: str = Field(min_length=1)
+
+
+class RequestRouting(StrictModel):
+    raw_text: str
+    units: list[OrderedSemanticUnit] = Field(default_factory=list)
+    contains_vehicle_control: bool = False
+    enters_vehicle_safety_chain: bool = False
+    model_call_count: int = Field(default=0, ge=0)
+    model_metrics: dict[str, Any] = Field(default_factory=dict)
+
+
 class ClarificationType(str, Enum):
     VOICE_CONFIRMATION = "VOICE_CONFIRMATION"
     SEMANTIC_CONFIRMATION = "SEMANTIC_CONFIRMATION"
@@ -380,12 +457,86 @@ class ClarificationResolution(str, Enum):
     NONE_OF_ABOVE = "NONE_OF_ABOVE"
 
 
+class InteractionCandidate(StrictModel):
+    candidate_id: str
+    display_text: str = Field(min_length=1, max_length=2048)
+    canonical_text: str = Field(min_length=1, max_length=2048)
+    canonical_intent_id: str | None = None
+    canonical_slots: dict[str, Any] = Field(default_factory=dict)
+    source: str
+
+
+class UserReason(StrictModel):
+    code: str
+    title: str
+    description: str
+    details: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class InteractionRequest(StrictModel):
+    interaction_id: str = Field(default_factory=lambda: make_id("INT"))
+    turn_id: str
+    unit_index: int | None = Field(default=None, ge=0)
+    intent_id: str | None = None
+    state: InteractionState
+    interaction_type: InteractionType | None = None
+    canonical_operation: str | None = None
+    reason_codes: list[str] = Field(default_factory=list)
+    reason_details: list[dict[str, Any]] = Field(default_factory=list)
+    allowed_actions: list[InteractionAction] = Field(default_factory=list)
+    candidates: list[InteractionCandidate] = Field(default_factory=list, max_length=16)
+    user_reason: UserReason | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
+    expires_at: datetime | None = None
+    consumed: bool = False
+
+    @model_validator(mode="after")
+    def validate_interaction_contract(self) -> "InteractionRequest":
+        if self.interaction_type is None:
+            raise ValueError("persisted interaction requires interaction_type")
+        if self.state == InteractionState.NEEDS_REVIEW and self.candidates:
+            raise ValueError("NEEDS_REVIEW must not expose semantic candidates")
+        if self.state == InteractionState.BLOCK and self.allowed_actions != [InteractionAction.CLOSE]:
+            raise ValueError("BLOCK only allows CLOSE")
+        if self.state == InteractionState.PASS and self.candidates:
+            raise ValueError("PASS must not expose candidates")
+        return self
+
+
+class InteractionSubmission(StrictModel):
+    interaction_id: str = Field(min_length=1, max_length=128)
+    action: InteractionAction
+    candidate_id: str | None = Field(default=None, min_length=1, max_length=128)
+    text: str | None = Field(default=None, min_length=1, max_length=2048)
+    parameters: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def validate_payload(self) -> "InteractionSubmission":
+        if self.action == InteractionAction.SELECT_CANDIDATE and not self.candidate_id:
+            raise ValueError("SELECT_CANDIDATE requires candidate_id")
+        if self.action == InteractionAction.REPHRASE and not (self.text or "").strip():
+            raise ValueError("REPHRASE requires text")
+        if self.action == InteractionAction.SUBMIT_PARAMETERS and not self.parameters:
+            raise ValueError("SUBMIT_PARAMETERS requires parameters")
+        if self.action not in {InteractionAction.SELECT_CANDIDATE, InteractionAction.REPHRASE, InteractionAction.SUBMIT_PARAMETERS} and (
+            self.candidate_id is not None or self.text is not None
+        ):
+            raise ValueError("action does not accept candidate_id or text")
+        return self
+
+
 class ClarificationCandidate(StrictModel):
     candidate_id: str
     display_text: str = Field(min_length=1, max_length=2048)
     candidate_source: ClarificationCandidateSource
     source_rank: int = Field(ge=1)
     confidence: float | None = Field(default=None, ge=0, le=1)
+    # Canonical identity is server-authored metadata.  Clients submit only
+    # candidate_id; it is retained so the selected clarification can be
+    # compared with the child turn after the full pipeline is re-run.
+    canonical_intent_id: str | None = None
+    canonical_runtime_identity: Literal["FORMAL", "KNOWN_NON_EXECUTABLE"] | None = None
+    canonical_slots: dict[str, Any] = Field(default_factory=dict)
     # 分组复核：同一候选组（对应一个待复核意图）用相同 group 标识，
     # group_label 用于前端分组标题（如「打开车窗」）。None = 非分组候选（单意图）。
     group: str | None = None
@@ -1470,6 +1621,7 @@ class AuditRecord(StrictModel):
     zone_permission_result: ZonePermissionResult | None = None
     audio_input_metadata: dict[str, Any] = Field(default_factory=dict)
     semantic_frame: SemanticFrame
+    request_routing: RequestRouting | None = None
     evidence_demand: EvidenceDemand
     candidate_recall_results: list[EvidenceNode]
     vectorization_metadata: list[VectorizationMetadata] = Field(default_factory=list)
@@ -1560,6 +1712,7 @@ class TextCommandResponse(StrictModel):
     transcription_result: TranscriptionResult
     zone_permission_result: ZonePermissionResult | None = None
     semantic_frame: SemanticFrame
+    request_routing: RequestRouting | None = None
     evidence_demand: EvidenceDemand
     evidence: list[EvidenceNode]
     query_vectors: list[list[float]]
@@ -1586,6 +1739,7 @@ class TextCommandResponse(StrictModel):
     accepted: bool = True
     input_type: Literal["text"] = "text"
     websocket_channel: str | None = None
+    interaction_request: InteractionRequest | None = None
     clarification_request: ClarificationRequest | None = None
 
 
@@ -1603,6 +1757,7 @@ class AudioCommandResponse(StrictModel):
     accepted: bool = True
     input_type: Literal["audio"] = "audio"
     websocket_channel: str | None = None
+    interaction_request: InteractionRequest | None = None
     clarification_request: ClarificationRequest | None = None
 
 
@@ -1840,6 +1995,7 @@ class VehicleExecutionResult(StrictModel):
 
 class ExecuteRequest(StrictModel):
     authorization_token: str = Field(min_length=20, repr=False)
+    interaction_id: str = Field(min_length=1, max_length=128)
     intent_id: str | None = Field(default=None, min_length=1, max_length=128)
     session_id: str | None = Field(default=None, min_length=1, max_length=100)
 

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
-import type { SemanticFrame } from "../types/contract";
+import type { SemanticFrame, SemanticIntent } from "../types/contract";
 import type { CommandInputMode, DecisionResultView, DecisionVisualState } from "../types/visualModels";
 
 const INPUT_TABS: Array<{ mode: CommandInputMode; label: string }> = [
@@ -65,6 +65,26 @@ function formatList(values: string[]): string {
   return values.length ? values.join("、") : "--";
 }
 
+const RUNTIME_IDENTITY_LABEL: Record<NonNullable<SemanticIntent["runtime_identity"]>, string> = {
+  FORMAL: "正式安全意图",
+  KNOWN_NON_EXECUTABLE: "已识别、当前不可执行",
+};
+
+const DIRECTION_LABEL: Record<string, string> = {
+  INCREASE: "升高", DECREASE: "降低", FORWARD: "向前", BACKWARD: "向后",
+  UP: "向上", DOWN: "向下", OPEN: "开大", CLOSE: "关小",
+};
+
+function intentDisplayName(intent: SemanticIntent): string {
+  return `${intent.action}${intent.target}`;
+}
+
+function controlValue(intent: SemanticIntent): string | null {
+  const direction = intent.direction ? DIRECTION_LABEL[intent.direction] || intent.direction : null;
+  if (direction && intent.value !== null && intent.value !== undefined) return `${direction} ${formatSemanticValue(intent.value)}`;
+  return direction || (intent.value !== null && intent.value !== undefined ? formatSemanticValue(intent.value) : null);
+}
+
 export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null }) {
   return <section className="semantic-frame-section" aria-labelledby="semantic-frame-heading">
     <h2 id="semantic-frame-heading" className="visual-gradient-title">语义帧解析</h2>
@@ -83,14 +103,19 @@ export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null })
         </dl>
         <div className="semantic-intent-list">
           {frame.intents.map((intent, occurrenceIndex) => <article className="semantic-intent-card" key={`${intent.clause_index}:${occurrenceIndex}:${intent.intent_id}`}>
-            <h3>子意图 {occurrenceIndex + 1}</h3>
+            <h3>{intentDisplayName(intent)}</h3>
             <dl>
               <div><dt>子句索引</dt><dd>{formatSemanticValue(intent.clause_index)}</dd></div>
               <div><dt>子句</dt><dd>{formatSemanticValue(intent.clause_text)}</dd></div>
               <div><dt>意图编号</dt><dd>{formatSemanticValue(intent.intent_id)}</dd></div>
+              <div><dt>运行身份</dt><dd>{intent.runtime_identity ? RUNTIME_IDENTITY_LABEL[intent.runtime_identity] : "--"}</dd></div>
               <div><dt>动作</dt><dd>{formatSemanticValue(intent.action)}</dd></div>
               <div><dt>对象</dt><dd>{formatSemanticValue(intent.target)}</dd></div>
               <div><dt>区域</dt><dd>{formatSemanticValue(intent.area)}</dd></div>
+              {controlValue(intent) && <div><dt>控制参数</dt><dd>{controlValue(intent)}</dd></div>}
+              {intent.direction && <div><dt>方向</dt><dd>{DIRECTION_LABEL[intent.direction] || intent.direction}</dd></div>}
+              {intent.mode && <div><dt>模式</dt><dd>{formatSemanticValue(intent.mode)}</dd></div>}
+              {intent.control_attribute && <div><dt>控制属性</dt><dd>{formatSemanticValue(intent.control_attribute)}</dd></div>}
               <div><dt>控制域</dt><dd>{formatSemanticValue(intent.control_domain)}</dd></div>
               <div><dt>风险等级</dt><dd>{formatSemanticValue(intent.risk_level)}</dd></div>
               <div><dt>风险标签</dt><dd>{formatList(intent.risk_tags)}</dd></div>

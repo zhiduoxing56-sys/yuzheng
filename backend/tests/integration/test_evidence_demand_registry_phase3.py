@@ -89,10 +89,10 @@ def _mutated_r4_registry(tmp_path: Path, mutate) -> Path:
     return path
 
 
-def test_registry_has_exact_formal_71_intents_and_32_evidence_types() -> None:
+def test_registry_has_exact_formal_71_intents_and_38_evidence_types() -> None:
     registry = EvidenceDemandRegistry()
     assert len(registry.formal_intent_ids) == 71
-    assert len(registry.canonical_evidence_types) == 32
+    assert len(registry.canonical_evidence_types) == 38
 
 
 def test_registry_keys_equal_formal_r4_intent_ids() -> None:

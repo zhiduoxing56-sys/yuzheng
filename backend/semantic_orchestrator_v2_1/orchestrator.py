@@ -42,8 +42,8 @@ class SemanticOrchestratorV2_1(SemanticOrchestratorV2):
         self.object_guard = ObjectFamilyGuard(cards, self.direction_guard)
         self.security_guard = SecurityClaimGuard()
 
-    def _run_clause(self, clause: str) -> dict[str, Any]:
-        result = super()._run_clause(clause)
+    def _run_clause(self, clause: str, **kwargs: Any) -> dict[str, Any]:
+        result = super()._run_clause(clause, **kwargs)
         result["audit_triggers"] = []
         if result["base_status"] != "OK" or not result["accepted_intent_ids"]:
             return result
@@ -73,8 +73,8 @@ class SemanticOrchestratorV2_1(SemanticOrchestratorV2):
             result["reliable"] = False
         return result
 
-    def run(self, text: str) -> OrchestratorRun:
-        run = super().run(text)
+    def run_ordered_units(self, raw_text: str, units: list[dict[str, Any]]) -> OrchestratorRun:
+        run = super().run_ordered_units(raw_text, units)
         debug = dict(run.debug)
         audit_triggers = _unique(
             [

@@ -6,7 +6,13 @@ from typing import Any
 
 import yaml
 
-from app.models.schemas import SemanticFrame, SemanticIntent
+from app.models.schemas import (
+    OrderedSemanticUnit,
+    RequestRouting,
+    SemanticFrame,
+    SemanticIntent,
+    SemanticUnitKind,
+)
 from app.services.semantic.area import (
     allowed_areas_for_intent,
     canonical_area,
@@ -226,8 +232,38 @@ class SemanticOrchestratorService:
                 occurrences.append({"intent_id": str(item), "params": {}})
         return occurrences
 
-    def parse(self, turn_id: str, text: str) -> SemanticFrame:
-        run = self._orchestrator.run(text)
+    def parse_standard_control_unit(
+        self, turn_id: str, standard_text: str, unit_index: int
+    ) -> SemanticFrame:
+        run = self._orchestrator.run_single_unit(standard_text, unit_index)
+        return self._frame_from_run(turn_id, standard_text, run)
+
+    def parse_ordered_units(
+        self, turn_id: str, raw_text: str, units: list[OrderedSemanticUnit]
+    ) -> SemanticFrame:
+        if any(unit.kind == SemanticUnitKind.UNCERTAIN for unit in units):
+            unresolved = [unit.normalized_text for unit in units if unit.kind == SemanticUnitKind.UNCERTAIN]
+            return SemanticFrame(
+                turn_id=turn_id, raw_text=raw_text, normalized_text=_normalized_text(raw_text),
+                semantic_confidence=0.0, ambiguity_score=1.0, semantic_status="REVIEW",
+                review_reasons=["NORMALIZER_UNCERTAIN"], unresolved_clauses=unresolved,
+            )
+        vehicle_units = [unit for unit in units if unit.kind == SemanticUnitKind.VEHICLE_CONTROL]
+        if not vehicle_units:
+            return SemanticFrame(
+                turn_id=turn_id, raw_text=raw_text, normalized_text=_normalized_text(raw_text),
+                semantic_confidence=1.0, ambiguity_score=0.0, semantic_status="OK",
+            )
+        run = self._orchestrator.run_ordered_units(
+            raw_text,
+            [
+                {"unit_index": unit.unit_index, "normalized_text": unit.normalized_text}
+                for unit in vehicle_units
+            ],
+        )
+        return self._frame_from_run(turn_id, raw_text, run)
+
+    def _frame_from_run(self, turn_id: str, text: str, run: OrchestratorRun) -> SemanticFrame:
         authoritative_occurrences = self._authoritative_occurrences(run)
         intents: list[SemanticIntent] = []
         status = str(run.output.get("status", "NO_MATCH"))

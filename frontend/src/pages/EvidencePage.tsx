@@ -40,17 +40,11 @@ export function EvidencePage() {
   const { turnId: routeTurnId } = useParams<{ turnId?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { activeTurnId, coordinatedTurnGroup } = useSession();
+  const { activeTurnId } = useSession();
   const explicitTurnId = [routeTurnId, searchParams.get("turn_id")]
     .map((value) => value?.trim() || null)
     .find((value): value is string => Boolean(value && /^TURN_[A-Za-z0-9_-]+$/.test(value))) ?? null;
-  const switchableChildren = useMemo(() => {
-    if (!coordinatedTurnGroup) return [];
-    if (explicitTurnId && !coordinatedTurnGroup.children.some((child) => child.turnId === explicitTurnId)) return [];
-    return coordinatedTurnGroup.children;
-  }, [coordinatedTurnGroup, explicitTurnId]);
   const turnId = explicitTurnId
-    || switchableChildren[0]?.turnId
     || (activeTurnId && /^TURN_[A-Za-z0-9_-]+$/.test(activeTurnId) ? activeTurnId : null);
   const [parameters, setParameters] = useState<EvidenceParameterValues>(EMPTY_PARAMETERS);
   const [parametersApplied, setParametersApplied] = useState(false);
@@ -203,18 +197,6 @@ export function EvidencePage() {
     <header className="evidence-search-header">
       <div className="evidence-search-title-group">
         <h1 className="visual-gradient-title">HNSW证据检索</h1>
-        {switchableChildren.length > 1 ? <label className="evidence-child-selector">
-          <span>当前子意图</span>
-          <select
-            aria-label="选择当前查看的检索子意图"
-            value={turnId || ""}
-            onChange={(event) => navigate(`/evidence/${encodeURIComponent(event.target.value)}`, { replace: true })}
-          >
-            {switchableChildren.map((child, index) => <option key={`${child.clauseIndex}:${child.turnId}`} value={child.turnId}>
-              {`子意图 ${index + 1} · ${child.clauseText}`}
-            </option>)}
-          </select>
-        </label> : null}
       </div>
       <p>检索时间： <strong>{retrievalTime || "--"} ms</strong></p>
     </header>

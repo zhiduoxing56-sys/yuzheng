@@ -29183,7 +29183,7 @@ known_non_executable_intents:
     - REAR
     value_contract: SOURCE_TEMPERATURE_REQUIRED
     mode_contract: null
-    direction_contract: null
+    direction_contract: TEMPERATURE_INCREASE_DECREASE
     conditional_slot_contract: null
     value_mapping_contract: null
   control_domain: 座舱控制
@@ -44951,7 +44951,7 @@ known_non_executable_intents:
     allowed_areas: []
     value_contract: SOURCE_TEMPERATURE_REQUIRED
     mode_contract: null
-    direction_contract: null
+    direction_contract: TEMPERATURE_INCREASE_DECREASE
     conditional_slot_contract: null
     value_mapping_contract: null
   control_domain: 座舱控制

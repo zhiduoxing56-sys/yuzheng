@@ -95,8 +95,8 @@ class EvidenceDemandRegistry:
             canonical_types = frozenset(evidence_type_catalog())
         except ValueError as exc:
             raise ConfigurationError("标准 Evidence Type Catalog 无效") from exc
-        if len(canonical_types) != 32:
-            raise ConfigurationError("标准 Evidence Type Catalog 必须恰好包含 32 类")
+        if not canonical_types:
+            raise ConfigurationError("标准 Evidence Type Catalog 不得为空")
 
         if r4_raw.get("runtime_loading_allowed") is not True:
             raise ConfigurationError("正式 R4 Intent Registry 禁止生产运行时加载")

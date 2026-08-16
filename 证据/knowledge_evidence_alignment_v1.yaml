@@ -1,0 +1,211 @@
+document_status: FORMAL_ALIGNMENT_POLICY
+version: knowledge-evidence-alignment-v1.0.1
+production_nodes: data/knowledge_nodes_v4.jsonl
+canonical_catalog: 证据/evidence_type_catalog_v1.yaml
+
+class_a_aliases:
+  WEATHER: ENVIRONMENT_CONDITIONS
+  VEHICLE_STATIONARY: VEHICLE_SPEED
+  ACCELERATION_STATE: VEHICLE_ACCELERATION
+  AUTHENTICATION_STATE: AUTHORIZATION_STATE
+  ADS_STATE: SYSTEM_MODE
+  SYSTEM_FAILURE_STATE: SYSTEM_MODE
+  EMERGENCY_STATE: SYSTEM_MODE
+class_a_expected_occurrences:
+  WEATHER: 3
+  VEHICLE_STATIONARY: 2
+  ACCELERATION_STATE: 1
+  AUTHENTICATION_STATE: 5
+  ADS_STATE: 2
+  SYSTEM_FAILURE_STATE: 1
+  EMERGENCY_STATE: 1
+
+class_b_evidence_space_gaps:
+  BATTERY_STATE:
+    rationale: Vehicle battery state is a physical fact not expressible by the frozen 38-type Evidence Space.
+    current_scope: NON_PHYSICAL_OTA_KNOWLEDGE_ONLY
+    online_trusted_policy: EXCLUDE_NODE
+
+class_c_non_realtime_physical_evidence:
+  ACCESS_LOG:
+  APP_INTEGRITY_STATE:
+  ASSET_STATE:
+  COMMAND_VALIDITY_STATE:
+  COMMUNICATION_LOG:
+  COMMUNICATION_STATE:
+  CSMS_STATE:
+  DATA_ACCESS_STATE:
+  DATA_ANONYMIZATION_STATE:
+  DATA_CATEGORY:
+  DATA_CLASSIFICATION_STATE:
+  DATA_COLLECTION_STATE:
+  DATA_DELETE_STATE:
+  DATA_ENCRYPTION_STATE:
+  DATA_INTEGRITY_STATE:
+  DATA_LOCATION_STATE:
+  DATA_SECURITY_MANAGEMENT_STATE:
+  DATA_STORAGE_STATE:
+  DATA_USE_STATE:
+  DATA_VALIDITY_STATE:
+  EMERGENCY_PLAN_STATE:
+  INTERFACE_STATE:
+  KEY_STATE:
+  LOG_RETENTION_STATE:
+  NOTIFICATION_STATE:
+  PACKAGE_INTEGRITY_STATE:
+  PRODUCT_COMPLIANCE_STATE:
+  RISK_ASSESSMENT_STATE:
+  SECURITY_EVENT_STATE:
+  SECURITY_LEVEL_STATE:
+  SECURITY_LOG_STATE:
+  SECURITY_MANAGEMENT_STATE:
+  SECURITY_STATE:
+  SOFTWARE_VERSION:
+  STORAGE_STATE:
+  THREAT_STATE:
+  UPDATE_STATE:
+  USER_CONSENT_STATE:
+  VULNERABILITY_STATE:
+
+condition_predicates:
+  VEHICLE_STATIONARY:
+    evidence_type: VEHICLE_SPEED
+    operator: EQ
+    value: 0
+    unit: km/h
+
+stationary_condition_repairs:
+  - 知识.OTA升级.升级失败回滚.003
+  - 知识.OTA升级.升级用户告知.005
+
+physical_safety_nodes:
+  - 知识.行驶控制.车辆控制行驶安全.001
+  - 知识.行驶控制.乘用车列车安全.002
+  - 知识.行驶控制.行车制动控制.003
+  - 知识.行驶控制.行车制动性能.004
+  - 知识.行驶控制.制动系统部件要求.005
+  - 知识.行驶控制.气压制动系统.006
+  - 知识.行驶控制.液压制动系统.007
+  - 知识.行驶控制.应急制动功能.008
+  - 知识.行驶控制.行车制动失效应急.009
+  - 知识.行驶控制.防抱制动装置.010
+  - 知识.行驶控制.制动报警.011
+  - 知识.行驶控制.制动加速辅助互锁.012
+  - 知识.行驶控制.车辆仪表要求.013
+  - 知识.行驶控制.换道通用约束.014
+  - 知识.行驶控制.换道前系统自检.015
+  - 知识.行驶控制.换道过程转向信号灯.016
+  - 知识.行驶控制.换道过程中驾驶员监测.017
+  - 知识.行驶控制.换道横向中断控制.018
+  - 知识.行驶控制.换道安全空间核查.019
+  - 知识.行驶控制.车道保持辅助.020
+  - 知识.行驶控制.驾驶员监测脱手检测.021
+  - 知识.行驶控制.车道保持横向控制.022
+  - 知识.行驶控制.巡航激活条件.023
+  - 知识.行驶控制.巡航跟车时距.024
+  - 知识.行驶控制.超速报警.025
+  - 知识.行驶控制.限速功能.026
+  - 知识.行驶控制.换挡齿轮互锁.027
+  - 知识.行驶控制.智能网联汽车操纵件.028
+  - 知识.灯光.前照灯配置.001
+  - 知识.灯光.前照灯功能调整.002
+  - 知识.灯光.远光光束发光强度.003
+  - 知识.灯光.光束照射位置.004
+  - 知识.灯光.远光指示信号.005
+  - 知识.灯光.近光灯要求.006
+  - 知识.灯光.雾灯要求.007
+  - 知识.灯光.驻车灯示廓灯.008
+  - 知识.灯光.危险警告信号.009
+  - 知识.灯光.转向信号灯可见性.010
+  - 知识.灯光.转向信号迁延开关.011
+  - 知识.灯光.对称灯具一致性.012
+  - 知识.车身.乘客门开启.001
+  - 知识.车身.车门开启档位速度核查.002
+  - 知识.车身.车门车窗启闭.003
+  - 知识.车身.遥控钥匙锁止.004
+  - 知识.车身.安全玻璃要求.005
+  - 知识.车身.两侧车窗设置.006
+  - 知识.车身.电动窗控制装置.007
+  - 知识.车身.天窗控制.008
+  - 知识.车身.行李箱舱门要求.009
+  - 知识.视野.后视镜设置.001
+  - 知识.视野.外后视镜折叠.002
+  - 知识.视野.前风窗刮水器.003
+  - 知识.视野.前风窗除雾除霜.004
+  - 知识.泊车驻车.自动泊车启用.001
+  - 知识.泊车驻车.驻车制动施加.002
+  - 知识.泊车驻车.驻车制动力要求.003
+  - 知识.泊车驻车.驻车制动解除.004
+  - 知识.动力传动.电子稳定性控制.001
+  - 知识.行驶控制.避让转向.029
+  - 知识.车身.喇叭声级.010
+  - 知识.法规合规.车速限制.009
+  - 知识.法规合规.安全车距.010
+  - 知识.法规合规.人行横道让行.011
+  - 知识.法规合规.故障停车警示.012
+  - 知识.灯光.前雾灯安装.001
+  - 知识.灯光.后雾灯安装.002
+  - 知识.灯光.驻车灯安装.003
+  - 知识.灯光.近光会车.004
+  - 知识.行驶控制.加速限速核查.001
+  - 知识.车身.行李箱开启核查.001
+  - 知识.车身.行李箱锁闭.002
+
+non_physical_nodes:
+  - 知识.网络安全.安全启动.001
+  - 知识.网络安全.访问控制.002
+  - 知识.网络安全.身份认证.003
+  - 知识.网络安全.密钥管理.004
+  - 知识.网络安全.防篡改.005
+  - 知识.网络安全.关键指令防重放.006
+  - 知识.网络安全.通信安全.007
+  - 知识.网络安全.敏感信息加密.008
+  - 知识.网络安全.恶意数据识别.009
+  - 知识.网络安全.安全日志.010
+  - 知识.网络安全.升级包安全.011
+  - 知识.网络安全.外部接口保护.012
+  - 知识.网络安全.第三方应用安全.013
+  - 知识.网络安全.网络安全管理体系.014
+  - 知识.网络安全.TARA风险评估.015
+  - 知识.网络安全.漏洞管理.016
+  - 知识.网络安全.信息安全事件应急.017
+  - 知识.OTA升级.升级先决条件.001
+  - 知识.OTA升级.升级电量保障.002
+  - 知识.OTA升级.升级失败回滚.003
+  - 知识.OTA升级.软件识别号.004
+  - 知识.OTA升级.升级用户告知.005
+  - 知识.OTA升级.升级事件日志.006
+  - 知识.事故记录.事件记录触发.001
+  - 知识.事故记录.碰撞事件记录.002
+  - 知识.事故记录.数据记录存储.003
+  - 知识.事故记录.记录信息安全.004
+  - 知识.事故记录.数据读取.005
+  - 知识.法规合规.等级保护.001
+  - 知识.法规合规.产品安全义务.002
+  - 知识.法规合规.数据境内存储.003
+  - 知识.法规合规.数据分类分级.004
+  - 知识.法规合规.数据处理安全.005
+  - 知识.法规合规.图像采集限制.006
+  - 知识.法规合规.敏感个人信息.007
+  - 知识.法规合规.影响评估.008
+  - 知识.数据安全.个人同意.001
+  - 知识.数据安全.个人信息收集.002
+  - 知识.数据安全.个人信息存储.003
+  - 知识.数据安全.个人信息使用.004
+  - 知识.数据安全.数据传输加密.005
+  - 知识.数据安全.个人信息删除.006
+  - 知识.数据安全.数据出境.007
+  - 知识.数据安全.匿名化处理.008
+  - 知识.数据安全.重要数据保护.009
+  - 知识.数据安全.数据分类分级.010
+  - 知识.数据安全.座舱数据保护.011
+  - 知识.数据安全.数据安全负责人.012
+  - 知识.数据安全.数据风险评估.013
+
+mock_only_exclusions:
+  NON_CANONICAL_TYPE: deliberate loader fail-fast fixture; not part of the 120 production nodes
+
+online_physical_eligibility:
+  classification_source: EXPLICIT_NODE_SEMANTICS
+  require_all_evidence_canonical: true
+  unknown_reference_policy: FAIL

@@ -42,6 +42,7 @@ from app.models.schemas import (
     RuntimeCapabilityStatus,
     RuntimeSafetyContext,
     SafetyGateResult,
+    SemanticUnitKind,
     SemanticControlMode,
     TextCommandRequest,
     TextCommandResponse,
@@ -66,6 +67,7 @@ from app.services.authorization.service import AuthorizationTokenError, Authoriz
 from app.services.causal.service import CausalCorrectionService
 from app.services.claim.service import ClaimCheckResult, ContextClaimService
 from app.services.clarification.service import ClarificationService
+from app.services.interaction.service import InteractionService
 from app.services.decision.engine import DecisionService
 from app.services.decision.merge import (
     apply_merge_outcome,
@@ -89,6 +91,7 @@ from app.services.quality.evaluator import EvidenceQualityService
 from app.services.quality.window import EvidenceQualityWindow
 from app.services.review.service import ReviewService
 from app.services.semantic.orchestrator import SemanticOrchestratorService
+from app.services.request_routing.service import RequestRoutingService
 from app.services.semantic.area import allowed_areas_for_intent
 from app.services.validation.advanced import AdvancedValidationService
 from app.services.vector.embedding import build_embedding_service
@@ -96,11 +99,39 @@ from app.services.vehicle.carla import CarlaVehicleAdapter
 from app.services.vehicle.capabilities import CanonicalCapabilityRegistry
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 from app.services.asr.whisper import ASRModelError, WhisperASRService
-from app.services.voice.antispoof import ASVspoofLADetector, ASVspoofPADetector
+from app.services.voice.antispoof import (
+    ASVspoofLADetector,
+    ASVspoofPADetector,
+    AntiSpoofScore,
+)
 from app.services.voice.audio import AudioInputService, DecodedAudio
 from app.services.voice.spectrum import SpectrumAnalyzer
 from app.services.voice.trust import VoiceTrustScorer
 from app.services.voice.zone import ZonePermissionService
+
+
+class _DisabledAntiSpoofDetector:
+    """Compatibility detector that never loads or executes an LA/PA model."""
+
+    def __init__(self, detector_kind: str, task: str) -> None:
+        self.detector_kind = detector_kind
+        self.task = task
+
+    def score(self, *_args: Any, **_kwargs: Any) -> AntiSpoofScore:
+        return AntiSpoofScore(
+            bonafide_score=1.0,
+            inference_duration=0.0,
+            model_status="DISABLED",
+            model_metadata={
+                "detector_kind": self.detector_kind,
+                "task": self.task,
+                "model_name": f"disabled-{self.detector_kind.lower()}",
+                "model_status": "DISABLED",
+                "antispoof_enabled": False,
+                "scores_semantics": "PLACEHOLDER_NOT_MODEL_OUTPUT",
+            },
+            raw_score=None,
+        )
 from app.services.workflow.repository import WorkflowRepository
 from app.websocket.broker import PipelineEventBroker
 from app.core.redaction import SensitiveDataRedactor
@@ -153,6 +184,7 @@ class CommandPipeline:
         self.interpreter_config = load_yaml("interpreter.yaml")
         self.scenario_config = load_yaml("demo_scenarios.yaml")
         self.voice_config = load_yaml("voice.yaml")
+        self.antispoof_enabled = bool(self.voice_config.get("antispoof_enabled", True))
         configured_voice_mode = str(
             self.voice_config.get("voice_trust_mode", "enforce")
         ).strip().lower()
@@ -166,14 +198,24 @@ class CommandPipeline:
             )
         self.audio_input_service = AudioInputService(self.voice_config["audio"])
         self.spectrum_analyzer = SpectrumAnalyzer(self.voice_config["spectrum"])
-        self.la_detector = ASVspoofLADetector(self.voice_config["la"])
-        self.pa_detector = ASVspoofPADetector(self.voice_config["pa"])
+        # LA/PA 模型暂时停用。保留实现和配置，便于后续通过开关恢复。
+        self.la_detector = (
+            ASVspoofLADetector(self.voice_config["la"])
+            if self.antispoof_enabled
+            else _DisabledAntiSpoofDetector("LA", "logical_access_synthetic")
+        )
+        self.pa_detector = (
+            ASVspoofPADetector(self.voice_config["pa"])
+            if self.antispoof_enabled
+            else _DisabledAntiSpoofDetector("PA", "physical_access_replay")
+        )
         self.voice_trust_scorer = VoiceTrustScorer(self.voice_config["trust"])
         self.zone_permission_service = ZonePermissionService(
             self.voice_config["zone_permission"]
         )
         self.asr_service = WhisperASRService(self.voice_config["asr"])
         self.semantic_service = SemanticOrchestratorService()
+        self.request_routing_service = RequestRoutingService()
         self.claim_service = ContextClaimService()
         self.embedder = build_embedding_service(load_yaml("embedding.yaml"))
         self.evidence_demand_registry = EvidenceDemandRegistry()
@@ -244,6 +286,7 @@ class CommandPipeline:
         self._subgraphs: dict[str, EvidenceSubgraph] = {}
         self._turns: dict[str, TextCommandResponse] = {}
         self.clarification_service = ClarificationService(self, self.review_config)
+        self.interaction_service = InteractionService(self, self.review_config)
         self.review_service = ReviewService(self, self.review_config)
         self.execution_service = ExecutionService(self)
 
@@ -724,7 +767,9 @@ class CommandPipeline:
                 "la": la.model_metadata,
                 "pa": pa.model_metadata,
                 "voice_trust_mode": self.voice_trust_mode,
-                "authorization_effect_applied": self.voice_trust_mode == "enforce",
+                "authorization_effect_applied": (
+                    self.voice_trust_mode == "enforce" and self.antispoof_enabled
+                ),
             },
             force_block_reason=("SILENCE_OR_LOW_ENERGY" if spectrum.silence_detected else None),
         )
@@ -741,7 +786,9 @@ class CommandPipeline:
                 "trust_score": trust.trust_score,
                 "input_trust_label": trust.input_trust_label,
                 "voice_trust_mode": self.voice_trust_mode,
-                "authorization_effect_applied": self.voice_trust_mode == "enforce",
+                "authorization_effect_applied": (
+                    self.voice_trust_mode == "enforce" and self.antispoof_enabled
+                ),
                 "la_model_status": la.model_status,
                 "pa_model_status": pa.model_status,
                 "spectrum_anomaly_score": trust.spectrum_anomaly_score,
@@ -871,7 +918,7 @@ class CommandPipeline:
     ) -> AudioCommandResponse:
         turn_id = trust.turn_id
         now = utc_now()
-        frame = self.semantic_service.parse(turn_id, "")
+        frame = self.semantic_service.parse_ordered_units(turn_id, "", [])
         demand = self.demand_service.build(frame)
         index_status = self.index.status()
         retrieval = RetrievalMetadata(
@@ -963,6 +1010,7 @@ class CommandPipeline:
             spectrum_analysis=spectrum,
             audio_input_metadata=audio_input_metadata,
             semantic_frame=frame,
+            request_routing=request_routing,
             evidence_demand=demand,
             candidate_recall_results=[],
             retrieval_metadata=retrieval,
@@ -1016,12 +1064,14 @@ class CommandPipeline:
         turn_started_at,
         emit: Callable[[str, str, dict[str, Any] | None], None],
         terminal_kind: str,
+        request_routing=None,
     ) -> TextCommandResponse:
         """Finish Known PASS or semantic REVIEW before every downstream service."""
 
         if demand.intent_demands:
             raise RuntimeError("semantic terminal route created EvidenceDemand")
         is_review = terminal_kind == "SEMANTIC_REVIEW"
+        is_non_vehicle = terminal_kind == "NON_VEHICLE_CONTROL"
         now = utc_now()
         index_status = self.index.status()
         retrieval = RetrievalMetadata(
@@ -1060,7 +1110,11 @@ class CommandPipeline:
             advanced_reasoning_status=(
                 "NOT_INVOKED_SEMANTIC_REVIEW"
                 if is_review
-                else "NOT_APPLICABLE_KNOWN_NON_EXECUTABLE"
+                else (
+                    "NOT_APPLICABLE_NON_VEHICLE_CONTROL"
+                    if is_non_vehicle
+                    else "NOT_APPLICABLE_KNOWN_NON_EXECUTABLE"
+                )
             ),
         )
         # This is an audit representation of a route that did not invoke SafetyGate.
@@ -1081,7 +1135,11 @@ class CommandPipeline:
             decision_merge_reason=(
                 "SEMANTIC_REVIEW terminal; downstream services were not invoked"
                 if is_review
-                else "KNOWN_NON_EXECUTABLE semantic PASS; downstream safety and execution chains are not applicable"
+                else (
+                    "NON_VEHICLE_CONTROL passed through; downstream vehicle services were not invoked"
+                    if is_non_vehicle
+                    else "KNOWN_NON_EXECUTABLE semantic PASS; downstream safety and execution chains are not applicable"
+                )
             ),
             safety_score=1,
             soft_safety_score=1,
@@ -1090,12 +1148,20 @@ class CommandPipeline:
             explanations=[
                 "语义信息不完整或存在歧义；需要用户复核。"
                 if is_review
-                else "系统已明确理解该 Known 意图；PASS 不表示允许车辆执行。"
+                else (
+                    "本安全网关放行，未涉及受本系统保护的车辆物理控制，交由原车语音助手继续处理。"
+                    if is_non_vehicle
+                    else "系统已明确理解该 Known 意图；PASS 不表示允许车辆执行。"
+                )
             ],
             reason_codes=(
                 ["SEMANTIC_REVIEW_TERMINAL"]
                 if is_review
-                else ["KNOWN_NON_EXECUTABLE_SEMANTIC_PASS"]
+                else (
+                    ["NON_VEHICLE_CONTROL_PASS"]
+                    if is_non_vehicle
+                    else ["KNOWN_NON_EXECUTABLE_SEMANTIC_PASS"]
+                )
             ),
         )
         timing = TurnTiming(
@@ -1129,6 +1195,7 @@ class CommandPipeline:
             input_trust_result=input_trust,
             transcription_result=transcription,
             semantic_frame=frame,
+            request_routing=request_routing,
             evidence_demand=demand,
             candidate_recall_results=[],
             retrieval_metadata=retrieval,
@@ -1151,7 +1218,6 @@ class CommandPipeline:
         saved_audit = self.audit_repository.save(audit)
         clarification_request = None
         if is_review:
-            clarification_request = self.clarification_service.build_for_audit(saved_audit)
             self.workflow_repository.append_event(
                 root_turn_id=root_turn_id,
                 related_turn_id=frame.turn_id,
@@ -1159,17 +1225,16 @@ class CommandPipeline:
                 event_type=WorkflowEventType.REVIEW_REQUESTED,
                 payload={
                     "review_question": (
-                        clarification_request.prompt if clarification_request else None
+                        frame.normalized_text
                     ),
                     "candidate_count": (
-                        len(clarification_request.candidates)
-                        if clarification_request
-                        else 0
+                        0
                     ),
                     "intent_ids": [intent.intent_id for intent in frame.intents],
                     "attempt_no": attempt_no,
                 },
             )
+        interaction_request = self.interaction_service.project(saved_audit)
         response = TextCommandResponse(
             turn_id=frame.turn_id,
             root_turn_id=root_turn_id,
@@ -1179,6 +1244,7 @@ class CommandPipeline:
             input_trust_result=input_trust,
             transcription_result=transcription,
             semantic_frame=frame,
+            request_routing=request_routing,
             evidence_demand=demand,
             evidence=[],
             query_vectors=[],
@@ -1193,6 +1259,7 @@ class CommandPipeline:
             retrieval_scopes=[],
             turn_timing=timing,
             runtime_capability=runtime_capability,
+            interaction_request=interaction_request,
             clarification_request=clarification_request,
         )
         self._subgraphs[frame.turn_id] = subgraph
@@ -1202,7 +1269,11 @@ class CommandPipeline:
             (
                 "语义结果需要复核，已在证据需求构建前终止。"
                 if is_review
-                else "已知不可执行意图已在语义层完成，不进入证据、安全或执行链。"
+                else (
+                    "本安全网关放行，交由原车语音助手继续处理。"
+                    if is_non_vehicle
+                    else "已知不可执行意图已在语义层完成，不进入证据、安全或执行链。"
+                )
             ),
             {
                 "intent_ids": [intent.intent_id for intent in frame.intents],
@@ -1374,7 +1445,29 @@ class CommandPipeline:
                 "文本直通，无 ASR 模型推理",
                 {"adapter": transcription.adapter},
             )
-        frame = self.semantic_service.parse(turn_id, request.text)
+        request_routing = self.request_routing_service.route(request.text)
+        frame = self.semantic_service.parse_ordered_units(
+            turn_id, request.text, request_routing.units
+        )
+        if not request_routing.contains_vehicle_control:
+            return self._semantic_terminal_response(
+                frame=frame,
+                demand=EvidenceDemand(turn_id=frame.turn_id, intent_demands=[]),
+                input_trust=input_trust,
+                transcription=transcription,
+                root_turn_id=root_turn_id,
+                parent_turn_id=parent_turn_id,
+                attempt_no=attempt_no,
+                workflow_type=workflow_type,
+                turn_started_at=turn_started_at,
+                emit=emit,
+                terminal_kind=(
+                    "SEMANTIC_REVIEW"
+                    if any(unit.kind == SemanticUnitKind.UNCERTAIN for unit in request_routing.units)
+                    else "NON_VEHICLE_CONTROL"
+                ),
+                request_routing=request_routing,
+            )
         if confirmed and frame.intents:
             confirmed_intents = [
                 intent.model_copy(
@@ -1434,6 +1527,7 @@ class CommandPipeline:
                 turn_started_at=turn_started_at,
                 emit=emit,
                 terminal_kind="SEMANTIC_REVIEW",
+                request_routing=request_routing,
             )
         if (
             bool(frame.intents)
@@ -1454,6 +1548,7 @@ class CommandPipeline:
                 turn_started_at=turn_started_at,
                 emit=emit,
                 terminal_kind="KNOWN_NON_EXECUTABLE",
+                request_routing=request_routing,
             )
         demand = self.demand_service.build(frame)
         demand = self.knowledge_index.augment(demand)
@@ -2099,6 +2194,53 @@ class CommandPipeline:
                         ],
                     },
                 )
+        clarification_context = audio_input_metadata.get("clarification_context", {})
+        expected_identity = (
+            clarification_context.get("expected_canonical_identity")
+            if isinstance(clarification_context, dict)
+            else None
+        )
+        if isinstance(expected_identity, dict) and expected_identity.get("intent_id"):
+            expected_slots = expected_identity.get("slots", {})
+            if not isinstance(expected_slots, dict):
+                expected_slots = {}
+            identity_matches = any(
+                intent.intent_id == expected_identity.get("intent_id")
+                and intent.runtime_identity == expected_identity.get("runtime_identity")
+                and all(
+                    getattr(intent, key, None) == value
+                    for key, value in expected_slots.items()
+                )
+                for intent in frame.intents
+            )
+            if not identity_matches:
+                decision = decision.model_copy(
+                    update={
+                        "decision": DecisionLabel.REVIEW,
+                        "score_decision": DecisionLabel.REVIEW,
+                        "final_decision": DecisionLabel.REVIEW,
+                        "authorization_token": None,
+                        "execution_tokens": [],
+                        "reason_codes": list(
+                            dict.fromkeys(
+                                [
+                                    *decision.reason_codes,
+                                    "CLARIFICATION_REPARSE_MISMATCH",
+                                ]
+                            )
+                        ),
+                        "explanations": [
+                            *decision.explanations,
+                            "澄清候选重解析后的语义与候选承诺不一致，已保持 REVIEW。",
+                        ],
+                        "review_question": "候选语义校验未通过，请重新描述指令。",
+                    }
+                )
+                emit(
+                    "CLARIFICATION_REPARSE_MISMATCH",
+                    "澄清候选与子轮次语义不一致，禁止授权与执行",
+                    {"expected_identity": expected_identity},
+                )
         emit(
             "DECISION_COMPLETED",
             "最终裁决完成",
@@ -2226,6 +2368,7 @@ class CommandPipeline:
             zone_permission_result=zone_permission,
             audio_input_metadata=audio_input_metadata,
             semantic_frame=frame,
+            request_routing=request_routing,
             evidence_demand=demand,
             candidate_recall_results=[
                 node
@@ -2327,10 +2470,12 @@ class CommandPipeline:
                 for item in demand.intent_demands
             )
             and runtime_capability.semantic_control_mode == SemanticControlMode.FULL
+            # A multi-operation utterance must be reduced to one selected
+            # operation by the unified interaction before any token exists.
+            and len(frame.intents) == 1
         )
         clarification_request = None
         if decision.final_decision == DecisionLabel.REVIEW:
-            clarification_request = self.clarification_service.build_for_audit(saved_audit)
             self.workflow_repository.append_event(
                 root_turn_id=root_turn_id,
                 related_turn_id=turn_id,
@@ -2424,6 +2569,12 @@ class CommandPipeline:
                     event_type=WorkflowEventType.TOKEN_REJECTED,
                     payload={"reason": str(exc)},
                 )
+        interaction_request = self.interaction_service.project(
+            saved_audit,
+            execution_allowed=bool(
+                response_decision.authorization_token or response_decision.execution_tokens
+            ),
+        )
         response = TextCommandResponse(
             turn_id=turn_id,
             root_turn_id=root_turn_id,
@@ -2434,6 +2585,7 @@ class CommandPipeline:
             transcription_result=transcription,
             zone_permission_result=zone_permission,
             semantic_frame=frame,
+            request_routing=request_routing,
             evidence_demand=demand,
             evidence=canonical_evidence,
             query_vectors=[item.query_vector for item in demand.intent_demands],
@@ -2461,6 +2613,7 @@ class CommandPipeline:
             decision_confidence=causal.decision_confidence,
             turn_timing=timing,
             runtime_capability=runtime_capability,
+            interaction_request=interaction_request,
             clarification_request=clarification_request,
         )
         mark_stage("response_ready")

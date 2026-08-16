@@ -173,6 +173,10 @@ def main() -> None:
             {str(value): [str(value)] for value in values},
         )
     direction_surface_mappings = {
+        "TEMPERATURE_INCREASE_DECREASE": {
+            "INCREASE": ["升高", "调高", "升温", "再高一点"],
+            "DECREASE": ["降低", "调低", "降温", "再低一点"],
+        },
         "SEAT_FORWARD_BACKWARD": {"FORWARD": ["往前", "向前", "前移"], "BACKWARD": ["往后", "向后", "后移"]},
         "SEAT_UP_DOWN": {"UP": ["往上", "向上", "升高", "调高"], "DOWN": ["往下", "向下", "降低", "调低"]},
         "LUMBAR_SUPPORT_MORE_LESS": {"MORE": ["增加", "加强", "多顶"], "LESS": ["减小", "减弱", "少顶"]},

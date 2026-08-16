@@ -110,6 +110,22 @@ def requested_families(text: str) -> tuple[str, ...]:
     return tuple(dict.fromkeys(family for _position, family in found))
 
 
+def has_leading_negated_action(text: str) -> bool:
+    """Reject a unit whose first requested action is explicitly negated.
+
+    A later negated action remains contextual (for example, "open the window,
+    do not close it"); only a leading negation is unsafe to turn into an
+    executable positive command without a dedicated negation representation.
+    """
+
+    actions: list[tuple[int, bool]] = []
+    for cues in FAMILY_CUES.values():
+        for cue in cues:
+            for match in re.finditer(re.escape(cue), text):
+                actions.append((match.start(), _negated(text, match.start())))
+    return bool(actions) and min(actions, key=lambda item: item[0])[1]
+
+
 class ActionDirectionGuard:
     def __init__(self, intent_cards: dict[str, dict[str, Any]]) -> None:
         self.intent_cards = intent_cards
@@ -119,6 +135,10 @@ class ActionDirectionGuard:
         if not card:
             return None
         return ACTION_TO_FAMILY.get(str(card.get("canonical_action", "")))
+
+    @staticmethod
+    def has_leading_negated_action(clause: str) -> bool:
+        return has_leading_negated_action(clause)
 
     def check(
         self,

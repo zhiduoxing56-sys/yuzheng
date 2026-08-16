@@ -744,6 +744,9 @@ mode_contracts:
   - 自动
   - 自动关闭
 direction_contracts:
+  TEMPERATURE_INCREASE_DECREASE:
+  - INCREASE
+  - DECREASE
   SEAT_FORWARD_BACKWARD:
   - FORWARD
   - BACKWARD
@@ -4312,6 +4315,7 @@ intents:
   vss_relation: NONE
   scope_authority: EXISTING_PROJECT_DESIGN
   control_attribute: TEMPERATURE
+  direction_contract: TEMPERATURE_INCREASE_DECREASE
   user_voice_scope_status: KNOWN_UNSUPPORTED_CONTROL
   source_evidence_ref: r4_known_unsupported_expansion_report_v1.json#new_intents/34
 - intent_id: INTERIOR_LIGHT_OFF
@@ -4529,6 +4533,7 @@ intents:
   vss_relation: NONE
   scope_authority: EXISTING_PROJECT_DESIGN
   control_attribute: TEMPERATURE
+  direction_contract: TEMPERATURE_INCREASE_DECREASE
   user_voice_scope_status: KNOWN_UNSUPPORTED_CONTROL
   source_evidence_ref: r4_known_unsupported_expansion_report_v1.json#new_intents/43
 - intent_id: SEAT_HEATING_OFF

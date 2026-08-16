@@ -1,0 +1,24 @@
+﻿用户常见控制域,覆盖结论,当前语义/审计结论,官方或注册依据
+车门,已覆盖,DOOR_OPEN/DOOR_CLOSE/DOOR_LOCK/DOOR_UNLOCK/DOOR_SET_POSITION,Vehicle.Cabin.Door.*
+车窗,已覆盖,WINDOW_OPEN/WINDOW_CLOSE/WINDOW_SET_POSITION,Vehicle.Cabin.Door.*.Window.*
+天窗,已覆盖,SUNROOF_OPEN/SUNROOF_CLOSE/SUNROOF_SET_TILT；遮阳帘由 SHADE_* 覆盖,Vehicle.Cabin.Sunroof.*
+后备箱,已覆盖,TRUNK_OPEN/TRUNK_CLOSE/TRUNK_LOCK/TRUNK_UNLOCK/TRUNK_SET_POSITION,Vehicle.Body.Trunk.*
+门锁与儿童锁,已覆盖,DOOR_LOCK/DOOR_UNLOCK；CHILD_LOCK_ON/OFF,Vehicle.Cabin.Door.*.IsLocked; Vehicle.Cabin.IsWindowChildLockEngaged
+外部灯光,已覆盖,HEADLIGHT/HAZARD/TURN/FOG/PARKING formal intents,Vehicle.Body.Lights.*
+内部阅读灯和氛围灯,已覆盖,READING_LIGHT_* / AMBIENT_LIGHT_* known intents,Vehicle.Cabin.Light.*
+雨刮和清洗,已覆盖,WIPER_SET_MODE/WIPER_SET_SENSITIVITY；清洗动作未在 VSS v6.0 执行器候选中发现,Vehicle.Body.Windshield.*Wiping.*
+前后除雾除霜,已覆盖,DEFROST_ON/DEFROST_OFF 与 WINDSHIELD_HEATING_*,Vehicle.Cabin.HVAC.Is*DefrosterActive; Vehicle.Body.Windshield.*IsHeatingOn
+空调开关,已覆盖,HVAC_ON/HVAC_OFF known intents,Vehicle.Cabin.HVAC.IsAirConditioningActive
+温度/风量/风向,已覆盖,HVAC_SET_TEMPERATURE/HVAC_SET_FAN_SPEED/HVAC_SET_AIRFLOW_DIRECTION known intents,Vehicle.Cabin.HVAC.Station.*
+内外循环,已覆盖,HVAC known intent family; VSS IsRecirculationActive,Vehicle.Cabin.HVAC.IsRecirculationActive
+空气净化,现有已知,AIR_PURIFIER_* 存在，但本轮 VSS v6.0 执行器候选未发现对应路径，需后续确认来源映射,当前 registry known intents
+座椅位置/靠背/腰托,已覆盖,SEAT_* formal intents，区域与分段字段已归并,Vehicle.Cabin.Seat.*Position/Height/Tilt/Backrest/Lumbar*
+头枕,新增已知候选,建议设置头枕角度/高度；VSS 支持，现有 149 未覆盖,Vehicle.Cabin.Seat.*Headrest.*
+座椅加热/通风,已覆盖,SEAT_HEATING_* / SEAT_VENTILATION_* known intents,Vehicle.Cabin.Seat.*HeatingCooling
+后视镜折叠/角度/加热,已覆盖,MIRROR_FOLD/UNFOLD/MIRROR_SET_ANGLE/MIRROR_HEATING_*,Vehicle.Body.Mirrors.*
+方向盘位置/加热,已覆盖,STEERING_WHEEL_SET_* formal；加热由已知语义覆盖,Vehicle.Chassis.SteeringWheel.*
+驾驶模式,已覆盖,DRIVING_MODE_SET known intent,Vehicle.Powertrain.Transmission.PerformanceMode
+巡航设置,已覆盖,CRUISE_ENABLE/DISABLE/SET_SPEED/SET_GAP formal intents,Vehicle.ADAS.CruiseControl.*
+自动泊车,已覆盖,AUTO_PARK_ENABLE formal intent；VSS v6.0 执行器未提供对应独立路径,当前 registry formal intent
+可主动开关的驾驶辅助,部分覆盖,ESC formal、ABS/EBA known；具体 ADAS 开关需按 VSS 路径逐项确认,Vehicle.ADAS.*
+车载显示/抬头显示,现有已知,DISPLAY_* known intents；本轮 VSS 候选覆盖到 HMI brightness/day-night，HUD 独立路径未发现,Vehicle.Cabin.Infotainment.HMI.*

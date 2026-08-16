@@ -3,7 +3,13 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .clause_resolver import SELF_CONTAINED_ACTIONS, has_explicit_object
+# Guard lexicon is intentionally local: ellipsis validation must not depend on a splitter.
+SELF_CONTAINED_ACTIONS = frozenset({"打开", "关闭", "暂停", "继续", "停止", "取消", "锁车", "解锁"})
+_EXPLICIT_OBJECT = re.compile(r"(?:车门|门|车窗|窗|天窗|空调|温度|风量|座椅|后视镜|大灯|前照灯|雨刮|屏幕|音乐|导航|电话|尾门|后备箱|充电口|氛围灯|按摩)")
+
+
+def has_explicit_object(text: str) -> bool:
+    return bool(_EXPLICIT_OBJECT.search(text))
 
 
 _POLITENESS = re.compile(r"^(?:请|麻烦|帮我|请帮我|给我|可以|能不能|请你)+")
