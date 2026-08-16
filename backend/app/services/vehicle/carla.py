@@ -8,6 +8,7 @@ from time import perf_counter
 from typing import Any
 
 from app.models.schemas import (
+    EvidenceObservationInput,
     VehicleExecutionResult,
     VehicleState,
     VehicleStatePatch,
@@ -63,6 +64,7 @@ class CarlaVehicleAdapter:
         self._actions = dict((action_config or {}).get("actions", {}))
         self._last_feedback: VehicleExecutionResult | None = None
         self._connected = False
+        self._scenario_evidence: tuple[EvidenceObservationInput, ...] = ()
 
         started_at = utc_now()
         base_state = VehicleState()
@@ -625,6 +627,57 @@ class CarlaVehicleAdapter:
                 self._connected = False
         return self.get_state()
 
+    def activate_scenario(
+        self,
+        patch: VehicleStatePatch,
+        evidence: list[EvidenceObservationInput],
+    ) -> VehicleState:
+        """Apply CARLA-supported state and retain unsupported formal context."""
+
+        state = self.update_state(patch)
+        self.set_simulation_evidence(
+            self._supplemental_scenario_evidence(evidence)
+        )
+        return state
+
+    @staticmethod
+    def _supplemental_scenario_evidence(
+        evidence: list[EvidenceObservationInput],
+    ) -> list[EvidenceObservationInput]:
+        """Keep only context that CARLA's physical state does not already own."""
+
+        physically_owned_types = {"VEHICLE_SPEED", "GEAR_STATE", "LIGHTING_STATE"}
+        supplemental: list[EvidenceObservationInput] = []
+        for item in evidence:
+            if item.evidence_type in physically_owned_types:
+                continue
+            if (
+                item.evidence_type == "ENVIRONMENT_CONDITIONS"
+                and isinstance(item.value, dict)
+            ):
+                value = dict(item.value)
+                value.pop("weather", None)
+                if not value:
+                    continue
+                item = item.model_copy(update={"value": value})
+            supplemental.append(item)
+        return supplemental
+
+    def current_simulation_evidence(self) -> list[EvidenceObservationInput]:
+        with self._lock:
+            return [item.model_copy(deep=True) for item in self._scenario_evidence]
+
+    def set_simulation_evidence(
+        self, evidence: list[EvidenceObservationInput]
+    ) -> list[EvidenceObservationInput]:
+        if any(item.source != "SIMULATION" for item in evidence):
+            raise ValueError("CARLA supplemental context must use SIMULATION")
+        with self._lock:
+            self._scenario_evidence = tuple(
+                item.model_copy(deep=True) for item in evidence
+            )
+            return [item.model_copy(deep=True) for item in self._scenario_evidence]
+
     def execute(self, command: PhysicalVehicleCommand) -> VehicleExecutionResult:
         started = perf_counter()
         before = self.get_state()
@@ -679,6 +732,7 @@ class CarlaVehicleAdapter:
 
     def reset(self, reason: str = "manual_reset") -> VehicleState:
         with self._lock:
+            self._scenario_evidence = ()
             reset_at = utc_now()
             next_count = self._mirror.reset_count + 1
             self._mirror = self._initial_state.model_copy(

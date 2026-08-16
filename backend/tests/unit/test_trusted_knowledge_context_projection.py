@@ -22,7 +22,11 @@ def _service() -> TrustedKnowledgeIndexService:
     )
 
 
-def _demand() -> IntentEvidenceDemand:
+def _demand(
+    *,
+    required_types: list[str] | None = None,
+    optional_types: list[str] | None = None,
+) -> IntentEvidenceDemand:
     return IntentEvidenceDemand(
         intent_id="DOOR_OPEN",
         clause_index=0,
@@ -31,6 +35,12 @@ def _demand() -> IntentEvidenceDemand:
         area="RIGHT_REAR",
         risk_level="R3",
         query_text="",
+        required_types=(
+            required_types
+            if required_types is not None
+            else ["VEHICLE_SPEED", "GEAR_STATE", "SURROUNDING_OBJECT_STATE", "DOOR_STATE"]
+        ),
+        optional_types=(optional_types if optional_types is not None else ["OCCUPANT_STATE"]),
     )
 
 
@@ -134,7 +144,18 @@ def test_complete_context_projection_uses_formal_evidence_and_provenance() -> No
             source="AUTHORIZATION_SERVICE",
         ),
     )
-    demand = _demand()
+    demand = _demand(
+        required_types=[
+            "VEHICLE_SPEED",
+            "GEAR_STATE",
+            "ROAD_FRICTION_STATE",
+            "ENVIRONMENT_CONDITIONS",
+            "SURROUNDING_OBJECT_STATE",
+            "SYSTEM_MODE",
+            "AUTHORIZATION_STATE",
+        ],
+        optional_types=[],
+    )
     intent = _intent()
     fields = service._project_context_fields(
         nodes,
@@ -211,6 +232,16 @@ def test_invalid_unavailable_and_expired_evidence_is_omitted() -> None:
     assert "能见度=" not in query
     assert "道路状态=" not in query
 
+    projection = service._context_projection(
+        nodes,
+        semantic_intent=intent,
+        demand=demand,
+    )
+    reasons = {item["evidence_type"]: item["reason"] for item in projection["excluded"]}
+    assert reasons["GEAR_STATE"] == "UNAVAILABLE"
+    assert reasons["ENVIRONMENT_CONDITIONS"] == "STALE"
+    assert reasons["ROAD_FRICTION_STATE"] == "INVALID"
+
 
 def test_surrounding_object_projection_is_isolated_to_operation_region() -> None:
     service = _service()
@@ -254,6 +285,36 @@ def test_surrounding_object_projection_is_isolated_to_operation_region() -> None
     )
     assert "目标类型=BICYCLE" in query
     assert "目标类型=PEDESTRIAN" not in query
+
+
+def test_context_projection_uses_current_evidence_demand_as_the_only_filter() -> None:
+    service = _service()
+    nodes = _nodes(
+        _observation("VEHICLE_SPEED", 0),
+        _observation("GEAR_STATE", {"current_gear": "P"}),
+        _observation("ROAD_FRICTION_STATE", {"road_condition": "WET"}),
+        _observation("ENVIRONMENT_CONDITIONS", {"precipitation": "RAIN"}),
+        _observation("SYSTEM_MODE", {"vehicle_mode": "SIMULATION"}),
+    )
+
+    projection = service._context_projection(
+        nodes,
+        semantic_intent=_intent(),
+        demand=_demand(),
+    )
+
+    assert {item["evidence_type"] for item in projection["included"]} == {
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+    }
+    excluded = {
+        item["evidence_type"]: item["reason"] for item in projection["excluded"]
+    }
+    assert excluded == {
+        "ROAD_FRICTION_STATE": "NOT_RELEVANT_TO_CURRENT_DEMAND",
+        "ENVIRONMENT_CONDITIONS": "NOT_RELEVANT_TO_CURRENT_DEMAND",
+        "SYSTEM_MODE": "NOT_RELEVANT_TO_CURRENT_DEMAND",
+    }
 
 
 def test_no_object_in_operation_region_is_explicit_only_when_object_list_exists() -> None:

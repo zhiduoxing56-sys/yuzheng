@@ -51,4 +51,10 @@ export interface DecisionResultView {
   dimensions: DecisionDimensionView[];
   score: EmptyDisplayValue;
   reason: EmptyDisplayValue;
+  scoreDecision?: string | null;
+  finalDecision?: string | null;
+  gateBlocked?: boolean | null;
+  evidenceAlignment?: string | null;
+  decisionSources?: string[];
+  mergeReason?: string | null;
 }

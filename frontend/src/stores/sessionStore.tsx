@@ -30,6 +30,17 @@ function writeStoredString(key: string, value: string | null): void {
   } catch { /* localStorage is optional */ }
 }
 
+function readSessionStoredString(key: string): string | null {
+  try { return window.sessionStorage.getItem(key); } catch { return null; }
+}
+
+function writeSessionStoredString(key: string, value: string | null): void {
+  try {
+    if (value === null) window.sessionStorage.removeItem(key);
+    else window.sessionStorage.setItem(key, value);
+  } catch { /* sessionStorage is optional */ }
+}
+
 function readSessionId(): string {
   const stored = readStoredString(SESSION_STORAGE_KEY);
   if (stored) return stored;
@@ -46,9 +57,14 @@ function validTurnId(value: unknown): value is string {
 function migrateLegacyState(): void {
   if (!readStoredString(MIGRATION_KEY)) {
     const legacyCurrent = readStoredString(LEGACY_CURRENT_TURN_KEY);
-    if (!readStoredString(ACTIVE_TURN_STORAGE_KEY) && validTurnId(legacyCurrent)) writeStoredString(ACTIVE_TURN_STORAGE_KEY, legacyCurrent.trim());
+    if (!readSessionStoredString(ACTIVE_TURN_STORAGE_KEY) && validTurnId(legacyCurrent)) writeSessionStoredString(ACTIVE_TURN_STORAGE_KEY, legacyCurrent.trim());
     writeStoredString(MIGRATION_KEY, "1");
   }
+  const formerlyPersistentTurn = readStoredString(ACTIVE_TURN_STORAGE_KEY);
+  if (!readSessionStoredString(ACTIVE_TURN_STORAGE_KEY) && validTurnId(formerlyPersistentTurn)) {
+    writeSessionStoredString(ACTIVE_TURN_STORAGE_KEY, formerlyPersistentTurn.trim());
+  }
+  writeStoredString(ACTIVE_TURN_STORAGE_KEY, null);
   if (!readStoredString(RECENT_MIGRATION_KEY)) {
     try {
       const parsed: unknown = JSON.parse(readStoredString(LEGACY_RECENT_TURNS_KEY) || "[]");
@@ -97,7 +113,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [sessionId, setSessionId] = useState(readSessionId);
   const [sessionEpoch, setSessionEpoch] = useState(0);
   const [activeTurnId, setActiveTurnIdState] = useState<string | null>(() => {
-    const stored = readStoredString(ACTIVE_TURN_STORAGE_KEY);
+    const stored = readSessionStoredString(ACTIVE_TURN_STORAGE_KEY);
     return validTurnId(stored) ? stored : null;
   });
   const [recentTurns, setRecentTurns] = useState<RecentTurnSummary[]>(() => readRecentTurns(readSessionId()));
@@ -107,7 +123,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const setActiveTurn = useCallback((turnId: string | null, summary?: Omit<RecentTurnSummary, "turnId">) => {
     if (turnId !== null && !validTurnId(turnId)) return;
     setActiveTurnIdState(turnId);
-    writeStoredString(ACTIVE_TURN_STORAGE_KEY, turnId);
+    writeSessionStoredString(ACTIVE_TURN_STORAGE_KEY, turnId);
     if (!turnId) return;
     setRecentTurns((items) => {
       const existing = items.find((item) => item.turnId === turnId);
@@ -122,7 +138,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     clearCommandSession(sessionId);
     const created = createSessionId();
     writeStoredString(SESSION_STORAGE_KEY, created);
-    writeStoredString(ACTIVE_TURN_STORAGE_KEY, null);
+    writeSessionStoredString(ACTIVE_TURN_STORAGE_KEY, null);
     try { window.sessionStorage.removeItem(recentTurnsKey(sessionId)); } catch { /* optional */ }
     setSessionId(created);
     setSessionEpoch((value) => value + 1);

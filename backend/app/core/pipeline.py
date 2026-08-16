@@ -2881,6 +2881,19 @@ class CommandPipeline:
             return []
         return [item.model_copy(deep=True) for item in provider()]
 
+    def set_simulation_evidence(
+        self, observations: list[EvidenceObservationInput]
+    ) -> list[EvidenceObservationInput]:
+        with self._command_lock:
+            setter = getattr(self.vehicle, "set_simulation_evidence", None)
+            if not callable(setter):
+                raise RuntimeError("当前车辆适配器不支持仿真补充上下文")
+            return setter(observations)
+
+    def get_simulation_evidence(self) -> list[EvidenceObservationInput]:
+        with self._command_lock:
+            return self._current_simulation_evidence()
+
     def update_vehicle_state(self, patch: VehicleStatePatch) -> VehicleState:
         with self._command_lock:
             update_turn_id = make_id("STATE_UPDATE")

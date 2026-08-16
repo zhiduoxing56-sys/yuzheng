@@ -177,7 +177,15 @@ def test_same_action_context_changes_hnsw_ranking(tmp_path: Path) -> None:
     state = VehicleState(vehicle_speed=30, weather="NIGHT", ambient_light=5)
     result = _augment(
         service,
-        [_intent("HEADLIGHT_SET_MODE", 0, "设置", "前照灯")],
+        [
+            _intent(
+                "HEADLIGHT_SET_MODE",
+                0,
+                "设置",
+                "前照灯",
+                required=["VEHICLE_SPEED", "ENVIRONMENT_CONDITIONS"],
+            )
+        ],
         state,
     )[0]
     assert result.knowledge_hits[0]["node_id"] == "NIGHT"
@@ -194,7 +202,17 @@ def test_missing_context_is_omitted_without_excluding_knowledge(tmp_path: Path) 
     )
     state = VehicleState(vehicle_speed=None, weather=None, ambient_light=None)
     result = _augment(
-        service, [_intent("WINDOW_OPEN", 0, "打开", "车窗")], state
+        service,
+        [
+            _intent(
+                "WINDOW_OPEN",
+                0,
+                "打开",
+                "车窗",
+                required=["ENVIRONMENT_CONDITIONS"],
+            )
+        ],
+        state,
     )[0]
     assert result.knowledge_hits
     assert "天气=" not in result.knowledge_query_text
@@ -317,7 +335,17 @@ def test_low_similarity_produces_no_hits_or_dynamic_demands(tmp_path: Path) -> N
     )
     state = VehicleState(weather="NIGHT", ambient_light=5)
     result = _augment(
-        service, [_intent("WINDOW_OPEN", 0, "打开", "车窗")], state
+        service,
+        [
+            _intent(
+                "WINDOW_OPEN",
+                0,
+                "打开",
+                "车窗",
+                required=["ENVIRONMENT_CONDITIONS"],
+            )
+        ],
+        state,
     )[0]
     assert result.knowledge_hits == []
     assert result.knowledge_augmented_types == []
@@ -347,3 +375,34 @@ def test_reload_replaces_nodes_labels_and_lookup_as_one_release(tmp_path: Path) 
     assert window.knowledge_hits == []
     assert window.knowledge_retrieval_metadata["eligible_node_count"] == 0
     assert [hit["node_id"] for hit in door.knowledge_hits] == ["DOOR_NEW"]
+
+
+def test_observability_reports_every_eligible_node_without_changing_online_top_k(
+    tmp_path: Path,
+) -> None:
+    rows = [
+        _node(
+            f"BRAKE_{index}",
+            "BRAKE",
+            title=f"制动知识 {index}",
+            required=["VEHICLE_SPEED"],
+        )
+        for index in range(7)
+    ]
+    service = _service(_write(tmp_path / "nodes.jsonl", rows))
+    result = _augment(service, [_intent("BRAKE", 0, "制动", "车辆")])[0]
+    metadata = result.knowledge_retrieval_metadata
+
+    assert metadata["eligible_node_count"] == 7
+    assert len(metadata["eligible_nodes"]) == 7
+    assert len(metadata["diagnostic_results"]) == 7
+    assert len(metadata["raw_results"]) == 5
+    assert len(result.knowledge_hits) <= 5
+    assert {item["result_scope"] for item in metadata["raw_results"]} == {
+        "ONLINE_TOP_K"
+    }
+    assert any(
+        item["result_scope"] == "DIAGNOSTIC_ONLY"
+        for item in metadata["diagnostic_results"]
+    )
+    assert all("threshold_status" in item for item in metadata["diagnostic_results"])

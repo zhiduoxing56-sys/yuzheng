@@ -256,6 +256,60 @@ export interface KnowledgeHit {
   trust_level?: string;
 }
 
+export interface KnowledgeNodeObservability {
+  label: number;
+  node_id: string;
+  node_type: string;
+  title: string;
+  semantic_description: string;
+  canonical_action: string;
+  conditions: string[];
+  required_evidence: string[];
+  optional_evidence: string[];
+  source: string;
+  chapter: string;
+  clause: string;
+  trust_level: string;
+  rank?: number;
+  similarity?: number;
+  result_scope?: "ONLINE_TOP_K" | "DIAGNOSTIC_ONLY";
+  threshold_status?: "ACCEPTED" | "BELOW_THRESHOLD" | "NOT_IN_ONLINE_TOP_K";
+}
+
+export interface KnowledgeContextSource {
+  query_field?: string;
+  query_value?: unknown;
+  evidence_type: string;
+  node_id: string;
+  source: string;
+  source_field?: string | null;
+  value?: unknown;
+  timestamp?: string | null;
+  expires_at?: string | null;
+  freshness?: number;
+  availability?: number;
+  quality_label?: string;
+  reason?: string;
+}
+
+export interface KnowledgeRetrievalMetadata {
+  status?: string;
+  match_route?: string;
+  eligible_node_count?: number;
+  top_k?: number;
+  effective_top_k?: number;
+  similarity_threshold?: number;
+  ef_search?: number;
+  accepted_node_count?: number;
+  raw_results?: KnowledgeNodeObservability[];
+  eligible_nodes?: KnowledgeNodeObservability[];
+  diagnostic_results?: KnowledgeNodeObservability[];
+  context_sources?: KnowledgeContextSource[];
+  excluded_context_fields?: KnowledgeContextSource[];
+  query_vectorization?: Record<string, unknown> | null;
+  [key: string]: unknown;
+}
+
 export interface EvidenceDemandPresentation {
   demand_id: string;
   turn_id: string;
@@ -263,6 +317,9 @@ export interface EvidenceDemandPresentation {
     intent_id: string; clause_index: number; action: string; target: string; area: string;
     risk_level: string; query_text: string; required_types: string[]; optional_types: string[];
     knowledge_augmented_types?: string[]; knowledge_hits?: KnowledgeHit[];
+    knowledge_query_text?: string;
+    knowledge_retrieval_metadata?: KnowledgeRetrievalMetadata;
+    knowledge_demand_sources?: Array<Record<string, unknown>>;
     priority: number; retrieval_scope: string; demand_items: EvidenceDemandItem[];
   }>;
 }

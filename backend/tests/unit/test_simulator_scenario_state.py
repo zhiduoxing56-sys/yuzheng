@@ -46,3 +46,14 @@ def test_reset_clears_persistent_scenario_evidence() -> None:
     adapter.reset()
 
     assert adapter.current_simulation_evidence() == []
+
+
+def test_manual_simulation_context_replaces_current_observations() -> None:
+    adapter = SimulatorVehicleAdapter()
+
+    stored = adapter.set_simulation_evidence([_object_observation()])
+
+    assert stored[0].source == "SIMULATION"
+    assert adapter.current_simulation_evidence()[0].evidence_type == "SURROUNDING_OBJECT_STATE"
+    adapter.set_simulation_evidence([])
+    assert adapter.current_simulation_evidence() == []

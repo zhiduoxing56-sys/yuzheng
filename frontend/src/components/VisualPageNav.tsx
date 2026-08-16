@@ -1,5 +1,6 @@
 import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../stores/authStore";
+import { useSession } from "../stores/sessionStore";
 
 const PAGE_LINKS = [
   { to: "/decision", label: "裁决" },
@@ -11,8 +12,9 @@ const PAGE_LINKS = [
 export function VisualPageNav() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { activeTurnId } = useSession();
   const [searchParams] = useSearchParams();
-  const turnId = searchParams.get("turn_id")?.trim();
+  const turnId = searchParams.get("turn_id")?.trim() || activeTurnId;
   const pageHref = (path: string) => turnId ? `${path}?${new URLSearchParams({ turn_id: turnId })}` : path;
   return <header className="visual-page-nav">
     <NavLink className="visual-page-brand" to={pageHref("/decision")} aria-label="语证首页">语证</NavLink>

@@ -330,7 +330,15 @@ class TrustedKnowledgeIndexService:
         semantic_intent: SemanticIntent | None,
         demand: IntentEvidenceDemand,
     ) -> list[dict[str, Any]]:
-        selected = self._latest_context_nodes(nodes)
+        demanded_types = {
+            *demand.required_types,
+            *demand.optional_types,
+        }
+        selected = {
+            evidence_type: node
+            for evidence_type, node in self._latest_context_nodes(nodes).items()
+            if evidence_type in demanded_types
+        }
         projected: list[dict[str, Any]] = []
 
         def add(
@@ -350,6 +358,11 @@ class TrustedKnowledgeIndexService:
                     "node_id": node.node_id,
                     "source": node.source,
                     "source_field": source_field,
+                    "timestamp": node.timestamp.isoformat() if node.timestamp else None,
+                    "expires_at": node.expires_at.isoformat() if node.expires_at else None,
+                    "freshness": node.freshness,
+                    "availability": node.availability,
+                    "quality_label": node.quality_label.value,
                 }
             )
 
@@ -526,6 +539,71 @@ class TrustedKnowledgeIndexService:
                 )
         return projected
 
+    def _context_projection(
+        self,
+        nodes: list[EvidenceNode],
+        *,
+        semantic_intent: SemanticIntent | None,
+        demand: IntentEvidenceDemand,
+    ) -> dict[str, list[dict[str, Any]]]:
+        """Describe included and excluded runtime context without changing Query."""
+
+        included = self._project_context_fields(
+            nodes,
+            semantic_intent=semantic_intent,
+            demand=demand,
+        )
+        included_ids = {str(item["node_id"]) for item in included}
+        relevant = {
+            "VEHICLE_SPEED",
+            "GEAR_STATE",
+            "ROAD_FRICTION_STATE",
+            "ENVIRONMENT_CONDITIONS",
+            "SURROUNDING_OBJECT_STATE",
+            "SYSTEM_MODE",
+            "AUTHORIZATION_STATE",
+        }
+        selected = self._latest_context_nodes(nodes)
+        selected_ids = {node.node_id for node in selected.values()}
+        now = datetime.now(timezone.utc)
+        excluded: list[dict[str, Any]] = []
+        for node in nodes:
+            if node.evidence_type not in relevant or node.node_id in included_ids:
+                continue
+            if node.expires_at is not None and node.expires_at <= now:
+                reason = "STALE"
+            elif node.quality_label == EvidenceStatus.STALE:
+                reason = "STALE"
+            elif node.quality_label in {
+                EvidenceStatus.TAMPERED,
+                EvidenceStatus.SUSPICIOUS,
+            }:
+                reason = "INVALID"
+            elif node.availability <= 0 or node.value is None or node.timestamp is None:
+                reason = "UNAVAILABLE"
+            elif node.quality_label != EvidenceStatus.VALID or node.consistency <= 0:
+                reason = "INVALID"
+            elif node.node_id not in selected_ids:
+                reason = "DUPLICATE_OR_LOWER_PRIORITY"
+            else:
+                reason = "NOT_RELEVANT_TO_CURRENT_DEMAND"
+            excluded.append(
+                {
+                    "evidence_type": node.evidence_type,
+                    "node_id": node.node_id,
+                    "source": node.source,
+                    "source_field": None,
+                    "value": node.value,
+                    "timestamp": node.timestamp.isoformat() if node.timestamp else None,
+                    "expires_at": node.expires_at.isoformat() if node.expires_at else None,
+                    "freshness": node.freshness,
+                    "availability": node.availability,
+                    "quality_label": node.quality_label.value,
+                    "reason": reason,
+                }
+            )
+        return {"included": included, "excluded": excluded}
+
     def build_query_text(
         self,
         demand: IntentEvidenceDemand,
@@ -619,10 +697,91 @@ class TrustedKnowledgeIndexService:
                         "node_id": node.node_id,
                         "canonical_action": node.canonical_action,
                         "similarity": round(similarity, 6),
+                        "rank": len(metadata["raw_results"]) + 1,
+                        "result_scope": "ONLINE_TOP_K",
                     }
                 )
                 results.append((numeric_label, node, similarity))
             return results, metadata
+
+    @staticmethod
+    def _node_observability_payload(label: int, node: KnowledgeNode) -> dict[str, Any]:
+        return {
+            "label": label,
+            "node_id": node.node_id,
+            "node_type": node.node_type,
+            "title": node.title,
+            "semantic_description": node.semantic_description,
+            "canonical_action": node.canonical_action,
+            "conditions": list(node.conditions),
+            "required_evidence": list(node.required_evidence),
+            "optional_evidence": list(node.optional_evidence),
+            "source": node.source,
+            "chapter": node.chapter,
+            "clause": node.clause,
+            "trust_level": node.trust_level,
+        }
+
+    def _diagnostic_search_all(
+        self,
+        query_vector: list[float],
+        intent_id: str,
+        *,
+        online_node_ids: set[str],
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Return full eligible ranking for presentation; never drives online hits."""
+
+        with self._lock:
+            eligible = self._labels_by_intent.get(intent_id, frozenset())
+            eligible_nodes = [
+                self._node_observability_payload(label, self._nodes_by_label[label])
+                for label in sorted(eligible)
+                if label in self._nodes_by_label
+            ]
+            if not eligible or not self._ready or self._index is None:
+                return eligible_nodes, []
+            query = np.asarray(query_vector, dtype=np.float32).reshape(1, -1)
+            eligible_set = set(eligible)
+            try:
+                labels, distances = self._index.knn_query(
+                    query,
+                    k=len(eligible),
+                    filter=lambda label: int(label) in eligible_set,
+                )
+            except Exception:
+                return eligible_nodes, []
+            ranked: list[dict[str, Any]] = []
+            for rank, (label, distance) in enumerate(
+                zip(labels[0].tolist(), distances[0].tolist()), start=1
+            ):
+                numeric_label = int(label)
+                node = self._nodes_by_label.get(numeric_label)
+                if node is None or numeric_label not in eligible_set:
+                    continue
+                similarity = float(np.clip(1.0 - float(distance), 0.0, 1.0))
+                ranked.append(
+                    {
+                        **self._node_observability_payload(numeric_label, node),
+                        "rank": rank,
+                        "similarity": round(similarity, 6),
+                        "result_scope": (
+                            "ONLINE_TOP_K"
+                            if node.node_id in online_node_ids
+                            else "DIAGNOSTIC_ONLY"
+                        ),
+                        "threshold_status": (
+                            "ACCEPTED"
+                            if node.node_id in online_node_ids
+                            and similarity >= self._min_similarity
+                            else (
+                                "BELOW_THRESHOLD"
+                                if node.node_id in online_node_ids
+                                else "NOT_IN_ONLINE_TOP_K"
+                            )
+                        ),
+                    }
+                )
+            return eligible_nodes, ranked
 
     def status(self) -> dict[str, Any]:
         with self._lock:
@@ -670,11 +829,12 @@ class TrustedKnowledgeIndexService:
         for intent_demand in demand.intent_demands:
             occurrence = (intent_demand.clause_index, intent_demand.intent_id)
             semantic_intent = intents_by_occurrence.get(occurrence)
-            context_fields = self._project_context_fields(
+            context_projection = self._context_projection(
                 context_evidence_nodes or [],
                 semantic_intent=semantic_intent,
                 demand=intent_demand,
             )
+            context_fields = context_projection["included"]
             query_text = self.build_query_text(
                 intent_demand,
                 semantic_intent=semantic_intent,
@@ -703,6 +863,7 @@ class TrustedKnowledgeIndexService:
                                     }
                                     for item in context_fields
                                 ],
+                                "excluded_context_fields": context_projection["excluded"],
                                 "error": f"{type(exc).__name__}: {exc}",
                             },
                         }
@@ -712,6 +873,14 @@ class TrustedKnowledgeIndexService:
             raw_results, retrieval_metadata = self._filtered_search(
                 query_vector, intent_demand.intent_id
             )
+            online_node_ids = {node.node_id for _, node, _ in raw_results}
+            eligible_nodes, diagnostic_results = self._diagnostic_search_all(
+                query_vector,
+                intent_demand.intent_id,
+                online_node_ids=online_node_ids,
+            )
+            retrieval_metadata["eligible_nodes"] = eligible_nodes
+            retrieval_metadata["diagnostic_results"] = diagnostic_results
             retrieval_metadata["query_vectorization"] = (
                 knowledge_vectorization.model_dump(mode="json")
                 if hasattr(knowledge_vectorization, "model_dump")
@@ -728,6 +897,7 @@ class TrustedKnowledgeIndexService:
                 }
                 for item in context_fields
             ]
+            retrieval_metadata["excluded_context_fields"] = context_projection["excluded"]
             chosen = [
                 (label, node, similarity)
                 for label, node, similarity in raw_results

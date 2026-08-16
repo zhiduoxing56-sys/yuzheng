@@ -5,6 +5,7 @@ import { executeTurn, getTurnPresentation, submitTurnInteraction } from "../api/
 import { InteractionModal } from "../components/InteractionModal";
 import { RequestRoutingDisplay } from "../components/RequestRoutingDisplay";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
+import { useSession } from "../stores/sessionStore";
 import type { AudioCommandResponse, ExecuteResult, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 import type { CommandInputMode, DecisionResultView } from "../types/visualModels";
 
@@ -29,7 +30,53 @@ function tokensFor(response: TextCommandResponse): BoundExecutionToken[] {
 function resultFor(response: TextCommandResponse): DecisionResultView {
   const decision = response.decision;
   const state = decision.final_decision === "PASS" ? "pass" : decision.final_decision === "REVIEW" ? "review" : decision.final_decision === "BLOCK" ? "reject" : null;
-  return { ...EMPTY_RESULT, state, reason: decision.explanations?.join("；") || decision.gate_reasons?.join("；") || null };
+  const assessment = decision.intent_safety_assessments?.[0];
+  const score = assessment?.score;
+  return {
+    ...EMPTY_RESULT,
+    state,
+    score: decision.safety_score == null ? null : Number(decision.safety_score).toFixed(4),
+    reason: decision.explanations?.join("；") || decision.gate_reasons?.join("；") || null,
+    scoreDecision: decision.score_decision,
+    finalDecision: decision.final_decision,
+    gateBlocked: decision.gate_blocked,
+    evidenceAlignment: assessment?.quality?.evidence_alignment_route || null,
+    decisionSources: decision.decision_sources || [],
+    mergeReason: decision.decision_merge_reason || null,
+    dimensions: [
+      { id: "C_sem", dimension: "语义清晰度", detail: score?.semantic_clarity == null ? null : Number(score.semantic_clarity).toFixed(4) },
+      { id: "C_cov", dimension: "证据覆盖度", detail: assessment?.quality?.ecr == null ? null : Number(assessment.quality.ecr).toFixed(4) },
+      { id: "C_trust", dimension: "证据可信度", detail: score?.evidence_trust == null ? null : Number(score.evidence_trust).toFixed(4) },
+      { id: "C_jb", dimension: "越狱抑制能力", detail: score?.jailbreak_suppression == null ? null : Number(score.jailbreak_suppression).toFixed(4) },
+      { id: "C_nec", dimension: "场景必要性", detail: score?.scene_necessity == null ? null : Number(score.scene_necessity).toFixed(4) },
+    ],
+  };
+}
+
+function resultForPresentation(presentation: TurnPresentationResponse): DecisionResultView {
+  const decision = presentation.decision_result;
+  const assessment = decision.intent_safety_assessments?.[0];
+  const score = assessment?.score || presentation.score_result;
+  const state = decision.final_decision === "PASS" ? "pass" : decision.final_decision === "REVIEW" ? "review" : decision.final_decision === "BLOCK" ? "reject" : null;
+  return {
+    ...EMPTY_RESULT,
+    state,
+    score: decision.safety_score == null ? null : Number(decision.safety_score).toFixed(4),
+    reason: decision.reasons?.join("；") || decision.explanation || null,
+    scoreDecision: decision.score_decision,
+    finalDecision: decision.final_decision,
+    gateBlocked: presentation.gate_result.blocked,
+    evidenceAlignment: assessment?.quality?.evidence_alignment_route || presentation.evidence.quality_metrics.evidence_alignment_route || null,
+    decisionSources: decision.decision_sources || [],
+    mergeReason: decision.decision_merge_reason || null,
+    dimensions: [
+      { id: "C_sem", dimension: "语义清晰度", detail: score.semantic_clarity == null ? null : Number(score.semantic_clarity).toFixed(4) },
+      { id: "C_cov", dimension: "证据覆盖度", detail: presentation.evidence.quality_metrics.ecr == null ? null : Number(presentation.evidence.quality_metrics.ecr).toFixed(4) },
+      { id: "C_trust", dimension: "证据可信度", detail: score.evidence_trust == null ? null : Number(score.evidence_trust).toFixed(4) },
+      { id: "C_jb", dimension: "越狱抑制能力", detail: score.jailbreak_suppression == null ? null : Number(score.jailbreak_suppression).toFixed(4) },
+      { id: "C_nec", dimension: "场景必要性", detail: score.scene_necessity == null ? null : Number(score.scene_necessity).toFixed(4) },
+    ],
+  };
 }
 
 export function DecisionPage() {
@@ -49,8 +96,10 @@ export function DecisionPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { activeTurnId, setActiveTurn } = useSession();
   const activeRequestRef = useRef<AbortController | null>(null);
-  const turnId = searchParams.get("turn_id")?.trim() || null;
+  const routeTurnId = searchParams.get("turn_id")?.trim() || null;
+  const turnId = routeTurnId || activeTurnId || null;
 
   const accept = useCallback((response: TextCommandResponse | AudioCommandResponse, message: string) => {
     const textResponse: TextCommandResponse | null = (response as AudioCommandResponse).input_type === "audio"
@@ -66,9 +115,22 @@ export function DecisionPage() {
       setResult(resultFor(textResponse));
     }
     setInteraction(response.interaction_request || textResponse?.interaction_request || null);
+    setActiveTurn(response.turn_id, {
+      instructionSummary: frame?.raw_text || null,
+      decision: textResponse?.decision?.final_decision || null,
+      createdAt: new Date().toISOString(),
+    });
     const next = new URLSearchParams(searchParams); next.set("turn_id", response.turn_id); setSearchParams(next, { replace: true });
     setFeedback(`${message}，轮次 ${response.turn_id}`);
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setActiveTurn, setSearchParams]);
+
+  useEffect(() => {
+    if (!routeTurnId && activeTurnId) {
+      const next = new URLSearchParams(searchParams);
+      next.set("turn_id", activeTurnId);
+      setSearchParams(next, { replace: true });
+    }
+  }, [activeTurnId, routeTurnId, searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!turnId || currentTurn?.turn_id === turnId) return;
@@ -82,9 +144,15 @@ export function DecisionPage() {
         evidence_demand: presentation.evidence_demand,
       });
       setText(presentation.semantic_frame.raw_text); setInteraction(presentation.interaction_request || null);
+      setResult(resultForPresentation(presentation));
+      setActiveTurn(presentation.turn_id, {
+        instructionSummary: presentation.semantic_frame.raw_text,
+        decision: presentation.decision_result.final_decision,
+        createdAt: presentation.created_at,
+      });
     }).catch(() => undefined);
     return () => controller.abort();
-  }, [currentTurn?.turn_id, turnId]);
+  }, [currentTurn?.turn_id, setActiveTurn, turnId]);
 
   const submit = useCallback(() => {
     const controller = new AbortController(); activeRequestRef.current?.abort(); activeRequestRef.current = controller;

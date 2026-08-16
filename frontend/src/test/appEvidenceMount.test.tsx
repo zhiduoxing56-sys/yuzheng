@@ -28,5 +28,5 @@ afterEach(cleanup);
 it("mounts the real evidence route under the application session provider", async () => {
   render(<MemoryRouter initialEntries={["/evidence/TURN_MOUNT"]}><SessionProvider><App /></SessionProvider></MemoryRouter>);
   await waitFor(() => expect(getTurnPresentation).toHaveBeenCalledWith("TURN_MOUNT", expect.any(AbortSignal)));
-  expect(screen.getByRole("heading", { name: "HNSW证据检索" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "安全知识检索" })).toBeTruthy();
 });

@@ -84,6 +84,17 @@ class SimulatorVehicleAdapter:
         with self._lock:
             return [item.model_copy(deep=True) for item in self._scenario_evidence]
 
+    def set_simulation_evidence(
+        self, evidence: list[EvidenceObservationInput]
+    ) -> list[EvidenceObservationInput]:
+        if any(item.source != "SIMULATION" for item in evidence):
+            raise ValueError("manual simulation evidence must use SIMULATION")
+        with self._lock:
+            self._scenario_evidence = tuple(
+                item.model_copy(deep=True) for item in evidence
+            )
+            return [item.model_copy(deep=True) for item in self._scenario_evidence]
+
     @staticmethod
     def _apply_operation(state_data: dict[str, Any], operation: dict[str, Any]) -> None:
         field = str(operation["field"])

@@ -89,7 +89,6 @@ export function SemanticFrameDisplay({ frame }: { frame: SemanticFrame | null })
   return <section className="semantic-frame-section" aria-labelledby="semantic-frame-heading">
     <h2 id="semantic-frame-heading" className="visual-gradient-title">语义帧解析</h2>
     <div className="semantic-frame-container">
-      {!frame && <p className="semantic-frame-empty">提交文本指令后显示正式多意图语义帧</p>}
       {frame && <>
         <dl className="semantic-frame-summary">
           <div><dt>原始指令</dt><dd>{formatSemanticValue(frame.raw_text)}</dd></div>
@@ -151,10 +150,18 @@ export function DecisionResultDisplay({ result, selector }: { result: DecisionRe
       {state && <span aria-hidden="true"><i className={state.partial ? "is-partial" : ""}>{state.symbol}</i></span>}
       <strong>{state?.label || "--"}</strong>
     </div>
-    <div className="decision-dimension-table"><table><thead><tr><th>维度</th><th>细则</th></tr></thead>
-      <tbody>{result.dimensions.map((row) => <tr key={row.id}><td>{row.dimension}</td><td>{display(row.detail)}</td></tr>)}</tbody>
-    </table></div>
-    <p className="decision-score">裁决得分： <strong>{display(result.score)}</strong></p>
+    <dl className="decision-primary-basis">
+      <div><dt>安全门</dt><dd>{result.gateBlocked == null ? "--" : result.gateBlocked ? "已阻断" : "已通过"}</dd></div>
+      <div><dt>证据对齐</dt><dd>{display(result.evidenceAlignment || null)}</dd></div>
+      <div><dt>评分判断</dt><dd>{display(result.scoreDecision || null)}</dd></div>
+      <div><dt>最终裁决</dt><dd>{display(result.finalDecision || null)}</dd></div>
+      <div className="decision-merge-basis"><dt>裁决来源</dt><dd>{result.decisionSources?.join("、") || "--"}</dd></div>
+      <div className="decision-merge-basis"><dt>合并原因</dt><dd>{display(result.mergeReason || null)}</dd></div>
+    </dl>
     <div className="decision-reason"><h2>具体原因：</h2><div>{result.reason?.trim() || "暂无"}</div></div>
+    <details className="decision-diagnostic-score"><summary>诊断评分（不覆盖安全门）</summary>
+      <div className="decision-dimension-table"><table><thead><tr><th>维度</th><th>得分</th></tr></thead><tbody>{result.dimensions.map((row) => <tr key={row.id}><td>{row.dimension}</td><td>{display(row.detail)}</td></tr>)}</tbody></table></div>
+      <p className="decision-score">五维安全评分： <strong>{display(result.score)}</strong></p>
+    </details>
   </section>;
 }

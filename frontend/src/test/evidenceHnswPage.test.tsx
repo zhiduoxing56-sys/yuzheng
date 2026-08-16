@@ -4,30 +4,32 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { analyzeRecallAudit, getRecentRecallAudits } from "../api/recallAudits";
-import { getIndexStatus, updateIndexParameters } from "../api/system";
 import { getTurnPresentation } from "../api/turns";
 import { EvidencePage } from "../pages/EvidencePage";
 import { SessionProvider } from "../stores/sessionStore";
 
-vi.mock("../api/system", () => ({ getIndexStatus: vi.fn(), updateIndexParameters: vi.fn() }));
 vi.mock("../api/turns", () => ({ getTurnPresentation: vi.fn() }));
-vi.mock("../api/recallAudits", () => ({ getRecentRecallAudits: vi.fn(), analyzeRecallAudit: vi.fn() }));
 
-const status = { M: 16, ef_construction: 200, ef_search: 30, layer_count: 4, top_k: 20 };
+const node = {
+  label: 7, node_id: "KNOWLEDGE_DOOR", node_type: "安全知识", title: "车门开启速度核查", semantic_description: "开门前检查速度与周边目标",
+  canonical_action: "DOOR_OPEN", conditions: ["车辆运动"], required_evidence: ["VEHICLE_SPEED"], optional_evidence: ["SURROUNDING_OBJECT_STATE"],
+  source: "标准", chapter: "车门", clause: "1.1", trust_level: "L1", rank: 1, similarity: 0.82, result_scope: "ONLINE_TOP_K", threshold_status: "ACCEPTED",
+};
+
 const presentation = {
-  retrieval_summary: {
-    top_k: 20,
-    candidate_count: 7,
-    mandatory_recall_count: 1,
-    elapsed_ms: 12.345,
-    layers: [{
-      layer: 2,
-      layer_name: "第3层",
-      hit_count: 1,
-      nodes: [{ node_id: "EVI_1", display_name: "车辆速度", evidence_type: "VEHICLE_SPEED", sas: 0.91, rank: 1, matched_intents: ["0:DOOR_OPEN", "1:WINDOW_OPEN"] }],
-    }],
-  },
+  turn_id: "TURN_1",
+  semantic_frame: { raw_text: "打开右后车门" },
+  evidence_demand: { intent_demands: [{
+    clause_index: 0, intent_id: "DOOR_OPEN", action: "打开", target: "车门", area: "RIGHT_REAR", query_text: "证据查询句",
+    knowledge_query_text: "意图=DOOR_OPEN；动作=打开；对象=车门；区域=RIGHT_REAR；运动状态=行驶",
+    knowledge_hits: [{ node_id: "KNOWLEDGE_DOOR" }],
+    knowledge_retrieval_metadata: {
+      status: "READY", eligible_node_count: 1, top_k: 5, ef_search: 30, similarity_threshold: 0.6, accepted_node_count: 1,
+      eligible_nodes: [node], raw_results: [node], diagnostic_results: [node], query_vectorization: { model_name: "BAAI/bge-base-zh-v1.5", dimension: 768 },
+      context_sources: [{ query_field: "运动状态", query_value: "行驶", evidence_type: "VEHICLE_SPEED", node_id: "EVI_SPEED", source: "SIMULATION", source_field: "value", quality_label: "VALID", availability: 1, freshness: 1 }],
+      excluded_context_fields: [{ evidence_type: "ROAD_FRICTION_STATE", node_id: "EVI_ROAD", source: "SIMULATION", source_field: "wetness", value: "DRY", reason: "NOT_RELEVANT_TO_CURRENT_DEMAND" }],
+    },
+  }] },
 };
 
 function renderPage(entry = "/evidence/TURN_1") {
@@ -35,109 +37,45 @@ function renderPage(entry = "/evidence/TURN_1") {
 }
 
 beforeEach(() => {
-  window.localStorage.clear();
-  window.sessionStorage.clear();
-  vi.mocked(getIndexStatus).mockReset().mockResolvedValue(status);
-  vi.mocked(updateIndexParameters).mockReset().mockResolvedValue({ ...status, M: 12 });
+  window.localStorage.clear(); window.sessionStorage.clear();
   vi.mocked(getTurnPresentation).mockReset().mockResolvedValue(presentation as never);
-  vi.mocked(getRecentRecallAudits).mockReset().mockResolvedValue({ items: [{ turn_id: "TURN_1", created_at: "2026-08-12T00:00:00Z", instruction: "打开车门", mandatory_recall_evidence: [{ evidence_type: "GEAR_STATE", node_id: "EVI_GEAR", display_name: "挡位状态" }], ai_audit_available: false }] });
-  vi.mocked(analyzeRecallAudit).mockReset().mockResolvedValue({ turn_id: "TURN_1", attention_required: false, audit_comment: "证据充分", potential_missing_evidence: [], cached: false, status: "SUCCEEDED" });
 });
 afterEach(cleanup);
 
-describe("HNSW frontend formal contract", () => {
-  it("loads the active turn when entering the parameterless evidence navigation", async () => {
-    window.localStorage.setItem("yuzheng.v2.turn.active", "TURN_ACTIVE");
+describe("安全知识检索页面", () => {
+  it("从当前会话加载正式轮次", async () => {
+    window.sessionStorage.setItem("yuzheng.v2.turn.active", "TURN_ACTIVE");
     renderPage("/evidence");
     await waitFor(() => expect(getTurnPresentation).toHaveBeenCalledWith("TURN_ACTIVE", expect.any(AbortSignal)));
-    expect(await screen.findByText("命中 1 个")).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "安全知识检索" })).toBeTruthy();
   });
 
-  it("accepts the existing turn_id query navigation and loads that turn", async () => {
-    renderPage("/evidence?turn_id=TURN_QUERY");
-    await waitFor(() => expect(getTurnPresentation).toHaveBeenCalledWith("TURN_QUERY", expect.any(AbortSignal)));
-    expect(await screen.findByText("命中 1 个")).toBeTruthy();
-  });
-
-  it("renders backend parameters, one row per layer, and real node details", async () => {
-    const user = userEvent.setup();
+  it("展示 K0-K3、完整查询和已进入上下文", async () => {
     renderPage();
-    await waitFor(() => expect((screen.getByLabelText("最大连接数") as HTMLInputElement).value).toBe("16"));
-    expect(screen.getByText("命中 1 个")).toBeTruthy();
-    expect(screen.getByText("强制补召数量:").parentElement?.textContent).toContain("1");
-    await user.click(screen.getByRole("listitem"));
-    const dialog = screen.getByRole("dialog", { name: "第3层节点详情" });
-    expect(within(dialog).getByText("车辆速度")).toBeTruthy();
-    expect(within(dialog).getByText("0:DOOR_OPEN、1:WINDOW_OPEN")).toBeTruthy();
+    expect(await screen.findByText("第一层：动作匹配知识")).toBeTruthy();
+    expect(screen.getByText("第二层：语义相似度排序")).toBeTruthy();
+    expect(screen.getByText("第三层：相似度阈值筛选")).toBeTruthy();
+    expect(screen.getByText("第四层：动态证据需求")).toBeTruthy();
+    expect(screen.getByText(/意图=DOOR_OPEN/)).toBeTruthy();
+    expect(screen.getByText("车辆速度（VEHICLE_SPEED）")).toBeTruthy();
+    expect(screen.queryByLabelText("最大连接数")).toBeNull();
+    expect(screen.queryByText("强制召回审计")).toBeNull();
   });
 
-  it("sends the four formal parameters and uses the returned status", async () => {
-    const user = userEvent.setup();
-    renderPage();
-    await waitFor(() => expect((screen.getByLabelText("最大连接数") as HTMLInputElement).value).toBe("16"));
-    const m = screen.getByLabelText("最大连接数");
-    await user.clear(m);
-    await user.type(m, "12");
-    await user.click(screen.getByRole("button", { name: "应用参数" }));
-    await waitFor(() => expect(updateIndexParameters).toHaveBeenCalledWith({ M: 12, ef_construction: 200, ef_search: 30, layer_count: 4 }));
-    expect(screen.getByText("参数已原子生效，将影响下一条指令")).toBeTruthy();
+  it("点击分层展示该层全部知识节点详情", async () => {
+    const user = userEvent.setup(); renderPage();
+    await user.click(await screen.findByText("第二层：语义相似度排序"));
+    const dialog = screen.getByRole("dialog", { name: "第二层：语义相似度排序" });
+    expect(within(dialog).getByText("车门开启速度核查")).toBeTruthy();
+    expect(within(dialog).getByText("82.00%")).toBeTruthy();
+    await user.click(within(dialog).getByText("查看完整节点详情"));
+    expect(within(dialog).getByText("开门前检查速度与周边目标")).toBeTruthy();
   });
 
-  it("renders actual mandatory recall and runs AI only after clicking view", async () => {
-    const user = userEvent.setup();
-    renderPage();
-    await waitFor(() => expect(screen.getByText("挡位状态")).toBeTruthy());
-    expect(analyzeRecallAudit).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "查看" }));
-    await waitFor(() => expect(analyzeRecallAudit).toHaveBeenCalledWith("TURN_1"));
-    expect(screen.getByRole("dialog", { name: "DeepSeek AI审计" })).toBeTruthy();
-    expect(screen.getByText("证据充分")).toBeTruthy();
-  });
-
-  it("switches layered retrieval by child intent without resetting HNSW parameters", async () => {
-    const user = userEvent.setup();
-    window.localStorage.setItem("yuzheng.v2.session.id", "evidence-session");
-    window.sessionStorage.setItem("yuzheng.v2.turn.coordinated.evidence-session", JSON.stringify({
-      parentTurnId: "TURN_PARENT",
-      children: [
-        { clauseIndex: 0, clauseText: "打开左前车窗", turnId: "TURN_A" },
-        { clauseIndex: 1, clauseText: "关闭天窗", turnId: "TURN_B" },
-      ],
-    }));
-    vi.mocked(getTurnPresentation).mockImplementation(async (turnId) => ({
-      retrieval_summary: {
-        top_k: turnId === "TURN_A" ? 20 : 10,
-        candidate_count: turnId === "TURN_A" ? 7 : 3,
-        mandatory_recall_count: turnId === "TURN_A" ? 1 : 2,
-        elapsed_ms: turnId === "TURN_A" ? 11.11 : 22.22,
-        layers: [{
-          layer: turnId === "TURN_A" ? 1 : 2,
-          layer_name: turnId === "TURN_A" ? "子意图一检索层" : "子意图二检索层",
-          hit_count: turnId === "TURN_A" ? 1 : 2,
-          nodes: [],
-        }],
-      },
-    }) as never);
-
-    renderPage("/evidence/TURN_A");
-
-    const selector = await screen.findByRole("combobox", { name: "选择当前查看的检索子意图" });
-    expect(within(selector).getAllByRole("option")).toHaveLength(2);
-    expect(await screen.findByText("子意图一检索层")).toBeTruthy();
-    await waitFor(() => expect(screen.getByText("11.11 ms")).toBeTruthy());
-
-    const maxConnections = await screen.findByLabelText("最大连接数");
-    await user.clear(maxConnections);
-    await user.type(maxConnections, "12");
-    await user.selectOptions(selector, "TURN_B");
-
-    expect(await screen.findByText("子意图二检索层")).toBeTruthy();
-    expect(screen.getByText("22.22 ms")).toBeTruthy();
-    expect((screen.getByLabelText("最大连接数") as HTMLInputElement).value).toBe("12");
-    expect(screen.getByText("挡位状态")).toBeTruthy();
-
-    await user.selectOptions(selector, "TURN_A");
-    expect(await screen.findByText("子意图一检索层")).toBeTruthy();
-    expect(vi.mocked(getTurnPresentation).mock.calls.filter(([id]) => id === "TURN_A")).toHaveLength(1);
+  it("展示未进入查询字段及中文排除原因", async () => {
+    const user = userEvent.setup(); renderPage();
+    await user.click(await screen.findByRole("button", { name: "未进入查询（1）" }));
+    expect(screen.getByText("道路附着状态（ROAD_FRICTION_STATE）")).toBeTruthy();
+    expect(screen.getByText("与当前证据需求无关")).toBeTruthy();
   });
 });

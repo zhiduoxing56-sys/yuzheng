@@ -14,6 +14,7 @@ from app.models.schemas import (
     AuditPage,
     CausalStatus,
     CurrentEvidenceResponse,
+    EvidenceObservationInput,
     EvidenceSubgraph,
     ExecuteRequest,
     InteractionSubmission,
@@ -217,6 +218,25 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     @router.post("/state/reset", response_model=VehicleState)
     def state_reset() -> VehicleState:
         return pipeline.reset_vehicle_state()
+
+    @router.get(
+        "/state/simulation-context",
+        response_model=list[EvidenceObservationInput],
+    )
+    def simulation_context_get() -> list[EvidenceObservationInput]:
+        return pipeline.get_simulation_evidence()
+
+    @router.put(
+        "/state/simulation-context",
+        response_model=list[EvidenceObservationInput],
+    )
+    def simulation_context_put(
+        request: list[EvidenceObservationInput],
+    ) -> list[EvidenceObservationInput]:
+        try:
+            return pipeline.set_simulation_evidence(request)
+        except (RuntimeError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @router.post("/carla/obstacle")
     def carla_obstacle(request: CarlaObstacleRequest) -> dict[str, object]:

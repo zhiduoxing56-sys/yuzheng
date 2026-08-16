@@ -40,8 +40,6 @@ export function TopNav() {
         <details className="assist-menu">
           <summary>辅助菜单</summary>
           <div className="assist-menu-panel">
-            <NavLink to="/demo">场景演示</NavLink>
-            <NavLink to="/system">系统状态</NavLink>
             <button type="button" onClick={newSession}>新建会话</button>
             <button type="button" onClick={() => { logout(); navigate("/login", { replace: true }); }}>退出登录</button>
             <small title={sessionId}>会话已保存</small>

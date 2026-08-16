@@ -164,6 +164,9 @@ export const apiClient = {
   patch<T>(path: string, json?: unknown, options?: RequestOptions) {
     return request<T>(path, { ...options, method: "PATCH", json });
   },
+  put<T>(path: string, json?: unknown, options?: RequestOptions) {
+    return request<T>(path, { ...options, method: "PUT", json });
+  },
   postBytes<T>(path: string, bytes: BodyInit, query?: Record<string, QueryValue>, options?: RequestOptions) {
     return request<T>(path, { ...options, method: "POST", bytes, query });
   },

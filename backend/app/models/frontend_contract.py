@@ -200,6 +200,9 @@ class IntentEvidenceDemandPresentation(StrictModel):
     optional_types: list[str] = Field(default_factory=list)
     knowledge_augmented_types: list[str] = Field(default_factory=list)
     knowledge_hits: list[dict[str, Any]] = Field(default_factory=list)
+    knowledge_query_text: str = ""
+    knowledge_retrieval_metadata: dict[str, Any] = Field(default_factory=dict)
+    knowledge_demand_sources: list[dict[str, Any]] = Field(default_factory=list)
     priority: int
     retrieval_scope: str
     demand_items: list[EvidenceDemandItem] = Field(default_factory=list)
