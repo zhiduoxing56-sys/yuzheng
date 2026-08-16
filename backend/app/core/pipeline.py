@@ -254,7 +254,11 @@ class CommandPipeline:
         if env_knowledge_path:
             knowledge_config = {**knowledge_config, "data_path": env_knowledge_path}
         if knowledge_data_path is not None:
-            knowledge_config = {**knowledge_config, "data_path": str(knowledge_data_path)}
+            knowledge_config = {
+                **knowledge_config,
+                "data_path": str(knowledge_data_path),
+                "online_eligibility_policy": None,
+            }
         self.knowledge_index = TrustedKnowledgeIndexService(
             knowledge_config,
             self.embedder,
@@ -1646,8 +1650,6 @@ class CommandPipeline:
                 terminal_kind="KNOWN_NON_EXECUTABLE",
                 request_routing=request_routing,
             )
-        demand = self.demand_service.build(frame)
-        demand = self.knowledge_index.augment(demand)
         zone_permission: ZonePermissionResult | None = None
         zone_results: list[ZonePermissionResult] = []
         if (
@@ -1727,11 +1729,21 @@ class CommandPipeline:
         )
         state_snapshot_at = max(node.timestamp for node in snapshot_nodes)
         decision_reference_time = state_snapshot_at
+        persistent_simulation_evidence = self._current_simulation_evidence()
+        request_evidence_overrides = (
+            trusted_context.evidence_overrides if trusted_context is not None else []
+        )
         override_nodes = self.evidence_repository.ingest_observations(
-            trusted_context.evidence_overrides if trusted_context is not None else [],
+            [*persistent_simulation_evidence, *request_evidence_overrides],
             turn_id,
         )
         self.index.upsert([*snapshot_nodes, *override_nodes])
+        demand = self.demand_service.build(frame)
+        demand = self.knowledge_index.augment(
+            demand,
+            frame=frame,
+            context_evidence_nodes=[*snapshot_nodes, *override_nodes],
+        )
         search_batches: list[list[EvidenceNode]] = []
         similarity_batches: list[dict[str, float]] = []
         retrieval_batches: list[RetrievalMetadata] = []
@@ -2863,6 +2875,12 @@ class CommandPipeline:
     def get_vehicle_state(self) -> VehicleState:
         return self.vehicle.get_state()
 
+    def _current_simulation_evidence(self) -> list[EvidenceObservationInput]:
+        provider = getattr(self.vehicle, "current_simulation_evidence", None)
+        if not callable(provider):
+            return []
+        return [item.model_copy(deep=True) for item in provider()]
+
     def update_vehicle_state(self, patch: VehicleStatePatch) -> VehicleState:
         with self._command_lock:
             update_turn_id = make_id("STATE_UPDATE")
@@ -2912,9 +2930,33 @@ class CommandPipeline:
             self.evidence_repository.clear_explicit_observations()
             self.index.build(self.evidence_repository.current_nodes())
             self.reset_vehicle_state()
-            return self.update_vehicle_state(
-                VehicleStatePatch.model_validate(scenario.get("state", {}))
+            patch = VehicleStatePatch.model_validate(scenario.get("state", {}))
+            observations = [
+                EvidenceObservationInput.model_validate(value)
+                for value in scenario.get("evidence_overrides", [])
+            ]
+            activate = getattr(self.vehicle, "activate_scenario", None)
+            persistent_simulation = bool(
+                callable(activate)
+                and all(item.source == "SIMULATION" for item in observations)
             )
+            if not persistent_simulation:
+                return self.update_vehicle_state(patch)
+            state = activate(patch, observations)
+            activation_turn_id = make_id("SCENARIO_ACTIVATE")
+            self.evidence_repository.begin_turn(activation_turn_id)
+            snapshot_nodes = self.evidence_repository.ingest_vehicle_state(
+                state,
+                None,
+                activation_turn_id,
+            )
+            scenario_nodes = self.evidence_repository.ingest_observations(
+                observations,
+                activation_turn_id,
+            )
+            self.index.upsert([*snapshot_nodes, *scenario_nodes])
+            self.evidence_repository.complete_turn(activation_turn_id)
+            return state
 
     def run_scenario(self, scenario_id: str, *, session_id: str | None = None) -> TextCommandResponse:
         scenario = self.scenario_config.get("scenarios", {}).get(scenario_id)
@@ -2925,6 +2967,9 @@ class CommandPipeline:
             EvidenceObservationInput.model_validate(value)
             for value in scenario.get("evidence_overrides", [])
         ]
+        request_observations = (
+            [] if self._current_simulation_evidence() else observations
+        )
         return self.process_text(
             TextCommandRequest(
                 text=str(scenario.get("text", "")),
@@ -2933,7 +2978,7 @@ class CommandPipeline:
                 session_id=session_id,
             ),
             trusted_context=TrustedRuntimeContext(
-                evidence_overrides=observations,
+                evidence_overrides=request_observations,
                 subject_role=state.occupant_role or "unknown",
                 subject_zone=state.speaker_zone or "unknown",
                 subject_source="demo_scenario",

@@ -1,3 +1,5 @@
+# Component-only HybridConfidenceGate holdout.  It is not production semantic Gold;
+# formal acceptance is backend/tests/integration/test_formal_semantic_gold_api_path.py.
 cases:
   - {id: h01, category: clear_single, text: 把车门关好, expected_intents: [DOOR_CLOSE], expect_security: false}
   - {id: h02, category: clear_single, text: 车门锁一下, expected_intents: [DOOR_LOCK], expect_security: false}

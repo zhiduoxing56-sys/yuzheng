@@ -124,6 +124,12 @@ class SemanticOrchestratorV2:
     def close(self) -> None:
         self.gate.close()
 
+    def _eligible_candidate_ids(
+        self, _clause: str, stage1_candidates: list[str]
+    ) -> tuple[tuple[str, ...], dict[str, Any] | None]:
+        """Extension hook for deterministic candidate eligibility constraints."""
+        return tuple(stage1_candidates), None
+
     def __enter__(self) -> "SemanticOrchestratorV2":
         return self
 
@@ -154,14 +160,25 @@ class SemanticOrchestratorV2:
         top8 = [str(value) for value in run.evidence["fused_top8"]]
         selected_params: dict[str, dict[str, Any]] = {}
         gate_path = run.gate_path
+        eligibility_details: dict[str, Any] | None = None
         if not selected_ids and not allow_model_fallback:
-            selection = self.deterministic_selector.select(clause, run)
+            eligible_candidate_ids, eligibility_details = self._eligible_candidate_ids(
+                clause, top8
+            )
+            selection = self.deterministic_selector.select(
+                clause,
+                run,
+                eligible_candidate_ids=eligible_candidate_ids,
+                accept_unique_eligible_candidate=eligibility_details is not None,
+            )
             if selection.intent_id is not None:
                 selected_ids = [selection.intent_id]
                 selected_params[selection.intent_id] = selection.params
                 gate_path = str(selection.gate_path)
         guard_triggers: list[str] = []
         guard_details: dict[str, Any] = {}
+        if not allow_model_fallback and eligibility_details is not None:
+            guard_details["object_family_preselection"] = eligibility_details
 
         ellipsis = self.ellipsis_guard.check(clause)
         if ellipsis.insufficient:

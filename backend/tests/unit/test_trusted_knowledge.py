@@ -17,6 +17,7 @@ from semantic_registry_v1 import UnifiedSemanticRegistry
 
 MOCK_PATH = PROJECT_ROOT / "data" / "knowledge" / "trusted_nodes.mock.jsonl"
 MISSING_PATH = PROJECT_ROOT / "data" / "knowledge" / "not_present.jsonl"
+PRODUCTION_PATH = PROJECT_ROOT / "data" / "knowledge_nodes_v4.jsonl"
 
 
 def _frame(intent_id: str, action: str, target: str) -> SemanticFrame:
@@ -54,6 +55,7 @@ def _service(data_path=None):
         "M": 16,
         "ef_construction": 200,
         "ef_search": 30,
+        "min_similarity": 0.0,
     }
     service = TrustedKnowledgeIndexService(config, embedder, CANONICAL_EVIDENCE_TYPES)
     service.load()
@@ -101,10 +103,37 @@ def test_is_trusted_accepts_both_representations() -> None:
     assert KnowledgeNode(
         node_id="b", node_type="Trusted", metadata={"status": "ACTIVE"}
     ).is_trusted
+    assert KnowledgeNode(
+        node_id="published", node_type="安全知识", trust_level="L1",
+        metadata={
+            "knowledge_id": "SAFETY-PUBLISHED-00001",
+            "constraint": "REQUIRE_EXTRA_EVIDENCE",
+        },
+    ).is_trusted
     assert not KnowledgeNode(
         node_id="c", node_type="候选风险", metadata={"review_status": "PENDING_REVIEW"}
     ).is_trusted
     assert not KnowledgeNode(node_id="d", node_type="安全知识", metadata={}).is_trusted
+
+
+def test_production_v4_online_subset_declares_non_command_physical_nodes() -> None:
+    policy_path = PROJECT_ROOT / "证据" / "knowledge_evidence_alignment_v1.yaml"
+    import yaml
+    policy = yaml.safe_load(policy_path.read_text(encoding="utf-8"))
+    nodes = load_trusted_nodes(
+        PRODUCTION_PATH,
+        CANONICAL_EVIDENCE_TYPES,
+        allowed_node_ids=frozenset(policy["physical_safety_nodes"]),
+    )
+    assert len(nodes) == 71
+    registry = UnifiedSemanticRegistry()
+    non_command_ids = frozenset(policy["non_command_physical_nodes"])
+    assert all(
+        node.node_id in non_command_ids
+        or node.canonical_action in registry.intents
+        and registry.is_formal(node.canonical_action)
+        for node in nodes
+    )
 
 
 def test_search_top_k_and_k_guard(tmp_path: Path) -> None:
@@ -184,7 +213,9 @@ def test_augment_noop_when_file_absent() -> None:
     )
 
 
-def test_degraded_exact_fallback(monkeypatch, tmp_path: Path) -> None:
+def test_degraded_hnsw_does_not_treat_all_action_nodes_as_hits(
+    monkeypatch, tmp_path: Path
+) -> None:
     real_import = __import__
 
     def fake_import(name, *args, **kwargs):
@@ -195,5 +226,11 @@ def test_degraded_exact_fallback(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("builtins.__import__", fake_import)
     service = _service(_valid_mock(tmp_path))
     assert service.status()["degraded"] is True
-    query = [0.0] * 768
-    assert len(service.search(query)) >= 1  # 精确余弦回退仍返回节点
+    demand = EvidenceDemandService(
+        registry=EvidenceDemandRegistry(),
+        embedder=DeterministicHashEmbeddingService(768),
+    ).build(_frame("WINDOW_OPEN", "打开", "车窗"))
+    result = service.augment(demand).intent_demands[0]
+    assert result.knowledge_hits == []
+    assert result.knowledge_augmented_types == []
+    assert result.knowledge_retrieval_metadata["status"] == "HNSW_NOT_READY"

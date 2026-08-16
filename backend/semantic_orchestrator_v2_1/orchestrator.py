@@ -42,6 +42,17 @@ class SemanticOrchestratorV2_1(SemanticOrchestratorV2):
         self.object_guard = ObjectFamilyGuard(cards, self.direction_guard)
         self.security_guard = SecurityClaimGuard()
 
+    def _eligible_candidate_ids(
+        self, clause: str, stage1_candidates: list[str]
+    ) -> tuple[tuple[str, ...], dict[str, Any] | None]:
+        eligibility = self.object_guard.eligible_candidates(clause, stage1_candidates)
+        if not eligibility.applied:
+            return eligibility.eligible_candidates, None
+        return eligibility.eligible_candidates, {
+            "explicit_families": list(eligibility.explicit_families),
+            "eligible_candidates": list(eligibility.eligible_candidates),
+        }
+
     def _run_clause(self, clause: str, **kwargs: Any) -> dict[str, Any]:
         result = super()._run_clause(clause, **kwargs)
         result["audit_triggers"] = []

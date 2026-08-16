@@ -1,9 +1,13 @@
 # Trusted 安全知识库配置：知识库辅助主系统证据需求
 # 数据约定：data_path 指向 Trusted 知识节点 JSONL（队友放文件即生效，重启后端自动加载）
 enabled: true
-data_path: data/knowledge/trusted_nodes.jsonl
+data_path: data/knowledge_nodes_v4.jsonl
+online_eligibility_policy: 证据/knowledge_evidence_alignment_v1.yaml
 top_k: 5
 min_similarity: 0.6
 M: 16
 ef_construction: 200
 ef_search: 30
+context:
+  low_light_max_lux: 20
+  high_speed_min_kph: 80

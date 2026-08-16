@@ -5,6 +5,7 @@ from time import perf_counter
 from typing import Any
 
 from app.models.schemas import (
+    EvidenceObservationInput,
     VehicleExecutionResult,
     VehicleState,
     VehicleStatePatch,
@@ -40,6 +41,7 @@ class SimulatorVehicleAdapter:
         self._state = self._initial_state.model_copy(deep=True)
         self._actions = dict((action_config or {}).get("actions", {}))
         self._last_feedback: VehicleExecutionResult | None = None
+        self._scenario_evidence: tuple[EvidenceObservationInput, ...] = ()
 
     def get_state(self) -> VehicleState:
         with self._lock:
@@ -49,11 +51,38 @@ class SimulatorVehicleAdapter:
         # exclude_unset 区分“未提供字段”和“显式设置为 null（证据不可用）”。
         updates = patch.model_dump(exclude_unset=True)
         with self._lock:
+            self._scenario_evidence = ()
             state_data = self._state.model_dump()
             state_data.update(updates)
             state_data["updated_at"] = utc_now()
             self._state = VehicleState.model_validate(state_data)
             return self._state.model_copy(deep=True)
+
+    def activate_scenario(
+        self,
+        patch: VehicleStatePatch,
+        evidence: list[EvidenceObservationInput],
+    ) -> VehicleState:
+        """Replace the single current simulation state, including fine evidence."""
+
+        if any(item.source != "SIMULATION" for item in evidence):
+            raise ValueError("persistent simulator scenario evidence must use SIMULATION")
+        updates = patch.model_dump(exclude_unset=True)
+        with self._lock:
+            state_data = self._state.model_dump()
+            state_data.update(updates)
+            state_data["updated_at"] = utc_now()
+            self._state = VehicleState.model_validate(state_data)
+            self._scenario_evidence = tuple(
+                item.model_copy(deep=True) for item in evidence
+            )
+            return self._state.model_copy(deep=True)
+
+    def current_simulation_evidence(self) -> list[EvidenceObservationInput]:
+        """Return values used to create fresh EvidenceNodes for the next turn."""
+
+        with self._lock:
+            return [item.model_copy(deep=True) for item in self._scenario_evidence]
 
     @staticmethod
     def _apply_operation(state_data: dict[str, Any], operation: dict[str, Any]) -> None:
@@ -85,6 +114,7 @@ class SimulatorVehicleAdapter:
                 f"模拟器不支持物理命令类型: {command.kind}"
             )
         with self._lock:
+            self._scenario_evidence = ()
             before = self._state.model_copy(deep=True)
             state_data = self._state.model_dump()
             for operation in command.operations:
@@ -126,4 +156,5 @@ class SimulatorVehicleAdapter:
                 },
             )
             self._last_feedback = None
+            self._scenario_evidence = ()
             return self._state.model_copy(deep=True)

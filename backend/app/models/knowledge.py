@@ -33,16 +33,31 @@ class KnowledgeNode(BaseModel):
 
     @property
     def is_trusted(self) -> bool:
-        """兼容两种 Trusted 表示：代码现状(安全知识+TRUSTED) 与设计文档(Trusted+ACTIVE)。"""
+        """识别经审核的在线安全知识发布格式。"""
         if self.node_type == "安全知识" and self.metadata.get("review_status") == "TRUSTED":
             return True
         if self.node_type == "Trusted" and self.metadata.get("status") == "ACTIVE":
+            return True
+        # knowledge_nodes_v4.jsonl 是当前正式发布集。它由离线审核链产出，
+        # 以 knowledge_id、约束策略和 L1/L2 可信等级表达已审核状态，而不是
+        # 再重复写入 review_status。三个标记必须同时存在，避免把候选节点放行。
+        if (
+            self.node_type == "安全知识"
+            and isinstance(self.metadata.get("knowledge_id"), str)
+            and bool(self.metadata["knowledge_id"].strip())
+            and self.metadata.get("constraint")
+            in {"ALLOW_WITH_CONDITION", "REQUIRE_EXTRA_EVIDENCE"}
+            and self.trust_level in {"L1", "L2"}
+        ):
             return True
         return False
 
 
 def load_trusted_nodes(
-    path: Path, canonical_types: frozenset[str]
+    path: Path,
+    canonical_types: frozenset[str],
+    *,
+    allowed_node_ids: frozenset[str] | None = None,
 ) -> list[KnowledgeNode]:
     """逐行解析知识节点 JSONL，仅保留 Trusted 节点并严格校验证据类型。
 
@@ -62,6 +77,8 @@ def load_trusted_nodes(
                 continue
             node = KnowledgeNode.model_validate(raw)
             if not node.is_trusted:
+                continue
+            if allowed_node_ids is not None and node.node_id not in allowed_node_ids:
                 continue
             node.required_evidence = _canonical_unique(
                 node.required_evidence,

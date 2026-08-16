@@ -576,7 +576,11 @@ class IntentEvidenceDemand(StrictModel):
     required_types: list[str] = Field(default_factory=list)
     optional_types: list[str] = Field(default_factory=list)
     knowledge_augmented_types: list[str] = Field(default_factory=list)
+    knowledge_augmented_optional_types: list[str] = Field(default_factory=list)
     knowledge_hits: list[dict[str, Any]] = Field(default_factory=list)
+    knowledge_query_text: str = ""
+    knowledge_retrieval_metadata: dict[str, Any] = Field(default_factory=dict)
+    knowledge_demand_sources: list[dict[str, Any]] = Field(default_factory=list)
     priority: int = Field(default=0, ge=0, le=100)
     retrieval_scope: str = "control_evidence"
 

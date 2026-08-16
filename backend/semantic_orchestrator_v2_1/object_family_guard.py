@@ -32,6 +32,13 @@ class ObjectFamilyDecision:
     conflict: bool
 
 
+@dataclass(frozen=True, slots=True)
+class ObjectFamilyEligibility:
+    explicit_families: tuple[str, ...]
+    eligible_candidates: tuple[str, ...]
+    applied: bool
+
+
 def explicit_object_families(text: str) -> tuple[str, ...]:
     hits: list[tuple[int, int, str]] = []
     for family, terms in OBJECT_FAMILY_TERMS.items():
@@ -59,6 +66,25 @@ class ObjectFamilyGuard:
             return None
         value = card.get("canonical_target")
         return str(value) if value is not None else None
+
+    def eligible_candidates(
+        self, clause: str, stage1_candidates: list[str]
+    ) -> ObjectFamilyEligibility:
+        """Pre-filter only when one explicit object family is present.
+
+        The terms and canonical targets are the same facts used by ``check``;
+        multiple or absent object mentions deliberately retain every candidate.
+        """
+        explicit = explicit_object_families(clause)
+        if len(explicit) != 1:
+            return ObjectFamilyEligibility(explicit, tuple(stage1_candidates), False)
+        family = explicit[0]
+        eligible = tuple(
+            intent_id
+            for intent_id in stage1_candidates
+            if self.family_for_intent(intent_id) == family
+        )
+        return ObjectFamilyEligibility(explicit, eligible, True)
 
     def check(
         self,

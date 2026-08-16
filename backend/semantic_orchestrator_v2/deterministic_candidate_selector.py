@@ -86,15 +86,24 @@ class DeterministicCandidateSelector:
             >= float(config["min_semantic_first_second_gap"])
         )
 
-    def select(self, clause: str, run: GateRun) -> DeterministicSelection:
-        top8 = [str(intent_id) for intent_id in run.evidence["fused_top8"]]
+    def select(
+        self,
+        clause: str,
+        run: GateRun,
+        *,
+        eligible_candidate_ids: tuple[str, ...] | None = None,
+        accept_unique_eligible_candidate: bool = False,
+    ) -> DeterministicSelection:
+        all_top8 = [str(intent_id) for intent_id in run.evidence["fused_top8"]]
+        eligible = set(eligible_candidate_ids) if eligible_candidate_ids is not None else None
+        top8 = [intent_id for intent_id in all_top8 if eligible is None or intent_id in eligible]
         rows = {str(row["intent_id"]): row for row in run.evidence["targets"]}
         exact_ids = self._exact_anchor_ids(clause, run)
         viable: dict[str, dict[str, Any]] = {}
         for intent_id in top8:
             if intent_id not in rows:
                 continue
-            accepted, params = self._viable(clause, intent_id, top8)
+            accepted, params = self._viable(clause, intent_id, all_top8)
             if accepted:
                 viable[intent_id] = params
 
@@ -126,6 +135,15 @@ class DeterministicCandidateSelector:
                     intent_id, viable[intent_id], "PARAMETER_CONTRACT_ACCEPT", None
                 )
             return DeterministicSelection(None, {}, None, "PARAMETER_CONTRACT_AMBIGUOUS")
+
+        if accept_unique_eligible_candidate and len(viable) == 1:
+            intent_id = next(iter(viable))
+            return DeterministicSelection(
+                intent_id,
+                viable[intent_id],
+                "OBJECT_FAMILY_CONSTRAINT_ACCEPT",
+                None,
+            )
 
         if top8:
             intent_id = top8[0]
