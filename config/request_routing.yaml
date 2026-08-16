@@ -1,0 +1,7 @@
+# 归一化路由服务配置
+# 用途：用 Qwen3.5 归一化模型把指令切成 车控/上下文/助手/不确定 单元，决定是否进入车控安全链。
+enabled: true
+# Ollama 归一化模型不可用时的降级策略：
+#   pass_through  -> 按车控直通处理（本地无 Ollama 时保证完整裁决链路可测）
+#   uncertain     -> 判为不确定并走语义 REVIEW（fail-closed，适合无 Ollama 的生产环境）
+fallback_mode: pass_through

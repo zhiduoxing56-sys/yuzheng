@@ -273,6 +273,17 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         pipeline.knowledge_index.load()
         return pipeline.knowledge_index.status()
 
+    @router.get("/regulation/status")
+    def regulation_status() -> dict[str, object]:
+        """法规知识库状态：ready/document_count/data_path/degraded。"""
+        kb = pipeline.regulation_kb
+        return {
+            "ready": kb is not None,
+            "document_count": kb.count() if kb is not None else 0,
+            "data_path": str(pipeline.regulation_kb_dir) if kb is not None else None,
+            "degraded": kb is None,
+        }
+
     @router.get("/recall-audits/recent", response_model=RecallAuditRecentResponse)
     def recent_recall_audits(limit: int = Query(default=20, ge=1, le=20)) -> RecallAuditRecentResponse:
         rows = pipeline.audit_repository.recent_recall_audits(limit)

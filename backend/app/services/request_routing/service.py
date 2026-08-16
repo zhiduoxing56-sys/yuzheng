@@ -43,6 +43,11 @@ class RequestRoutingService:
         self.client = httpx.Client(
             base_url=str(ollama["base_url"]), timeout=float(ollama.get("timeout_seconds", 60))
         )
+        routing_config = yaml.safe_load(
+            (root / "config" / "request_routing.yaml").read_text(encoding="utf-8")
+        )
+        self._enabled = bool(routing_config.get("enabled", True))
+        self._fallback_mode = str(routing_config.get("fallback_mode", "pass_through"))
         self.last_metrics: dict[str, Any] = {}
         self.last_raw_output = ""
 
@@ -95,16 +100,30 @@ class RequestRoutingService:
         return units, metrics
 
     def route(self, text: str) -> RequestRouting:
-        try:
-            model_units, metrics = self._call(text)
-            units = [
-                OrderedSemanticUnit(unit_index=index, kind=_KIND_BY_MODEL_LABEL[label], normalized_text=value)
-                for index, (label, value) in enumerate(model_units)
-            ]
-        except (httpx.HTTPError, OSError, ValueError, ValidationError, json.JSONDecodeError) as exc:
-            metrics = {**self.last_metrics, "model": self.model, "model_call_count": 1,
-                       "fallback": True, "fallback_reason": f"{type(exc).__name__}: {exc}"}
-            units = [OrderedSemanticUnit(unit_index=0, kind=SemanticUnitKind.UNCERTAIN, normalized_text=text.strip() or "无法理解")]
+        if not self._enabled:
+            metrics = {**self.last_metrics, "model": self.model, "model_call_count": 0,
+                       "fallback": True, "fallback_reason": "request_routing_disabled"}
+            units = [OrderedSemanticUnit(unit_index=0, kind=SemanticUnitKind.VEHICLE_CONTROL, normalized_text=text.strip() or "无法理解")]
+        else:
+            try:
+                model_units, metrics = self._call(text)
+                units = [
+                    OrderedSemanticUnit(unit_index=index, kind=_KIND_BY_MODEL_LABEL[label], normalized_text=value)
+                    for index, (label, value) in enumerate(model_units)
+                ]
+            except (httpx.HTTPError, OSError, ValueError, ValidationError, json.JSONDecodeError) as exc:
+                # Ollama 不可用时的降级策略由 config/request_routing.yaml 的 fallback_mode 决定：
+                #   pass_through -> 按车控直通（本地无 Ollama 保证链路可测）
+                #   uncertain    -> 判不确定走语义 REVIEW（fail-closed）
+                fallback_kind = (
+                    SemanticUnitKind.VEHICLE_CONTROL
+                    if self._fallback_mode == "pass_through"
+                    else SemanticUnitKind.UNCERTAIN
+                )
+                metrics = {**self.last_metrics, "model": self.model, "model_call_count": 1,
+                           "fallback": True, "fallback_mode": self._fallback_mode,
+                           "fallback_reason": f"{type(exc).__name__}: {exc}"}
+                units = [OrderedSemanticUnit(unit_index=0, kind=fallback_kind, normalized_text=text.strip() or "无法理解")]
         contains_vehicle_control = any(unit.kind == SemanticUnitKind.VEHICLE_CONTROL for unit in units)
         return RequestRouting(
             raw_text=text, units=units, contains_vehicle_control=contains_vehicle_control,
