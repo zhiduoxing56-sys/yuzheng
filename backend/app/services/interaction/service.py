@@ -17,6 +17,7 @@ from app.models.schemas import (
     DecisionLabel, InteractionAction, InteractionCandidate, InteractionRequest,
     InteractionState, InteractionType, TextCommandRequest, UserReason, utc_now,
 )
+from app.services.semantic.area import allowed_areas_for_intent
 
 if TYPE_CHECKING:
     from app.core.pipeline import CommandPipeline
@@ -31,6 +32,14 @@ _FIELD_LABELS = {
     "MODE": "模式", "VALUE": "目标数值", "AREA": "区域", "POSITION": "位置",
     "ANGLE": "角度", "GEAR": "档位", "DIRECTION": "方向",
 }
+
+# 区域歧义候选：内部 area 转可读区域词（与 clarification._AREA_LABELS 对齐）。
+_AREA_LABELS = {
+    "LEFT_FRONT": "左前", "RIGHT_FRONT": "右前", "LEFT_REAR": "左后", "RIGHT_REAR": "右后",
+    "FRONT_ROW": "前排", "REAR_ROW": "后排", "LEFT_SIDE": "左侧", "RIGHT_SIDE": "右侧",
+    "ALL": "全部", "FRONT": "前部", "REAR": "后部",
+}
+_SPECIFIC_AREA_LABELS = ("LEFT_FRONT", "RIGHT_FRONT", "LEFT_REAR", "RIGHT_REAR")
 
 
 class InteractionService:
@@ -106,6 +115,17 @@ class InteractionService:
                 payload=payload, allowed_actions=[InteractionAction.SUBMIT_PARAMETERS, InteractionAction.CANCEL], expires_at=expiry,
             ), record)
         candidates = self._valid_candidates(record)
+        area_candidates = self._area_candidates(record)
+        if area_candidates:
+            return self._save(InteractionRequest(
+                turn_id=record.turn_id, unit_index=(formal[0].clause_index if formal else None), intent_id=(formal[0].intent_id if formal else None),
+                state=InteractionState.NEEDS_CLARIFICATION, interaction_type=InteractionType.SEMANTIC_DISAMBIGUATION,
+                canonical_operation=frame.raw_text, reason_codes=list(record.final_decision.reason_codes),
+                candidates=area_candidates,
+                user_reason=self._reason("AREA_AMBIGUOUS", "请选择具体位置", "您未指定具体车门/车窗，请选择要操作的位置。"),
+                payload={"original_instruction": frame.raw_text, "interpretations": [item.display_text for item in area_candidates]},
+                allowed_actions=[InteractionAction.SELECT_CANDIDATE, InteractionAction.REPHRASE, InteractionAction.CANCEL], expires_at=expiry,
+            ), record)
         if frame.semantic_status != "OK" or frame.unresolved_clauses:
             if len(candidates) >= 2:
                 return self._save(InteractionRequest(
@@ -151,6 +171,33 @@ class InteractionService:
                 allowed_actions=[InteractionAction.EXECUTE, InteractionAction.CANCEL], expires_at=expiry,
             ), record)
         return None
+
+    @staticmethod
+    def _area_candidates(record: "AuditRecord") -> list[InteractionCandidate]:
+        """区域歧义候选：单意图 + 区域未指定 + 意图支持具体区域 → 生成「打开左前车门」等。"""
+        frame = record.semantic_frame
+        if len(frame.intents) != 1:
+            return []
+        intent = frame.intents[0]
+        if intent.area not in (None, "unknown"):
+            return []
+        allowed = allowed_areas_for_intent(intent.intent_id)
+        specific = [area for area in _SPECIFIC_AREA_LABELS if area in allowed]
+        if not specific:
+            return []
+        action = intent.action or ""
+        target = intent.target or ""
+        return [
+            InteractionCandidate(
+                candidate_id=f"AREA_{area}",
+                display_text=f"{action}{_AREA_LABELS.get(area, area)}{target}",
+                canonical_text=f"{action}{_AREA_LABELS.get(area, area)}{target}",
+                canonical_intent_id=intent.intent_id,
+                canonical_slots={"area": area},
+                source="SLOT_COMPLETION",
+            )
+            for area in specific
+        ]
 
     @staticmethod
     def _valid_candidates(record: "AuditRecord") -> list[InteractionCandidate]:
