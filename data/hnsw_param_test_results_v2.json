@@ -1,0 +1,75 @@
+{
+  "synth_structured_N100k": {
+    "M": {
+      "8": {
+        "recall_at_20": 0.381,
+        "build_median_ms": 5173.4,
+        "mem_graph_mb": 6.1,
+        "mem_total_mb": 299.0
+      },
+      "16": {
+        "recall_at_20": 0.657,
+        "build_median_ms": 5890.5,
+        "mem_graph_mb": 12.2,
+        "mem_total_mb": 305.1
+      },
+      "24": {
+        "recall_at_20": 0.71,
+        "build_median_ms": 6023.4,
+        "mem_graph_mb": 18.3,
+        "mem_total_mb": 311.2
+      },
+      "32": {
+        "recall_at_20": 0.783,
+        "build_median_ms": 6008.8,
+        "mem_graph_mb": 24.4,
+        "mem_total_mb": 317.3
+      }
+    },
+    "ef_c": {
+      "50": {
+        "recall_at_20": 0.506,
+        "build_median_ms": 2967.8
+      },
+      "100": {
+        "recall_at_20": 0.588,
+        "build_median_ms": 4092.2
+      },
+      "200": {
+        "recall_at_20": 0.639,
+        "build_median_ms": 6135.3
+      },
+      "400": {
+        "recall_at_20": 0.649,
+        "build_median_ms": 10969.3
+      }
+    },
+    "ef_s": {
+      "10": {
+        "recall_at_20": 0.54,
+        "p50_ms": 0.13,
+        "p95_ms": 0.22
+      },
+      "20": {
+        "recall_at_20": 0.54,
+        "p50_ms": 0.13,
+        "p95_ms": 0.2
+      },
+      "30": {
+        "recall_at_20": 0.622,
+        "p50_ms": 0.15,
+        "p95_ms": 0.23
+      },
+      "40": {
+        "recall_at_20": 0.692,
+        "p50_ms": 0.17,
+        "p95_ms": 0.24
+      },
+      "50": {
+        "recall_at_20": 0.747,
+        "p50_ms": 0.19,
+        "p95_ms": 0.34
+      }
+    }
+  }
+}

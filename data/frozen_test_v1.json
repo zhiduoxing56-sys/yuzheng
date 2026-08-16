@@ -1,0 +1,767 @@
+{
+  "generated_at": "2026-08-15",
+  "note": "Frozen Test Set v1（42条，未参与调参）",
+  "total": 42,
+  "cases": [
+    {
+      "query": "天黑了，帮我打开照明",
+      "intent_id": "HEADLIGHT_SET_MODE",
+      "type": "OMIT",
+      "capability_domain": "BODY_MAIN_LIGHT_MODE",
+      "relevant_knowledge_ids": [
+        "知识.灯光.前照灯配置.001",
+        "知识.灯光.前照灯功能调整.002",
+        "知识.灯光.光束照射位置.004"
+      ],
+      "required_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "LIGHTING_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "ENVIRONMENT_CONDITIONS"
+      ]
+    },
+    {
+      "query": "关掉车灯",
+      "intent_id": "HEADLIGHT_SET_MODE",
+      "type": "SYN",
+      "capability_domain": "BODY_MAIN_LIGHT_MODE",
+      "relevant_knowledge_ids": [
+        "知识.灯光.前照灯配置.001",
+        "知识.灯光.前照灯功能调整.002",
+        "知识.灯光.光束照射位置.004"
+      ],
+      "required_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "LIGHTING_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "ENVIRONMENT_CONDITIONS"
+      ]
+    },
+    {
+      "query": "对面来车了，切一下远近光",
+      "intent_id": "HIGH_BEAM_ON",
+      "type": "SYN",
+      "capability_domain": "BODY_HIGH_BEAM",
+      "relevant_knowledge_ids": [
+        "知识.灯光.远光指示信号.005",
+        "知识.灯光.近光会车.004"
+      ],
+      "required_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "LIGHTING_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "高速上开远光跑",
+      "intent_id": "HIGH_BEAM_ON",
+      "type": "NORM",
+      "capability_domain": "BODY_HIGH_BEAM",
+      "relevant_knowledge_ids": [
+        "知识.灯光.远光指示信号.005",
+        "知识.灯光.近光会车.004"
+      ],
+      "required_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "LIGHTING_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "下雨了开灯",
+      "intent_id": "LOW_BEAM_ON",
+      "type": "OMIT",
+      "capability_domain": "BODY_LOW_BEAM",
+      "relevant_knowledge_ids": [
+        "知识.灯光.近光灯要求.006"
+      ],
+      "required_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "LIGHTING_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "雾好大，开一下灯",
+      "intent_id": "FOG_LIGHT_ON",
+      "type": "SYN",
+      "capability_domain": "BODY_FOG_LIGHT",
+      "relevant_knowledge_ids": [
+        "知识.灯光.雾灯要求.007",
+        "知识.灯光.前雾灯安装.001",
+        "知识.灯光.后雾灯安装.002"
+      ],
+      "required_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "LIGHTING_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "双闪灯按一下",
+      "intent_id": "HAZARD_LIGHT_ON",
+      "type": "SYN",
+      "capability_domain": "BODY_HAZARD_LIGHT",
+      "relevant_knowledge_ids": [
+        "知识.灯光.危险警告信号.009",
+        "知识.法规合规.故障停车警示.012"
+      ],
+      "required_evidence": [
+        "LIGHTING_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "示宽灯开起来",
+      "intent_id": "PARKING_LIGHT_ON",
+      "type": "SYN",
+      "capability_domain": "BODY_PARKING_LIGHT",
+      "relevant_knowledge_ids": [
+        "知识.灯光.驻车灯示廓灯.008",
+        "知识.灯光.驻车灯安装.003"
+      ],
+      "required_evidence": [
+        "GEAR_STATE",
+        "LIGHTING_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "急刹！",
+      "intent_id": "EMERGENCY_BRAKE",
+      "type": "BOUND",
+      "capability_domain": "PROJECT_SERVICE_BRAKING",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.应急制动功能.008",
+        "知识.行驶控制.行车制动失效应急.009",
+        "知识.行驶控制.智能网联汽车操纵件.028"
+      ],
+      "required_evidence": [
+        "LANE_STATE",
+        "ROAD_FRICTION_STATE",
+        "SERVICE_BRAKE_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "SURROUNDING_OBJECT_STATE",
+        "ROAD_FRICTION_STATE"
+      ]
+    },
+    {
+      "query": "马上把车停住",
+      "intent_id": "EMERGENCY_BRAKE",
+      "type": "SYN",
+      "capability_domain": "PROJECT_SERVICE_BRAKING",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.应急制动功能.008",
+        "知识.行驶控制.行车制动失效应急.009",
+        "知识.行驶控制.智能网联汽车操纵件.028"
+      ],
+      "required_evidence": [
+        "LANE_STATE",
+        "ROAD_FRICTION_STATE",
+        "SERVICE_BRAKE_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "SURROUNDING_OBJECT_STATE",
+        "ROAD_FRICTION_STATE"
+      ]
+    },
+    {
+      "query": "减速停车",
+      "intent_id": "BRAKE",
+      "type": "OMIT",
+      "capability_domain": "PROJECT_SERVICE_BRAKING",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.车辆控制行驶安全.001",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.行车制动性能.004",
+        "知识.行驶控制.车辆仪表要求.013"
+      ],
+      "required_evidence": [
+        "LIGHTING_STATE",
+        "ROAD_FRICTION_STATE",
+        "SERVICE_BRAKE_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "SURROUNDING_OBJECT_STATE",
+        "ROAD_FRICTION_STATE"
+      ]
+    },
+    {
+      "query": "踩脚刹车",
+      "intent_id": "BRAKE",
+      "type": "SYN",
+      "capability_domain": "PROJECT_SERVICE_BRAKING",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.车辆控制行驶安全.001",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.行车制动性能.004",
+        "知识.行驶控制.车辆仪表要求.013"
+      ],
+      "required_evidence": [
+        "LIGHTING_STATE",
+        "ROAD_FRICTION_STATE",
+        "SERVICE_BRAKE_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "SURROUNDING_OBJECT_STATE",
+        "ROAD_FRICTION_STATE"
+      ]
+    },
+    {
+      "query": "电子驻车拉起",
+      "intent_id": "PARKING_BRAKE_APPLY",
+      "type": "SYN",
+      "capability_domain": "CHASSIS_PARKING_BRAKE",
+      "relevant_knowledge_ids": [
+        "知识.泊车驻车.驻车制动施加.002",
+        "知识.泊车驻车.驻车制动力要求.003"
+      ],
+      "required_evidence": [
+        "GEAR_STATE",
+        "PARKING_BRAKE_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "PARKING_BRAKE_STATE"
+      ]
+    },
+    {
+      "query": "P挡驻车",
+      "intent_id": "PARKING_BRAKE_APPLY",
+      "type": "OMIT",
+      "capability_domain": "CHASSIS_PARKING_BRAKE",
+      "relevant_knowledge_ids": [
+        "知识.泊车驻车.驻车制动施加.002",
+        "知识.泊车驻车.驻车制动力要求.003"
+      ],
+      "required_evidence": [
+        "GEAR_STATE",
+        "PARKING_BRAKE_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "PARKING_BRAKE_STATE"
+      ]
+    },
+    {
+      "query": "解除驻车",
+      "intent_id": "PARKING_BRAKE_RELEASE",
+      "type": "SYN",
+      "capability_domain": "CHASSIS_PARKING_BRAKE",
+      "relevant_knowledge_ids": [
+        "知识.泊车驻车.驻车制动解除.004"
+      ],
+      "required_evidence": [
+        "GEAR_STATE",
+        "PARKING_BRAKE_STATE",
+        "SERVICE_BRAKE_STATE"
+      ],
+      "mandatory_evidence": [
+        "PARKING_BRAKE_STATE",
+        "GEAR_STATE",
+        "SERVICE_BRAKE_STATE"
+      ]
+    },
+    {
+      "query": "开门",
+      "intent_id": "DOOR_OPEN",
+      "type": "BOUND",
+      "capability_domain": "CABIN_DOOR_OPENING",
+      "relevant_knowledge_ids": [
+        "知识.车身.乘客门开启.001",
+        "知识.车身.车门开启档位速度核查.002"
+      ],
+      "required_evidence": [
+        "DOOR_STATE",
+        "GEAR_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "车停稳了，开一下门",
+      "intent_id": "DOOR_OPEN",
+      "type": "NORM",
+      "capability_domain": "CABIN_DOOR_OPENING",
+      "relevant_knowledge_ids": [
+        "知识.车身.乘客门开启.001",
+        "知识.车身.车门开启档位速度核查.002"
+      ],
+      "required_evidence": [
+        "DOOR_STATE",
+        "GEAR_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "锁上车门",
+      "intent_id": "DOOR_LOCK",
+      "type": "SYN",
+      "capability_domain": "CABIN_DOOR_LOCK",
+      "relevant_knowledge_ids": [
+        "知识.车身.车门车窗启闭.003",
+        "知识.车身.遥控钥匙锁止.004"
+      ],
+      "required_evidence": [
+        "AUTHORIZATION_STATE",
+        "DOOR_LOCK_STATE",
+        "DOOR_STATE",
+        "GEAR_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "车窗留条缝",
+      "intent_id": "WINDOW_OPEN",
+      "type": "SYN",
+      "capability_domain": "CABIN_WINDOW",
+      "relevant_knowledge_ids": [
+        "知识.车身.安全玻璃要求.005",
+        "知识.车身.电动窗控制装置.007"
+      ],
+      "required_evidence": [
+        "VEHICLE_SPEED",
+        "WINDOW_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "摇下车窗",
+      "intent_id": "WINDOW_OPEN",
+      "type": "SYN",
+      "capability_domain": "CABIN_WINDOW",
+      "relevant_knowledge_ids": [
+        "知识.车身.安全玻璃要求.005",
+        "知识.车身.电动窗控制装置.007"
+      ],
+      "required_evidence": [
+        "VEHICLE_SPEED",
+        "WINDOW_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "帮我倒进去",
+      "intent_id": "AUTO_PARK_ENABLE",
+      "type": "OMIT",
+      "capability_domain": "PROJECT_AUTO_PARK",
+      "relevant_knowledge_ids": [
+        "知识.泊车驻车.自动泊车启用.001"
+      ],
+      "required_evidence": [
+        "FREE_SPACE_STATE",
+        "GEAR_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "FREE_SPACE_STATE",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "自动泊入这个车位",
+      "intent_id": "AUTO_PARK_ENABLE",
+      "type": "SYN",
+      "capability_domain": "PROJECT_AUTO_PARK",
+      "relevant_knowledge_ids": [
+        "知识.泊车驻车.自动泊车启用.001"
+      ],
+      "required_evidence": [
+        "FREE_SPACE_STATE",
+        "GEAR_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "FREE_SPACE_STATE",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "开巡航",
+      "intent_id": "CRUISE_ENABLE",
+      "type": "SYN",
+      "capability_domain": "ADAS_CRUISE_CONTROL",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.巡航激活条件.023"
+      ],
+      "required_evidence": [
+        "CRUISE_STATE",
+        "GEAR_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "CRUISE_STATE"
+      ]
+    },
+    {
+      "query": "跟随前车跑",
+      "intent_id": "CRUISE_ENABLE",
+      "type": "OMIT",
+      "capability_domain": "ADAS_CRUISE_CONTROL",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.巡航激活条件.023"
+      ],
+      "required_evidence": [
+        "CRUISE_STATE",
+        "GEAR_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "CRUISE_STATE"
+      ]
+    },
+    {
+      "query": "车距保持三秒",
+      "intent_id": "CRUISE_SET_GAP",
+      "type": "SYN",
+      "capability_domain": "ADAS_CRUISE_CONTROL",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.巡航跟车时距.024"
+      ],
+      "required_evidence": [
+        "CRUISE_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "CRUISE_STATE",
+        "VEHICLE_SPEED",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "巡航车速定在120",
+      "intent_id": "CRUISE_SET_SPEED",
+      "type": "NORM",
+      "capability_domain": "ADAS_CRUISE_CONTROL",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.行驶控制.超速报警.025",
+        "知识.行驶控制.限速功能.026"
+      ],
+      "required_evidence": [
+        "CRUISE_STATE",
+        "GEAR_STATE",
+        "SPEED_LIMIT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "CRUISE_STATE",
+        "VEHICLE_SPEED",
+        "SPEED_LIMIT_STATE"
+      ]
+    },
+    {
+      "query": "别压线，帮我稳住",
+      "intent_id": "LANE_KEEP",
+      "type": "SYN",
+      "capability_domain": "PROJECT_LANE_CONTROL",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.车道保持辅助.020",
+        "知识.行驶控制.车道保持横向控制.022"
+      ],
+      "required_evidence": [
+        "LANE_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "LANE_STATE"
+      ]
+    },
+    {
+      "query": "变个道超车",
+      "intent_id": "LANE_CHANGE",
+      "type": "SYN",
+      "capability_domain": "PROJECT_LANE_CONTROL",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.换道通用约束.014",
+        "知识.行驶控制.换道前系统自检.015",
+        "知识.行驶控制.换道横向中断控制.018",
+        "知识.行驶控制.换道安全空间核查.019"
+      ],
+      "required_evidence": [
+        "LANE_STATE",
+        "STEERING_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "LANE_STATE",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "借道超车",
+      "intent_id": "LANE_CHANGE",
+      "type": "OMIT",
+      "capability_domain": "PROJECT_LANE_CONTROL",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.换道通用约束.014",
+        "知识.行驶控制.换道前系统自检.015",
+        "知识.行驶控制.换道横向中断控制.018",
+        "知识.行驶控制.换道安全空间核查.019"
+      ],
+      "required_evidence": [
+        "LANE_STATE",
+        "STEERING_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": [
+        "VEHICLE_SPEED",
+        "LANE_STATE",
+        "SURROUNDING_OBJECT_STATE"
+      ]
+    },
+    {
+      "query": "系统启动时校验固件吗",
+      "intent_id": "SEC_SECURE_BOOT",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.网络安全.安全启动.001"
+      ],
+      "required_evidence": [
+        "AUTHENTICATION_STATE",
+        "SECURITY_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "没权限能不能读写车内数据",
+      "intent_id": "SEC_ACCESS_CONTROL",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.网络安全.访问控制.002",
+        "知识.网络安全.外部接口保护.012"
+      ],
+      "required_evidence": [
+        "AUTHENTICATION_STATE",
+        "AUTHORIZATION_STATE",
+        "INTERFACE_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "安全日志存多久",
+      "intent_id": "SEC_LOG_AUDIT",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.网络安全.安全日志.010",
+        "知识.网络安全.信息安全事件应急.017"
+      ],
+      "required_evidence": [
+        "EMERGENCY_PLAN_STATE",
+        "SECURITY_EVENT_STATE",
+        "SECURITY_LOG_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "OTA包验签",
+      "intent_id": "SEC_OTA_PACKAGE",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.网络安全.升级包安全.011"
+      ],
+      "required_evidence": [
+        "AUTHENTICATION_STATE",
+        "PACKAGE_INTEGRITY_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "行车中可以刷系统吗",
+      "intent_id": "OTA_PRECONDITION",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.OTA升级.升级先决条件.001"
+      ],
+      "required_evidence": [
+        "BATTERY_STATE",
+        "DOOR_STATE",
+        "GEAR_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "升级到一半断电怎么办",
+      "intent_id": "OTA_ROLLBACK",
+      "type": "BOUND",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.OTA升级.升级失败回滚.003"
+      ],
+      "required_evidence": [
+        "SOFTWARE_VERSION",
+        "UPDATE_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "我的行车数据会上传吗",
+      "intent_id": "DATA_EXPORT",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.数据安全.数据出境.007"
+      ],
+      "required_evidence": [
+        "DATA_CATEGORY",
+        "DATA_LOCATION_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "不想被收集信息",
+      "intent_id": "DATA_DELETE",
+      "type": "OMIT",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.数据安全.个人信息删除.006"
+      ],
+      "required_evidence": [
+        "DATA_CATEGORY",
+        "DATA_DELETE_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "车里拍到的能传出去吗",
+      "intent_id": "LAW_IMAGE_COLLECTION",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.法规合规.图像采集限制.006"
+      ],
+      "required_evidence": [
+        "AUTHORIZATION_STATE",
+        "DATA_CATEGORY"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "自动驾驶记录系统记录什么",
+      "intent_id": "DSSAD_TRIGGER",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.事故记录.事件记录触发.001"
+      ],
+      "required_evidence": [
+        "ADS_STATE",
+        "SYSTEM_FAILURE_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "撞车后数据还在吗",
+      "intent_id": "DSSAD_SECURITY",
+      "type": "SYN",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.事故记录.记录信息安全.004"
+      ],
+      "required_evidence": [
+        "AUTHORIZATION_STATE",
+        "DATA_INTEGRITY_STATE",
+        "SECURITY_STATE"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "跟车太近有危险吗",
+      "intent_id": "LAW_SAFE_DISTANCE",
+      "type": "NORM",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.法规合规.安全车距.010"
+      ],
+      "required_evidence": [
+        "ROAD_FRICTION_STATE",
+        "SURROUNDING_OBJECT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": []
+    },
+    {
+      "query": "雨天可以开快吗",
+      "intent_id": "LAW_SPEED_LIMIT",
+      "type": "BOUND",
+      "capability_domain": "SECURITY",
+      "relevant_knowledge_ids": [
+        "知识.行驶控制.限速功能.026",
+        "知识.法规合规.车速限制.009"
+      ],
+      "required_evidence": [
+        "ENVIRONMENT_CONDITIONS",
+        "SPEED_LIMIT_STATE",
+        "VEHICLE_SPEED"
+      ],
+      "mandatory_evidence": []
+    }
+  ]
+}

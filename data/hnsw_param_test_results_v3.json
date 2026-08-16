@@ -1,0 +1,32 @@
+{
+  "10": {
+    "self_query": {
+      "recall_at_20": 0.817,
+      "p50_ms": 0.12
+    },
+    "cross_cluster": {
+      "recall_at_20": 0.54,
+      "p50_ms": 0.12
+    }
+  },
+  "30": {
+    "self_query": {
+      "recall_at_20": 0.874,
+      "p50_ms": 0.14
+    },
+    "cross_cluster": {
+      "recall_at_20": 0.612,
+      "p50_ms": 0.15
+    }
+  },
+  "50": {
+    "self_query": {
+      "recall_at_20": 0.921,
+      "p50_ms": 0.2
+    },
+    "cross_cluster": {
+      "recall_at_20": 0.773,
+      "p50_ms": 0.18
+    }
+  }
+}

@@ -1,0 +1,829 @@
+[
+  {
+    "standard_id": "GB/T 44298-2024",
+    "clause": "4.1",
+    "content": "智能网联汽车操纵件、指示器及信号装置标志与颜色要求  约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE SURROUNDING_OBJECT_STATE VEHICLE_SPEED",
+    "source": "GB/T 44298-2024",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB/T 44461.1-2024",
+    "clause": "4.1",
+    "content": "激活条件下的车辆控制与行驶安全 系统应具备明确的激活条件，在激活状态下应辅助驾驶员将车辆控制在选定车道内行驶，并允许驾驶员调节巡航车速等设置，且不应影响自动紧急制动等应急辅助类功能的激活。 约束:ALLOW_WITH_CONDITION 证据:CRUISE_STATE",
+    "source": "GB/T 44461.1-2024",
+    "evidence_types": [
+      "CRUISE_STATE",
+      "EMERGENCY_STATE",
+      "GEAR_STATE",
+      "LANE_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SPEED_LIMIT_STATE",
+      "STEERING_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB/T 44461.1-2024",
+    "clause": "4.5",
+    "content": "驾驶员监测系统在特定车速范围内的脱手检测 在车速介于10 km/h和v两者中的较大值与v之间时，驾驶员监测系统应至少采用脱手检测方式持续监控驾驶员是否执行动态驾驶任务。 约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED",
+    "source": "GB/T 44461.1-2024",
+    "evidence_types": [
+      "GEAR_STATE",
+      "SPEED_LIMIT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "4.15.2",
+    "content": "车辆控制/行驶安全  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE ROAD_FRICTION_STATE SPEED_LIMIT_STATE OCCUPANT_STATE VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "4.16.1",
+    "content": "乘用车列车的安全要求 组成乘用车列车的乘用车应满足以下安全要求：a) 车宽大于或等于1650mm；b) 应装备防抱制动装置；c) 应装备符合标准规定的电连接接头，电路容量大于或等于20A；d) 应装备符合标准规定的A50连接球头。这些要求适用于车辆在行驶状态下的安全控制和低速行驶条件。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "4.17.3",
+    "content": "车道保持辅助系统和自动紧急制动系统的装备要求 标准GB 7258-2017规定，车长大于11m的公路客车和旅游客车应装备符舍标准规定的车道保持辅助系统和自动紧急制动系统。 约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "LANE_STATE",
+      "SERVICE_BRAKE_STATE",
+      "STEERING_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "6.12",
+    "content": "  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.1.1",
+    "content": "车辆减速、停车和驻车制动系统 机动车应设置足以使其减速、停车和驻车的制动系统或装置，且行车制动的控制装置与驻车制动的控制装置应相互独立。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE PARKING_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "PARKING_BRAKE_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.1.2",
+    "content": "制动系统的耐用性 制动系统的机构和装置应经久耐用，不会因振动或冲击而损坏。此条款关注车辆在行驶状态下的安全性能，特别是制动系统在低速行驶条件下的可靠性。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.1.3",
+    "content": "制动系统维修便利性 该条款要求制动系统相关零部件易于维修，因此与车辆控制和行驶安全密切相关。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.1.4",
+    "content": "制动系统部件干涉与损坏预防 该条款规定了制动系统的各种杆件不应与其他部件在相对位移中发生干涉、摩擦，以防杆件变形、损坏。这与车辆控制和行驶安全相关，特别是当车辆处于停止状态时（VEHICLE_STOPED），需要通过检查服务刹车的状态来确保其正常工作，以避免因刹车系统问题导致的事故风险。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.1.5",
+    "content": "制动管路要求 制动管路应为专用的耐腐蚀高压管路，安装应保证具有良好的连续功能、足够的长度和柔性。同时，制动软管不应与其他部件干涉且不应有老化、开裂、被压扁、鼓包等现象。其他气动装置在出现故障时不应影响制动系统的正常工作。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.1.6",
+    "content": "汽车制动完全释放时间限制 GB 7258-2017标准规定，汽车制动完全释放时间对两轴及以下车辆应小于或等于0.8秒。此条款与车辆控制/行驶安全相关，需要通过检查服务刹车状态来验证是否满足条件。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.2",
+    "content": "行车制动控制 行车制动应保证驾驶人在行车过程中能控制机动车安全、有效地减速和停车。行车制动应是可控制的，且除残疾人专用汽车外，应保证驾驶人在其座位上双手元须离开方向盘〈或方向把〉就能实现制动。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE STEERING_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.4",
+    "content": "行车制动动力分配 该条款规定了行车制动的llitJ动力应在各轴之间合理分配，确保车辆在行驶过程中安全。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.8",
+    "content": "制动踏板自由行程与车型技术要求一致  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.9",
+    "content": "行车制动效能要求 标准GB 7258-2017规定，在高速行驶条件下，行车制动在产生最大制动效能时的踏板力或手握力应小于或等于特定数值。具体要求如下：乘用车和正三轮摩托车为500N；摩托车（不含正三轮摩托）为350N（踏板力）或250N（手握力）；其他机动车为700N。 约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.10",
+    "content": "气压制动响应时间  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.13",
+    "content": "防抱制动装置电器故障限制 标准GB 7258-2017规定，防抱制动装置中的任何电器故障不应使行车制动器的制动促动时间和制动释放时间延长。在需要电源进行操纵防抱制动装置的挂车上，电源应由专用电源线路供给，并且要求提供服务制动系统的状态信息作为额外证据。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.14",
+    "content": "行车制动副制动装置 教练车（三轮汽车除外）及自学用车的行车制动应装备有副制动装置，保证在行驶和停车过程中能有效地控制机动车减速和停车。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.15",
+    "content": "气压制动系统的测试连接器要求 标准GB 7258-2017规定，采用气压制动的汽车和挂车，在设计和制造上每个储气筒（有压力表等压力显示装置的除外）和制动气室都应具有可用于测试制动管路压力的连接器。此要求适用于车辆行驶过程中，即条件为VEHICLE_MOVING时。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.3.1",
+    "content": "应急制动功能 汽车（三轮汽车除外）应具有应急制动功能。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "EMERGENCY_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.3.2",
+    "content": "应急制动在行车制动失效时的安全要求 应急制动系统应确保在行车制动失效的情况下，在规定的距离内将车辆安全停下。此要求适用于所有行驶中的车辆，并需通过服务刹车状态进行验证。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "EMERGENCY_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.3.3",
+    "content": "应急制动  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE LANE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "EMERGENCY_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.3.4",
+    "content": "应急制动性能  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "EMERGENCY_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.3.5",
+    "content": "行车制动失效时剩余制动性能要求 客车、货车和货车底盘改装的专项作业车，在行车制动传输装置部分失效时，应具有符合GB 12676规定的剩余制动性能。需要提供服务制动状态证据 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.4.1",
+    "content": "驻车制动装置  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "PARKING_BRAKE_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.4.3",
+    "content": "驻车制动力要求 GB 7258-2017标准中规定，驻车制动应通过纯机械装置实现，并且在手操纵时（乘用车小于等于400N，其他机动车小于等于600N）和脚操纵时（乘用车小于等于500N，其他机动车小于等于700N），驾驶人施加于操纵装置上的力。此条款与车辆控制/行驶安全相关，需要额外证据确认服务制动状态。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "PARKING_BRAKE_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.4.4",
+    "content": "驻车制动装置的要求  约束:REQUIRE_EXTRA_EVIDENCE 证据:PARKING_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "PARKING_BRAKE_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.4.5",
+    "content": "驻车制动装置失效解除方式 该条款规定了在采用弹簧储能制动装置作为驻车制动时，如果制动装置失效，应确保能够方便地解除驻车状态。若需使用专用工具，则应在车上配备。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "PARKING_BRAKE_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.6.1",
+    "content": "液压制动系统的安全要求 该条款规定了采用液压制动的机动车在特定条件下的安全要求，具体为：制动管路不应存在渗漏现象，并且在保持踏板力达到一定时间后，踏板不应有缓慢向前移动的现象。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.6.2",
+    "content": "液压行车制动踏板行程限制 液压行车制动在达到规定的制动效能时，踏板行程应符合特定限制条件。具体要求包括：乘用车的踏板行程应小于或等于120mm，其他机动车的踏板行程应小于或等于150mm。此条款适用于车辆行驶状态下的安全控制和行驶安全。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE ROAD_FRICTION_STATE VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.7",
+    "content": "气压制动系统的压力稳定要求  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE ENVIRONMENT_CONDITIONS VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.7.2",
+    "content": "气压制动系统在不同转速和时间内的压力要求 该条款规定了气压制动系统在发动机75%额定转速下，4分钟内压力从零升至起步气压的要求。特别指出对于汽车列车为6分钟，铰接客车和铰接式无轨电车为8分钟。此要求主要针对车辆行驶安全中的低速行驶状态（LOW_SPEED），需要通过额外证据确认制动系统的状态（SERVICE_BRAKE_STATE）来满足规定条件。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.7.3",
+    "content": "气压制动系统限压装置  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.7.4",
+    "content": "气压制动系安装要求 根据GB 7258-2017标准第7.7.4条，气压制动系应安装保持压缩空气干燥、油水分离的装置。此要求适用于车辆处于停止状态（VEHICLE_STOPED），需要额外证据确认服务制动系统的状态。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.8.3",
+    "content": "储气筒在连续五次踩到底的全行程制动后的气压要求 储气筒的容量应保证在额定工作气压且不继续充气的情况下，机动车在连续五次踩到底的全行程制动后，气压不低于起步气压。需要通过检测服务刹车状态来验证这一要求。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.9.1",
+    "content": "液压制动储液器加注口设计 该条款要求采用液压制动的机动车，其储液器加注口应易于接近，并在不打开容器的情况下检查液面。如无法满足条件，则需安装制动液面过低报警装置。此规定旨在确保车辆行驶安全。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.9.2",
+    "content": "液压制动失效报警信号灯 采用液压制动的汽车（三轮汽车和装用单缸柴油机的低速货车除外），当任一液压传能装置失效时，应通过红色报警信号灯警示驾驶人。该报警信号灯需在失效继续存在且点火开关处在开的位置下保持发亮，并确保驾驶人在其座位上能够观察到报警信号灯工作是否正常。报警装置的失效不应导致制动系统完全丧失制动效能。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.9.3",
+    "content": "气压制动系统报警装置 采用气压制动的机动车，当制动系统的气压低于起步气压时，报警装置应能连续向驾驶人发出容易听到或看到的报警信号。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.9.4",
+    "content": "防抱制动装置失效时报警装置要求 安装具有防抱制动装置的汽车，当防抱制动装置失效时，报警装置应能连续向驾驶人发出容易听到或看到的报警信号。此要求适用于车辆在行驶状态（VEHICLE_MOVING），并且需要额外证据来验证服务刹车的状态（SERVICE_BRAKE_STATE） 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.10.1",
+    "content": "行车制动性能和应急制动性能检验条件  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE ENVIRONMENT_CONDITIONS VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "EMERGENCY_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "8.2.3",
+    "content": "前照灯、前位灯、后位灯等配置要求  约束:REQUIRE_EXTRA_EVIDENCE 证据:LIGHTING_STATE ENVIRONMENT_CONDITIONS VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "ENVIRONMENT_CONDITIONS",
+      "LIGHTING_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "8.3.7",
+    "content": "仪表板上的远光指示信号和转向指示信号  约束:REQUIRE_EXTRA_EVIDENCE 证据:LIGHTING_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "ROAD_FRICTION_STATE",
+      "STEERING_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "8.5.1",
+    "content": "前照灯功能与调整  约束:REQUIRE_EXTRA_EVIDENCE 证据:LIGHTING_STATE ENVIRONMENT_CONDITIONS VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "ENVIRONMENT_CONDITIONS",
+      "LIGHTING_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "8.5.2",
+    "content": "远光光束发光强度要求  约束:REQUIRE_EXTRA_EVIDENCE 证据:LIGHTING_STATE ENVIRONMENT_CONDITIONS VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "8.5.3",
+    "content": "光束照射位置要求  约束:REQUIRE_EXTRA_EVIDENCE 证据:LIGHTING_STATE ENVIRONMENT_CONDITIONS VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "8.6.3",
+    "content": "车辆仪表要求 摩托车应装有车速里程表。三轮汽车、装用单缸柴油机的低速货车和轮式拖拉机运输机组应装有水温表（蒸发式水冷却系统除外）、机油压力表或机油压力指示器、电流表或充电指示器，其他汽车应装有燃料表（气体燃料汽车为气量显示装置，纯电动汽车、插电式混合动力汽车为可充电储能系统[REESS]电量显示装置，燃料电池汽车为氢气量显示装置），并能显示水温或水温报警信息、机油压力或机油压力报警信息、电流或电压或充电指示信息、车速、里程等信息。采用气压制动的机动车，还应能显示气压。机动车装备的仪表应完好，规定信息的显示功能应有效。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "SERVICE_BRAKE_STATE",
+      "SPEED_LIMIT_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "8.6.9",
+    "content": "车辆外部广告屏（箱）在行驶状态下的关闭要求 车身外部设有广告屏（箱）的汽车和挂车，在车辆行驶状态下应保证广告屏（箱）处于关闭状态。此要求确保电气设备不影响制动、转向、照明和信号装置等运行安全，同时防止因广告屏（箱）在行驶中开启而可能对驾驶环境造成干扰的问题。 约束:REQUIRE_EXTRA_EVIDENCE 证据:LIGHTING_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "ENVIRONMENT_CONDITIONS",
+      "ROAD_FRICTION_STATE",
+      "SERVICE_BRAKE_STATE",
+      "STEERING_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "10.2.1",
+    "content": "换挡时齿轮应瞄合灵便，互锁、自锁和倒挡锁装置应有效  约束:REQUIRE_EXTRA_EVIDENCE 证据:GEAR_STATE SERVICE_BRAKE_STATE LANE_STATE SURROUNDING_OBJECT_STATE CRUISE_STATE PARKING_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "10.5.1",
+    "content": "车长大于或等于6m客车超速报警功能 车长大于或等于6m的客车应具有超速报警功能，当行驶速度超过允许的最大行驶速度（最大行驶速度不应大于100km/h）时能通过视觉和声觉信号报警。但具有符合规定的限速功能或限速装置的除外。 约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SPEED_LIMIT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "10.5.2",
+    "content": "超速报警功能 兰轴及兰轴以上货车（具有限速功能或配备有限速装置，且限速功能或装置符合规定的除外）应具有超速报警功能。当行驶速度对混凝土搅拌运输车大于或等于60km/h、对其他货车大于或等于100km/h时，能通过视觉和声觉信号报警。 约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SPEED_LIMIT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "10.5.3",
+    "content": "限速功能与装置要求 该条款规定了公路客车、旅游客车和危险货物运输货车等车辆应具备限速功能或配备限速装置，以确保行驶安全。具体要求包括：限速功能或装置需符合GB/T 24545的要求，并且在特定条件下对车速有明确限制。 约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "SPEED_LIMIT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "11.5.2",
+    "content": "乘用车和旅居车乘客门开启要求 条款规定乘用车应保证每个乘员至少能从两个不同的车门上下车，并且当乘用车静止时，所有供乘员上下车的车门（安装的儿童锁锁止时除外）均应能从车内开启。对于旅居车，至少应有两个车门，其中乘客门位于车厢后部或右侧，净高度和宽度有具体要求。 约束:REQUIRE_EXTRA_EVIDENCE 证据:DOOR_STATE VEHICLE_SPEED GEAR_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "DOOR_LOCK_STATE",
+      "DOOR_STATE",
+      "OCCUPANT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "11.5.6",
+    "content": "机动车门窗安全玻璃要求 根据GB 7258-2017标准，机动车的门窗应使用符合GB 9656规定的安全玻璃。但作为击碎玻璃式应急窗的车窗，应使用厚度小于或等于5mm的钢化玻璃或每层厚度不超过5mm的中空钢化玻璃。此条款涉及车辆行驶安全控制。 约束:REQUIRE_EXTRA_EVIDENCE 证据:DOOR_STATE VEHICLE_SPEED WINDOW_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "DOOR_LOCK_STATE",
+      "DOOR_STATE",
+      "EMERGENCY_STATE",
+      "OCCUPANT_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED",
+      "WINDOW_STATE"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "11.5.8",
+    "content": "客车、旅居车、专项作业车乘坐区两侧设置车窗 客车、旅居车、专项作业车的乘坐区两侧应设置车窗，厢式货车和封闭式货车驾驶室两旁应设置车窗，货厢部位不应设置车窗（但用于观察货物状态的观察窗除外）。 约束:REQUIRE_EXTRA_EVIDENCE 证据:WINDOW_STATE VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "OCCUPANT_STATE",
+      "VEHICLE_SPEED",
+      "WINDOW_STATE"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "11.5.9",
+    "content": "乘用车电动窗（包括电动天窗）控制装置要求 装有电动窗（包括电动天窗）的乘用车，其控制装置应确保车窗玻璃在运动过程中能在任意位置可靠停住或遇障碍可自动下降（缩回）。此要求适用于车辆行驶状态下的安全控制。 约束:REQUIRE_EXTRA_EVIDENCE 证据:WINDOW_STATE VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "OCCUPANT_STATE",
+      "SUNROOF_STATE",
+      "VEHICLE_SPEED",
+      "WINDOW_STATE"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "12.15.4",
+    "content": "前风窗玻璃除雾、除霜装置 乘用车、旅居车、专用校车的前风窗玻璃应装有除雾、除霜装置，以确保在恶劣天气条件下（如雾）驾驶员能清晰观察路况。 约束:REQUIRE_EXTRA_EVIDENCE 证据:LIGHTING_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "DEFROST_STATE",
+      "ENVIRONMENT_CONDITIONS"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "14.4",
+    "content": "制动和加速辅助装置互锁功能 加装的制动和加速辅助装置应具有互锁功能，确保在正压力达到500N时控制手柄表面的压力不超过300N，并且在车辆行驶状态下进行验证。 约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE CRUISE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "14.5",
+    "content": "转向信号迁延开关及驻车制动辅助手柄安装要求 加装的转向信号迁延开关及驻车制动辅助手柄应刚性固定。转向信号迁延开关应开关自如，功能可靠，不会因振动和其他外力条件而自行开关；驻车制动辅助手柄应操纵轻便、锁止可靠，操纵力应小于或等于200N。 约束:REQUIRE_EXTRA_EVIDENCE 证据:STEERING_STATE SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "PARKING_BRAKE_STATE",
+      "ROAD_FRICTION_STATE",
+      "SERVICE_BRAKE_STATE",
+      "STEERING_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "7.2.6",
+    "content": "危险货物运输半挂车所有车轮装备盘式制动器  约束:REQUIRE_EXTRA_EVIDENCE 证据:SERVICE_BRAKE_STATE VEHICLE_SPEED ROAD_FRICTION_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "SERVICE_BRAKE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "10.5.2",
+    "content": "关于三轴及三轴以上货车应具有超速报警功能的要求  约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "15.6",
+    "content": "关于车长大于 llm 的公路客车和旅游客车装备车道保持辅助系统的条款  约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "LANE_STATE",
+      "STEERING_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.1.1",
+    "content": "  约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE SURROUNDING_OBJECT_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.1.2",
+    "content": "  约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED FREE_SPACE_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.2",
+    "content": "换道前系统自检 系统应在触发换道过程前完成自检，至少应具备以下自检功能：检查相关电气部件是否失效（a）；检查相关传感元件是否失效（b）。检测到状态异常时不应进入换道准备阶段。 约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE SURROUNDING_OBJECT_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": [
+      "LANE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.3.3",
+    "content": "  约束:REQUIRE_EXTRA_EVIDENCE 证据:STEERING_STATE VEHICLE_SPEED",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.5.2",
+    "content": "  约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE SURROUNDING_OBJECT_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": []
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.5.3",
+    "content": "换道过程转向信号灯控制 除发生换道等待外，系统应在换道过程保持转向信号灯处于开启状态，并符合以下要求：若系统换道过程中转向信号灯操纵件未处于锁止位置，在单车道行驶控制恢复时自动关闭；若系统换道过程中转向信号灯操纵件处于锁止位置，在单车道行驶控制恢复时发出换道完成提示信号。 约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE STEERING_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": [
+      "LANE_STATE",
+      "ROAD_FRICTION_STATE",
+      "STEERING_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.6",
+    "content": "换道过程中驾驶员监测 在换道过程中应至少采用脱手检测方式检测驾驶员是否在执行相应的动态驾驶任务。 约束:REQUIRE_EXTRA_EVIDENCE 证据:STEERING_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": [
+      "LANE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.7.1",
+    "content": "换道过程中的横向移动中断与安全控制 在换道过程中，系统可中断车辆横向移动以避免碰撞风险。在此状态下，系统需持续进行横向和纵向运动控制，并确保不产生安全风险。待碰撞风险解除后，系统方可继续执行换道过程。 约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE SURROUNDING_OBJECT_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": [
+      "LANE_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB/T 40429-2021",
+    "clause": "自动泊车",
+    "content": "自动泊车启用前置条件 自动泊车系统启用前应确认车辆低速或停止、档位状态、可用车位空间及周边障碍物，避免泊车过程中碰撞。 约束:REQUIRE_EXTRA_EVIDENCE 证据:VEHICLE_SPEED GEAR_STATE FREE_SPACE_STATE SURROUNDING_OBJECT_STATE",
+    "source": "GB/T 40429-2021",
+    "evidence_types": [
+      "FREE_SPACE_STATE",
+      "GEAR_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "后视镜",
+    "content": "外后视镜折叠与行驶安全 行驶中折叠外后视镜可能造成视野盲区，应确认后视镜状态与车速。 约束:REVIEW 证据:MIRROR_STATE VEHICLE_SPEED",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "GEAR_STATE",
+      "MIRROR_HEATING_STATE",
+      "MIRROR_STATE",
+      "SPEED_LIMIT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB 7258-2017",
+    "clause": "11.5",
+    "content": "车门开启档位与速度核查 行驶中开启车门需核验车速与档位（P档才可安全开门），防止乘员跌落与车门碰撞。 约束:PROHIBIT 证据:VEHICLE_SPEED GEAR_STATE DOOR_STATE",
+    "source": "GB 7258-2017",
+    "evidence_types": [
+      "DOOR_LOCK_STATE",
+      "DOOR_STATE",
+      "GEAR_STATE",
+      "OCCUPANT_STATE",
+      "SPEED_LIMIT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  },
+  {
+    "standard_id": "GB/T 44461.2-2024",
+    "clause": "4.1",
+    "content": "换道安全空间核查 换道执行前应核验目标车道状态、周边车辆与车速，确保安全空间足够。 约束:REQUIRE_EXTRA_EVIDENCE 证据:LANE_STATE SURROUNDING_OBJECT_STATE VEHICLE_SPEED STEERING_STATE",
+    "source": "GB/T 44461.2-2024",
+    "evidence_types": [
+      "GEAR_STATE",
+      "LANE_STATE",
+      "SPEED_LIMIT_STATE",
+      "STEERING_STATE",
+      "SURROUNDING_OBJECT_STATE",
+      "VEHICLE_SPEED"
+    ]
+  }
+]

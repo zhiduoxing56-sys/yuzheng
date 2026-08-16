@@ -1,0 +1,861 @@
+{
+  "generated_at": "2026-08-15",
+  "summary": {
+    "frozen_total": 42,
+    "recall@1": 0.5476,
+    "recall@3": 0.8889,
+    "recall@5": 0.9206,
+    "avg_evidence_recall": 0.9651,
+    "avg_final_evidence_recall": 0.9651,
+    "mandatory_miss_rate": 0.0,
+    "by_type": {
+      "SYN": 0.567,
+      "OMIT": 0.635,
+      "BOUND": 0.583,
+      "NORM": 0.208
+    },
+    "avg_latency_ms": 29.16
+  },
+  "results": [
+    {
+      "query": "天黑了，帮我打开照明",
+      "intent_id": "HEADLIGHT_SET_MODE",
+      "type": "OMIT",
+      "domain": "BODY_MAIN_LIGHT_MODE",
+      "recall@1": 0.333,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.前照灯功能调整.002",
+        "知识.灯光.光束照射位置.004",
+        "知识.灯光.前照灯配置.001",
+        "知识.灯光.远光光束发光强度.003",
+        "知识.灯光.驻车灯示廓灯.008"
+      ],
+      "latency_ms": 36.58
+    },
+    {
+      "query": "关掉车灯",
+      "intent_id": "HEADLIGHT_SET_MODE",
+      "type": "SYN",
+      "domain": "BODY_MAIN_LIGHT_MODE",
+      "recall@1": 0.333,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.前照灯功能调整.002",
+        "知识.灯光.光束照射位置.004",
+        "知识.灯光.前照灯配置.001",
+        "知识.灯光.远光光束发光强度.003",
+        "知识.灯光.驻车灯示廓灯.008"
+      ],
+      "latency_ms": 0.06
+    },
+    {
+      "query": "对面来车了，切一下远近光",
+      "intent_id": "HIGH_BEAM_ON",
+      "type": "SYN",
+      "domain": "BODY_HIGH_BEAM",
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.远光光束发光强度.003",
+        "知识.灯光.近光会车.004",
+        "知识.灯光.远光指示信号.005",
+        "知识.灯光.光束照射位置.004",
+        "知识.灯光.近光灯要求.006"
+      ],
+      "latency_ms": 47.14
+    },
+    {
+      "query": "高速上开远光跑",
+      "intent_id": "HIGH_BEAM_ON",
+      "type": "NORM",
+      "domain": "BODY_HIGH_BEAM",
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.远光光束发光强度.003",
+        "知识.灯光.近光会车.004",
+        "知识.灯光.远光指示信号.005",
+        "知识.灯光.光束照射位置.004",
+        "知识.灯光.近光灯要求.006"
+      ],
+      "latency_ms": 0.06
+    },
+    {
+      "query": "下雨了开灯",
+      "intent_id": "LOW_BEAM_ON",
+      "type": "OMIT",
+      "domain": "BODY_LOW_BEAM",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.近光灯要求.006",
+        "知识.灯光.转向信号灯可见性.010",
+        "知识.灯光.近光会车.004",
+        "知识.灯光.光束照射位置.004",
+        "知识.灯光.前照灯功能调整.002"
+      ],
+      "latency_ms": 37.4
+    },
+    {
+      "query": "雾好大，开一下灯",
+      "intent_id": "FOG_LIGHT_ON",
+      "type": "SYN",
+      "domain": "BODY_FOG_LIGHT",
+      "recall@1": 0.333,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.后雾灯安装.002",
+        "知识.灯光.前雾灯安装.001",
+        "知识.灯光.雾灯要求.007",
+        "知识.灯光.转向信号灯可见性.010",
+        "知识.灯光.驻车灯示廓灯.008"
+      ],
+      "latency_ms": 45.6
+    },
+    {
+      "query": "双闪灯按一下",
+      "intent_id": "HAZARD_LIGHT_ON",
+      "type": "SYN",
+      "domain": "BODY_HAZARD_LIGHT",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.危险警告信号.009",
+        "知识.法规合规.故障停车警示.012",
+        "知识.灯光.转向信号灯可见性.010",
+        "知识.行驶控制.车辆仪表要求.013",
+        "知识.灯光.驻车灯示廓灯.008"
+      ],
+      "latency_ms": 38.7
+    },
+    {
+      "query": "示宽灯开起来",
+      "intent_id": "PARKING_LIGHT_ON",
+      "type": "SYN",
+      "domain": "BODY_PARKING_LIGHT",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.灯光.驻车灯安装.003",
+        "知识.灯光.驻车灯示廓灯.008",
+        "知识.灯光.转向信号灯可见性.010",
+        "知识.灯光.光束照射位置.004",
+        "知识.灯光.前照灯功能调整.002"
+      ],
+      "latency_ms": 34.15
+    },
+    {
+      "query": "急刹！",
+      "intent_id": "EMERGENCY_BRAKE",
+      "type": "BOUND",
+      "domain": "PROJECT_SERVICE_BRAKING",
+      "recall@1": 0.333,
+      "recall@3": 0.333,
+      "recall@5": 0.333,
+      "evidence_recall": 0.8,
+      "final_evidence_recall": 0.8,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.应急制动功能.008",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.防抱制动装置.010",
+        "知识.行驶控制.制动加速辅助互锁.012",
+        "知识.行驶控制.行车制动性能.004"
+      ],
+      "latency_ms": 52.27
+    },
+    {
+      "query": "马上把车停住",
+      "intent_id": "EMERGENCY_BRAKE",
+      "type": "SYN",
+      "domain": "PROJECT_SERVICE_BRAKING",
+      "recall@1": 0.333,
+      "recall@3": 0.333,
+      "recall@5": 0.333,
+      "evidence_recall": 0.8,
+      "final_evidence_recall": 0.8,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.应急制动功能.008",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.防抱制动装置.010",
+        "知识.行驶控制.制动加速辅助互锁.012",
+        "知识.行驶控制.行车制动性能.004"
+      ],
+      "latency_ms": 0.16
+    },
+    {
+      "query": "减速停车",
+      "intent_id": "BRAKE",
+      "type": "OMIT",
+      "domain": "PROJECT_SERVICE_BRAKING",
+      "recall@1": 0.0,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "evidence_recall": 0.8,
+      "final_evidence_recall": 0.8,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.液压制动系统.007",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.行车制动性能.004",
+        "知识.行驶控制.应急制动功能.008",
+        "知识.行驶控制.制动系统部件要求.005"
+      ],
+      "latency_ms": 50.76
+    },
+    {
+      "query": "踩脚刹车",
+      "intent_id": "BRAKE",
+      "type": "SYN",
+      "domain": "PROJECT_SERVICE_BRAKING",
+      "recall@1": 0.0,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "evidence_recall": 0.8,
+      "final_evidence_recall": 0.8,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.液压制动系统.007",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.行车制动性能.004",
+        "知识.行驶控制.应急制动功能.008",
+        "知识.行驶控制.制动系统部件要求.005"
+      ],
+      "latency_ms": 0.09
+    },
+    {
+      "query": "电子驻车拉起",
+      "intent_id": "PARKING_BRAKE_APPLY",
+      "type": "SYN",
+      "domain": "CHASSIS_PARKING_BRAKE",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.泊车驻车.驻车制动施加.002",
+        "知识.泊车驻车.驻车制动解除.004",
+        "知识.泊车驻车.驻车制动力要求.003",
+        "知识.行驶控制.车辆控制行驶安全.001",
+        "知识.行驶控制.行车制动控制.003"
+      ],
+      "latency_ms": 46.96
+    },
+    {
+      "query": "P挡驻车",
+      "intent_id": "PARKING_BRAKE_APPLY",
+      "type": "OMIT",
+      "domain": "CHASSIS_PARKING_BRAKE",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.泊车驻车.驻车制动施加.002",
+        "知识.泊车驻车.驻车制动解除.004",
+        "知识.泊车驻车.驻车制动力要求.003",
+        "知识.行驶控制.车辆控制行驶安全.001",
+        "知识.行驶控制.行车制动控制.003"
+      ],
+      "latency_ms": 0.08
+    },
+    {
+      "query": "解除驻车",
+      "intent_id": "PARKING_BRAKE_RELEASE",
+      "type": "SYN",
+      "domain": "CHASSIS_PARKING_BRAKE",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.泊车驻车.驻车制动解除.004",
+        "知识.泊车驻车.驻车制动施加.002",
+        "知识.泊车驻车.驻车制动力要求.003",
+        "知识.行驶控制.车辆控制行驶安全.001",
+        "知识.行驶控制.行车制动控制.003"
+      ],
+      "latency_ms": 45.59
+    },
+    {
+      "query": "开门",
+      "intent_id": "DOOR_OPEN",
+      "type": "BOUND",
+      "domain": "CABIN_DOOR_OPENING",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.车身.车门开启档位速度核查.002",
+        "知识.车身.车门车窗启闭.003",
+        "知识.车身.乘客门开启.001",
+        "知识.车身.行李箱舱门要求.009",
+        "知识.车身.遥控钥匙锁止.004"
+      ],
+      "latency_ms": 45.24
+    },
+    {
+      "query": "车停稳了，开一下门",
+      "intent_id": "DOOR_OPEN",
+      "type": "NORM",
+      "domain": "CABIN_DOOR_OPENING",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.车身.车门开启档位速度核查.002",
+        "知识.车身.车门车窗启闭.003",
+        "知识.车身.乘客门开启.001",
+        "知识.车身.行李箱舱门要求.009",
+        "知识.车身.遥控钥匙锁止.004"
+      ],
+      "latency_ms": 0.06
+    },
+    {
+      "query": "锁上车门",
+      "intent_id": "DOOR_LOCK",
+      "type": "SYN",
+      "domain": "CABIN_DOOR_LOCK",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.车身.车门车窗启闭.003",
+        "知识.车身.遥控钥匙锁止.004",
+        "知识.车身.车门开启档位速度核查.002",
+        "知识.行驶控制.换挡齿轮互锁.027",
+        "知识.车身.行李箱锁闭.002"
+      ],
+      "latency_ms": 46.3
+    },
+    {
+      "query": "车窗留条缝",
+      "intent_id": "WINDOW_OPEN",
+      "type": "SYN",
+      "domain": "CABIN_WINDOW",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.车身.电动窗控制装置.007",
+        "知识.车身.安全玻璃要求.005",
+        "知识.车身.天窗控制.008",
+        "知识.车身.车门车窗启闭.003",
+        "知识.车身.两侧车窗设置.006"
+      ],
+      "latency_ms": 34.33
+    },
+    {
+      "query": "摇下车窗",
+      "intent_id": "WINDOW_OPEN",
+      "type": "SYN",
+      "domain": "CABIN_WINDOW",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.车身.电动窗控制装置.007",
+        "知识.车身.安全玻璃要求.005",
+        "知识.车身.天窗控制.008",
+        "知识.车身.车门车窗启闭.003",
+        "知识.车身.两侧车窗设置.006"
+      ],
+      "latency_ms": 0.06
+    },
+    {
+      "query": "帮我倒进去",
+      "intent_id": "AUTO_PARK_ENABLE",
+      "type": "OMIT",
+      "domain": "PROJECT_AUTO_PARK",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.泊车驻车.自动泊车启用.001",
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.泊车驻车.驻车制动施加.002",
+        "知识.灯光.驻车灯安装.003",
+        "知识.泊车驻车.驻车制动解除.004"
+      ],
+      "latency_ms": 46.27
+    },
+    {
+      "query": "自动泊入这个车位",
+      "intent_id": "AUTO_PARK_ENABLE",
+      "type": "SYN",
+      "domain": "PROJECT_AUTO_PARK",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.泊车驻车.自动泊车启用.001",
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.泊车驻车.驻车制动施加.002",
+        "知识.灯光.驻车灯安装.003",
+        "知识.泊车驻车.驻车制动解除.004"
+      ],
+      "latency_ms": 0.08
+    },
+    {
+      "query": "开巡航",
+      "intent_id": "CRUISE_ENABLE",
+      "type": "SYN",
+      "domain": "ADAS_CRUISE_CONTROL",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.行驶控制.巡航跟车时距.024",
+        "知识.动力传动.电子稳定性控制.001",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.避让转向.029"
+      ],
+      "latency_ms": 45.44
+    },
+    {
+      "query": "跟随前车跑",
+      "intent_id": "CRUISE_ENABLE",
+      "type": "OMIT",
+      "domain": "ADAS_CRUISE_CONTROL",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.行驶控制.巡航跟车时距.024",
+        "知识.动力传动.电子稳定性控制.001",
+        "知识.行驶控制.行车制动控制.003",
+        "知识.行驶控制.避让转向.029"
+      ],
+      "latency_ms": 0.12
+    },
+    {
+      "query": "车距保持三秒",
+      "intent_id": "CRUISE_SET_GAP",
+      "type": "SYN",
+      "domain": "ADAS_CRUISE_CONTROL",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.巡航跟车时距.024",
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.视野.后视镜设置.001",
+        "知识.法规合规.安全车距.010",
+        "知识.行驶控制.限速功能.026"
+      ],
+      "latency_ms": 48.0
+    },
+    {
+      "query": "巡航车速定在120",
+      "intent_id": "CRUISE_SET_SPEED",
+      "type": "NORM",
+      "domain": "ADAS_CRUISE_CONTROL",
+      "recall@1": 0.333,
+      "recall@3": 0.667,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.超速报警.025",
+        "知识.行驶控制.加速限速核查.001",
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.行驶控制.限速功能.026",
+        "知识.法规合规.车速限制.009"
+      ],
+      "latency_ms": 46.02
+    },
+    {
+      "query": "别压线，帮我稳住",
+      "intent_id": "LANE_KEEP",
+      "type": "SYN",
+      "domain": "PROJECT_LANE_CONTROL",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.车道保持横向控制.022",
+        "知识.行驶控制.换道横向中断控制.018",
+        "知识.行驶控制.车道保持辅助.020",
+        "知识.行驶控制.换道过程转向信号灯.016",
+        "知识.行驶控制.换道过程中驾驶员监测.017"
+      ],
+      "latency_ms": 36.03
+    },
+    {
+      "query": "变个道超车",
+      "intent_id": "LANE_CHANGE",
+      "type": "SYN",
+      "domain": "PROJECT_LANE_CONTROL",
+      "recall@1": 0.25,
+      "recall@3": 0.5,
+      "recall@5": 0.75,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.换道通用约束.014",
+        "知识.行驶控制.换道前系统自检.015",
+        "知识.行驶控制.换道过程转向信号灯.016",
+        "知识.行驶控制.换道横向中断控制.018",
+        "知识.行驶控制.换道过程中驾驶员监测.017"
+      ],
+      "latency_ms": 44.09
+    },
+    {
+      "query": "借道超车",
+      "intent_id": "LANE_CHANGE",
+      "type": "OMIT",
+      "domain": "PROJECT_LANE_CONTROL",
+      "recall@1": 0.25,
+      "recall@3": 0.5,
+      "recall@5": 0.75,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.换道通用约束.014",
+        "知识.行驶控制.换道前系统自检.015",
+        "知识.行驶控制.换道过程转向信号灯.016",
+        "知识.行驶控制.换道横向中断控制.018",
+        "知识.行驶控制.换道过程中驾驶员监测.017"
+      ],
+      "latency_ms": 0.17
+    },
+    {
+      "query": "系统启动时校验固件吗",
+      "intent_id": "SEC_SECURE_BOOT",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.网络安全.安全启动.001",
+        "知识.数据安全.座舱数据保护.011",
+        "知识.数据安全.个人信息存储.003",
+        "知识.网络安全.安全日志.010",
+        "知识.OTA升级.升级事件日志.006"
+      ],
+      "latency_ms": 30.79
+    },
+    {
+      "query": "没权限能不能读写车内数据",
+      "intent_id": "SEC_ACCESS_CONTROL",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "evidence_recall": 0.667,
+      "final_evidence_recall": 0.667,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.网络安全.访问控制.002",
+        "知识.数据安全.个人信息存储.003",
+        "知识.数据安全.个人信息使用.004",
+        "知识.网络安全.第三方应用安全.013",
+        "知识.网络安全.身份认证.003"
+      ],
+      "latency_ms": 32.94
+    },
+    {
+      "query": "安全日志存多久",
+      "intent_id": "SEC_LOG_AUDIT",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 1.0,
+      "evidence_recall": 0.667,
+      "final_evidence_recall": 0.667,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.网络安全.安全日志.010",
+        "知识.OTA升级.升级事件日志.006",
+        "知识.网络安全.漏洞管理.016",
+        "知识.网络安全.防篡改.005",
+        "知识.网络安全.信息安全事件应急.017"
+      ],
+      "latency_ms": 31.15
+    },
+    {
+      "query": "OTA包验签",
+      "intent_id": "SEC_OTA_PACKAGE",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.网络安全.升级包安全.011",
+        "知识.OTA升级.升级用户告知.005",
+        "知识.OTA升级.升级事件日志.006",
+        "知识.OTA升级.升级先决条件.001",
+        "知识.数据安全.数据出境.007"
+      ],
+      "latency_ms": 33.02
+    },
+    {
+      "query": "行车中可以刷系统吗",
+      "intent_id": "OTA_PRECONDITION",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.OTA升级.升级先决条件.001",
+        "知识.OTA升级.升级电量保障.002",
+        "知识.行驶控制.巡航激活条件.023",
+        "知识.车身.车门开启档位速度核查.002",
+        "知识.行驶控制.换挡齿轮互锁.027"
+      ],
+      "latency_ms": 32.68
+    },
+    {
+      "query": "升级到一半断电怎么办",
+      "intent_id": "OTA_ROLLBACK",
+      "type": "BOUND",
+      "domain": "SECURITY",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.OTA升级.升级失败回滚.003",
+        "知识.OTA升级.升级用户告知.005",
+        "知识.网络安全.升级包安全.011",
+        "知识.OTA升级.升级事件日志.006",
+        "知识.OTA升级.升级先决条件.001"
+      ],
+      "latency_ms": 23.03
+    },
+    {
+      "query": "我的行车数据会上传吗",
+      "intent_id": "DATA_EXPORT",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.数据安全.数据出境.007",
+        "知识.法规合规.数据境内存储.003",
+        "知识.数据安全.座舱数据保护.011",
+        "知识.数据安全.匿名化处理.008",
+        "知识.数据安全.个人同意.001"
+      ],
+      "latency_ms": 29.34
+    },
+    {
+      "query": "不想被收集信息",
+      "intent_id": "DATA_DELETE",
+      "type": "OMIT",
+      "domain": "SECURITY",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.数据安全.个人信息删除.006",
+        "知识.数据安全.重要数据保护.009",
+        "知识.网络安全.防篡改.005",
+        "知识.法规合规.数据分类分级.004",
+        "知识.数据安全.个人信息收集.002"
+      ],
+      "latency_ms": 28.12
+    },
+    {
+      "query": "车里拍到的能传出去吗",
+      "intent_id": "LAW_IMAGE_COLLECTION",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.法规合规.图像采集限制.006",
+        "知识.数据安全.匿名化处理.008",
+        "知识.数据安全.个人信息收集.002",
+        "知识.数据安全.个人信息存储.003",
+        "知识.数据安全.座舱数据保护.011"
+      ],
+      "latency_ms": 25.87
+    },
+    {
+      "query": "自动驾驶记录系统记录什么",
+      "intent_id": "DSSAD_TRIGGER",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.事故记录.碰撞事件记录.002",
+        "知识.事故记录.事件记录触发.001",
+        "知识.网络安全.安全日志.010",
+        "知识.事故记录.数据记录存储.003",
+        "知识.事故记录.记录信息安全.004"
+      ],
+      "latency_ms": 31.07
+    },
+    {
+      "query": "撞车后数据还在吗",
+      "intent_id": "DSSAD_SECURITY",
+      "type": "SYN",
+      "domain": "SECURITY",
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.数据安全.个人信息存储.003",
+        "知识.事故记录.记录信息安全.004",
+        "知识.网络安全.安全日志.010",
+        "知识.数据安全.重要数据保护.009",
+        "知识.数据安全.座舱数据保护.011"
+      ],
+      "latency_ms": 32.47
+    },
+    {
+      "query": "跟车太近有危险吗",
+      "intent_id": "LAW_SAFE_DISTANCE",
+      "type": "NORM",
+      "domain": "SECURITY",
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.行驶控制.巡航跟车时距.024",
+        "知识.法规合规.安全车距.010",
+        "知识.法规合规.车速限制.009",
+        "知识.网络安全.漏洞管理.016",
+        "知识.行驶控制.避让转向.029"
+      ],
+      "latency_ms": 32.98
+    },
+    {
+      "query": "雨天可以开快吗",
+      "intent_id": "LAW_SPEED_LIMIT",
+      "type": "BOUND",
+      "domain": "SECURITY",
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "evidence_recall": 1.0,
+      "final_evidence_recall": 1.0,
+      "mandatory_miss": [],
+      "top_ids": [
+        "知识.法规合规.车速限制.009",
+        "知识.行驶控制.加速限速核查.001",
+        "知识.行驶控制.限速功能.026",
+        "知识.行驶控制.超速报警.025",
+        "知识.行驶控制.行车制动性能.004"
+      ],
+      "latency_ms": 33.4
+    }
+  ]
+}
