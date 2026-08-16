@@ -927,23 +927,19 @@ class PresentationAssembler:
             ),
             None,
         )
-        # 节点 → 所属意图（bindings 反查）→ 该意图的知识库命中（augment 追加）
-        intent_ids = sorted(
-            {
-                binding.intent_id
-                for resolution in (graph.intent_evidence_resolutions or [])
-                for binding in resolution.bindings
-                if binding.node_id == node_id and binding.intent_id
-            }
-        )
+        # 指令涉及的意图（整轮，与 knowledge_hits 一致展示）
         demand_by_intent = {
             item.intent_id: item
             for item in record.evidence_demand.intent_demands
             if item.intent_id
         }
+        intent_ids = sorted(demand_by_intent.keys())
+        # 安全知识命中取整轮（与法规一致）：该轮次所有意图的 augment 命中并集。
+        # 避免「种子/全量状态节点」（DOOR_STATE/GEAR_STATE 等）不属于 resolution
+        # 绑定时，节点详情看不到知识库检索结果。
         knowledge_hits: list[dict[str, Any]] = []
-        for intent_id in intent_ids:
-            demand_item = demand_by_intent.get(intent_id)
+        for intent_id in sorted(demand_by_intent):
+            demand_item = demand_by_intent[intent_id]
             for hit in (demand_item.knowledge_hits if demand_item else []):
                 entry = dict(hit)
                 entry.setdefault("intent_id", intent_id)
