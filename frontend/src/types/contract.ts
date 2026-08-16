@@ -695,6 +695,21 @@ export interface CausalPresentation {
   insufficiency_reason: string | null;
 }
 
+export interface RegulationHit {
+  standard_id: string;
+  clause: string;
+  content: string;
+  source: string;
+  score: number;
+  evidence_types?: string[];
+}
+
+export interface RegulationRationale {
+  demand_text: string;
+  hits: RegulationHit[];
+  missing_types?: string[];
+}
+
 export interface TextCommandResponse {
   turn_id: string;
   root_turn_id?: string | null;
@@ -710,6 +725,7 @@ export interface TextCommandResponse {
   evidence_demand: EvidenceDemandPresentation;
   interaction_request?: InteractionRequest | null;
   clarification_request?: ClarificationRequest | null;
+  regulation_rationale?: RegulationRationale | null;
   [key: string]: unknown;
 }
 
