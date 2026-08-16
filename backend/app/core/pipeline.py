@@ -11,6 +11,17 @@ from typing import Any, Callable
 from app.core.config import ConfigurationError, PROJECT_ROOT, load_yaml
 
 _LOGGER = logging.getLogger(__name__)
+
+# 法规相关性过滤时排除的通用证据类型：几乎每个车控指令/法规条文都有，无区分度。
+_GENERIC_EVIDENCE_TYPES = frozenset(
+    {
+        "VEHICLE_SPEED",
+        "GEAR_STATE",
+        "ENVIRONMENT_CONDITIONS",
+        "SPEED_LIMIT_STATE",
+        "ROAD_FRICTION_STATE",
+    }
+)
 from app.core.performance import mark_stage, set_metric
 from app.models.schemas import (
     AdvancedReasoningResult,
@@ -329,11 +340,28 @@ class CommandPipeline:
             self.regulation_kb = None
 
     def _regulation_rationale(
-        self, demand_text: str, top_k: int = 3
+        self,
+        demand_text: str,
+        search_k: int = 10,
+        min_score: float = 0.45,
+        required_types: list[str] | None = None,
     ) -> RegulationRationale | None:
         if self.regulation_kb is None or not demand_text:
             return None
-        rationale = self.regulation_kb.rationale(demand_text, k=top_k)
+        rationale = self.regulation_kb.rationale(demand_text, k=search_k)
+        # 命中到多少展示多少：相似度≥min_score 且（有条文 evidence_types 时）与
+        # 本指令所需证据类型有交集；无交集条文视为语义不相关，过滤掉。
+        # 排除 VEHICLE_SPEED/ENVIRONMENT_CONDITIONS 等通用证据——它们几乎每条法规
+        # 和每个指令都有，无区分度，会造成误保留。
+        req = set(required_types or []) - _GENERIC_EVIDENCE_TYPES
+        hits: list[RegulationHit] = []
+        for hit in rationale.hits:
+            if hit.score < min_score:
+                continue
+            ev = set(hit.evidence_types)
+            if req and ev and not (ev & req):
+                continue
+            hits.append(hit)
         return RegulationRationale(
             demand_text=rationale.demand_text,
             hits=[
@@ -345,14 +373,22 @@ class CommandPipeline:
                     score=hit.score,
                     evidence_types=list(hit.evidence_types),
                 )
-                for hit in rationale.hits
+                for hit in hits
             ],
             missing_types=list(rationale.missing_types),
         )
 
-    def regulation_for_text(self, demand_text: str, top_k: int = 3) -> list[RegulationHit]:
-        """公开入口：按文本检索法规依据，返回命中条文列表（证据节点详情用）。"""
-        rationale = self._regulation_rationale(demand_text, top_k=top_k)
+    def regulation_for_text(
+        self,
+        demand_text: str,
+        search_k: int = 10,
+        min_score: float = 0.45,
+        required_types: list[str] | None = None,
+    ) -> list[RegulationHit]:
+        """公开入口：检索法规依据，返回命中条文（相似度+证据类型交集过滤，动态数量）。"""
+        rationale = self._regulation_rationale(
+            demand_text, search_k=search_k, min_score=min_score, required_types=required_types
+        )
         return list(rationale.hits) if rationale else []
 
     @staticmethod
@@ -2637,7 +2673,10 @@ class CommandPipeline:
         )
         regulation_rationale = self._regulation_rationale(
             " ".join(item.query_text for item in demand.intent_demands)
-            or frame.raw_text
+            or frame.raw_text,
+            required_types=[
+                item for intent_demand in demand.intent_demands for item in intent_demand.required_types
+            ],
         )
         response = TextCommandResponse(
             turn_id=turn_id,

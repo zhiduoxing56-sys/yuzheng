@@ -386,7 +386,14 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             )
             return detail.model_copy(
                 update={
-                    "regulation_hits": pipeline.regulation_for_text(demand_text, top_k=3)
+                    "regulation_hits": pipeline.regulation_for_text(
+                        demand_text,
+                        required_types=[
+                            item
+                            for intent_demand in record.evidence_demand.intent_demands
+                            for item in intent_demand.required_types
+                        ],
+                    )
                 }
             )
         if presentation.node_exists(node_id):
