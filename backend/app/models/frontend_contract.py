@@ -732,6 +732,7 @@ class DecisionExplanationStatusResponse(StrictModel):
     explanation: str | None = None
     generated_at: datetime | None = None
     retryable: bool = False
+    fact_bundle: dict[str, Any] = Field(default_factory=dict)
 
 
 class AuditClarificationCandidate(StrictModel):

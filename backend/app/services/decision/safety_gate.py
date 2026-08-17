@@ -64,6 +64,7 @@ class SafetyGateService:
             "unauthorized_control_frame": self._unauthorized_control_frame,
             "acceleration_obstacle": self._acceleration_obstacle,
             "deceleration_rear_conflict": self._deceleration_rear_conflict,
+            "reverse_camera_display_off": self._reverse_camera_display_off,
             "semantic_model_degraded": self._semantic_model_degraded,
         }
         self._semantic_registry = UnifiedSemanticRegistry()
@@ -426,6 +427,12 @@ class SafetyGateService:
             [],
         )
 
+    def _reverse_camera_display_off(self, rule, intent, demand, by_type, evidence, validation):
+        del intent, demand, by_type, evidence, validation
+        context = rule.get("_runtime_safety_context")
+        active = bool(context and context.reverse_camera_active)
+        return active, {"reverse_camera_active": active}, []
+
     def evaluate(
         self,
         frame: SemanticFrame,
@@ -482,6 +489,7 @@ class SafetyGateService:
         for rule in self.rules:
             rule = dict(rule)
             rule["_runtime_capability"] = runtime_capability
+            rule["_runtime_safety_context"] = runtime_safety_context
             evaluator_name = str(rule.get("evaluator"))
             evaluator = self._evaluators.get(evaluator_name)
             if evaluator is None:

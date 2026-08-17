@@ -940,6 +940,7 @@ export interface DecisionExplanationStatusResponse {
   explanation?: string | null;
   generated_at?: string | null;
   retryable: boolean;
+  fact_bundle?: Record<string, unknown>;
 }
 export interface AuditDetailView {
   command_summary: { raw_command: string; input_type: "text" | "audio"; occurred_at: string; final_decision: DecisionLabel; execution_status: string; };

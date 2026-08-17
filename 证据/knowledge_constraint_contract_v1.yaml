@@ -1,0 +1,335 @@
+document_status: FORMAL_KNOWLEDGE_CONSTRAINT_CONTRACT
+schema_version: knowledge-constraint-v1
+description: >-
+  安全知识节点的机器可执行约束结构。节点只能引用本合同锁定的语义注册表、
+  Evidence Type Catalog、Evidence Runtime Mapping 和 Evidence Demand Registry。
+  禁止自行创建 intent、action、target、area、mode、evidence type 或 evidence field。
+
+frozen_references:
+  semantic_registry:
+    path: data/nlu/spec/intent_registry_unified_v1.yaml
+    version: unified-semantic-runtime-v1
+    allowed_runtime_identity: FORMAL
+  evidence_type_catalog:
+    path: 证据/evidence_type_catalog_v1.yaml
+    version: evidence-type-catalog-v1
+  evidence_runtime_mapping:
+    path: 证据/evidence_runtime_mapping_v1.yaml
+    version: evidence-runtime-mapping-v1
+  evidence_demand_registry:
+    path: 证据/evidence_demand_registry_v1.yaml
+    version: evidence-demand-registry-v1
+
+node_fields:
+  required:
+    - node_id
+    - node_type
+    - title
+    - semantic_description
+    - canonical_action
+    - conditions
+    - required_evidence
+    - optional_evidence
+    - source
+    - trust_level
+    - metadata
+    - command
+    - evidence
+    - when
+    - effect
+  optional:
+    - chapter
+    - clause
+    - vector
+  additional_fields_allowed: false
+
+field_contracts:
+  node_id:
+    type: string
+    constraints: [nonempty, unique]
+  node_type:
+    type: string
+    allowed_values: [安全知识]
+  title:
+    type: string
+    constraints: [nonempty]
+  semantic_description:
+    type: string
+    constraints: [nonempty]
+  canonical_action:
+    type: string
+    constraints:
+      - must_equal_command.intent_id
+  conditions:
+    type: list
+    constraints:
+      - must_be_empty
+  required_evidence:
+    type: list
+    constraints:
+      - must_equal_unique_evidence_types_referenced_by_when
+  optional_evidence:
+    type: list
+    constraints:
+      - must_be_empty
+  source:
+    type: string
+    constraints: [nonempty]
+  chapter:
+    type: string
+    nullable: true
+  clause:
+    type: string
+    nullable: true
+  trust_level:
+    type: string
+    allowed_values: [L1, L2]
+  metadata:
+    type: mapping
+    required_fields: [knowledge_id, constraint]
+    additional_fields_allowed: false
+    constraints:
+      - knowledge_id_must_be_nonempty_and_unique
+      - constraint_must_equal_ALLOW_WITH_CONDITION
+  vector:
+    type: [list, 'null']
+    constraints:
+      - when_present_must_be_numeric_vector
+
+command_contract:
+  description: >-
+    command 与运行时 SemanticIntent 对齐。intent_id 是主键，其他字段必须与该
+    intent 在冻结语义注册表中的定义一致，禁止跨 intent 拼装。
+  required_fields: [intent_id, action, target]
+  optional_fields: [area, mode, value, direction, control_attribute]
+  additional_fields_allowed: false
+  fields:
+    intent_id:
+      type: string
+      source: semantic_registry.intents[].intent_id
+      constraints:
+        - referenced_intent.runtime_identity_must_equal_FORMAL
+    action:
+      type: string
+      source: semantic_registry.intents[].canonical_action
+      constraints:
+        - must_equal_referenced_intent.canonical_action
+    target:
+      type: string
+      source: semantic_registry.intents[].canonical_target
+      constraints:
+        - must_equal_referenced_intent.canonical_target
+    area:
+      type: string
+      default: ANY
+      source: semantic_registry.area_catalog
+      constraints:
+        - value_must_be_ANY_or_in_referenced_intent.allowed_areas
+    mode:
+      type: [string, number, boolean]
+      default: ANY
+      source: semantic_registry.mode_contracts
+      constraints:
+        - value_must_be_ANY_or_allowed_by_referenced_intent.mode_contract
+    value:
+      type: [string, number, boolean]
+      default: ANY
+      source: semantic_registry.value_contracts
+      constraints:
+        - value_must_be_ANY_or_satisfy_referenced_intent.value_contract
+    direction:
+      type: string
+      default: ANY
+      source: semantic_registry.direction_contracts
+      constraints:
+        - value_must_be_ANY_or_allowed_by_referenced_intent.direction_contract
+    control_attribute:
+      type: string
+      default: ANY
+      source: semantic_registry.intents[].control_attribute
+      constraints:
+        - value_must_be_ANY_or_equal_referenced_intent.control_attribute
+
+evidence_contract:
+  description: >-
+    evidence 是一个由节点自定义别名到标准证据字段的映射。别名仅在当前节点内使用。
+    上下文不得以自由字段表达，只能以 evidence type + field 表达。
+  type: mapping
+  min_entries: 1
+  alias_constraints: [nonempty, unique_within_node]
+  entry:
+    required_fields: [type, field]
+    additional_fields_allowed: false
+    fields:
+      type:
+        type: string
+        source: evidence_type_catalog.evidence_types
+        constraints:
+          - must_be_canonical_evidence_type
+      field:
+        type: string
+        source: evidence_runtime_mapping.evidence_types[].value_schema
+        constraints:
+          - must_exist_under_selected_evidence_type
+          - scalar_evidence_uses_value
+
+condition_contract:
+  description: >-
+    when 必须且只能包含 all 或 any 中的一个。条件必须引用 evidence 中声明的别名，
+    禁止自然语言条件、脚本、Python、SQL 或未声明字段。
+  groups: [all, any]
+  exactly_one_group_required: true
+  min_conditions: 1
+  condition_fields: [field, op, value]
+  additional_condition_fields_allowed: false
+  operators:
+    number: [EQ, NE, GT, GTE, LT, LTE]
+    string: [EQ, NE, IN, NOT_IN]
+    enum: [EQ, NE, IN, NOT_IN]
+    boolean: [EQ, NE]
+  condition_rules:
+    - field_must_reference_declared_evidence_alias
+    - value_type_must_match_evidence_runtime_mapping
+    - operator_must_be_allowed_for_evidence_field_type
+    - IN_and_NOT_IN_require_nonempty_list_value
+    - implicit_unit_conversion_is_prohibited
+
+effect_contract:
+  required_fields: [then, else, reason_code, reason]
+  additional_fields_allowed: false
+  fields:
+    then:
+      type: string
+      allowed_values: [ALLOW, BLOCK, REVIEW]
+    else:
+      type: string
+      allowed_values: [ALLOW, BLOCK, REVIEW]
+    reason_code:
+      type: string
+      constraints: [nonempty, uppercase_snake_case]
+    reason:
+      type: string
+      constraints: [nonempty]
+  semantics:
+    command_not_matched: NOT_APPLICABLE
+    command_matched_and_when_true: use_then
+    command_matched_and_when_false: use_else
+    evidence_unavailable_or_invalid: handled_by_existing_evidence_quality_and_safety_gate
+
+cross_registry_validation:
+  - command.intent_id_must_exist_in_semantic_registry
+  - command.intent_id_must_be_FORMAL
+  - command.action_and_target_must_match_intent_id
+  - command.area_mode_value_direction_and_control_attribute_must_match_intent_contracts
+  - evidence.type_must_exist_in_evidence_type_catalog
+  - evidence.field_must_exist_in_selected_type_runtime_mapping
+  - every_when.field_must_reference_one_evidence_alias
+  - when.value_and_op_must_match_evidence_field_data_type
+  - canonical_action_must_equal_command.intent_id
+  - required_evidence_must_equal_unique_evidence_types_referenced_by_when
+  - conditions_and_optional_evidence_must_be_empty
+  - node_must_not_contain_unknown_fields
+
+node_template:
+  node_id: string
+  node_type: 安全知识
+  title: string
+  semantic_description: string
+  canonical_action: string
+  conditions: []
+  required_evidence: []
+  optional_evidence: []
+  source: string
+  chapter: null
+  clause: null
+  trust_level: L1
+  metadata:
+    knowledge_id: string
+    constraint: ALLOW_WITH_CONDITION
+  command:
+    intent_id: string
+    action: string
+    target: string
+    area: ANY
+    mode: ANY
+    value: ANY
+    direction: ANY
+    control_attribute: ANY
+  evidence:
+    evidence_alias:
+      type: string
+      field: string
+  when:
+    all:
+      - field: evidence_alias
+        op: EQ
+        value: any
+  effect:
+    then: BLOCK
+    else: ALLOW
+    reason_code: UPPERCASE_SNAKE_CASE
+    reason: string
+
+valid_example:
+  node_id: 知识.灯光.夜间关闭限制.001
+  node_type: 安全知识
+  title: 行驶且低照度时禁止关闭前照灯
+  semantic_description: 行驶且低照度时，关闭前照灯会降低驾驶视野安全性。
+  canonical_action: HEADLIGHT_SET_MODE
+  conditions: []
+  required_evidence: [VEHICLE_SPEED, ENVIRONMENT_CONDITIONS]
+  optional_evidence: []
+  source: GB 7258-2017
+  chapter: 第8章
+  clause: 8.2.1
+  trust_level: L1
+  metadata:
+    knowledge_id: SAFETY-HEADLIGHT_SET_MODE-00001
+    constraint: ALLOW_WITH_CONDITION
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    area: ANY
+    mode: 'OFF'
+  evidence:
+    speed:
+      type: VEHICLE_SPEED
+      field: value
+    light:
+      type: ENVIRONMENT_CONDITIONS
+      field: ambient_illumination
+  when:
+    all:
+      - field: speed
+        op: GT
+        value: 0
+      - field: light
+        op: LT
+        value: 20
+  effect:
+    then: BLOCK
+    else: ALLOW
+    reason_code: LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED
+    reason: 行驶且环境照度低于20 lux时禁止关闭前照灯
+
+invalid_examples:
+  - name: intent_action_target_cross_assembly
+    invalid_fragment:
+      command:
+        intent_id: HEADLIGHT_SET_MODE
+        action: UNLOCK
+        target: DOOR
+    reject_reason: action 和 target 与 HEADLIGHT_SET_MODE 的冻结定义不一致
+  - name: unknown_evidence_field
+    invalid_fragment:
+      evidence:
+        speed:
+          type: VEHICLE_SPEED
+          field: ambient_illumination
+    reject_reason: ambient_illumination 不属于 VEHICLE_SPEED
+  - name: natural_language_condition
+    invalid_fragment:
+      when:
+        all: [高速行驶, 夜间]
+    reject_reason: when 必须使用 field/op/value 结构

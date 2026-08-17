@@ -4,12 +4,12 @@ runtime_loading_allowed: true
 single_semantic_source_of_truth: true
 statistics:
   intent_count: 149
-  formal_count: 71
-  known_non_executable_count: 78
+  formal_count: 72
+  known_non_executable_count: 77
 source_freezes:
   formal:
     path: data/nlu/spec/intent_registry_r4_final.yaml
-    sha256: 6d7f1c8f7a7e3ad8c380e446d66071f38dcd84fef24621ba1d1968162ad196bb
+    sha256: 1ff4e468002ed9f1ddc82aab5e47dddb84339e10b438f8c50146d361afbee6c2
   known:
     path: data/nlu/spec/audits/known_non_executable_semantic_freeze_final_v4.yaml
     sha256: f560c11b9c14ae338cbf584c97b9a313bb39e2302a69c774c3044390544d5acd
@@ -18,7 +18,7 @@ source_freezes:
     sha256: dad730e6bb4859f6ab8c26a47a23a5c93a9116a93a36893a498f81d3410122ce
   contract_catalog:
     path: data/nlu/spec/intent_registry_r4_final_candidate.yaml
-    sha256: fb6dc4810964d2b4d7ce5b8a1a3ac8ee1e1cf24335f1973dc1baeb88ead05666
+    sha256: 5f9ed7c32dda22f0962e8143a2945dfbc476e49cd162e8a7f51b6faecfc98ab0
 enums:
   scope_status:
   - IN_SCOPE
@@ -680,6 +680,7 @@ mode_surface_mappings:
     RAIN_SENSOR:
     - 自动雨刮
     - 感应雨刮
+    - 自动模式
   CRUISE_GAP_LEVEL:
     LEVEL_1:
     - 一级
@@ -2662,6 +2663,36 @@ intents:
   control_attribute: SENSITIVITY
   runtime_identity: FORMAL
   boundary_contract: {}
+- intent_id: DISPLAY_OFF
+  chinese_name: 关闭显示屏
+  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: DISPLAY
+  control_domain: 座舱控制
+  risk_level: R3
+  risk_tags:
+  - 倒车视野
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: PROJECT_ONLY
+  scope_authority: PROJECT
+  control_attribute: STATE
+  runtime_identity: FORMAL
+  boundary_contract: {}
 - intent_id: PARKING_BRAKE_APPLY
   chinese_name: 施加驻车制动
   capability_family: CHASSIS_PARKING_BRAKE
@@ -3636,38 +3667,6 @@ intents:
   allowed_areas:
   - LEFT_SIDE
   - RIGHT_SIDE
-  value_contract: NONE
-  mode_contract: null
-  direction_contract: null
-  conditional_slot_contract: null
-  value_mapping_contract: null
-  runtime_identity: KNOWN_NON_EXECUTABLE
-  boundary_contract:
-    formal_intent_ids: []
-    statement: 历史审计未发现完整能力覆盖；保持独立 KNOWN_NON_EXECUTABLE 身份。
-    status: FROZEN
-- intent_id: DISPLAY_OFF
-  chinese_name: 关闭显示屏
-  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
-  canonical_action: TURN_OFF
-  canonical_target: DISPLAY
-  control_attribute: STATE
-  control_domain: 座舱控制
-  risk_level: R0_NON_EXECUTABLE
-  risk_tags:
-  - KNOWN_NON_EXECUTABLE
-  required_slots: []
-  optional_slots:
-  - AREA
-  allowed_areas:
-  - LEFT_FRONT
-  - RIGHT_FRONT
-  - LEFT_REAR
-  - RIGHT_REAR
-  - FRONT_ROW
-  - REAR_ROW
-  - ALL
-  - REAR
   value_contract: NONE
   mode_contract: null
   direction_contract: null

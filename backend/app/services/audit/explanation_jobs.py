@@ -311,6 +311,7 @@ class DecisionExplanationCoordinator:
             explanation=job.explanation if status == "AVAILABLE" else None,
             generated_at=job.completed_at if status == "AVAILABLE" else None,
             retryable=status == "FAILED",
+            fact_bundle=dict(job.input_payload.get("fact_bundle") or {}),
         )
 
     def retry(self, turn_id: str) -> DecisionExplanationStatusResponse | None:

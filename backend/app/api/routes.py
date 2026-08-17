@@ -30,6 +30,7 @@ from app.models.schemas import (
     SemanticFrame,
     TextCommandRequest,
     TextCommandResponse,
+    TrustedRuntimeContext,
     TurnTimeline,
     TurnWorkflowStatus,
     VehicleState,
@@ -127,7 +128,17 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
 
     @router.post("/command/text", response_model=TextCommandResponse)
     def command_text(request: TextCommandRequest) -> TextCommandResponse:
-        result = pipeline.process_text(request)
+        # Text is not allowed to self-assert a trusted role.  The active vehicle /
+        # simulator state is the sole identity source for the safety gate, matching
+        # the scenario path and the runtime adapter contract.
+        active_state = pipeline.vehicle.get_state()
+        trusted_context = TrustedRuntimeContext(
+            subject_role=active_state.occupant_role,
+            subject_zone=active_state.speaker_zone,
+            subject_source="ACTIVE_RUNTIME_STATE",
+            zone_source="ACTIVE_RUNTIME_STATE",
+        )
+        result = pipeline.process_text(request, trusted_context=trusted_context)
         invalidate_turn_reads(result.turn_id)
         response = result.model_copy(
             update={

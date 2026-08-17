@@ -63,4 +63,5 @@ export interface DecisionExplanationView {
   status: "IDLE" | "PENDING" | "AVAILABLE" | "FAILED";
   text: string | null;
   retryable: boolean;
+  facts?: Record<string, unknown>;
 }

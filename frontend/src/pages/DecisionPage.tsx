@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
 import { executeTurn, getDecisionExplanation, getTurnPresentation, retryDecisionExplanation, submitTurnInteraction } from "../api/turns";
 import { InteractionModal } from "../components/InteractionModal";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
 import { useSession } from "../stores/sessionStore";
-import type { AudioCommandResponse, ExecuteResult, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
+import type { AudioCommandResponse, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 import type { CommandInputMode, DecisionExplanationView, DecisionResultView } from "../types/visualModels";
 
 interface CurrentTurnData {
@@ -15,9 +15,11 @@ interface CurrentTurnData {
   evidence_demand?: TurnPresentationResponse["evidence_demand"];
 }
 interface BoundExecutionToken extends ExecutionTokenView { turnId: string; }
+type ExecutionMode = "NORMAL" | "REUSE" | "STATE_CHANGED";
+interface ExecutionOutcome { state: "IDLE" | "PENDING" | "ACCEPTED" | "REJECTED"; reason: string | null; }
 const MAX_WAV_SIZE_BYTES = 20 * 1024 * 1024;
 const EMPTY_RESULT: DecisionResultView = { state: null, dimensions: ["C_sem", "C_cov", "C_trust", "C_jb", "C_nec"].map((dimension) => ({ id: dimension, dimension, detail: null })), score: null, reason: null };
-const EMPTY_EXPLANATION: DecisionExplanationView = { status: "IDLE", text: null, retryable: false };
+const EMPTY_EXPLANATION: DecisionExplanationView = { status: "IDLE", text: null, retryable: false, facts: {} };
 const EXPLANATION_POLL_INTERVAL_MS = 1_000;
 const EXPLANATION_WAIT_LIMIT_MS = 30_000;
 
@@ -91,7 +93,7 @@ export function DecisionPage() {
   const [explanation, setExplanation] = useState<DecisionExplanationView>(EMPTY_EXPLANATION);
   const [explanationAttempt, setExplanationAttempt] = useState(0);
   const [tokens, setTokens] = useState<BoundExecutionToken[]>([]);
-  const [execResults, setExecResults] = useState<Record<string, ExecuteResult>>({});
+  const [executionOutcome, setExecutionOutcome] = useState<ExecutionOutcome>({ state: "IDLE", reason: null });
   const [execBusyTurnId, setExecBusyTurnId] = useState<string | null>(null);
   const [interaction, setInteraction] = useState<InteractionRequest | null>(null);
   const [clarificationBusy, setClarificationBusy] = useState(false);
@@ -100,8 +102,11 @@ export function DecisionPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { activeTurnId, setActiveTurn } = useSession();
+  const { activeTurnId, setActiveTurn, pendingExecutionDemo, setPendingExecutionDemo } = useSession();
+  const [executionMode, setExecutionMode] = useState<ExecutionMode>("NORMAL");
+  const navigate = useNavigate();
   const activeRequestRef = useRef<AbortController | null>(null);
+  const tokensRef = useRef<BoundExecutionToken[]>([]);
   const routeTurnId = searchParams.get("turn_id")?.trim() || null;
   const turnId = routeTurnId || activeTurnId || null;
 
@@ -115,8 +120,11 @@ export function DecisionPage() {
       setText(frame.raw_text);
     }
     if (textResponse?.semantic_frame) {
-      setTokens(tokensFor(textResponse));
+      const issuedTokens = tokensFor(textResponse);
+      tokensRef.current = issuedTokens;
+      setTokens(issuedTokens);
       setResult(resultFor(textResponse));
+      setExecutionOutcome({ state: "IDLE", reason: null });
     }
     setInteraction(response.interaction_request || textResponse?.interaction_request || null);
     setActiveTurn(response.turn_id, {
@@ -163,24 +171,27 @@ export function DecisionPage() {
     const controller = new AbortController();
     const deadline = Date.now() + EXPLANATION_WAIT_LIMIT_MS;
     let timer: ReturnType<typeof setTimeout> | null = null;
-    setExplanation({ status: "PENDING", text: null, retryable: false });
+    setExplanation({ status: "PENDING", text: null, retryable: false, facts: {} });
     const poll = async () => {
       try {
         const value = await getDecisionExplanation(turnId, controller.signal);
         if (controller.signal.aborted) return;
+        if (value.status === "PENDING") {
+          setExplanation({ status: "PENDING", text: null, retryable: false, facts: value.fact_bundle || {} });
+        }
         if (value.status === "AVAILABLE") {
-          setExplanation({ status: "AVAILABLE", text: value.explanation?.trim() || null, retryable: false });
+          setExplanation({ status: "AVAILABLE", text: value.explanation?.trim() || null, retryable: false, facts: value.fact_bundle || {} });
           return;
         }
         if (value.status === "FAILED") {
-          setExplanation({ status: "FAILED", text: null, retryable: value.retryable });
+          setExplanation({ status: "FAILED", text: null, retryable: value.retryable, facts: value.fact_bundle || {} });
           return;
         }
       } catch {
         if (controller.signal.aborted) return;
       }
       if (Date.now() >= deadline) {
-        setExplanation({ status: "FAILED", text: null, retryable: true });
+        setExplanation({ status: "FAILED", text: null, retryable: true, facts: {} });
         return;
       }
       timer = setTimeout(() => { void poll(); }, EXPLANATION_POLL_INTERVAL_MS);
@@ -193,7 +204,7 @@ export function DecisionPage() {
     const controller = new AbortController(); activeRequestRef.current?.abort(); activeRequestRef.current = controller;
     setBusy(true); setHasError(false); setFeedback("正在解析语义帧…");
     const request = mode === "text"
-      ? submitTextCommand({ text: text.trim() }, controller.signal)
+      ? submitTextCommand({ text: text.trim(), speaker_zone: "driver", speaker_role: "driver" }, controller.signal)
       : mode === "audio" && audioFile
         ? submitAudioCommand(audioFile, { audio_source: "browser_upload", speaker_zone: "driver", speaker_role: "driver" }, controller.signal)
         : submitMicrophoneCommand({ duration_seconds: 4, speaker_zone: "driver", speaker_role: "driver" }, controller.signal);
@@ -204,7 +215,15 @@ export function DecisionPage() {
 
   const execute = useCallback(async (token: BoundExecutionToken, interactionId: string) => {
     setExecBusyTurnId(token.turnId);
-    try { const value = await executeTurn(token.turnId, token.token, interactionId, token.intent_id || undefined); setExecResults((old) => ({ ...old, [token.turnId]: value })); }
+    setExecutionOutcome({ state: "PENDING", reason: null });
+    try {
+      const value = await executeTurn(token.turnId, token.token, interactionId, token.intent_id || undefined);
+      setExecutionOutcome({ state: value.accepted ? "ACCEPTED" : "REJECTED", reason: value.reason || (value.accepted ? "车辆动作已执行" : "后端拒绝执行") });
+      return value;
+    } catch (error) {
+      setExecutionOutcome({ state: "REJECTED", reason: error instanceof Error ? error.message : "执行请求被后端拒绝" });
+      return null;
+    }
     finally { setExecBusyTurnId(null); }
   }, []);
 
@@ -230,11 +249,15 @@ export function DecisionPage() {
     if (!interaction) return;
     setClarificationBusy(true); setClarificationError(null);
     void submitTurnInteraction(interaction.turn_id, { interaction_id: interaction.interaction_id, action, ...(candidateId ? { candidate_id: candidateId } : {}), ...(text ? { text } : {}), ...(parameters ? { parameters } : {}) }).then((response) => {
-      if (action === "EXECUTE") { const token = tokens.find((item) => item.turnId === interaction.turn_id); if (!token) throw new Error("后端未提供可执行令牌"); return execute(token, interaction.interaction_id).then(() => setInteraction(null)); }
+      if (action === "EXECUTE") { const token = tokensRef.current.find((item) => item.turnId === interaction.turn_id); if (!token) throw new Error("后端未提供可执行令牌"); if (executionMode !== "NORMAL") { setPendingExecutionDemo({ turnId: token.turnId, token: token.token, interactionId: interaction.interaction_id, intentId: token.intent_id, label: token.label || "当前车辆操作" }); setInteraction(null); return; } return execute(token, interaction.interaction_id).then(() => setInteraction(null)); }
       if (response.command_result) accept(response.command_result, "复核完成");
       else setInteraction(null);
     }).catch((error: unknown) => setClarificationError(error instanceof Error ? error.message : "复核失败")).finally(() => setClarificationBusy(false));
-  }, [accept, execute, interaction, tokens]);
+  }, [accept, execute, executionMode, interaction, setPendingExecutionDemo]);
+  const executeDemo = useCallback(() => {
+    if (!pendingExecutionDemo) return;
+    void execute({ token: pendingExecutionDemo.token, turnId: pendingExecutionDemo.turnId, intent_id: pendingExecutionDemo.intentId || "", label: pendingExecutionDemo.label, action: "", target: "", area: "unknown" }, pendingExecutionDemo.interactionId);
+  }, [execute, pendingExecutionDemo]);
 
   return <><div className="visual-page-frame decision-visual-page"><div className="decision-visual-layout">
     <div className="decision-visual-left">
@@ -243,9 +266,7 @@ export function DecisionPage() {
     </div>
     <div className="decision-result-column"><div className="decision-child-detail-card">
       <DecisionResultDisplay result={result} explanation={explanation} onExplanationRetry={retryExplanation} />
-      <section className="decision-execution-panel"><div className="decision-execution-actions">
-        {tokens.length === 0 ? <button type="button" disabled className="decision-execution-button">无待确认执行</button> : <p>请在执行确认交互中确认执行。</p>}
-      </div>{Object.values(execResults).map((entry) => <div key={entry.reason} className="decision-execution-result"><span>{entry.reason}</span></div>)}</section>
+      <section className="decision-execution-panel" aria-labelledby="execution-acceptance-heading"><h2 id="execution-acceptance-heading">执行验收</h2><div className="decision-execution-grid"><div className="decision-execution-modes">{([['NORMAL', '正常执行'], ['REUSE', '重复使用同一授权'], ['STATE_CHANGED', '签发后改变状态']] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={executionMode === value} onClick={() => setExecutionMode(value)}>{label}</button>)}</div><div className="decision-execution-state">{pendingExecutionDemo?.turnId === turnId ? executionMode === 'STATE_CHANGED' ? '授权已签发，等待状态变化' : '授权已签发，等待执行' : tokens.length ? interaction ? '等待确认执行' : '等待授权签发' : '未签发授权'}</div><div className={`decision-execution-outcome is-${executionOutcome.state.toLowerCase()}`}>{executionOutcome.state === 'PENDING' ? '正在核验授权与当前状态…' : executionOutcome.state === 'ACCEPTED' ? <>已执行｜{executionOutcome.reason}</> : executionOutcome.state === 'REJECTED' ? <>已拒绝｜{executionOutcome.reason}</> : tokens.length ? '尚无执行结果' : '本轮未签发授权，无法执行所选测试'}</div></div>{pendingExecutionDemo?.turnId === turnId && <div className="decision-execution-actions">{executionMode === 'STATE_CHANGED' && <button type="button" className="decision-execution-button" onClick={() => navigate('/carla')}>前往模拟器修改状态</button>}<button type="button" className="decision-execution-button" disabled={execBusyTurnId === turnId} onClick={executeDemo}>{executionMode === 'REUSE' && executionOutcome.state === 'ACCEPTED' ? '再次执行同一授权' : '按原授权执行'}</button></div>}</section>
     </div></div>
-  </div></div>{interaction ? <InteractionModal error={clarificationError} onSubmit={resolve} request={interaction} busy={clarificationBusy} /> : null}</>;
+  </div></div>{interaction ? <InteractionModal error={clarificationError} onSubmit={resolve} request={interaction} busy={clarificationBusy} executionDemoEnabled={executionMode !== "NORMAL"} onExecutionDemoEnabledChange={(enabled) => setExecutionMode(enabled ? "REUSE" : "NORMAL")} /> : null}</>;
 }

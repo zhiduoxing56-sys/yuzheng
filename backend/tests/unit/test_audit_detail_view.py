@@ -102,7 +102,7 @@ class _ExplanationProvider:
     def generate(self, _system_prompt, payload):
         self.calls += 1
         assert self.pipeline.audit_repository.count() >= 1
-        assert set(payload) == {"instruction", "decision_status", "vehicle_context"}
+        assert set(payload) == {"instruction", "decision_status", "vehicle_context", "fact_bundle"}
         self.payload = payload
         self.called.set()
         return {"explanation": "车辆当前状态不满足操作条件，因此本次指令需要拒绝"}
@@ -147,6 +147,8 @@ def test_llm_explanation_runs_once_after_audit_persistence_and_is_append_only(pi
     assert provider.payload["vehicle_context"]["simulation_context"][
         "ROAD_FRICTION_STATE"
     ]["friction_scale_factor"] == 0.5
+    assert provider.payload["fact_bundle"]["recognized_intents"]
+    assert provider.payload["fact_bundle"]["decision"]["final_decision"] == result.decision.final_decision.value
     events = pipeline.workflow_repository.events(result.root_turn_id or result.turn_id)
     explanation_events = [
         event

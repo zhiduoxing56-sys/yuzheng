@@ -358,6 +358,12 @@ intents:
     canonical_action: ADJUST
     canonical_target: WIPER
     control_attribute: SENSITIVITY
+  DISPLAY_OFF:
+    name: 关闭显示屏
+    runtime_identity: FORMAL
+    canonical_action: TURN_OFF
+    canonical_target: DISPLAY
+    control_attribute: STATE
   PARKING_BRAKE_APPLY:
     name: 施加驻车制动
     runtime_identity: FORMAL
@@ -579,12 +585,6 @@ intents:
     runtime_identity: KNOWN_NON_EXECUTABLE
     canonical_action: TURN_ON
     canonical_target: CHILD_LOCK
-    control_attribute: STATE
-  DISPLAY_OFF:
-    name: 关闭显示屏
-    runtime_identity: KNOWN_NON_EXECUTABLE
-    canonical_action: TURN_OFF
-    canonical_target: DISPLAY
     control_attribute: STATE
   DISPLAY_ON:
     name: 开启显示屏
@@ -898,4 +898,4 @@ intents:
     canonical_action: SWITCH_MODE
     canonical_target: INTERIOR_LIGHT
     control_attribute: MODE
-source_registry_sha256: 3227409207543f88e95e84275e5b2390c6e9029c470b671207fd9b0ed224604e
+source_registry_sha256: e93caf0a41db28c1e3fc4da204783f87961ddd7b256fd96585934515d82b699a

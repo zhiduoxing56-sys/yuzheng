@@ -421,6 +421,12 @@ intent_requirements:
       VEHICLE_SPEED: 车辆运动状态是多类车控动作的关键执行前提。
       ENVIRONMENT_CONDITIONS: 照度、雨雾等环境条件会影响驾驶视野相关动作风险。
       LIGHTING_STATE: 确认目标外部灯光及主灯模式当前状态。
+  DISPLAY_OFF:
+    mandatory: []
+    recommended: []
+    conditional_mandatory: []
+    rationale:
+      DISPLAY_OFF: 倒车影像保护由正式 SafetyGate RuntimeSafetyContext 判断；本动作没有新增的 Evidence Space 需求。
   HAZARD_LIGHT_ON:
     mandatory: []
     recommended:

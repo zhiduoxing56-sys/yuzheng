@@ -32,4 +32,5 @@ necessity_evidence:
   brake_required_score: 0.9
   safety_critical_intent_ids:
     BRAKE: 1.0
+    EMERGENCY_BRAKE: 1.0
     DECELERATE: 0.8

@@ -2205,6 +2205,35 @@ intents:
   scope_authority: BOTH
   control_attribute: SENSITIVITY
   user_voice_scope_status: FORMAL_EXECUTABLE
+- intent_id: DISPLAY_OFF
+  chinese_name: 关闭显示屏
+  capability_family: PROJECT_DISPLAY_KNOWN_CONTROL
+  canonical_action: TURN_OFF
+  canonical_target: DISPLAY
+  control_domain: 座舱控制
+  risk_level: R3
+  risk_tags:
+  - 倒车视野
+  allowed_areas:
+  - LEFT_FRONT
+  - RIGHT_FRONT
+  - LEFT_REAR
+  - RIGHT_REAR
+  - FRONT_ROW
+  - REAR_ROW
+  - ALL
+  - REAR
+  value_contract: NONE
+  required_slots: []
+  optional_slots:
+  - AREA
+  scope_status: IN_SCOPE
+  capability_origin: PROJECT_NATIVE
+  vss_capability_ids: []
+  vss_relation: PROJECT_ONLY
+  scope_authority: PROJECT
+  control_attribute: STATE
+  user_voice_scope_status: FORMAL_EXECUTABLE
 - intent_id: PARKING_BRAKE_APPLY
   chinese_name: 施加驻车制动
   capability_family: CHASSIS_PARKING_BRAKE

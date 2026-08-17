@@ -65,8 +65,8 @@ class UnifiedSemanticRegistry:
         }
         if actual != statistics or actual != {
             "intent_count": 149,
-            "formal_count": 71,
-            "known_non_executable_count": 78,
+            "formal_count": 72,
+            "known_non_executable_count": 77,
         }:
             raise RuntimeError(f"统一语义 Registry 数量错误: {actual}")
         self._validate_contract_references()

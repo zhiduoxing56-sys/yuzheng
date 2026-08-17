@@ -3,7 +3,7 @@ artifact_version: unified-intent-anchors-v1
 source_registry: data/nlu/spec/intent_registry_unified_v1.yaml
 source_registry_version: unified-semantic-runtime-v1
 intent_count: 149
-semantic_anchor_count: 3571
+semantic_anchor_count: 3539
 intents:
   MIRROR_HEATING_ON:
     runtime_identity: FORMAL
@@ -1332,6 +1332,9 @@ intents:
     - 雨刮调到快速
     - 雨刮切到间歇模式
     - 雨刮切到自动模式
+    - 开启雨刮自动模式
+    - 雨刮切到自动
+    - 把雨刮设成自动模式
     - 打开前雨刮
     - 打开后雨刮
     - 打开自动雨刮设置
@@ -1366,6 +1369,12 @@ intents:
     - 给我提高雨刮灵敏度
     - 请帮我提高雨刮灵敏度
     - 请降低雨刮灵敏度
+  DISPLAY_OFF:
+    runtime_identity: FORMAL
+    anchors:
+    - 关闭大屏
+    - 关闭屏幕
+    - 把屏幕熄掉
     - 帮我降低雨刮灵敏度
     - 麻烦降低雨刮灵敏度
   PARKING_BRAKE_APPLY:
@@ -2025,47 +2034,6 @@ intents:
     - 把左边儿童锁设为开启状态
     - 给我打开儿童锁
     - 打开儿童锁
-  DISPLAY_OFF:
-    runtime_identity: KNOWN_NON_EXECUTABLE
-    anchors:
-    - 关闭屏幕
-    - 右手边的屏关闭
-    - 关闭关闭后排屏幕
-    - 关闭显示屏
-    - 流媒体分屏这个功能给我关闭一下
-    - 关闭副驾驶屏幕
-    - 关闭前排屏幕
-    - 关闭主驾屏幕
-    - 关闭车内灯光
-    - 关闭屏保设置
-    - 关闭后排屏幕
-    - 关闭司机显示屏来减轻我的视觉压力
-    - 关闭抬头显示
-    - 关闭全车阅读灯
-    - 关闭车内所有灯光
-    - 关闭屏保
-    - 将后排的屏幕锁关下
-    - 关闭中控屏
-    - 关闭副驾屏
-    - 关闭所有屏幕
-    - 关闭副驾显示屏
-    - 关闭车机屏幕
-    - 关闭前排显示屏
-    - 关闭右前屏幕
-    - 副驾的屏幕实在是让人失明请把它关闭
-    - 退出关屏
-    - 关掉屏幕
-    - 副驾息屏
-    - 熄灭屏幕断开
-    - 终止屏幕的输出
-    - 关闭后屏幕
-    - 关闭大屏
-    - 关闭屏幕显示屏
-    - 关掉显示屏
-    - 关闭触摸屏声音
-    - 我要关闭屏幕
-    - 关了抬头显示
-    - 关闭右手边的屏幕
   DISPLAY_ON:
     runtime_identity: KNOWN_NON_EXECUTABLE
     anchors:
@@ -4051,4 +4019,4 @@ exclusions:
   quarantine_record_count: 289
   unapproved_hash_candidate_count: 1402
   legacy_known_control_bypass_active: false
-source_registry_sha256: 3227409207543f88e95e84275e5b2390c6e9029c470b671207fd9b0ed224604e
+source_registry_sha256: e93caf0a41db28c1e3fc4da204783f87961ddd7b256fd96585934515d82b699a

@@ -1258,6 +1258,7 @@ class CommandPipeline:
             raise RuntimeError("semantic terminal route created EvidenceDemand")
         is_review = terminal_kind == "SEMANTIC_REVIEW"
         is_non_vehicle = terminal_kind == "NON_VEHICLE_CONTROL"
+        is_security_block = terminal_kind == "SECURITY_SIGNAL_BLOCK"
         now = utc_now()
         index_status = self.index.status()
         retrieval = RetrievalMetadata(
@@ -1303,8 +1304,23 @@ class CommandPipeline:
                 )
             ),
         )
-        # This is an audit representation of a route that did not invoke SafetyGate.
-        gate = SafetyGateResult(blocked=False, checks=[], reasons=[])
+        # This is an audit representation of a terminal route.  A security signal
+        # has already been produced by the frozen semantic guard, so it is never
+        # allowed to be converted into a non-vehicle PASS.
+        security_reason = "SECURITY_SIGNAL_DETECTED"
+        gate = SafetyGateResult(
+            blocked=is_security_block,
+            checks=(
+                [GateCheck(
+                    rule_id=security_reason,
+                    hit=True,
+                    reason="检测到身份伪造或安全约束绕过声明。",
+                )]
+                if is_security_block else []
+            ),
+            reasons=[security_reason] if is_security_block else [],
+            hit_rules=[security_reason] if is_security_block else [],
+        )
         factors = DecisionScoreFactors(
             semantic_quality=frame.semantic_confidence,
             evidence_coverage=None,
@@ -1314,12 +1330,14 @@ class CommandPipeline:
         )
         decision = DecisionResult(
             turn_id=frame.turn_id,
-            decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
-            score_decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
-            final_decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
+            decision=(DecisionLabel.BLOCK if is_security_block else DecisionLabel.REVIEW if is_review else DecisionLabel.PASS),
+            score_decision=(DecisionLabel.BLOCK if is_security_block else DecisionLabel.REVIEW if is_review else DecisionLabel.PASS),
+            final_decision=(DecisionLabel.BLOCK if is_security_block else DecisionLabel.REVIEW if is_review else DecisionLabel.PASS),
             decision_sources=[],
             decision_merge_reason=(
-                "SEMANTIC_REVIEW terminal; downstream services were not invoked"
+                "SECURITY_SIGNAL terminal; security declaration was blocked before vehicle services"
+                if is_security_block
+                else "SEMANTIC_REVIEW terminal; downstream services were not invoked"
                 if is_review
                 else (
                     "NON_VEHICLE_CONTROL passed through; downstream vehicle services were not invoked"
@@ -1329,10 +1347,12 @@ class CommandPipeline:
             ),
             safety_score=1,
             soft_safety_score=1,
-            gate_blocked=False,
+            gate_blocked=is_security_block,
             score_factors=factors,
             explanations=[
-                "语义信息不完整或存在歧义；需要用户复核。"
+                "检测到身份伪造或安全约束绕过声明，已拒绝该请求。"
+                if is_security_block
+                else "语义信息不完整或存在歧义；需要用户复核。"
                 if is_review
                 else (
                     "本安全网关放行，未涉及受本系统保护的车辆物理控制，交由原车语音助手继续处理。"
@@ -1341,7 +1361,9 @@ class CommandPipeline:
                 )
             ],
             reason_codes=(
-                ["SEMANTIC_REVIEW_TERMINAL"]
+                [security_reason]
+                if is_security_block
+                else ["SEMANTIC_REVIEW_TERMINAL"]
                 if is_review
                 else (
                     ["NON_VEHICLE_CONTROL_PASS"]
@@ -1364,7 +1386,9 @@ class CommandPipeline:
             update={
                 "eligible_for_learning": False,
                 "exclusion_reasons": [
-                    "semantic review terminal"
+                    "security signal terminal"
+                    if is_security_block
+                    else "semantic review terminal"
                     if is_review
                     else "known non-executable semantic terminal"
                 ],
@@ -1451,9 +1475,11 @@ class CommandPipeline:
         self._subgraphs[frame.turn_id] = subgraph
         self._turns[frame.turn_id] = response
         emit(
-            "SEMANTIC_REVIEW_REQUIRED" if is_review else "KNOWN_NON_EXECUTABLE_COMPLETED",
+            "SECURITY_SIGNAL_BLOCKED" if is_security_block else "SEMANTIC_REVIEW_REQUIRED" if is_review else "KNOWN_NON_EXECUTABLE_COMPLETED",
             (
-                "语义结果需要复核，已在证据需求构建前终止。"
+                "检测到安全绕过声明，已在车辆服务前阻断。"
+                if is_security_block
+                else "语义结果需要复核，已在证据需求构建前终止。"
                 if is_review
                 else (
                     "本安全网关放行，交由原车语音助手继续处理。"
@@ -1674,7 +1700,11 @@ class CommandPipeline:
                 terminal_kind=(
                     "SEMANTIC_REVIEW"
                     if any(unit.kind == SemanticUnitKind.UNCERTAIN for unit in request_routing.units)
-                    else "NON_VEHICLE_CONTROL"
+                    else (
+                        "SECURITY_SIGNAL_BLOCK"
+                        if frame.security_signals
+                        else "NON_VEHICLE_CONTROL"
+                    )
                 ),
                 request_routing=request_routing,
             )
@@ -1949,6 +1979,29 @@ class CommandPipeline:
             resolution_projection.missing_knowledge_required_types_union
         )
         required_types = resolution_projection.required_types_union
+        # A KnowledgeNode requirement governs only whether that retrieved node
+        # can be used as supporting context.  It never changes the command-level
+        # safety envelope held in ``required_types``.
+        for index, (intent_demand, resolution) in enumerate(
+            zip(demand.intent_demands, intent_evidence_resolutions)
+        ):
+            missing_local = set(resolution.missing_knowledge_required_types)
+            demand.intent_demands[index] = intent_demand.model_copy(
+                update={
+                    "knowledge_hits": [
+                        {
+                            **hit,
+                            "applicability_status": (
+                                "INSUFFICIENT_CONTEXT"
+                                if missing_local
+                                & set(hit.get("required_evidence", []))
+                                else "EVALUABLE"
+                            ),
+                        }
+                        for hit in intent_demand.knowledge_hits
+                    ]
+                }
+            )
         evidence = list(evidence_by_id.values())
         evidence = self.index.classify_nodes(evidence)
         retrieval_metadata = self.index.finalize_retrieval_metadata(
@@ -2006,12 +2059,6 @@ class CommandPipeline:
             update={
                 "short_term_availability": self.quality_window.short_term_availability(),
                 "long_term_availability": self.quality_window.long_term_availability(),
-                "evidence_alignment_route": (
-                    "EVIDENCE_REVIEW"
-                    if missing_knowledge_types
-                    and quality_metrics.evidence_alignment_route != "EVIDENCE_BLOCK"
-                    else quality_metrics.evidence_alignment_route
-                ),
             }
         )
         quality_metrics_by_occurrence = {}
@@ -2049,14 +2096,6 @@ class CommandPipeline:
             occurrence_metrics = occurrence_metrics.model_copy(
                 update={
                     **availability_snapshot,
-                    "evidence_alignment_route": (
-                        "EVIDENCE_REVIEW"
-                        if resolution_projection.by_occurrence[
-                            occurrence
-                        ].missing_knowledge_required_types
-                        and occurrence_metrics.evidence_alignment_route != "EVIDENCE_BLOCK"
-                        else occurrence_metrics.evidence_alignment_route
-                    ),
                 }
             )
             quality_metrics_by_occurrence[occurrence] = occurrence_metrics
@@ -2335,25 +2374,6 @@ class CommandPipeline:
                 update={
                     "intent_safety_assessments": [],
                     "aggregate_safety_decision": None,
-                }
-            )
-        if missing_knowledge_types:
-            knowledge_explanation = (
-                "知识检索所需证据缺失，需要复核："
-                + "、".join(missing_knowledge_types)
-            )
-            decision = decision.model_copy(
-                update={
-                    "reason_codes": list(
-                        dict.fromkeys(
-                            [*decision.reason_codes, "KNOWLEDGE_EVIDENCE_MISSING"]
-                        )
-                    ),
-                    "explanations": list(
-                        dict.fromkeys([*decision.explanations, knowledge_explanation])
-                    ),
-                    "review_question": decision.review_question
-                    or "知识检索证据不完整，请确认是否继续。",
                 }
             )
         decision, gate = self._apply_voice_constraints(
@@ -3237,7 +3257,7 @@ class CommandPipeline:
             {
                 "scenario_id": scenario_id,
                 "name": scenario.get("name", scenario_id),
-                "text": scenario.get("text", ""),
+                "text": scenario.get("input_text", ""),
                 "conditions": scenario_conditions(scenario),
             }
             for scenario_id, scenario in values.items()
@@ -3289,7 +3309,7 @@ class CommandPipeline:
         )
         return self.process_text(
             TextCommandRequest(
-                text=str(scenario.get("text", "")),
+                text=str(scenario.get("input_text", "")),
                 speaker_role=state.occupant_role or "unknown",
                 speaker_zone=state.speaker_zone or "unknown",
                 session_id=session_id,

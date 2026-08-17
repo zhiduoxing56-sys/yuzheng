@@ -22,6 +22,10 @@ gate_rules:
     evaluator: moving_door
     intent_ids: [DOOR_OPEN, DOOR_SET_POSITION]
     reason: 行驶中禁止打开车门
+  - id: REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED
+    evaluator: reverse_camera_display_off
+    intent_ids: [DISPLAY_OFF]
+    reason: 倒车影像开启时禁止关闭显示屏
   - id: LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED
     evaluator: low_light_headlight
     intent_ids: [HEADLIGHT_SET_MODE]

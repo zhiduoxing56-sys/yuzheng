@@ -76,7 +76,14 @@ def main() -> None:
     contract_source = load_yaml(CONTRACT_SOURCE_PATH)
 
     formal_items = [formal_definition(item) for item in formal["intents"]]
-    known_sources = known["known_non_executable_intents"]
+    formal_ids = {item["intent_id"] for item in formal_items}
+    # An audited Known entry can be promoted only by adding the formal contract
+    # above.  The frozen audit remains historical provenance, never a second
+    # runtime identity.
+    known_sources = [
+        item for item in known["known_non_executable_intents"]
+        if item["intent_id"] not in formal_ids
+    ]
     blocked_anchor_sources = [
         item["intent_id"]
         for item in known_sources
@@ -91,8 +98,8 @@ def main() -> None:
     intents = [*formal_items, *known_items]
     ids = [item["intent_id"] for item in intents]
     removed_ids = {item["intent_id"] for item in removals["removals"]}
-    if (len(formal_items), len(known_items), len(intents)) != (71, 78, 149):
-        raise ValueError("unified intent counts must be 71/78/149")
+    if (len(formal_items), len(known_items), len(intents)) != (72, 77, 149):
+        raise ValueError("unified intent counts must be 72/77/149")
     if len(ids) != len(set(ids)) or set(ids) & removed_ids:
         raise ValueError("unified IDs are duplicate or contain product removals")
 
@@ -156,7 +163,7 @@ def main() -> None:
         "WIPER": {
             "OFF": ["关闭雨刮", "雨刮关闭"], "SLOW": ["雨刮慢速", "低速雨刮", "雨刮低速"],
             "MEDIUM": ["雨刮中速", "中速雨刮"], "FAST": ["雨刮快速", "高速雨刮", "雨刮高速"],
-            "INTERVAL": ["间歇雨刮", "雨刮间歇"], "RAIN_SENSOR": ["自动雨刮", "感应雨刮"],
+            "INTERVAL": ["间歇雨刮", "雨刮间歇"], "RAIN_SENSOR": ["自动雨刮", "感应雨刮", "自动模式"],
         },
         "CRUISE_GAP_LEVEL": {
             "LEVEL_1": ["一级", "1级", "一档"], "LEVEL_2": ["二级", "2级", "二档"],
@@ -196,8 +203,8 @@ def main() -> None:
         "single_semantic_source_of_truth": True,
         "statistics": {
             "intent_count": 149,
-            "formal_count": 71,
-            "known_non_executable_count": 78,
+            "formal_count": 72,
+            "known_non_executable_count": 77,
         },
         "source_freezes": {
             "formal": {"path": FORMAL_PATH.relative_to(ROOT).as_posix(), "sha256": digest(FORMAL_PATH)},
