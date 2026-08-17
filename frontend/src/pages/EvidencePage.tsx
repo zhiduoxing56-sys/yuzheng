@@ -32,56 +32,35 @@ const EXCLUSION_LABELS: Record<string, string> = {
   DUPLICATE_OR_LOWER_PRIORITY: "重复或来源优先级较低",
 };
 
-const THRESHOLD_LABELS: Record<string, string> = {
-  ACCEPTED: "已命中",
-  BELOW_THRESHOLD: "低于阈值",
-  NOT_IN_ONLINE_TOP_K: "未进入正式前五",
-};
-
 function display(value: unknown): string {
   if (value === null || value === undefined || value === "") return "--";
   if (typeof value === "object") return JSON.stringify(value, null, 2);
   return String(value);
 }
 
-function percent(value?: number): string {
-  return value == null ? "--" : `${(value * 100).toFixed(2)}%`;
-}
-
 function evidenceLabel(value: string): string {
   return EVIDENCE_LABELS[value] ? `${EVIDENCE_LABELS[value]}（${value}）` : value;
 }
 
-interface KnowledgeLayer {
-  id: "K0" | "K1" | "K2" | "K3";
-  title: string;
-  nodes: KnowledgeNodeObservability[];
+function KnowledgeResultItem({ node }: { node: KnowledgeNodeObservability }) {
+  const sentence = node.semantic_description || node.title || node.clause || "该知识节点暂无摘要";
+  const details = [
+    ["标题", node.title],
+    ["适用条件", node.conditions?.join("；")],
+    ["必需证据", node.required_evidence?.map(evidenceLabel).join("；")],
+    ["可选证据", node.optional_evidence?.map(evidenceLabel).join("；")],
+    ["来源", node.source],
+    ["章节", node.chapter],
+    ["条款", node.clause],
+  ].filter((item): item is [string, string] => Boolean(item[1]));
+  return <details className="knowledge-result-item">
+    <summary><span>{sentence}</span><i aria-hidden="true">⌄</i></summary>
+    {details.length ? <dl>{details.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl> : <p>该知识节点暂无更多详情。</p>}
+  </details>;
 }
 
-function KnowledgeNodeCard({ node, threshold }: { node: KnowledgeNodeObservability; threshold?: number }) {
-  return <article className="knowledge-node-card">
-    <header><div><span>{node.node_id}</span><h3>{node.title || "未命名知识节点"}</h3></div>{node.rank ? <strong>第 {node.rank} 名</strong> : null}</header>
-    <dl className="knowledge-node-summary">
-      <div><dt>规范动作</dt><dd>{node.canonical_action || "--"}</dd></div>
-      <div><dt>相似度</dt><dd>{percent(node.similarity)}</dd></div>
-      <div><dt>结果范围</dt><dd>{node.result_scope === "ONLINE_TOP_K" ? "正式前五" : node.result_scope === "DIAGNOSTIC_ONLY" ? "仅诊断" : "动作候选"}</dd></div>
-      <div><dt>阈值结果</dt><dd>{node.threshold_status ? THRESHOLD_LABELS[node.threshold_status] || node.threshold_status : "--"}{threshold != null && node.similarity != null ? `（差值 ${(node.similarity - threshold).toFixed(6)}）` : ""}</dd></div>
-      <div><dt>信任等级</dt><dd>{node.trust_level || "--"}</dd></div>
-      <div><dt>HNSW 标签</dt><dd>{node.label ?? "--"}</dd></div>
-    </dl>
-    <details><summary>查看完整节点详情</summary>
-      <dl className="knowledge-node-detail">
-        <div><dt>节点类型</dt><dd>{node.node_type || "--"}</dd></div>
-        <div><dt>语义描述</dt><dd>{node.semantic_description || "--"}</dd></div>
-        <div><dt>适用条件</dt><dd>{node.conditions?.join("；") || "无"}</dd></div>
-        <div><dt>必需证据</dt><dd>{node.required_evidence?.map(evidenceLabel).join("；") || "无"}</dd></div>
-        <div><dt>可选证据</dt><dd>{node.optional_evidence?.map(evidenceLabel).join("；") || "无"}</dd></div>
-        <div><dt>来源</dt><dd>{node.source || "--"}</dd></div>
-        <div><dt>章节</dt><dd>{node.chapter || "--"}</dd></div>
-        <div><dt>条款</dt><dd>{node.clause || "--"}</dd></div>
-      </dl>
-    </details>
-  </article>;
+function percent(value?: number): string {
+  return value == null ? "--" : `${(value * 100).toFixed(2)}%`;
 }
 
 function ContextTable({ rows, excluded }: { rows: KnowledgeContextSource[]; excluded?: boolean }) {
@@ -108,7 +87,6 @@ export function EvidencePage() {
   const turnId = routeTurnId || searchParams.get("turn_id") || activeTurnId || null;
   const [presentation, setPresentation] = useState<TurnPresentationResponse | null>(null);
   const [selectedOccurrence, setSelectedOccurrence] = useState(0);
-  const [selectedLayer, setSelectedLayer] = useState<KnowledgeLayer | null>(null);
   const [contextTab, setContextTab] = useState<"included" | "excluded">("included");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +98,7 @@ export function EvidencePage() {
   useEffect(() => {
     if (!turnId) { setPresentation(null); return; }
     const controller = new AbortController();
-    setLoading(true); setError(null); setSelectedOccurrence(0); setSelectedLayer(null);
+    setLoading(true); setError(null); setSelectedOccurrence(0);
     void getTurnPresentation(turnId, controller.signal)
       .then(setPresentation)
       .catch((reason: unknown) => { if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "知识检索结果读取失败"); })
@@ -131,39 +109,37 @@ export function EvidencePage() {
   const demands = presentation?.evidence_demand?.intent_demands || [];
   const demand = demands[selectedOccurrence] || null;
   const metadata = demand?.knowledge_retrieval_metadata || {};
-  const eligible = metadata.eligible_nodes || [];
-  const ranked = metadata.diagnostic_results || [];
-  const hitIds = new Set((demand?.knowledge_hits || []).map((item) => item.node_id));
-  const rankedById = new Map(ranked.map((node) => [node.node_id, node]));
-  const accepted = ranked.filter((node) => node.threshold_status === "ACCEPTED");
-  const contributors = accepted.filter((node) => hitIds.has(node.node_id));
-  const layers: KnowledgeLayer[] = useMemo(() => [
-    { id: "K0", title: "第一层：动作匹配知识", nodes: eligible.map((node) => rankedById.get(node.node_id) || node) },
-    { id: "K1", title: "第二层：语义相似度排序", nodes: ranked },
-    { id: "K2", title: "第三层：相似度阈值筛选", nodes: ranked },
-    { id: "K3", title: "第四层：动态证据需求", nodes: contributors },
-  ], [contributors, eligible, metadata.similarity_threshold, ranked, rankedById]);
+  const finalResults = useMemo(() => {
+    const complete = [...(metadata.raw_results || []), ...(metadata.diagnostic_results || []), ...(metadata.eligible_nodes || [])];
+    const byId = new Map(complete.map((node) => [node.node_id, node]));
+    const seen = new Set<string>();
+    return (demand?.knowledge_hits || []).flatMap((hit) => {
+      const nodeId = hit.node_id?.trim();
+      if (!nodeId || seen.has(nodeId)) return [];
+      seen.add(nodeId);
+      const full = byId.get(nodeId);
+      if (full) return [full];
+      return [{
+        label: -1, node_id: nodeId, node_type: "", title: hit.title || "", semantic_description: "",
+        canonical_action: hit.canonical_action || "", conditions: [], required_evidence: [], optional_evidence: [],
+        source: "", chapter: "", clause: "", trust_level: hit.trust_level || "",
+      } satisfies KnowledgeNodeObservability];
+    });
+  }, [demand?.knowledge_hits, metadata.diagnostic_results, metadata.eligible_nodes, metadata.raw_results]);
   const included = metadata.context_sources || [];
   const excluded = metadata.excluded_context_fields || [];
-  const vectorization = metadata.query_vectorization || {};
 
   return <div className="visual-page-frame knowledge-search-page">
     <header className="knowledge-search-header"><div><h1 className="visual-gradient-title">安全知识检索</h1><p>{turnId ? `当前轮次：${turnId}` : "请先在裁决页提交指令"}</p></div>{loading && <span>正在读取正式检索结果…</span>}</header>
     {error && <p className="knowledge-page-error" role="alert">{error}</p>}
     {!turnId && <div className="knowledge-page-empty">暂无检索轮次，请先提交一条车控指令。</div>}
     {turnId && presentation && <>
-      {demands.length > 1 && <div className="knowledge-occurrence-tabs">{demands.map((item, index) => <button key={`${item.clause_index}:${item.intent_id}`} className={selectedOccurrence === index ? "is-active" : ""} onClick={() => { setSelectedOccurrence(index); setSelectedLayer(null); }}>{item.clause_index + 1}. {item.intent_id}</button>)}</div>}
+      {demands.length > 1 && <div className="knowledge-occurrence-tabs">{demands.map((item, index) => <button key={`${item.clause_index}:${item.intent_id}`} className={selectedOccurrence === index ? "is-active" : ""} onClick={() => setSelectedOccurrence(index)}>{item.clause_index + 1}. {item.intent_id}</button>)}</div>}
       <div className="knowledge-search-layout">
-        <section className="knowledge-layer-panel"><VisualSectionTab>知识检索分层</VisualSectionTab>
-          <div className="knowledge-layer-list">{layers.map((layer) => <button key={layer.id} onClick={() => setSelectedLayer(layer)}>
-            <span>{layer.id}</span><div><strong>{layer.title}</strong></div><em>{layer.nodes.length} 个节点</em><i>›</i>
-          </button>)}</div>
-          <dl className="knowledge-layer-statistics">
-            <div><dt>合法知识节点</dt><dd>{metadata.eligible_node_count ?? 0}</dd></div>
-            <div><dt>正式前五返回</dt><dd>{metadata.raw_results?.length ?? 0}</dd></div>
-            <div><dt>阈值命中</dt><dd>{metadata.accepted_node_count ?? 0}</dd></div>
-            <div><dt>检索状态</dt><dd>{metadata.status || "--"}</dd></div>
-          </dl>
+        <section className="knowledge-layer-panel"><VisualSectionTab>知识检索结果</VisualSectionTab>
+          <div className="knowledge-result-list">
+            {finalResults.length ? finalResults.map((node) => <KnowledgeResultItem key={node.node_id} node={node} />) : <p className="knowledge-result-empty">本轮未找到相关安全知识</p>}
+          </div>
         </section>
         <div className="knowledge-right-column">
           <section className="knowledge-query-panel"><VisualSectionTab>知识查询</VisualSectionTab>
@@ -174,10 +150,6 @@ export function EvidencePage() {
               <div><dt>区域</dt><dd>{demand?.area || "--"}</dd></div>
               <div className="knowledge-query-text"><dt>知识检索查询句</dt><dd>{demand?.knowledge_query_text || "--"}</dd></div>
               <div className="knowledge-query-text"><dt>证据检索查询句</dt><dd>{demand?.query_text || "--"}</dd></div>
-              <div><dt>编码模型</dt><dd>{display(vectorization.model_name)}</dd></div>
-              <div><dt>向量维数</dt><dd>{display(vectorization.dimension)}</dd></div>
-              <div><dt>正式前五 / 搜索范围</dt><dd>{metadata.top_k ?? "--"} / {metadata.ef_search ?? "--"}</dd></div>
-              <div><dt>相似度阈值</dt><dd>{metadata.similarity_threshold ?? "--"}</dd></div>
             </dl>
           </section>
           <section className="knowledge-context-panel"><VisualSectionTab>查询上下文投影</VisualSectionTab>
@@ -187,9 +159,5 @@ export function EvidencePage() {
         </div>
       </div>
     </>}
-    {selectedLayer && <div className="knowledge-layer-dialog-backdrop" role="presentation" onMouseDown={() => setSelectedLayer(null)}><section className="knowledge-layer-dialog" role="dialog" aria-modal="true" aria-label={selectedLayer.title} onMouseDown={(event) => event.stopPropagation()}>
-      <header><div><span>{selectedLayer.id}</span><h2>{selectedLayer.title}</h2><strong>共 {selectedLayer.nodes.length} 个节点</strong></div><button onClick={() => setSelectedLayer(null)}>关闭</button></header>
-      <div className="knowledge-layer-node-list">{selectedLayer.nodes.length ? selectedLayer.nodes.map((node) => <KnowledgeNodeCard key={node.node_id} node={node} threshold={metadata.similarity_threshold} />) : <p>该层没有节点。</p>}</div>
-    </section></div>}
   </div>;
 }

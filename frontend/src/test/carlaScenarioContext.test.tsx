@@ -4,7 +4,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getSimulationContext, replaceSimulationContext } from "../api/carla";
+import { getSimulationContext, patchVehicleState, replaceSimulationContext } from "../api/carla";
 import { loadScenario } from "../api/scenarios";
 import { CarlaPage } from "../pages/CarlaPage";
 
@@ -23,17 +23,20 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("CARLA 场景与补充上下文", () => {
-  it("保持物理控制和仿真补充两个独立区域", async () => {
+  it("把车辆状态和上下文合并到一张表且只有一个应用按钮", async () => {
     render(<MemoryRouter><CarlaPage /></MemoryRouter>);
-    expect(screen.getByRole("heading", { name: "物理场景控制" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "仿真补充上下文" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "车辆与场景状态" })).toBeTruthy();
+    expect(screen.getByRole("table")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "物理场景控制" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "仿真补充上下文" })).toBeNull();
+    expect(screen.getAllByRole("button", { name: "应用全部设置" })).toHaveLength(1);
     expect(await screen.findByRole("option", { name: "右后自行车接近" })).toBeTruthy();
   });
 
   it("场景预设通过正式 load 接口激活", async () => {
     const user = userEvent.setup(); render(<MemoryRouter><CarlaPage /></MemoryRouter>);
     await screen.findByRole("option", { name: "右后自行车接近" });
-    await user.click(screen.getByRole("button", { name: "应用到当前仿真状态" }));
+    await user.click(screen.getByRole("button", { name: "载入场景" }));
     await waitFor(() => expect(loadScenario).toHaveBeenCalledWith("risk"));
   });
 
@@ -55,11 +58,11 @@ describe("CARLA 场景与补充上下文", () => {
     const user = userEvent.setup();
     render(<MemoryRouter><CarlaPage /></MemoryRouter>);
     await screen.findByRole("option", { name: "右后自行车接近" });
-    await user.click(screen.getByRole("button", { name: "应用到当前仿真状态" }));
+    await user.click(screen.getByRole("button", { name: "载入场景" }));
 
     expect(await screen.findByDisplayValue("夜间")).toBeTruthy();
-    expect(screen.getByDisplayValue("前进 D")).toBeTruthy();
-    expect(screen.getByDisplayValue("42")).toBeTruthy();
+    expect((screen.getByLabelText("挡位") as HTMLSelectElement).value).toBe("D");
+    expect((screen.getByLabelText("车速（km/h）") as HTMLInputElement).value).toBe("42");
     expect((screen.getByLabelText("能见度（米）") as HTMLInputElement).value).toBe("60");
     expect((screen.getByLabelText("时段") as HTMLSelectElement).value).toBe("NIGHT");
     expect((screen.getByLabelText("环境照度（lux）") as HTMLInputElement).value).toBe("5");
@@ -70,13 +73,23 @@ describe("CARLA 场景与补充上下文", () => {
   it("将 CARLA 不支持字段保存为 SIMULATION Evidence", async () => {
     const user = userEvent.setup(); render(<MemoryRouter><CarlaPage /></MemoryRouter>);
     await user.selectOptions(screen.getByLabelText("目标类型"), "BICYCLE");
-    await user.type(screen.getByLabelText("距离（米）"), "3");
+    await user.type(screen.getByLabelText("目标距离（米）"), "3");
     await user.type(screen.getByLabelText("相对速度（米/秒）"), "-5");
-    await user.click(screen.getByRole("button", { name: "保存为当前指令上下文" }));
+    await user.click(screen.getByRole("button", { name: "应用全部设置" }));
     await waitFor(() => expect(replaceSimulationContext).toHaveBeenCalled());
     const observations = vi.mocked(replaceSimulationContext).mock.calls[0][0];
     const surrounding = observations.find((item) => item.evidence_type === "SURROUNDING_OBJECT_STATE");
     expect(surrounding?.source).toBe("SIMULATION");
     expect(surrounding?.value).toMatchObject({ objects: [{ region: "REAR_RIGHT", entity_kind: "BICYCLE", distance: 3, relative_speed: -5 }] });
+  });
+
+  it("一次应用同时提交 CARLA 物理字段和补充上下文", async () => {
+    const user = userEvent.setup(); render(<MemoryRouter><CarlaPage /></MemoryRouter>);
+    await user.clear(screen.getByLabelText("车速（km/h）"));
+    await user.type(screen.getByLabelText("车速（km/h）"), "36");
+    await user.selectOptions(screen.getByLabelText("目标类型"), "PEDESTRIAN");
+    await user.click(screen.getByRole("button", { name: "应用全部设置" }));
+    await waitFor(() => expect(patchVehicleState).toHaveBeenCalledWith({ vehicle_speed: 36 }));
+    expect(replaceSimulationContext).toHaveBeenCalled();
   });
 });

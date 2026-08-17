@@ -1,36 +1,35 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  clearObstacles,
-  getSimulationContext,
-  patchVehicleState,
-  replaceSimulationContext,
-  resetVehicleState,
-  setTrafficLight,
-  spawnObstacle,
-} from "../api/carla";
+import { clearObstacles, getSimulationContext, patchVehicleState, replaceSimulationContext, resetVehicleState, setTrafficLight, spawnObstacle } from "../api/carla";
 import { listScenarios, loadScenario } from "../api/scenarios";
 import { useVehicleState } from "../hooks/useVehicleState";
 import type { EvidenceObservationInput, ScenarioSummary, VehicleState, VehicleStatePatch } from "../types/contract";
 
 const WEATHER_OPTIONS = [["CLEAR", "晴朗"], ["CLOUDY", "多云"], ["RAIN", "下雨"], ["FOG", "大雾"], ["NIGHT", "夜间"], ["SUNSET", "黄昏"]];
 const GEAR_OPTIONS = [["P", "驻车 P"], ["D", "前进 D"], ["R", "倒车 R"], ["N", "空挡 N"]];
-const OBSTACLE_OPTIONS = [["pedestrian", "行人"], ["vehicle", "车辆"], ["obstacle", "障碍物"]];
+const HEADLIGHT_OPTIONS = [["OFF", "关闭"], ["ON", "开启"]];
+const OBSTACLE_OPTIONS = [["NONE", "无"], ["pedestrian", "行人"], ["vehicle", "车辆"], ["obstacle", "静态障碍物"]];
 const TRAFFIC_LIGHT_OPTIONS = [["RED", "红灯"], ["GREEN", "绿灯"], ["YELLOW", "黄灯"]];
 
 interface ContextDraft {
   timeOfDay: string; ambientIllumination: string; visibility: string; precipitation: string; fog: string;
   region: string; entityKind: string; distance: string; relativeSpeed: string; motionState: string; riskLevel: string;
-  roadCondition: string; wetness: string; friction: string;
-  systemMode: string; authorized: string;
+  roadCondition: string; wetness: string; friction: string; systemMode: string; authorized: string;
 }
 
+interface SimulatorDraft extends ContextDraft {
+  weather: string; speed: string; gear: string; headlight: string; trafficLight: string; obstacleMode: string;
+}
+
+type DraftKey = keyof SimulatorDraft;
 const EMPTY_CONTEXT: ContextDraft = {
   timeOfDay: "DAY", ambientIllumination: "", visibility: "", precipitation: "NONE", fog: "NONE",
-  region: "REAR_RIGHT", entityKind: "BICYCLE", distance: "", relativeSpeed: "", motionState: "APPROACHING", riskLevel: "HIGH",
-  roadCondition: "DRY", wetness: "DRY", friction: "",
-  systemMode: "REAL_DRIVING", authorized: "",
+  region: "REAR_RIGHT", entityKind: "", distance: "", relativeSpeed: "", motionState: "APPROACHING", riskLevel: "HIGH",
+  roadCondition: "DRY", wetness: "DRY", friction: "", systemMode: "REAL_DRIVING", authorized: "",
 };
+const INITIAL_DRAFT: SimulatorDraft = { ...EMPTY_CONTEXT, weather: "CLEAR", speed: "0", gear: "P", headlight: "OFF", trafficLight: "RED", obstacleMode: "NONE" };
+const PHYSICAL_KEYS: DraftKey[] = ["weather", "speed", "gear", "headlight"];
+const CONTEXT_KEYS: Array<keyof ContextDraft> = ["timeOfDay", "ambientIllumination", "visibility", "precipitation", "fog", "region", "entityKind", "distance", "relativeSpeed", "motionState", "riskLevel", "roadCondition", "wetness", "friction", "systemMode", "authorized"];
 
 function numberOrUndefined(value: string): number | undefined {
   if (!value.trim()) return undefined;
@@ -42,14 +41,11 @@ function contextObservations(draft: ContextDraft): EvidenceObservationInput[] {
   const observations: EvidenceObservationInput[] = [];
   const environment: Record<string, unknown> = {};
   if (draft.timeOfDay) environment.time_of_day = draft.timeOfDay;
-  const ambientIllumination = numberOrUndefined(draft.ambientIllumination);
-  if (ambientIllumination !== undefined) environment.ambient_illumination = ambientIllumination;
-  const visibility = numberOrUndefined(draft.visibility);
-  if (visibility !== undefined) environment.visibility = visibility;
+  const ambient = numberOrUndefined(draft.ambientIllumination); if (ambient !== undefined) environment.ambient_illumination = ambient;
+  const visibility = numberOrUndefined(draft.visibility); if (visibility !== undefined) environment.visibility = visibility;
   if (draft.precipitation) environment.precipitation = draft.precipitation;
   if (draft.fog) environment.fog = draft.fog;
   if (Object.keys(environment).length) observations.push({ evidence_type: "ENVIRONMENT_CONDITIONS", source: "SIMULATION", value: environment });
-
   if (draft.entityKind) {
     const target: Record<string, unknown> = { object_id: "manual-context-target", exists: true, source_kind: "SIMULATION", ground_truth: true, entity_kind: draft.entityKind, region: draft.region, motion_state: draft.motionState, risk_level: draft.riskLevel };
     const distance = numberOrUndefined(draft.distance); const relativeSpeed = numberOrUndefined(draft.relativeSpeed);
@@ -57,31 +53,19 @@ function contextObservations(draft: ContextDraft): EvidenceObservationInput[] {
     if (relativeSpeed !== undefined) target.relative_speed = relativeSpeed;
     observations.push({ evidence_type: "SURROUNDING_OBJECT_STATE", source: "SIMULATION", value: { objects: [target], collision_state: "NONE" } });
   }
-
   const road: Record<string, unknown> = { road_condition: draft.roadCondition, wetness: draft.wetness };
-  const friction = numberOrUndefined(draft.friction);
-  if (friction !== undefined) road.friction_scale_factor = friction;
+  const friction = numberOrUndefined(draft.friction); if (friction !== undefined) road.friction_scale_factor = friction;
   observations.push({ evidence_type: "ROAD_FRICTION_STATE", source: "SIMULATION", value: road });
   if (draft.systemMode) observations.push({ evidence_type: "SYSTEM_MODE", source: "SIMULATION", value: { vehicle_mode: draft.systemMode, simulation: true } });
   if (draft.authorized) observations.push({ evidence_type: "AUTHORIZATION_STATE", source: "SIMULATION", value: { authorized_for_request: draft.authorized === "YES" } });
   return observations;
 }
 
-function displayValue(value: unknown): string {
-  return typeof value === "object" ? JSON.stringify(value) : String(value ?? "--");
-}
-
-function observationValue(
-  observations: EvidenceObservationInput[],
-  evidenceType: string,
-): Record<string, unknown> | null {
+function observationValue(observations: EvidenceObservationInput[], evidenceType: string): Record<string, unknown> | null {
   const value = observations.find((item) => item.evidence_type === evidenceType)?.value;
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }
-
-function stringValue(value: unknown, fallback = ""): string {
-  return value == null ? fallback : String(value);
-}
+function stringValue(value: unknown, fallback = ""): string { return value == null ? fallback : String(value); }
 
 function contextDraftFromObservations(observations: EvidenceObservationInput[]): ContextDraft {
   const environment = observationValue(observations, "ENVIRONMENT_CONDITIONS");
@@ -93,105 +77,148 @@ function contextDraftFromObservations(observations: EvidenceObservationInput[]):
   const target = objects.find((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item)) || null;
   const authorized = authorization?.authorized_for_request;
   return {
-    timeOfDay: stringValue(environment?.time_of_day, "DAY"),
-    ambientIllumination: stringValue(environment?.ambient_illumination),
-    visibility: stringValue(environment?.visibility),
-    precipitation: stringValue(environment?.precipitation_type ?? environment?.precipitation, "NONE"),
-    fog: stringValue(environment?.fog ?? environment?.fog_visibility, "NONE"),
-    region: stringValue(target?.region, "REAR_RIGHT"),
-    entityKind: stringValue(target?.entity_kind),
-    distance: stringValue(target?.distance),
-    relativeSpeed: stringValue(target?.relative_speed),
-    motionState: stringValue(target?.motion_state, "STATIONARY"),
-    riskLevel: stringValue(target?.risk_level, "LOW"),
-    roadCondition: stringValue(road?.road_condition, "DRY"),
-    wetness: stringValue(road?.wetness, "DRY"),
-    friction: stringValue(road?.friction_scale_factor ?? road?.most_probable),
-    systemMode: stringValue(system?.vehicle_mode, "REAL_DRIVING"),
-    authorized: authorized === true ? "YES" : authorized === false ? "NO" : "",
+    timeOfDay: stringValue(environment?.time_of_day, "DAY"), ambientIllumination: stringValue(environment?.ambient_illumination), visibility: stringValue(environment?.visibility),
+    precipitation: stringValue(environment?.precipitation_type ?? environment?.precipitation, "NONE"), fog: stringValue(environment?.fog ?? environment?.fog_visibility, "NONE"),
+    region: stringValue(target?.region, "REAR_RIGHT"), entityKind: stringValue(target?.entity_kind), distance: stringValue(target?.distance), relativeSpeed: stringValue(target?.relative_speed),
+    motionState: stringValue(target?.motion_state, "APPROACHING"), riskLevel: stringValue(target?.risk_level, "HIGH"), roadCondition: stringValue(road?.road_condition, "DRY"), wetness: stringValue(road?.wetness, "DRY"),
+    friction: stringValue(road?.friction_scale_factor ?? road?.most_probable), systemMode: stringValue(system?.vehicle_mode, "REAL_DRIVING"), authorized: authorized === true ? "YES" : authorized === false ? "NO" : "",
   };
 }
 
-function displayedWeather(state: VehicleState, observations: EvidenceObservationInput[]): string {
-  const environment = observationValue(observations, "ENVIRONMENT_CONDITIONS");
-  const timeOfDay = stringValue(environment?.time_of_day).toUpperCase();
-  if (timeOfDay === "NIGHT") return "NIGHT";
-  if (timeOfDay === "SUNSET" || timeOfDay === "DUSK") return "SUNSET";
-  return stringValue(state.weather, "CLEAR");
+function obstacleModeFromState(state: VehicleState): string {
+  const type = state.surrounding_objects?.[0]?.type?.toLowerCase();
+  if (type?.includes("pedestrian") || type?.includes("walker")) return "pedestrian";
+  if (type?.includes("vehicle")) return "vehicle";
+  return type ? "obstacle" : "NONE";
+}
+function physicalDraftFromState(state: VehicleState) {
+  return { weather: stringValue(state.weather, "CLEAR"), speed: stringValue(state.vehicle_speed, "0"), gear: stringValue(state.gear_position, "P"), headlight: stringValue(state.headlight_state, "OFF"), obstacleMode: obstacleModeFromState(state) };
 }
 
-export function CarlaPage() {
-  const navigate = useNavigate();
-  const { data: state, refresh } = useVehicleState();
-  const [weather, setWeather] = useState("CLEAR"); const [gear, setGear] = useState("P"); const [speed, setSpeed] = useState("40");
-  const [obstacle, setObstacle] = useState("pedestrian"); const [trafficLightValue, setTrafficLightValue] = useState("RED");
-  const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]); const [scenarioId, setScenarioId] = useState("");
-  const [context, setContext] = useState<ContextDraft>(EMPTY_CONTEXT); const [activeContext, setActiveContext] = useState<EvidenceObservationInput[]>([]);
-  const [busy, setBusy] = useState(false); const [feedback, setFeedback] = useState<string | null>(null); const [error, setError] = useState(false);
+function SelectControl({ label, value, options, disabled, onChange }: { label: string; value: string; options: string[][]; disabled: boolean; onChange: (value: string) => void }) {
+  return <select aria-label={label} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)}>{options.map(([option, text]) => <option key={option} value={option}>{text}</option>)}</select>;
+}
+function StateRow({ label, source, dirty, error, children }: { label: string; source: string; dirty?: boolean; error?: string; children: ReactNode }) {
+  return <tr className={dirty ? "is-dirty" : ""}><th scope="row">{label}</th><td>{children}{error ? <small className="carla-field-error">{error}</small> : null}</td><td><span className="carla-source-badge">{source}</span>{dirty ? <small className="carla-pending-badge">待应用</small> : null}</td></tr>;
+}
+function GroupRow({ children }: { children: ReactNode }) { return <tr className="carla-state-group"><th colSpan={3}>{children}</th></tr>; }
 
-  const reloadContext = useCallback(async () => {
-    const observations = await getSimulationContext();
-    setActiveContext(observations);
-    setContext(contextDraftFromObservations(observations));
-    return observations;
+export function CarlaPage() {
+  const navigate = useNavigate(); const { data: state, refresh } = useVehicleState();
+  const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]); const [scenarioId, setScenarioId] = useState("");
+  const [draft, setDraft] = useState<SimulatorDraft>(INITIAL_DRAFT); const [dirtyFields, setDirtyFields] = useState<Set<DraftKey>>(() => new Set());
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<DraftKey, string>>>({}); const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null); const [error, setError] = useState(false);
+  const suppressedPhysicalSignature = useRef<string | null>(null);
+
+  const physicalSignature = useCallback((value: VehicleState) => JSON.stringify([
+    value.updated_at, value.vehicle_speed, value.gear_position, value.weather, value.headlight_state,
+    value.surrounding_objects?.map((item) => [item.type, item.actor_id]),
+  ]), []);
+
+  const replaceAll = useCallback((nextState: VehicleState, observations: EvidenceObservationInput[]) => {
+    suppressedPhysicalSignature.current = state ? physicalSignature(state) : "";
+    setDraft((current) => ({ ...current, ...physicalDraftFromState(nextState), ...contextDraftFromObservations(observations) }));
+    setDirtyFields(new Set()); setFieldErrors({});
+  }, [physicalSignature, state]);
+  useEffect(() => {
+    void listScenarios().then((items) => { setScenarios(items); if (items[0]) setScenarioId(items[0].scenario_id); });
+    void getSimulationContext().then((observations) => setDraft((current) => ({ ...current, ...contextDraftFromObservations(observations) }))).catch(() => undefined);
   }, []);
-  useEffect(() => { void listScenarios().then((items) => { setScenarios(items); if (items[0]) setScenarioId(items[0].scenario_id); }); void reloadContext().catch(() => undefined); }, [reloadContext]);
-  useEffect(() => { const timer = window.setInterval(() => void refresh(), 2000); return () => window.clearInterval(timer); }, [refresh]);
   useEffect(() => {
     if (!state) return;
-    setWeather(displayedWeather(state, activeContext));
-    setGear(stringValue(state.gear_position, "P"));
-    setSpeed(stringValue(state.vehicle_speed, "0"));
-  }, [state?.updated_at]);
-  useEffect(() => {
-    if (state) setWeather(displayedWeather(state, activeContext));
-  }, [activeContext]);
+    const signature = physicalSignature(state);
+    if (suppressedPhysicalSignature.current === signature) return;
+    suppressedPhysicalSignature.current = null;
+    const physical = physicalDraftFromState(state);
+    setDraft((current) => {
+      const next = { ...current };
+      for (const key of [...PHYSICAL_KEYS, "obstacleMode" as DraftKey]) if (!dirtyFields.has(key)) (next[key] as string) = physical[key as keyof typeof physical];
+      return next;
+    });
+  }, [dirtyFields, physicalSignature, state?.updated_at]);
 
-  const run = useCallback(async (message: string, action: () => Promise<unknown>) => {
-    setBusy(true); setError(false); setFeedback(`${message}…`);
-    try { await action(); await refresh(); await reloadContext(); setFeedback(`${message} ✓`); }
-    catch (reason) { setError(true); setFeedback(reason instanceof Error ? reason.message : `${message}失败`); }
+  const edit = useCallback((key: DraftKey, value: string) => {
+    setDraft((current) => ({ ...current, [key]: value })); setDirtyFields((current) => new Set(current).add(key)); setFieldErrors((current) => ({ ...current, [key]: undefined }));
+  }, []);
+  const runWholeTableAction = useCallback(async (label: string, action: () => Promise<VehicleState>) => {
+    setBusy(true); setError(false); setFeedback(`${label}…`);
+    try { const nextState = await action(); const observations = await getSimulationContext(); replaceAll(nextState, observations); await refresh(); setFeedback(`${label}完成`); }
+    catch (reason) { setError(true); setFeedback(reason instanceof Error ? reason.message : `${label}失败`); }
     finally { setBusy(false); }
-  }, [refresh, reloadContext]);
-  const apply = useCallback((patch: VehicleStatePatch, label: string) => void run(label, () => patchVehicleState(patch)), [run]);
-  const activateScenario = useCallback(() => void run("应用场景预设", async () => {
-    const nextState = await loadScenario(scenarioId);
-    const observations = await reloadContext();
-    setWeather(displayedWeather(nextState, observations));
-    setGear(stringValue(nextState.gear_position, "P"));
-    setSpeed(stringValue(nextState.vehicle_speed, "0"));
-  }), [reloadContext, run, scenarioId]);
-  const updateContext = (key: keyof ContextDraft, value: string) => setContext((current) => ({ ...current, [key]: value }));
+  }, [refresh, replaceAll]);
+  const activateScenario = useCallback(() => { if (scenarioId) void runWholeTableAction("载入场景", () => loadScenario(scenarioId)); }, [runWholeTableAction, scenarioId]);
+  const resetAll = useCallback(() => {
+    if (!window.confirm("确定要重置车辆状态和全部补充上下文吗？")) return;
+    void runWholeTableAction("一键重置", async () => { const nextState = await resetVehicleState(); await replaceSimulationContext([]); return nextState; });
+  }, [runWholeTableAction]);
 
-  const stateItems: Array<[string, unknown]> = [
-    ["车速", state?.vehicle_speed != null ? `${Math.round(state.vehicle_speed)} km/h` : "--"], ["挡位", state?.gear_position], ["场景环境", state ? displayedWeather(state, activeContext) : "--"], ["前照灯", state?.headlight_state],
-    ["制动", state?.brake_state], ["前方障碍", state?.front_obstacle_distance != null && state.front_obstacle_distance <= 150 ? `${state.front_obstacle_distance} m` : "无障碍"],
-    ["后方障碍", state?.rear_obstacle_distance != null && state.rear_obstacle_distance <= 150 ? `${state.rear_obstacle_distance} m` : "无障碍"], ["碰撞状态", state?.collision_state || "NONE"],
-    ["周边目标", `${state?.surrounding_objects?.length || 0} 个`], ["车门", state?.door_state], ["车窗", state?.window_state], ["系统模式", state?.vehicle_mode],
-  ];
+  const validationErrors = useMemo(() => {
+    const next: Partial<Record<DraftKey, string>> = {}; const speed = Number(draft.speed);
+    if (!Number.isFinite(speed) || speed < 0 || speed > 200) next.speed = "请输入 0–200 km/h";
+    const friction = draft.friction.trim() ? Number(draft.friction) : null;
+    if (friction != null && (!Number.isFinite(friction) || friction < 0 || friction > 1)) next.friction = "请输入 0–1";
+    for (const key of ["ambientIllumination", "visibility", "distance"] as DraftKey[]) { const value = draft[key].trim() ? Number(draft[key]) : null; if (value != null && (!Number.isFinite(value) || value < 0)) next[key] = "请输入非负数"; }
+    return next;
+  }, [draft]);
 
-  return <section className="visual-page-frame carla-page"><header className="carla-page-header"><div><h1 className="visual-gradient-title">CARLA 模拟画面</h1></div><button className="carla-button" onClick={() => navigate("/decision")}>前往裁决页</button></header>
-    <div className="carla-scenario-strip"><label><span>场景预设</span><select value={scenarioId} onChange={(event) => setScenarioId(event.target.value)}>{scenarios.map((item) => <option key={item.scenario_id} value={item.scenario_id}>{item.name || item.scenario_id}</option>)}</select></label><button className="carla-button" disabled={busy || !scenarioId} onClick={activateScenario}>应用到当前仿真状态</button></div>
-    <div className="carla-layout carla-three-column-layout">
-      <div className="carla-left-column"><div className="carla-live-frame"><img src="/carla/stream" alt="CARLA 自动驾驶模拟器实时画面" /></div><section className="carla-state-panel"><div className="carla-panel-heading"><h2>当前车辆与传感器状态</h2><button className="carla-button carla-button-secondary" onClick={() => void refresh()}>刷新</button></div><dl className="carla-state-grid">{stateItems.map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{displayValue(value)}</dd></div>)}</dl></section></div>
+  const applyAll = useCallback(async () => {
+    if (!dirtyFields.size) { setFeedback("当前没有待应用的设置"); setError(false); return; }
+    const activeErrors = Object.fromEntries(Object.entries(validationErrors).filter(([key]) => dirtyFields.has(key as DraftKey)));
+    if (Object.keys(activeErrors).length) { setFieldErrors(activeErrors); setError(true); setFeedback("请先修正表格中的输入"); return; }
+    setBusy(true); setError(false); setFeedback("正在应用全部设置…"); setFieldErrors({});
+    const tasks: Array<{ label: string; keys: DraftKey[]; run: () => Promise<unknown> }> = [];
+    const physicalDirty = PHYSICAL_KEYS.filter((key) => dirtyFields.has(key));
+    if (physicalDirty.length) {
+      const patch: VehicleStatePatch = {};
+      if (dirtyFields.has("weather")) patch.weather = draft.weather; if (dirtyFields.has("speed")) patch.vehicle_speed = Number(draft.speed);
+      if (dirtyFields.has("gear")) patch.gear_position = draft.gear; if (dirtyFields.has("headlight")) patch.headlight_state = draft.headlight;
+      tasks.push({ label: "车辆物理状态", keys: physicalDirty, run: () => patchVehicleState(patch) });
+    }
+    if (dirtyFields.has("trafficLight")) tasks.push({ label: "交通灯", keys: ["trafficLight"], run: () => setTrafficLight(draft.trafficLight as "RED" | "GREEN" | "YELLOW") });
+    if (dirtyFields.has("obstacleMode")) tasks.push({ label: "障碍物", keys: ["obstacleMode"], run: async () => { await clearObstacles(); if (draft.obstacleMode !== "NONE") await spawnObstacle(draft.obstacleMode as "pedestrian" | "vehicle" | "obstacle"); } });
+    const contextDirty = CONTEXT_KEYS.filter((key) => dirtyFields.has(key));
+    if (contextDirty.length) tasks.push({ label: "仿真补充上下文", keys: contextDirty, run: () => replaceSimulationContext(contextObservations(draft)) });
+    const results = await Promise.allSettled(tasks.map((task) => task.run())); const successful = new Set<DraftKey>(); const failed: string[] = [];
+    results.forEach((result, index) => { const task = tasks[index]; if (result.status === "fulfilled") task.keys.forEach((key) => successful.add(key)); else failed.push(task.label); });
+    setDirtyFields((current) => new Set([...current].filter((key) => !successful.has(key))));
+    if (failed.length) {
+      const errors: Partial<Record<DraftKey, string>> = {}; tasks.filter((_, index) => results[index].status === "rejected").forEach((task) => task.keys.forEach((key) => { errors[key] = "应用失败"; }));
+      setFieldErrors(errors); setError(true); setFeedback(`部分设置失败：${failed.join("、")}`);
+    } else setFeedback("全部设置已应用");
+    await refresh().catch(() => undefined);
+    if (contextDirty.length && !failed.includes("仿真补充上下文")) { const observations = await getSimulationContext().catch(() => null); if (observations) setDraft((current) => ({ ...current, ...contextDraftFromObservations(observations) })); }
+    setBusy(false);
+  }, [dirtyFields, draft, refresh, validationErrors]);
 
-      <div className="carla-control-column"><header><span>CARLA 支持</span><h2>物理场景控制</h2></header>
-        <section className="carla-control-card"><h3>天气环境</h3><div className="carla-control-row"><select value={weather} onChange={(event) => setWeather(event.target.value)}>{WEATHER_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><button disabled={busy} onClick={() => apply({ weather }, "设置天气")}>应用</button></div></section>
-        <section className="carla-control-card"><h3>车速</h3><div className="carla-control-row"><input type="number" min="0" max="200" value={speed} onChange={(event) => setSpeed(event.target.value)} /><button disabled={busy} onClick={() => apply({ vehicle_speed: Number(speed) }, "设置车速")}>设置</button></div><div className="carla-control-row"><button className="carla-button-secondary" onClick={() => apply({ vehicle_speed: 30 }, "加速至30")}>加速至 30</button><button className="carla-button-secondary" onClick={() => apply({ vehicle_speed: 0 }, "驻车制动")}>驻车</button></div></section>
-        <section className="carla-control-card"><h3>挡位与灯光</h3><div className="carla-control-row"><select value={gear} onChange={(event) => setGear(event.target.value)}>{GEAR_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><button onClick={() => apply({ gear_position: gear }, "设置挡位")}>应用</button></div><button className="carla-full-button carla-button-secondary" onClick={() => apply({ headlight_state: state?.headlight_state === "ON" ? "OFF" : "ON" }, "切换前照灯")}>前照灯：{state?.headlight_state === "ON" ? "开启" : "关闭"}</button></section>
-        <section className="carla-control-card"><h3>障碍物</h3><div className="carla-control-row"><select value={obstacle} onChange={(event) => setObstacle(event.target.value)}>{OBSTACLE_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><button onClick={() => void run("生成障碍物", () => spawnObstacle(obstacle as "pedestrian" | "vehicle" | "obstacle"))}>生成</button></div><button className="carla-full-button carla-button-secondary" onClick={() => void run("清除障碍物", clearObstacles)}>清除全部</button></section>
-        <section className="carla-control-card"><h3>交通灯</h3><div className="carla-control-row"><select value={trafficLightValue} onChange={(event) => setTrafficLightValue(event.target.value)}>{TRAFFIC_LIGHT_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><button onClick={() => void run("设置交通灯", () => setTrafficLight(trafficLightValue as "RED" | "GREEN" | "YELLOW"))}>应用</button></div></section>
-        <button className="carla-button carla-full-button" disabled={busy} onClick={() => void run("复位车辆", resetVehicleState)}>复位车辆与上下文</button>
-      </div>
+  const select = (key: DraftKey, label: string, options: string[][]) => <SelectControl label={label} value={draft[key]} options={options} disabled={busy} onChange={(value) => edit(key, value)} />;
+  const input = (key: DraftKey, label: string, props: { min?: string; max?: string; step?: string } = {}) => <input aria-label={label} type="number" value={draft[key]} disabled={busy} {...props} onChange={(event) => edit(key, event.target.value)} />;
+  const row = (key: DraftKey, label: string, source: string, control: ReactNode) => <StateRow label={label} source={source} dirty={dirtyFields.has(key)} error={fieldErrors[key]}>{control}</StateRow>;
 
-      <div className="carla-control-column carla-context-column"><header><span>CARLA 暂不支持</span><h2>仿真补充上下文</h2></header>
-        <section className="carla-control-card"><h3>环境条件</h3><label>时段<select value={context.timeOfDay} onChange={(e) => updateContext("timeOfDay", e.target.value)}><option>DAY</option><option>NIGHT</option><option>SUNSET</option></select></label><label>环境照度（lux）<input type="number" value={context.ambientIllumination} onChange={(e) => updateContext("ambientIllumination", e.target.value)} /></label><label>能见度（米）<input type="number" value={context.visibility} onChange={(e) => updateContext("visibility", e.target.value)} /></label><label>降水<select value={context.precipitation} onChange={(e) => updateContext("precipitation", e.target.value)}><option>NONE</option><option>RAIN</option><option>SNOW</option></select></label><label>雾<select value={context.fog} onChange={(e) => updateContext("fog", e.target.value)}><option>NONE</option><option>LIGHT</option><option>DENSE</option></select></label></section>
-        <section className="carla-control-card"><h3>周边目标</h3><label>目标区域<select value={context.region} onChange={(e) => updateContext("region", e.target.value)}><option>FRONT</option><option>REAR</option><option>FRONT_LEFT</option><option>FRONT_RIGHT</option><option>REAR_LEFT</option><option>REAR_RIGHT</option></select></label><label>目标类型<select value={context.entityKind} onChange={(e) => updateContext("entityKind", e.target.value)}><option value="">无目标</option><option>BICYCLE</option><option>PEDESTRIAN</option><option>VEHICLE</option></select></label><div className="carla-context-pair"><label>距离（米）<input type="number" value={context.distance} onChange={(e) => updateContext("distance", e.target.value)} /></label><label>相对速度（米/秒）<input type="number" value={context.relativeSpeed} onChange={(e) => updateContext("relativeSpeed", e.target.value)} /></label></div><label>运动状态<select value={context.motionState} onChange={(e) => updateContext("motionState", e.target.value)}><option>STATIONARY</option><option>APPROACHING</option><option>RECEDING</option></select></label><label>风险等级<select value={context.riskLevel} onChange={(e) => updateContext("riskLevel", e.target.value)}><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></label></section>
-        <section className="carla-control-card"><h3>道路附着</h3><label>道路状态<select value={context.roadCondition} onChange={(e) => updateContext("roadCondition", e.target.value)}><option>DRY</option><option>WET</option><option>SNOW</option><option>ICE</option></select></label><label>道路湿度<select value={context.wetness} onChange={(e) => updateContext("wetness", e.target.value)}><option>DRY</option><option>WET</option></select></label><label>摩擦系数<input type="number" min="0" max="1" step="0.1" value={context.friction} onChange={(e) => updateContext("friction", e.target.value)} /></label></section>
-        <section className="carla-control-card"><h3>系统与授权</h3><label>系统模式<select value={context.systemMode} onChange={(e) => updateContext("systemMode", e.target.value)}><option>REAL_DRIVING</option><option>SIMULATION</option><option>MAINTENANCE</option></select></label><label>授权声明<select value={context.authorized} onChange={(e) => updateContext("authorized", e.target.value)}><option value="">不设置</option><option value="YES">已授权</option><option value="NO">未授权</option></select></label></section>
-        <button className="carla-button carla-full-button" disabled={busy} onClick={() => void run("保存仿真补充上下文", () => replaceSimulationContext(contextObservations(context)))}>保存为当前指令上下文</button><button className="carla-button carla-button-secondary carla-full-button" disabled={busy} onClick={() => void run("清空仿真补充上下文", () => replaceSimulationContext([]))}>清空补充上下文</button>
-        <section className="carla-active-context"><h3>当前已生效的补充证据</h3>{activeContext.length ? activeContext.map((item) => <div key={item.evidence_type}><strong>{item.evidence_type}</strong><code>{displayValue(item.value)}</code><small>来源：{item.source}</small></div>) : <p>当前没有仿真补充上下文。</p>}</section>
-      </div>
-    </div>{feedback && <p className={error ? "carla-feedback is-error" : "carla-feedback"} role={error ? "alert" : "status"}>{feedback}</p>}
+  return <section className="visual-page-frame carla-page">
+    <header className="carla-page-header"><div><h1 className="visual-gradient-title">CARLA 模拟画面</h1><p>车辆真实状态与下一次指令上下文统一管理</p></div><button className="carla-button" onClick={() => navigate("/decision")}>前往裁决页</button></header>
+    <div className="carla-scenario-strip"><label><span>场景预设</span><select value={scenarioId} disabled={busy} onChange={(event) => setScenarioId(event.target.value)}>{scenarios.map((item) => <option key={item.scenario_id} value={item.scenario_id}>{item.name || item.scenario_id}</option>)}</select></label><button className="carla-button carla-button-secondary" disabled={busy || !scenarioId} onClick={activateScenario}>载入场景</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={() => void refresh()}>刷新状态</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={resetAll}>一键重置</button></div>
+    <div className="carla-unified-layout"><div className="carla-live-frame"><img src="/carla/stream" alt="CARLA 自动驾驶模拟器实时画面" /></div><section className="carla-unified-state-panel"><div className="carla-panel-heading"><div><h2>车辆与场景状态</h2><p>修改后的字段会标记为待应用；补充上下文用于下一次新指令。</p></div></div>
+      <div className="carla-unified-table-wrap"><table className="carla-unified-table"><thead><tr><th>状态</th><th>当前值 / 待应用值</th><th>数据来源</th></tr></thead><tbody>
+        <GroupRow>车辆控制</GroupRow>
+        {row("speed", "车速（km/h）", "CARLA 控制", input("speed", "车速（km/h）", { min: "0", max: "200" }))}
+        {row("gear", "挡位", "CARLA 控制", select("gear", "挡位", GEAR_OPTIONS))}{row("weather", "天气", "CARLA 控制", select("weather", "天气", WEATHER_OPTIONS))}
+        {row("headlight", "前照灯", "CARLA 控制", select("headlight", "前照灯", HEADLIGHT_OPTIONS))}{row("trafficLight", "交通灯", "CARLA 控制", select("trafficLight", "交通灯", TRAFFIC_LIGHT_OPTIONS))}
+        {row("obstacleMode", "场景障碍物", "CARLA 控制", select("obstacleMode", "场景障碍物", OBSTACLE_OPTIONS))}
+        <GroupRow>实时传感器</GroupRow>
+        <StateRow label="制动状态" source="CARLA 回传"><output>{stringValue(state?.brake_state, "--")}</output></StateRow><StateRow label="前方障碍距离" source="CARLA 回传"><output>{state?.front_obstacle_distance == null || state.front_obstacle_distance > 150 ? "无障碍" : `${state.front_obstacle_distance} m`}</output></StateRow>
+        <StateRow label="后方障碍距离" source="CARLA 回传"><output>{state?.rear_obstacle_distance == null || state.rear_obstacle_distance > 150 ? "无障碍" : `${state.rear_obstacle_distance} m`}</output></StateRow><StateRow label="碰撞状态" source="CARLA 回传"><output>{stringValue(state?.collision_state, "NONE")}</output></StateRow>
+        <StateRow label="周边目标数量" source="CARLA 回传"><output>{state?.surrounding_objects?.length || 0} 个</output></StateRow><StateRow label="车门状态" source="CARLA 回传"><output>{stringValue(state?.door_state, "--")}</output></StateRow><StateRow label="车窗状态" source="CARLA 回传"><output>{stringValue(state?.window_state, "--")}</output></StateRow><StateRow label="车辆模式" source="CARLA 回传"><output>{stringValue(state?.vehicle_mode, "--")}</output></StateRow>
+        <GroupRow>环境上下文</GroupRow>
+        {row("timeOfDay", "时段", "仿真上下文", select("timeOfDay", "时段", [["DAY", "白天"], ["NIGHT", "夜间"], ["SUNSET", "黄昏"]]))}{row("ambientIllumination", "环境照度（lux）", "仿真上下文", input("ambientIllumination", "环境照度（lux）", { min: "0" }))}
+        {row("visibility", "能见度（米）", "仿真上下文", input("visibility", "能见度（米）", { min: "0" }))}{row("precipitation", "降水", "仿真上下文", select("precipitation", "降水", [["NONE", "无"], ["RAIN", "雨"], ["SNOW", "雪"]]))}{row("fog", "雾", "仿真上下文", select("fog", "雾", [["NONE", "无"], ["LIGHT", "轻雾"], ["DENSE", "浓雾"]]))}
+        <GroupRow>周边目标上下文</GroupRow>
+        {row("region", "目标区域", "仿真上下文", select("region", "目标区域", [["FRONT", "前方"], ["REAR", "后方"], ["FRONT_LEFT", "左前"], ["FRONT_RIGHT", "右前"], ["REAR_LEFT", "左后"], ["REAR_RIGHT", "右后"]]))}{row("entityKind", "目标类型", "仿真上下文", select("entityKind", "目标类型", [["", "无目标"], ["BICYCLE", "自行车"], ["PEDESTRIAN", "行人"], ["VEHICLE", "车辆"]]))}
+        {row("distance", "目标距离（米）", "仿真上下文", input("distance", "目标距离（米）", { min: "0" }))}{row("relativeSpeed", "相对速度（米/秒）", "仿真上下文", input("relativeSpeed", "相对速度（米/秒）"))}{row("motionState", "运动状态", "仿真上下文", select("motionState", "运动状态", [["STATIONARY", "静止"], ["APPROACHING", "接近"], ["RECEDING", "远离"]]))}{row("riskLevel", "风险等级", "仿真上下文", select("riskLevel", "风险等级", [["LOW", "低"], ["MEDIUM", "中"], ["HIGH", "高"], ["CRITICAL", "严重"]]))}
+        <GroupRow>道路、系统与授权</GroupRow>
+        {row("roadCondition", "道路状态", "仿真上下文", select("roadCondition", "道路状态", [["DRY", "干燥"], ["WET", "湿滑"], ["SNOW", "积雪"], ["ICE", "结冰"]]))}{row("wetness", "道路湿度", "仿真上下文", select("wetness", "道路湿度", [["DRY", "干燥"], ["WET", "潮湿"]]))}{row("friction", "摩擦系数", "仿真上下文", input("friction", "摩擦系数", { min: "0", max: "1", step: "0.1" }))}
+        {row("systemMode", "系统模式声明", "仿真上下文", select("systemMode", "系统模式声明", [["REAL_DRIVING", "真实驾驶"], ["SIMULATION", "模拟"], ["MAINTENANCE", "维护"]]))}{row("authorized", "授权声明", "仿真上下文", select("authorized", "授权声明", [["", "不设置"], ["YES", "已授权"], ["NO", "未授权"]]))}
+      </tbody></table></div><div className="carla-unified-actions"><button className="carla-button" disabled={busy} onClick={() => void applyAll()}>{busy ? "正在处理…" : "应用全部设置"}</button><span>{dirtyFields.size ? `还有 ${dirtyFields.size} 项待应用` : "所有设置均已同步"}</span></div>
+    </section></div>{feedback && <p className={error ? "carla-feedback is-error" : "carla-feedback"} role={error ? "alert" : "status"}>{feedback}</p>}
   </section>;
 }
