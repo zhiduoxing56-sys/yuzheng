@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { clearObstacles, getSimulationContext, patchVehicleState, replaceSimulationContext, resetVehicleState, setTrafficLight, spawnObstacle } from "../api/carla";
+import { clearObstacles, getActiveScenario, getSimulationContext, patchVehicleState, replaceSimulationContext, resetVehicleState, setTrafficLight, spawnObstacle } from "../api/carla";
 import { listScenarios, loadScenario } from "../api/scenarios";
 import { useVehicleState } from "../hooks/useVehicleState";
-import type { EvidenceObservationInput, ScenarioSummary, VehicleState, VehicleStatePatch } from "../types/contract";
+import type { ActiveScenarioSummary, EvidenceObservationInput, ScenarioSummary, VehicleState, VehicleStatePatch } from "../types/contract";
 
 const WEATHER_OPTIONS = [["CLEAR", "晴朗"], ["CLOUDY", "多云"], ["RAIN", "下雨"], ["FOG", "大雾"], ["NIGHT", "夜间"], ["SUNSET", "黄昏"]];
 const GEAR_OPTIONS = [["P", "驻车 P"], ["D", "前进 D"], ["R", "倒车 R"], ["N", "空挡 N"]];
@@ -116,7 +116,7 @@ function scenarioOptionText(item: ScenarioSummary): string {
 
 export function CarlaPage() {
   const navigate = useNavigate(); const { data: state, refresh } = useVehicleState();
-  const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]); const [scenarioId, setScenarioId] = useState("");
+  const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]); const [scenarioId, setScenarioId] = useState(""); const [activeScenario, setActiveScenario] = useState<ActiveScenarioSummary | null>(null);
   const [draft, setDraft] = useState<SimulatorDraft>(INITIAL_DRAFT); const [dirtyFields, setDirtyFields] = useState<Set<DraftKey>>(() => new Set());
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<DraftKey, string>>>({}); const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null); const [error, setError] = useState(false);
@@ -135,6 +135,7 @@ export function CarlaPage() {
   useEffect(() => {
     void listScenarios().then((items) => { setScenarios(items); if (items[0]) setScenarioId(items[0].scenario_id); });
     void getSimulationContext().then((observations) => setDraft((current) => ({ ...current, ...contextDraftFromObservations(observations) }))).catch(() => undefined);
+    void getActiveScenario().then(setActiveScenario).catch(() => undefined);
   }, []);
   useEffect(() => {
     if (!state) return;
@@ -154,7 +155,7 @@ export function CarlaPage() {
   }, []);
   const runWholeTableAction = useCallback(async (label: string, action: () => Promise<VehicleState>) => {
     setBusy(true); setError(false); setFeedback(`${label}…`);
-    try { const nextState = await action(); const observations = await getSimulationContext(); replaceAll(nextState, observations); await refresh(); setFeedback(`${label}完成`); }
+    try { const nextState = await action(); const observations = await getSimulationContext(); replaceAll(nextState, observations); setActiveScenario(await getActiveScenario()); await refresh(); setFeedback(`${label}完成`); }
     catch (reason) { setError(true); setFeedback(reason instanceof Error ? reason.message : `${label}失败`); }
     finally { setBusy(false); }
   }, [refresh, replaceAll]);
@@ -209,7 +210,7 @@ export function CarlaPage() {
   return <section className="visual-page-frame carla-page">
     <header className="carla-page-header"><div><h1 className="visual-gradient-title">CARLA 模拟画面</h1><p>车辆真实状态与下一次指令上下文统一管理</p></div><button className="carla-button" onClick={() => navigate("/decision")}>前往裁决页</button></header>
     <div className="carla-scenario-strip"><label><span>场景预设</span><select value={scenarioId} disabled={busy} onChange={(event) => setScenarioId(event.target.value)}>{scenarios.map((item) => { const optionText = scenarioOptionText(item); return <option key={item.scenario_id} value={item.scenario_id} title={optionText}>{optionText}</option>; })}</select></label><button className="carla-button carla-button-secondary" disabled={busy || !scenarioId} onClick={activateScenario}>载入场景</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={() => void refresh()}>刷新状态</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={resetAll}>一键重置</button></div>
-    <div className="carla-unified-layout"><div className="carla-live-frame"><img src="/carla/stream" alt="CARLA 自动驾驶模拟器实时画面" /></div><section className="carla-unified-state-panel"><div className="carla-panel-heading"><div><h2>车辆与场景状态</h2><p>修改后的字段会标记为待应用；补充上下文用于下一次新指令。</p></div></div>
+    <div className="carla-unified-layout"><div><div className="carla-live-frame"><img src="/carla/stream" alt="CARLA 自动驾驶模拟器实时画面" /></div><section className="carla-active-scenario" aria-label="当前激活场景">{activeScenario?.active ? <><strong>当前场景：{activeScenario.name}</strong><span>版本 {activeScenario.version} · 覆盖证据 {activeScenario.evidence_count} 条</span><small>{activeScenario.evidence_types.join("、")}</small></> : <span>当前未激活场景</span>}</section></div><section className="carla-unified-state-panel"><div className="carla-panel-heading"><div><h2>车辆与场景状态</h2><p>修改后的字段会标记为待应用；补充上下文用于下一次新指令。</p></div></div>
       <div className="carla-unified-table-wrap"><table className="carla-unified-table"><thead><tr><th>状态</th><th>当前值 / 待应用值</th><th>数据来源</th></tr></thead><tbody>
         <GroupRow>车辆控制</GroupRow>
         {row("speed", "车速（km/h）", "CARLA 控制", input("speed", "车速（km/h）", { min: "0", max: "200" }))}

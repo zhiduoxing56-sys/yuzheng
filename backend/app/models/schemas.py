@@ -1639,6 +1639,7 @@ class AuditRecord(StrictModel):
     spectrum_analysis: SpectrumAnalysisResult | None = None
     zone_permission_result: ZonePermissionResult | None = None
     audio_input_metadata: dict[str, Any] = Field(default_factory=dict)
+    active_scenario: dict[str, Any] = Field(default_factory=dict)
     semantic_frame: SemanticFrame
     request_routing: RequestRouting | None = None
     evidence_demand: EvidenceDemand

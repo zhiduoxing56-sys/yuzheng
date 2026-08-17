@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { EvidenceObservationInput, VehicleState, VehicleStatePatch } from "../types/contract";
+import type { ActiveScenarioSummary, EvidenceObservationInput, VehicleState, VehicleStatePatch } from "../types/contract";
 
 /** 直接修改云服务器 CARLA 车辆状态(控制面板用)。 */
 export function patchVehicleState(patch: VehicleStatePatch): Promise<VehicleState> {
@@ -13,6 +13,10 @@ export function resetVehicleState(): Promise<VehicleState> {
 
 export function getSimulationContext(): Promise<EvidenceObservationInput[]> {
   return apiClient.get<EvidenceObservationInput[]>("/api/state/simulation-context");
+}
+
+export function getActiveScenario(): Promise<ActiveScenarioSummary> {
+  return apiClient.get<ActiveScenarioSummary>("/api/state/active-scenario");
 }
 
 export function replaceSimulationContext(

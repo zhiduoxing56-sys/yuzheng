@@ -212,6 +212,10 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
     def state_get() -> VehicleState:
         return pipeline.get_vehicle_state()
 
+    @router.get("/state/active-scenario")
+    def active_scenario_get() -> dict:
+        return pipeline.active_scenario_summary()
+
     @router.patch("/state", response_model=VehicleState)
     def state_patch(request: VehicleStatePatch) -> VehicleState:
         return pipeline.update_vehicle_state(request)

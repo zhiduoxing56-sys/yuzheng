@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock
 from time import perf_counter
@@ -166,6 +167,15 @@ from app.websocket.broker import PipelineEventBroker
 from app.core.redaction import SensitiveDataRedactor
 
 
+@dataclass(slots=True)
+class ActiveScenarioContext:
+    scenario_id: str
+    name: str
+    version: int
+    activated_at: str
+    evidence: tuple[EvidenceObservationInput, ...]
+
+
 class CommandPipeline:
     """Stage-three deterministic command pipeline.
 
@@ -173,6 +183,23 @@ class CommandPipeline:
     A single conservative merge preserves the raw score verdict and produces
     the final decision used by review and authorization.
     """
+
+    _STATE_EVIDENCE_TYPES: dict[str, frozenset[str]] = {
+        "vehicle_speed": frozenset({"VEHICLE_SPEED"}),
+        "gear_position": frozenset({"GEAR_STATE"}),
+        "door_lock_state": frozenset({"DOOR_LOCK_STATE"}),
+        "door_state": frozenset({"DOOR_STATE"}),
+        "ambient_light": frozenset({"ENVIRONMENT_CONDITIONS"}),
+        "headlight_state": frozenset({"LIGHTING_STATE"}),
+        "weather": frozenset({"ENVIRONMENT_CONDITIONS"}),
+        "window_state": frozenset({"WINDOW_STATE"}),
+        "front_obstacle_distance": frozenset({"SURROUNDING_OBJECT_STATE"}),
+        "rear_obstacle_distance": frozenset({"SURROUNDING_OBJECT_STATE"}),
+        "speed_limit": frozenset({"SPEED_LIMIT_STATE"}),
+        "brake_state": frozenset({"SERVICE_BRAKE_STATE"}),
+        "road_condition": frozenset({"ROAD_FRICTION_STATE"}),
+        "collision_state": frozenset({"SURROUNDING_OBJECT_STATE"}),
+    }
 
     def __init__(
         self,
@@ -184,6 +211,8 @@ class CommandPipeline:
         knowledge_data_path: Path | None = None,
     ) -> None:
         self._command_lock = RLock()
+        self._active_scenario: ActiveScenarioContext | None = None
+        self._active_scenario_version = 0
         audit_database_role = AuditDatabaseRole(audit_database_role)
         quality_config = load_yaml("evidence_quality.yaml")
         self.vehicle_config = load_yaml("vehicle_actions.yaml")
@@ -1557,12 +1586,13 @@ class CommandPipeline:
     ) -> TextCommandResponse:
         overall_started = perf_counter()
         turn_started_at = utc_now()
-        state = (
-            self.vehicle.update_state(trusted_context.state_overrides)
-            if trusted_context is not None
-            and trusted_context.state_overrides is not None
-            else self.vehicle.get_state()
-        )
+        if trusted_context is not None and trusted_context.state_overrides is not None:
+            self._discard_active_scenario_evidence_for_fields(
+                trusted_context.state_overrides.model_dump(exclude_unset=True)
+            )
+            state = self.vehicle.update_state(trusted_context.state_overrides)
+        else:
+            state = self.vehicle.get_state()
         runtime_safety_context = RuntimeSafetyContext.from_vehicle_state(state)
         input_trust = input_trust_override or VoiceTrustResult(
             turn_id=turn_id,
@@ -2550,6 +2580,7 @@ class CommandPipeline:
             spectrum_analysis=spectrum_analysis,
             zone_permission_result=zone_permission,
             audio_input_metadata=audio_input_metadata,
+            active_scenario=self.active_scenario_summary(),
             semantic_frame=frame,
             request_routing=request_routing,
             evidence_demand=demand,
@@ -2941,10 +2972,49 @@ class CommandPipeline:
         return self.vehicle.get_state()
 
     def _current_simulation_evidence(self) -> list[EvidenceObservationInput]:
-        provider = getattr(self.vehicle, "current_simulation_evidence", None)
-        if not callable(provider):
+        context = self._active_scenario
+        if context is None:
             return []
-        return [item.model_copy(deep=True) for item in provider()]
+        return [item.model_copy(deep=True) for item in context.evidence]
+
+    def active_scenario_summary(self) -> dict[str, Any]:
+        with self._command_lock:
+            context = self._active_scenario
+            if context is None:
+                return {"active": False, "scenario_id": None, "name": None,
+                        "version": self._active_scenario_version, "activated_at": None,
+                        "evidence_count": 0, "evidence_types": []}
+            return {"active": True, "scenario_id": context.scenario_id,
+                    "name": context.name, "version": context.version,
+                    "activated_at": context.activated_at,
+                    "evidence_count": len(context.evidence),
+                    "evidence_types": sorted({item.evidence_type for item in context.evidence})}
+
+    def _replace_active_scenario(self, scenario_id: str, name: str,
+                                 evidence: list[EvidenceObservationInput]) -> None:
+        self._active_scenario_version += 1
+        self._active_scenario = ActiveScenarioContext(
+            scenario_id=scenario_id, name=name, version=self._active_scenario_version,
+            activated_at=utc_now().isoformat(),
+            evidence=tuple(item.model_copy(deep=True) for item in evidence),
+        )
+
+    def _discard_active_scenario_evidence_for_fields(self, fields: dict[str, Any]) -> None:
+        context = self._active_scenario
+        if context is None:
+            return
+        types = set().union(*(self._STATE_EVIDENCE_TYPES.get(field, frozenset()) for field in fields)) if fields else set()
+        if not types:
+            return
+        remaining = [item for item in context.evidence if item.evidence_type not in types]
+        if len(remaining) != len(context.evidence):
+            self._replace_active_scenario(context.scenario_id, context.name, remaining)
+
+    def reconcile_vehicle_execution(self, operations: tuple[dict[str, Any], ...]) -> None:
+        with self._command_lock:
+            self._discard_active_scenario_evidence_for_fields(
+                {str(operation["field"]): operation.get("value") for operation in operations}
+            )
 
     @staticmethod
     def _present_explanation_context_value(value: Any) -> bool:
@@ -3062,10 +3132,16 @@ class CommandPipeline:
         self, observations: list[EvidenceObservationInput]
     ) -> list[EvidenceObservationInput]:
         with self._command_lock:
-            setter = getattr(self.vehicle, "set_simulation_evidence", None)
-            if not callable(setter):
-                raise RuntimeError("当前车辆适配器不支持仿真补充上下文")
-            return setter(observations)
+            if any(item.source != "SIMULATION" for item in observations):
+                raise ValueError("手动仿真上下文必须使用 SIMULATION 来源")
+            context = self._active_scenario
+            if context is None:
+                self._replace_active_scenario("manual", "手动仿真上下文", observations)
+            else:
+                replaced_types = {item.evidence_type for item in observations}
+                retained = [item for item in context.evidence if item.evidence_type not in replaced_types]
+                self._replace_active_scenario(context.scenario_id, context.name, [*retained, *observations])
+            return self._current_simulation_evidence()
 
     def get_simulation_evidence(self) -> list[EvidenceObservationInput]:
         with self._command_lock:
@@ -3075,9 +3151,11 @@ class CommandPipeline:
         with self._command_lock:
             update_turn_id = make_id("STATE_UPDATE")
             self.evidence_repository.begin_turn(update_turn_id)
-            state = self.vehicle.update_state(
-                self._link_weather_ambient_light(patch)
+            effective_patch = self._link_weather_ambient_light(patch)
+            self._discard_active_scenario_evidence_for_fields(
+                effective_patch.model_dump(exclude_unset=True)
             )
+            state = self.vehicle.update_state(effective_patch)
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
                 None,
@@ -3091,6 +3169,8 @@ class CommandPipeline:
         with self._command_lock:
             reset_turn_id = make_id("STATE_RESET")
             self.evidence_repository.begin_turn(reset_turn_id)
+            self._active_scenario = None
+            self._active_scenario_version += 1
             state = self.vehicle.reset()
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
@@ -3126,18 +3206,10 @@ class CommandPipeline:
                 EvidenceObservationInput.model_validate(value)
                 for value in scenario.get("evidence_overrides", [])
             ]
-            activate = getattr(self.vehicle, "activate_scenario", None)
-            persistent_simulation = bool(
-                callable(activate)
-                and getattr(
-                    self.vehicle,
-                    "supports_multisource_scenario_evidence",
-                    False,
-                )
+            state = self.vehicle.update_state(self._link_weather_ambient_light(patch))
+            self._replace_active_scenario(
+                scenario_id, str(scenario.get("name", scenario_id)), observations
             )
-            if not persistent_simulation:
-                return self.update_vehicle_state(patch)
-            state = activate(patch, observations)
             activation_turn_id = make_id("SCENARIO_ACTIVATE")
             self.evidence_repository.begin_turn(activation_turn_id)
             snapshot_nodes = self.evidence_repository.ingest_vehicle_state(

@@ -1158,3 +1158,13 @@ export interface ScenarioSummary {
   conditions?: string[];
   [key: string]: unknown;
 }
+
+export interface ActiveScenarioSummary {
+  active: boolean;
+  scenario_id: string | null;
+  name: string | null;
+  version: number;
+  activated_at: string | null;
+  evidence_count: number;
+  evidence_types: string[];
+}
