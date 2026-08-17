@@ -205,10 +205,11 @@ class PresentationAssembler:
                     f"{intent_demand.clause_index}:{intent_demand.intent_id}"
                 )
             items: list[EvidenceDemandItem] = []
-            for evidence_type in [
+            for evidence_type in dict.fromkeys([
                 *intent_demand.required_types,
-                *intent_demand.optional_types,
-            ]:
+                *intent_demand.knowledge_required_types,
+                *intent_demand.assessment_types,
+            ]):
                 bindings = [
                     binding
                     for binding in resolution.bindings
@@ -239,7 +240,10 @@ class PresentationAssembler:
                 elif (
                     not matching
                     or labels == {EvidenceStatus.MISSING}
-                    or any(binding.resolution_status == "MISSING" for binding in bindings)
+                    or any(
+                        binding.resolution_status in {"MISSING", "KNOWLEDGE_MISSING"}
+                        for binding in bindings
+                    )
                 ):
                     status = EvidenceDemandStatus.MISSING
                 elif any(
@@ -256,6 +260,13 @@ class PresentationAssembler:
                             binding.requirement_level == "REQUIRED"
                             for binding in bindings
                         ),
+                        requirement_level=(
+                            "HARD_REQUIRED"
+                            if evidence_type in intent_demand.required_types
+                            else "KNOWLEDGE_REQUIRED"
+                            if evidence_type in intent_demand.knowledge_required_types
+                            else "ASSESSMENT"
+                        ),
                         status=status,
                         node_ids=ids,
                         retrieval_origin=origin,
@@ -268,7 +279,13 @@ class PresentationAssembler:
                             None,
                         ),
                         reason=(
-                            "本轮强制证据缺失"
+                            (
+                                "本轮硬前置证据缺失"
+                                if evidence_type in intent_demand.required_types
+                                else "本轮知识检索证据缺失，需要复核"
+                                if evidence_type in intent_demand.knowledge_required_types
+                                else "本轮评估佐证缺失"
+                            )
                             if status == EvidenceDemandStatus.MISSING
                             else f"本轮证据状态为 {status.value}"
                         ),
@@ -284,6 +301,8 @@ class PresentationAssembler:
                     risk_level=intent_demand.risk_level,
                     query_text=intent_demand.query_text,
                     required_types=intent_demand.required_types,
+                    assessment_types=intent_demand.assessment_types,
+                    knowledge_required_types=intent_demand.knowledge_required_types,
                     optional_types=intent_demand.optional_types,
                     knowledge_augmented_types=intent_demand.knowledge_augmented_types,
                     knowledge_hits=intent_demand.knowledge_hits,

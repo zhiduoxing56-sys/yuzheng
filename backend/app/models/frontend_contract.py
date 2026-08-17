@@ -181,6 +181,9 @@ class InputPresentation(StrictModel):
 class EvidenceDemandItem(StrictModel):
     evidence_type: str
     required: bool
+    requirement_level: Literal[
+        "HARD_REQUIRED", "KNOWLEDGE_REQUIRED", "ASSESSMENT"
+    ] = "ASSESSMENT"
     status: EvidenceDemandStatus
     node_ids: list[str] = Field(default_factory=list)
     retrieval_origin: RetrievalOrigin
@@ -197,6 +200,8 @@ class IntentEvidenceDemandPresentation(StrictModel):
     risk_level: str
     query_text: str
     required_types: list[str] = Field(default_factory=list)
+    assessment_types: list[str] = Field(default_factory=list)
+    knowledge_required_types: list[str] = Field(default_factory=list)
     optional_types: list[str] = Field(default_factory=list)
     knowledge_augmented_types: list[str] = Field(default_factory=list)
     knowledge_hits: list[dict[str, Any]] = Field(default_factory=list)

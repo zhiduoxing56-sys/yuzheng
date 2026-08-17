@@ -191,6 +191,11 @@ class CommandPipeline:
         "door_state": frozenset({"DOOR_STATE"}),
         "ambient_light": frozenset({"ENVIRONMENT_CONDITIONS"}),
         "headlight_state": frozenset({"LIGHTING_STATE"}),
+        "wiper_mode": frozenset({"WIPER_STATE"}),
+        "wiper_intensity": frozenset({"WIPER_STATE"}),
+        "wiper_frequency": frozenset({"WIPER_STATE"}),
+        "wiper_wiping": frozenset({"WIPER_STATE"}),
+        "wiper_error": frozenset({"WIPER_STATE"}),
         "weather": frozenset({"ENVIRONMENT_CONDITIONS"}),
         "window_state": frozenset({"WINDOW_STATE"}),
         "front_obstacle_distance": frozenset({"SURROUNDING_OBJECT_STATE"}),
@@ -1940,6 +1945,9 @@ class CommandPipeline:
         recall_records = resolution_projection.mandatory_recall_records
         recalled_types = resolution_projection.recalled_types_union
         missing_types = resolution_projection.missing_required_types_union
+        missing_knowledge_types = (
+            resolution_projection.missing_knowledge_required_types_union
+        )
         required_types = resolution_projection.required_types_union
         evidence = list(evidence_by_id.values())
         evidence = self.index.classify_nodes(evidence)
@@ -1950,7 +1958,11 @@ class CommandPipeline:
         emit(
             "MANDATORY_SUPPLEMENTED",
             "强制证据覆盖检查完成",
-            {"recalled_types": recalled_types, "missing_types": missing_types},
+            {
+                "recalled_types": recalled_types,
+                "missing_types": missing_types,
+                "missing_knowledge_types": missing_knowledge_types,
+            },
         )
         existing_ids = {node.node_id for node in evidence}
         for evidence_type in required_types:
@@ -1978,7 +1990,7 @@ class CommandPipeline:
         evaluated, quality_metrics, physical_conflicts = self.quality_service.evaluate(
             evidence,
             required_types,
-            resolution_projection.required_node_ids,
+            resolution_projection.resolved_physical_node_ids,
             (
                 resolution_projection.required_semantic_similarities
                 if required_types
@@ -1994,6 +2006,12 @@ class CommandPipeline:
             update={
                 "short_term_availability": self.quality_window.short_term_availability(),
                 "long_term_availability": self.quality_window.long_term_availability(),
+                "evidence_alignment_route": (
+                    "EVIDENCE_REVIEW"
+                    if missing_knowledge_types
+                    and quality_metrics.evidence_alignment_route != "EVIDENCE_BLOCK"
+                    else quality_metrics.evidence_alignment_route
+                ),
             }
         )
         quality_metrics_by_occurrence = {}
@@ -2023,11 +2041,24 @@ class CommandPipeline:
             occurrence_metrics = self.quality_service.evaluate_occurrence(
                 occurrence_nodes,
                 occurrence_required_types,
-                resolution_projection.required_node_ids_by_occurrence[occurrence],
+                resolution_projection.resolved_node_ids_by_occurrence[occurrence],
                 occurrence_similarities,
                 scene_nodes=[*snapshot_nodes, *override_nodes],
                 physical_conflicts=physical_conflicts,
-            ).model_copy(update=availability_snapshot)
+            )
+            occurrence_metrics = occurrence_metrics.model_copy(
+                update={
+                    **availability_snapshot,
+                    "evidence_alignment_route": (
+                        "EVIDENCE_REVIEW"
+                        if resolution_projection.by_occurrence[
+                            occurrence
+                        ].missing_knowledge_required_types
+                        and occurrence_metrics.evidence_alignment_route != "EVIDENCE_BLOCK"
+                        else occurrence_metrics.evidence_alignment_route
+                    ),
+                }
+            )
             quality_metrics_by_occurrence[occurrence] = occurrence_metrics
         emit(
             "EVIDENCE_QUALITY_EVALUATED",
@@ -2304,6 +2335,25 @@ class CommandPipeline:
                 update={
                     "intent_safety_assessments": [],
                     "aggregate_safety_decision": None,
+                }
+            )
+        if missing_knowledge_types:
+            knowledge_explanation = (
+                "知识检索所需证据缺失，需要复核："
+                + "、".join(missing_knowledge_types)
+            )
+            decision = decision.model_copy(
+                update={
+                    "reason_codes": list(
+                        dict.fromkeys(
+                            [*decision.reason_codes, "KNOWLEDGE_EVIDENCE_MISSING"]
+                        )
+                    ),
+                    "explanations": list(
+                        dict.fromkeys([*decision.explanations, knowledge_explanation])
+                    ),
+                    "review_question": decision.review_question
+                    or "知识检索证据不完整，请确认是否继续。",
                 }
             )
         decision, gate = self._apply_voice_constraints(

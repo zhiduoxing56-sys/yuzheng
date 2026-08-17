@@ -23,6 +23,7 @@ class EvidenceResolutionProjection:
     required_node_ids_by_occurrence: dict[OccurrenceKey, frozenset[str]]
     resolved_node_ids_by_occurrence: dict[OccurrenceKey, frozenset[str]]
     required_types_by_occurrence: dict[OccurrenceKey, list[str]]
+    knowledge_required_types_by_occurrence: dict[OccurrenceKey, list[str]]
     validated_types_by_occurrence: dict[OccurrenceKey, list[str]]
     retrieval_origins_by_occurrence: dict[OccurrenceKey, dict[str, RetrievalOrigin]]
     required_semantic_similarities_by_occurrence: dict[OccurrenceKey, list[float]]
@@ -30,6 +31,7 @@ class EvidenceResolutionProjection:
     required_types_union: list[str]
     validated_types_union: list[str]
     missing_required_types_union: list[str]
+    missing_knowledge_required_types_union: list[str]
     recalled_types_union: list[str]
     required_node_ids: frozenset[str]
     resolved_physical_node_ids: frozenset[str]
@@ -49,14 +51,18 @@ class EvidenceResolutionProjection:
             if binding.requirement_level == "REQUIRED"
         ]
 
-    def optional_bindings(self, clause_index: int, intent_id: str) -> list[IntentEvidenceBinding]:
+    def optional_bindings(
+        self, clause_index: int, intent_id: str
+    ) -> list[IntentEvidenceBinding]:
         return [
             binding
             for binding in self.by_occurrence[(clause_index, intent_id)].bindings
-            if binding.requirement_level == "OPTIONAL"
+            if binding.requirement_level in {"ASSESSMENT", "OPTIONAL"}
         ]
 
-    def resolved_bindings(self, clause_index: int, intent_id: str) -> list[IntentEvidenceBinding]:
+    def resolved_bindings(
+        self, clause_index: int, intent_id: str
+    ) -> list[IntentEvidenceBinding]:
         return [
             binding
             for binding in self.by_occurrence[(clause_index, intent_id)].bindings
@@ -64,11 +70,14 @@ class EvidenceResolutionProjection:
             and binding.resolution_status in {"RETRIEVED", "MANDATORY_RECALLED"}
         ]
 
-    def missing_bindings(self, clause_index: int, intent_id: str) -> list[IntentEvidenceBinding]:
+    def missing_bindings(
+        self, clause_index: int, intent_id: str
+    ) -> list[IntentEvidenceBinding]:
         return [
             binding
             for binding in self.by_occurrence[(clause_index, intent_id)].bindings
-            if binding.resolution_status in {"MISSING", "OPTIONAL_NOT_FOUND"}
+            if binding.resolution_status
+            in {"MISSING", "KNOWLEDGE_MISSING", "OPTIONAL_NOT_FOUND"}
         ]
 
 
@@ -79,6 +88,7 @@ def project_evidence_resolutions(
     required_node_ids_by_occurrence: dict[OccurrenceKey, frozenset[str]] = {}
     resolved_node_ids_by_occurrence: dict[OccurrenceKey, frozenset[str]] = {}
     required_types_by_occurrence: dict[OccurrenceKey, list[str]] = {}
+    knowledge_required_types_by_occurrence: dict[OccurrenceKey, list[str]] = {}
     validated_types_by_occurrence: dict[OccurrenceKey, list[str]] = {}
     retrieval_origins_by_occurrence: dict[OccurrenceKey, dict[str, RetrievalOrigin]] = {}
     required_similarities_by_occurrence: dict[OccurrenceKey, list[float]] = {}
@@ -86,6 +96,7 @@ def project_evidence_resolutions(
     required_types: list[str] = []
     validated_types: list[str] = []
     missing_types: list[str] = []
+    missing_knowledge_types: list[str] = []
     recalled_types: list[str] = []
     required_node_ids: set[str] = set()
     resolved_node_ids: set[str] = set()
@@ -106,11 +117,13 @@ def project_evidence_resolutions(
         occurrence_required_ids: set[str] = set()
         occurrence_resolved_ids: set[str] = set()
         occurrence_required_types: list[str] = []
+        occurrence_knowledge_required_types: list[str] = []
         occurrence_validated_types: list[str] = []
         occurrence_origins: dict[str, set[RetrievalOrigin]] = {}
         occurrence_required_similarities: list[float] = []
         occurrence_resolved_similarities: list[float] = []
         missing_types.extend(resolution.missing_required_types)
+        missing_knowledge_types.extend(resolution.missing_knowledge_required_types)
         records.extend(resolution.mandatory_recall_records)
         for binding in resolution.bindings:
             if (binding.clause_index, binding.intent_id) != key:
@@ -126,6 +139,8 @@ def project_evidence_resolutions(
                     required_node_ids.add(binding.node_id)
                     required_similarities.append(binding.semantic_similarity or 0.0)
                     occurrence_required_similarities.append(binding.semantic_similarity or 0.0)
+            elif binding.requirement_level == "KNOWLEDGE_REQUIRED":
+                occurrence_knowledge_required_types.append(binding.evidence_type)
             if binding.resolution_status == "MANDATORY_RECALLED":
                 recalled_types.append(binding.evidence_type)
             if binding.node_id is not None:
@@ -144,6 +159,9 @@ def project_evidence_resolutions(
         required_node_ids_by_occurrence[key] = frozenset(occurrence_required_ids)
         resolved_node_ids_by_occurrence[key] = frozenset(occurrence_resolved_ids)
         required_types_by_occurrence[key] = _stable_unique(occurrence_required_types)
+        knowledge_required_types_by_occurrence[key] = _stable_unique(
+            occurrence_knowledge_required_types
+        )
         validated_types_by_occurrence[key] = _stable_unique(occurrence_validated_types)
         required_similarities_by_occurrence[key] = occurrence_required_similarities
         resolved_similarities_by_occurrence[key] = occurrence_resolved_similarities
@@ -176,6 +194,7 @@ def project_evidence_resolutions(
         required_node_ids_by_occurrence=required_node_ids_by_occurrence,
         resolved_node_ids_by_occurrence=resolved_node_ids_by_occurrence,
         required_types_by_occurrence=required_types_by_occurrence,
+        knowledge_required_types_by_occurrence=knowledge_required_types_by_occurrence,
         validated_types_by_occurrence=validated_types_by_occurrence,
         retrieval_origins_by_occurrence=retrieval_origins_by_occurrence,
         required_semantic_similarities_by_occurrence=required_similarities_by_occurrence,
@@ -183,6 +202,7 @@ def project_evidence_resolutions(
         required_types_union=_stable_unique(required_types),
         validated_types_union=_stable_unique(validated_types),
         missing_required_types_union=_stable_unique(missing_types),
+        missing_knowledge_required_types_union=_stable_unique(missing_knowledge_types),
         recalled_types_union=_stable_unique(recalled_types),
         required_node_ids=frozenset(required_node_ids),
         resolved_physical_node_ids=frozenset(resolved_node_ids),

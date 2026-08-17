@@ -386,15 +386,15 @@ evidence_types:
       left_indicator_signaling: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/SignalingLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling, data_type: boolean, unit: null, previous_runtime_field: direction_indicator, alignment: C_UNIFY}
       right_indicator_signaling: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/SignalingLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling, data_type: boolean, unit: null, previous_runtime_field: direction_indicator, alignment: C_UNIFY}
   - canonical_type: WIPER_STATE
-    runtime_mode: UNAVAILABLE
-    provider: null
-    sources: [VEHICLE_BUS]
-    source_fields: []
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [wiper_mode, wiper_intensity, wiper_frequency, wiper_wiping, wiper_error]
     value_schema: {type: object, fields: {area: nullable_string, mode: nullable_string, intensity: nullable_number, frequency: nullable_number, wiping: nullable_boolean, error: nullable_boolean}}
     usability: {mode: ANY_NON_NULL, fields: [mode, intensity, frequency, wiping, error]}
     derivation: VSS windshield instance maps to area.
-    availability: UNAVAILABLE
-    notes: No reliable runtime source exists.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Simulator and CARLA shadow state expose normalized wiper state; a real vehicle-bus provider is not yet connected.
     field_provenance:
       area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS windshield instance normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
       mode: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/WiperSystem.vspec, standard_entity_or_field: Vehicle.Body.Windshield.*.Wiping.Mode, data_type: string, unit: enum, previous_runtime_field: mode, alignment: A_REUSE}

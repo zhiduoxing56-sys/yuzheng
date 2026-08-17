@@ -242,6 +242,7 @@ export interface EvidenceNodeDetail extends Omit<EvidenceNode,
 export interface EvidenceDemandItem {
   evidence_type: string;
   required: boolean;
+  requirement_level?: "HARD_REQUIRED" | "KNOWLEDGE_REQUIRED" | "ASSESSMENT";
   status: EvidenceDemandStatus;
   node_ids: string[];
   retrieval_origin: RetrievalOrigin;
@@ -315,7 +316,7 @@ export interface EvidenceDemandPresentation {
   turn_id: string;
   intent_demands: Array<{
     intent_id: string; clause_index: number; action: string; target: string; area: string;
-    risk_level: string; query_text: string; required_types: string[]; optional_types: string[];
+    risk_level: string; query_text: string; required_types: string[]; assessment_types?: string[]; knowledge_required_types?: string[]; optional_types: string[];
     knowledge_augmented_types?: string[]; knowledge_hits?: KnowledgeHit[];
     knowledge_query_text?: string;
     knowledge_retrieval_metadata?: KnowledgeRetrievalMetadata;
@@ -1058,6 +1059,11 @@ export interface VehicleState {
   gear_position?: string;
   door_lock_state?: string;
   headlight_state?: string;
+  wiper_mode?: string;
+  wiper_intensity?: number;
+  wiper_frequency?: number;
+  wiper_wiping?: boolean;
+  wiper_error?: boolean;
   door_state?: string;
   vehicle_mode?: string;
   speaker_zone?: string;
@@ -1106,6 +1112,11 @@ export interface VehicleStatePatch {
   authentication_state?: string | boolean | null;
   ambient_light?: number | string | null;
   headlight_state?: string | null;
+  wiper_mode?: string | null;
+  wiper_intensity?: number | null;
+  wiper_frequency?: number | null;
+  wiper_wiping?: boolean | null;
+  wiper_error?: boolean | null;
   weather?: string | null;
   window_state?: string | null;
   navigation_active?: boolean | null;

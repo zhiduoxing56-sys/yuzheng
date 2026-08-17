@@ -122,24 +122,26 @@ scenarios:
   knowledge_wiper_clear:
     name: 知识检索-晴天开启雨刮自动模式
     text: 开启雨刮自动模式
-    state: {vehicle_speed: 42, gear_position: D, weather: CLEAR, ambient_light: 100}
+    state: {vehicle_speed: 42, gear_position: D, weather: CLEAR, ambient_light: 100, wiper_mode: "OFF", wiper_intensity: 0, wiper_frequency: 0, wiper_wiping: false, wiper_error: false}
     evidence_overrides:
       - {evidence_type: VEHICLE_SPEED, source: SIMULATION, value: 42}
       - {evidence_type: GEAR_STATE, source: SIMULATION, value: {current_gear: D}}
       - {evidence_type: SYSTEM_MODE, source: SIMULATION, value: {vehicle_mode: REAL_DRIVING, safety_constraint: ENABLED, simulation: true}}
       - {evidence_type: ROAD_FRICTION_STATE, source: SIMULATION, value: {road_condition: DRY, wetness: DRY}}
+      - {evidence_type: WIPER_STATE, source: SIMULATION, value: {area: FRONT, mode: "OFF", intensity: 0, frequency: 0, wiping: false, error: false}}
       - evidence_type: ENVIRONMENT_CONDITIONS
         source: SIMULATION
         value: {ambient_illumination: 100, visibility: 1000, weather: CLEAR, precipitation: NONE, fog: NONE, time_of_day: DAY}
   knowledge_wiper_rain:
     name: 知识检索-雨天开启雨刮自动模式
     text: 开启雨刮自动模式
-    state: {vehicle_speed: 42, gear_position: D, weather: RAIN, ambient_light: 100}
+    state: {vehicle_speed: 42, gear_position: D, weather: RAIN, ambient_light: 100, wiper_mode: "OFF", wiper_intensity: 0, wiper_frequency: 0, wiper_wiping: false, wiper_error: false}
     evidence_overrides:
       - {evidence_type: VEHICLE_SPEED, source: SIMULATION, value: 42}
       - {evidence_type: GEAR_STATE, source: SIMULATION, value: {current_gear: D}}
       - {evidence_type: SYSTEM_MODE, source: SIMULATION, value: {vehicle_mode: REAL_DRIVING, safety_constraint: ENABLED, simulation: true}}
       - {evidence_type: ROAD_FRICTION_STATE, source: SIMULATION, value: {road_condition: DRY, wetness: DRY}}
+      - {evidence_type: WIPER_STATE, source: SIMULATION, value: {area: FRONT, mode: "OFF", intensity: 0, frequency: 0, wiping: false, error: false}}
       - evidence_type: ENVIRONMENT_CONDITIONS
         source: SIMULATION
         value: {ambient_illumination: 100, visibility: 300, weather: RAIN, precipitation: RAIN, precipitation_type: RAIN, precipitation_intensity: 0.001, fog: NONE, time_of_day: DAY}

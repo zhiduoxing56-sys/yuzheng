@@ -9,6 +9,7 @@ _STATE_FIELDS: tuple[tuple[str, str, str | None], ...] = (
     ("weather", "天气", None),
     ("ambient_light", "环境照度", "lux"),
     ("headlight_state", "前照灯", None),
+    ("wiper_mode", "雨刮模式", None),
     ("occupant_role", "身份", None),
     ("speaker_zone", "声源位置", None),
     ("vehicle_mode", "车辆模式", None),
@@ -34,6 +35,10 @@ _VALUE_LABELS: dict[str, str] = {
     "SUNSET": "黄昏",
     "ON": "开启",
     "OFF": "关闭",
+    "RAIN_SENSOR": "自动感应",
+    "INTERVAL": "间歇",
+    "SLOW": "低速",
+    "FAST": "高速",
     "driver": "驾驶员",
     "passenger": "乘客",
     "front_passenger": "前排乘客",
@@ -186,6 +191,16 @@ def _evidence_condition(observation: dict[str, Any]) -> str:
             return _surrounding_condition(value)
         if evidence_type == "SYSTEM_MODE":
             return _system_condition(value)
+        if evidence_type == "WIPER_STATE":
+            return "雨刮：" + "、".join(
+                f"{label}{_display_value(value[key])}"
+                for key, label in (
+                    ("mode", "模式"),
+                    ("wiping", "工作"),
+                    ("error", "故障"),
+                )
+                if key in value
+            )
         if evidence_type == "GEAR_STATE" and "current_gear" in value:
             return f"补充挡位（{source}）：{_display_value(value['current_gear'])}"
     evidence_labels = {
