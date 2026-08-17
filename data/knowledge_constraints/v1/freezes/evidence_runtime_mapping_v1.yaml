@@ -1,0 +1,659 @@
+document_status: FORMAL_RUNTIME_MAPPING
+version: evidence-runtime-mapping-v1
+catalog: evidence-type-catalog-v1
+mapping_kinds: [DIRECT_STANDARD, DERIVED, INTERNAL_SECURITY]
+common_evidence_envelope:
+  value_schema:
+    timestamp: datetime
+    freshness: number_0_1
+    validity: string
+    confidence: number_0_1
+    conflict_status: string
+    availability: string
+  field_provenance:
+    timestamp: {mapping_kind: DERIVED, standard_entity_or_field: provider timestamp normalized to UTC, unit: ISO-8601}
+    freshness: {mapping_kind: DERIVED, standard_entity_or_field: derived from timestamp and freshness window, unit: ratio}
+    validity: {mapping_kind: DERIVED, standard_entity_or_field: runtime value/schema/integrity validation, unit: enum}
+    confidence: {mapping_kind: DERIVED, standard_entity_or_field: provider confidence or project quality computation, unit: ratio}
+    conflict_status: {mapping_kind: DERIVED, standard_entity_or_field: multi-source conflict evaluation, unit: enum}
+    availability: {mapping_kind: INTERNAL_SECURITY, standard_entity_or_field: runtime adapter availability, unit: enum}
+
+evidence_types:
+  - canonical_type: VEHICLE_SPEED
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [vehicle_speed]
+    value_schema: {type: number, unit: km/h, nullable: true}
+    usability: {mode: VALUE_NON_NULL}
+    derivation: Direct normalized provider speed; moving/stopped remains a consumer predicate over this fact.
+    availability: AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator speed is km/h; a real VSS adapter must preserve the VSS unit.
+    field_provenance:
+      value: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Vehicle/Vehicle.vspec, standard_entity_or_field: Vehicle.Speed, data_type: float, unit: km/h, previous_runtime_field: vehicle_speed, alignment: A_REUSE}
+  - canonical_type: VEHICLE_ACCELERATION
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS, SIMULATION]
+    source_fields: []
+    value_schema: {type: object, fields: {longitudinal: nullable_number, lateral: nullable_number, vertical: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [longitudinal, lateral, vertical]}
+    derivation: Direct VSS/OSI acceleration components after coordinate normalization.
+    availability: UNAVAILABLE
+    notes: New minimum mother type required by the standard self-motion capability.
+    field_provenance:
+      longitudinal: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Vehicle/Vehicle.vspec, standard_entity_or_field: Vehicle.Acceleration.Longitudinal, data_type: float, unit: m/s^2, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      lateral: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Vehicle/Vehicle.vspec, standard_entity_or_field: Vehicle.Acceleration.Lateral, data_type: float, unit: m/s^2, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      vertical: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Vehicle/Vehicle.vspec, standard_entity_or_field: Vehicle.Acceleration.Vertical, data_type: float, unit: m/s^2, previous_runtime_field: null, alignment: D_NEW_TYPE}
+  - canonical_type: GEAR_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [gear_position]
+    value_schema: {type: object, fields: {current_gear: nullable_string, selected_gear: nullable_string, change_mode: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [current_gear, selected_gear, change_mode]}
+    derivation: Normalize numeric or named gear values; unavailable fields remain null.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Only current_gear is currently supplied.
+    field_provenance:
+      current_gear: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Powertrain/Transmission.vspec, standard_entity_or_field: Vehicle.Powertrain.Transmission.CurrentGear, data_type: int8, unit: null, previous_runtime_field: current_gear, alignment: A_REUSE}
+      selected_gear: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Powertrain/Transmission.vspec, standard_entity_or_field: Vehicle.Powertrain.Transmission.SelectedGear, data_type: int8, unit: null, previous_runtime_field: selected_gear, alignment: A_REUSE}
+      change_mode: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Powertrain/Transmission.vspec, standard_entity_or_field: Vehicle.Powertrain.Transmission.GearChangeMode, data_type: string, unit: null, previous_runtime_field: change_mode, alignment: A_REUSE}
+  - canonical_type: SERVICE_BRAKE_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [brake_state, emergency_flag]
+    value_schema: {type: object, fields: {brake_state: nullable_string, pedal_position: nullable_number, emergency_braking_detected: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [brake_state, pedal_position, emergency_braking_detected]}
+    derivation: Aggregate measured pedal position, emergency flag and adapter actuator state.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Simulator has state and emergency flag but no pedal position.
+    field_provenance:
+      brake_state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized brake actuator/provider state, data_type: enum, unit: null, previous_runtime_field: brake_state, alignment: A_REUSE}
+      pedal_position: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.Brake.PedalPosition, data_type: uint8, unit: percent, previous_runtime_field: null, alignment: B_EXTEND}
+      emergency_braking_detected: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.Brake.IsDriverEmergencyBrakingDetected, data_type: boolean, unit: null, previous_runtime_field: emergency_braking_detected, alignment: A_REUSE}
+  - canonical_type: PARKING_BRAKE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {engaged: nullable_boolean, auto_apply_enabled: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [engaged, auto_apply_enabled]}
+    derivation: Direct VSS fields.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      engaged: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.ParkingBrake.IsEngaged, data_type: boolean, unit: null, previous_runtime_field: engaged, alignment: A_REUSE}
+      auto_apply_enabled: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.ParkingBrake.IsAutoApplyEnabled, data_type: boolean, unit: null, previous_runtime_field: auto_apply_enabled, alignment: A_REUSE}
+  - canonical_type: STEERING_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {steering_wheel_angle: nullable_number, axle_steering_angle: nullable_number, rear_axle_steering_angle: nullable_number, steering_rate: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [steering_wheel_angle, axle_steering_angle, rear_axle_steering_angle, steering_rate]}
+    derivation: Direct angles; steering rate is derived when not provided.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      steering_wheel_angle: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.SteeringWheel.Angle, data_type: int16, unit: degrees, previous_runtime_field: steering_wheel_angle, alignment: A_REUSE}
+      axle_steering_angle: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.Axle.Row1.SteeringAngle, data_type: float, unit: degrees, previous_runtime_field: axle_steering_angle, alignment: A_REUSE}
+      rear_axle_steering_angle: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.Axle.Row2.SteeringAngle, data_type: float, unit: degrees, previous_runtime_field: null, alignment: B_EXTEND}
+      steering_rate: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: time derivative of steering angle, data_type: float, unit: degrees/s, previous_runtime_field: null, alignment: B_EXTEND}
+  - canonical_type: ESC_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {enabled: nullable_boolean, engaged: nullable_boolean, state: nullable_string, error: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [enabled, engaged, state, error]}
+    derivation: VSS booleans and VHAL state remain distinguishable.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      enabled: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.ESC.IsEnabled, data_type: boolean, unit: null, previous_runtime_field: enabled, alignment: A_REUSE}
+      engaged: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.ESC.IsEngaged, data_type: boolean, unit: null, previous_runtime_field: engaged, alignment: A_REUSE}
+      state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: ELECTRONIC_STABILITY_CONTROL_STATE, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      error: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.ESC.IsError, data_type: boolean, unit: null, previous_runtime_field: error, alignment: A_REUSE}
+  - canonical_type: ROAD_FRICTION_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [road_condition]
+    value_schema: {type: object, fields: {road_condition: nullable_string, wetness: nullable_string, friction_scale_factor: nullable_number, lower_bound: nullable_number, most_probable: nullable_number, upper_bound: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [road_condition, wetness, friction_scale_factor, lower_bound, most_probable, upper_bound]}
+    derivation: Preserve categorical condition; do not fabricate a friction coefficient.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: OpenSCENARIO dynamic road condition complements the VSS ESC estimate.
+    field_provenance:
+      road_condition: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized observed road surface condition, data_type: enum, unit: null, previous_runtime_field: road_condition, alignment: A_REUSE}
+      wetness: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: RoadCondition.@wetness, data_type: Wetness, unit: enum, previous_runtime_field: null, alignment: B_EXTEND}
+      friction_scale_factor: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: RoadCondition.@frictionScaleFactor, data_type: Double, unit: ratio, previous_runtime_field: null, alignment: B_EXTEND}
+      lower_bound: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.ESC.RoadFriction.LowerBound, data_type: float, unit: ratio, previous_runtime_field: lower_bound, alignment: A_REUSE}
+      most_probable: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.ESC.RoadFriction.MostProbable, data_type: float, unit: ratio, previous_runtime_field: most_probable, alignment: A_REUSE}
+      upper_bound: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.ESC.RoadFriction.UpperBound, data_type: float, unit: ratio, previous_runtime_field: upper_bound, alignment: A_REUSE}
+  - canonical_type: CRUISE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {enabled: nullable_boolean, active: nullable_boolean, cruise_type: nullable_string, state: nullable_string, target_speed: nullable_number, target_time_gap: nullable_number, lead_vehicle_distance: nullable_number, error: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [enabled, active, cruise_type, state, target_speed, target_time_gap, lead_vehicle_distance, error]}
+    derivation: Aggregate VSS and VHAL cruise fields without conflating standard and adaptive cruise.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      enabled: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: CRUISE_CONTROL_ENABLED, data_type: boolean, unit: null, previous_runtime_field: enabled, alignment: A_REUSE}
+      active: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.CruiseControl.IsActive, data_type: boolean, unit: null, previous_runtime_field: active, alignment: A_REUSE}
+      cruise_type: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: CRUISE_CONTROL_TYPE, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: CRUISE_CONTROL_STATE, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      target_speed: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: CRUISE_CONTROL_TARGET_SPEED, data_type: float, unit: m/s, previous_runtime_field: speed_set, alignment: C_UNIFY}
+      target_time_gap: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP, data_type: int32, unit: ms, previous_runtime_field: null, alignment: B_EXTEND}
+      lead_vehicle_distance: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: ADAPTIVE_CRUISE_CONTROL_LEAD_VEHICLE_MEASURED_DISTANCE, data_type: float, unit: m, previous_runtime_field: null, alignment: B_EXTEND}
+      error: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/ADAS/ADAS.vspec, standard_entity_or_field: Vehicle.ADAS.CruiseControl.IsError, data_type: boolean, unit: null, previous_runtime_field: error, alignment: A_REUSE}
+  - canonical_type: DOOR_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [door_state]
+    value_schema: {type: object, fields: {area: nullable_string, is_open: nullable_boolean, state: nullable_string, position: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [is_open, state, position]}
+    derivation: VSS instance path maps to canonical area; state may normalize is_open/position.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Simulator currently expands one whole-vehicle state to four explicitly simulated areas.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS instance path normalized to area, data_type: enum, unit: null, previous_runtime_field: metadata.area, alignment: B_EXTEND}
+      is_open: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/SingleDoor.vspec, standard_entity_or_field: Vehicle.Cabin.Door.*.IsOpen, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized from IsOpen/Position or provider state, data_type: enum, unit: null, previous_runtime_field: state, alignment: C_UNIFY}
+      position: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/include/MovableItem.vspec, standard_entity_or_field: Vehicle.Cabin.Door.*.Position, data_type: uint8, unit: percent, previous_runtime_field: position, alignment: A_REUSE}
+  - canonical_type: DOOR_LOCK_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [door_lock_state]
+    value_schema: {type: object, fields: {area: nullable_string, locked: nullable_boolean, lock_state: nullable_string, child_lock_active: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [locked, lock_state, child_lock_active]}
+    derivation: VSS instance path maps to area; provider labels normalize without inventing booleans.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator exposes one whole-vehicle lock state.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS instance path normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      locked: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/SingleDoor.vspec, standard_entity_or_field: Vehicle.Cabin.Door.*.IsLocked, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      lock_state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized provider lock state, data_type: enum, unit: null, previous_runtime_field: lock_state, alignment: A_REUSE}
+      child_lock_active: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/SingleDoor.vspec, standard_entity_or_field: Vehicle.Cabin.Door.*.IsChildLockActive, data_type: boolean, unit: null, previous_runtime_field: child_lock_active, alignment: A_REUSE}
+  - canonical_type: WINDOW_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [window_state]
+    value_schema: {type: object, fields: {area: nullable_string, is_open: nullable_boolean, state: nullable_string, position: nullable_number, child_lock_active: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [is_open, state, position, child_lock_active]}
+    derivation: VSS instance path maps to area; provider state stays explicit.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator exposes one whole-vehicle window state.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS instance path normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      is_open: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/include/MovableItem.vspec, standard_entity_or_field: Vehicle.Cabin.Door.*.Window.IsOpen, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized provider window state, data_type: enum, unit: null, previous_runtime_field: state, alignment: A_REUSE}
+      position: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/include/MovableItem.vspec, standard_entity_or_field: Vehicle.Cabin.Door.*.Window.Position, data_type: uint8, unit: percent, previous_runtime_field: position, alignment: A_REUSE}
+      child_lock_active: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Cabin.vspec, standard_entity_or_field: Vehicle.Cabin.IsWindowChildLockEngaged, data_type: boolean, unit: null, previous_runtime_field: child_lock_active, alignment: A_REUSE}
+  - canonical_type: SUNROOF_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {position: nullable_number, tilt: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [position, tilt]}
+    derivation: Direct VSS position; tilt may be adapter-specific and must remain unavailable unless sourced.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      position: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Cabin.vspec, standard_entity_or_field: Vehicle.Cabin.Sunroof.Position, data_type: uint8, unit: percent, previous_runtime_field: position, alignment: A_REUSE}
+      tilt: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized sunroof tilt if provider supplies it, data_type: float, unit: percent, previous_runtime_field: null, alignment: B_EXTEND}
+  - canonical_type: TRUNK_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, is_open: nullable_boolean, state: nullable_string, position: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [is_open, state, position]}
+    derivation: VSS instance path maps to FRONT/REAR area.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS instance path normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      is_open: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/Body.vspec, standard_entity_or_field: Vehicle.Body.Trunk.*.IsOpen, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized trunk state, data_type: enum, unit: null, previous_runtime_field: state, alignment: A_REUSE}
+      position: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/Body.vspec, standard_entity_or_field: Vehicle.Body.Trunk.*.Position, data_type: uint8, unit: percent, previous_runtime_field: position, alignment: A_REUSE}
+  - canonical_type: TRUNK_LOCK_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, locked: nullable_boolean, lock_state: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [locked, lock_state]}
+    derivation: VSS instance path maps to FRONT/REAR area.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS instance path normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      locked: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/Body.vspec, standard_entity_or_field: Vehicle.Body.Trunk.*.IsLocked, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      lock_state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized trunk lock state, data_type: enum, unit: null, previous_runtime_field: lock_state, alignment: A_REUSE}
+  - canonical_type: HOOD_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {is_open: nullable_boolean, state: nullable_string, position: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [is_open, state, position]}
+    derivation: Normalize direct VSS facts.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      is_open: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/Body.vspec, standard_entity_or_field: Vehicle.Body.Hood.IsOpen, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized hood state, data_type: enum, unit: null, previous_runtime_field: state, alignment: A_REUSE}
+      position: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/Body.vspec, standard_entity_or_field: Vehicle.Body.Hood.Position, data_type: uint8, unit: percent, previous_runtime_field: position, alignment: A_REUSE}
+  - canonical_type: MIRROR_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, folded: nullable_boolean, locked: nullable_boolean, pan: nullable_number, tilt: nullable_number, yaw: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [folded, locked, pan, tilt, yaw]}
+    derivation: VSS instance path maps to mirror area.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS mirror instance normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      folded: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/ExteriorMirrors.vspec, standard_entity_or_field: Vehicle.Body.Mirrors.*.IsFolded, data_type: boolean, unit: null, previous_runtime_field: folded, alignment: A_REUSE}
+      locked: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/ExteriorMirrors.vspec, standard_entity_or_field: Vehicle.Body.Mirrors.*.IsLocked, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      pan: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/ExteriorMirrors.vspec, standard_entity_or_field: Vehicle.Body.Mirrors.*.Pan, data_type: int8, unit: percent, previous_runtime_field: pan, alignment: A_REUSE}
+      tilt: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/ExteriorMirrors.vspec, standard_entity_or_field: Vehicle.Body.Mirrors.*.Tilt, data_type: int8, unit: percent, previous_runtime_field: tilt, alignment: A_REUSE}
+      yaw: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/ExteriorMirrors.vspec, standard_entity_or_field: Vehicle.Body.Mirrors.*.Yaw, data_type: int8, unit: percent, previous_runtime_field: null, alignment: B_EXTEND}
+  - canonical_type: MIRROR_HEATING_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, heating_on: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [heating_on]}
+    derivation: VSS instance path maps to mirror area.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS mirror instance normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      heating_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/ExteriorMirrors.vspec, standard_entity_or_field: Vehicle.Body.Mirrors.*.IsHeatingOn, data_type: boolean, unit: null, previous_runtime_field: heating_on, alignment: A_REUSE}
+  - canonical_type: SEAT_POSITION_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, position: nullable_number, height: nullable_number, tilt: nullable_number, recline: nullable_number, lumbar_height: nullable_number, lumbar_support: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [position, height, tilt, recline, lumbar_height, lumbar_support]}
+    derivation: VSS seat instance maps to canonical area.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS seat instance normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      position: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.Position, data_type: uint16, unit: mm, previous_runtime_field: position, alignment: A_REUSE}
+      height: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.Height, data_type: uint16, unit: mm, previous_runtime_field: height, alignment: A_REUSE}
+      tilt: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.Tilt, data_type: float, unit: degrees, previous_runtime_field: tilt, alignment: A_REUSE}
+      recline: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.Backrest.Recline, data_type: float, unit: degrees, previous_runtime_field: recline, alignment: A_REUSE}
+      lumbar_height: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.Backrest.LumbarHeight, data_type: uint8, unit: mm, previous_runtime_field: lumbar_height, alignment: A_REUSE}
+      lumbar_support: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.Backrest.LumbarSupport, data_type: float, unit: percent, previous_runtime_field: lumbar_support, alignment: A_REUSE}
+  - canonical_type: STEERING_WHEEL_POSITION_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {extension: nullable_number, tilt: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [extension, tilt]}
+    derivation: Direct VSS fields.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      extension: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.SteeringWheel.Extension, data_type: uint8, unit: percent, previous_runtime_field: extension, alignment: A_REUSE}
+      tilt: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Chassis/Chassis.vspec, standard_entity_or_field: Vehicle.Chassis.SteeringWheel.Tilt, data_type: uint8, unit: percent, previous_runtime_field: tilt, alignment: A_REUSE}
+  - canonical_type: HVAC_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, active: nullable_boolean, recirculation_active: nullable_boolean, target_temperature: nullable_number, fan_speed: nullable_number, air_distribution: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [active, recirculation_active, target_temperature, fan_speed, air_distribution]}
+    derivation: VSS station instance maps to canonical area.
+    availability: UNAVAILABLE
+    notes: New minimum mother type; no reliable runtime source exists.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS HVAC station instance normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      active: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/HVAC.vspec, standard_entity_or_field: Vehicle.Cabin.HVAC.IsAirConditioningActive, data_type: boolean, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      recirculation_active: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/HVAC.vspec, standard_entity_or_field: Vehicle.Cabin.HVAC.IsRecirculationActive, data_type: boolean, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      target_temperature: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/SingleHVACStation.vspec, standard_entity_or_field: Vehicle.Cabin.HVAC.Station.*.Temperature, data_type: float, unit: Celsius, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      fan_speed: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/SingleHVACStation.vspec, standard_entity_or_field: Vehicle.Cabin.HVAC.Station.*.FanSpeed, data_type: uint8, unit: percent, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      air_distribution: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/SingleHVACStation.vspec, standard_entity_or_field: Vehicle.Cabin.HVAC.Station.*.AirDistribution, data_type: string, unit: enum, previous_runtime_field: null, alignment: D_NEW_TYPE}
+  - canonical_type: DEFROST_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {front_active: nullable_boolean, rear_active: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [front_active, rear_active]}
+    derivation: Direct VSS fields.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      front_active: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/HVAC.vspec, standard_entity_or_field: Vehicle.Cabin.HVAC.IsFrontDefrosterActive, data_type: boolean, unit: null, previous_runtime_field: front_active, alignment: A_REUSE}
+      rear_active: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/HVAC.vspec, standard_entity_or_field: Vehicle.Cabin.HVAC.IsRearDefrosterActive, data_type: boolean, unit: null, previous_runtime_field: rear_active, alignment: A_REUSE}
+  - canonical_type: WINDSHIELD_HEATING_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, heating_on: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [heating_on]}
+    derivation: VSS windshield instance maps to area.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS windshield instance normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      heating_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/Body.vspec, standard_entity_or_field: Vehicle.Body.Windshield.*.IsHeatingOn, data_type: boolean, unit: null, previous_runtime_field: heating_on, alignment: A_REUSE}
+  - canonical_type: LIGHTING_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [headlight_state]
+    value_schema: {type: object, fields: {headlight_state: nullable_string, high_beam: nullable_boolean, fog: nullable_boolean, parking: nullable_boolean, hazard: nullable_boolean, direction_indicator: nullable_string, light_switch: nullable_string, low_beam_on: nullable_boolean, high_beam_on: nullable_boolean, high_beam_switch_on: nullable_boolean, front_fog_on: nullable_boolean, rear_fog_on: nullable_boolean, parking_on: nullable_boolean, hazard_signaling: nullable_boolean, left_indicator_signaling: nullable_boolean, right_indicator_signaling: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [headlight_state, high_beam, fog, parking, hazard, direction_indicator, light_switch, low_beam_on, high_beam_on, front_fog_on, rear_fog_on, parking_on, hazard_signaling, left_indicator_signaling, right_indicator_signaling]}
+    derivation: Preserve simulator headlight label; direct VSS lamp fields remain separate.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Current simulator exposes only principal headlight state.
+    field_provenance:
+      headlight_state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized provider headlight state, data_type: enum, unit: null, previous_runtime_field: headlight_state, alignment: A_REUSE}
+      high_beam: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: compatibility-preserving normalized high-beam state, data_type: boolean, unit: null, previous_runtime_field: high_beam, alignment: A_REUSE}
+      fog: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: compatibility-preserving aggregate fog-lamp state, data_type: boolean, unit: null, previous_runtime_field: fog, alignment: A_REUSE}
+      parking: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: compatibility-preserving parking-lamp state, data_type: boolean, unit: null, previous_runtime_field: parking, alignment: A_REUSE}
+      hazard: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: compatibility-preserving hazard state, data_type: boolean, unit: null, previous_runtime_field: hazard, alignment: A_REUSE}
+      direction_indicator: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: aggregate left/right indication, data_type: enum, unit: null, previous_runtime_field: direction_indicator, alignment: A_REUSE}
+      light_switch: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/StaticLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.LightSwitch, data_type: string, unit: enum, previous_runtime_field: null, alignment: B_EXTEND}
+      low_beam_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/StaticLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.Beam.Low.IsOn, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      high_beam_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/StaticLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.Beam.High.IsOn, data_type: boolean, unit: null, previous_runtime_field: high_beam, alignment: C_UNIFY}
+      high_beam_switch_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/StaticLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.IsHighBeamSwitchOn, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      front_fog_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/StaticLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.Fog.Front.IsOn, data_type: boolean, unit: null, previous_runtime_field: fog, alignment: C_UNIFY}
+      rear_fog_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/StaticLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.Fog.Rear.IsOn, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      parking_on: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/StaticLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.Parking.IsOn, data_type: boolean, unit: null, previous_runtime_field: parking, alignment: C_UNIFY}
+      hazard_signaling: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/SignalingLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.Hazard.IsSignaling, data_type: boolean, unit: null, previous_runtime_field: hazard, alignment: C_UNIFY}
+      left_indicator_signaling: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/SignalingLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling, data_type: boolean, unit: null, previous_runtime_field: direction_indicator, alignment: C_UNIFY}
+      right_indicator_signaling: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/SignalingLights.vspec, standard_entity_or_field: Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling, data_type: boolean, unit: null, previous_runtime_field: direction_indicator, alignment: C_UNIFY}
+  - canonical_type: WIPER_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, VEHICLE_BUS]
+    source_fields: [wiper_mode, wiper_intensity, wiper_frequency, wiper_wiping, wiper_error]
+    value_schema: {type: object, fields: {area: nullable_string, mode: nullable_string, intensity: nullable_number, frequency: nullable_number, wiping: nullable_boolean, error: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [mode, intensity, frequency, wiping, error]}
+    derivation: VSS windshield instance maps to area.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Simulator and CARLA shadow state expose normalized wiper state; a real vehicle-bus provider is not yet connected.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS windshield instance normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      mode: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/WiperSystem.vspec, standard_entity_or_field: Vehicle.Body.Windshield.*.Wiping.Mode, data_type: string, unit: enum, previous_runtime_field: mode, alignment: A_REUSE}
+      intensity: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/WiperSystem.vspec, standard_entity_or_field: Vehicle.Body.Windshield.*.Wiping.Intensity, data_type: uint8, unit: null, previous_runtime_field: intensity, alignment: A_REUSE}
+      frequency: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/WiperSystem.vspec, standard_entity_or_field: Vehicle.Body.Windshield.*.Wiping.System.Frequency, data_type: uint8, unit: cpm, previous_runtime_field: null, alignment: B_EXTEND}
+      wiping: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/WiperSystem.vspec, standard_entity_or_field: Vehicle.Body.Windshield.*.Wiping.System.IsWiping, data_type: boolean, unit: null, previous_runtime_field: wiping, alignment: A_REUSE}
+      error: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Body/WiperSystem.vspec, standard_entity_or_field: Vehicle.Body.Windshield.*.Wiping.System.IsWiperError, data_type: boolean, unit: null, previous_runtime_field: error, alignment: A_REUSE}
+  - canonical_type: OCCUPANT_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS, SIMULATION]
+    source_fields: []
+    value_schema: {type: object, fields: {area: nullable_string, occupied: nullable_boolean, occupancy_status: nullable_string, belted: nullable_boolean, is_driver: nullable_boolean, steering_control: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [occupied, occupancy_status, belted, is_driver, steering_control]}
+    derivation: Normalize VSS/VHAL occupancy and OSI occupant classification; area derives from seat instance/enum.
+    availability: UNAVAILABLE
+    notes: Subject role and zone remain authorization facts, not occupant evidence.
+    field_provenance:
+      area: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: VSS instance / OSI Occupant.Classification.seat normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      occupied: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized from VSS OccupancyStatus or VHAL SEAT_OCCUPANCY, data_type: boolean, unit: null, previous_runtime_field: occupied, alignment: C_UNIFY}
+      occupancy_status: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.OccupancyStatus, data_type: string, unit: enum, previous_runtime_field: null, alignment: B_EXTEND}
+      belted: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Cabin/Seat.vspec, standard_entity_or_field: Vehicle.Cabin.Seat.*.IsBelted, data_type: boolean, unit: null, previous_runtime_field: belted, alignment: A_REUSE}
+      is_driver: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_occupant.proto, standard_entity_or_field: Occupant.Classification.is_driver, data_type: bool, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      steering_control: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_occupant.proto, standard_entity_or_field: Occupant.Classification.steering_control, data_type: enum, unit: null, previous_runtime_field: hands_on_wheel, alignment: C_UNIFY}
+  - canonical_type: DRIVER_MONITORING_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {hands_on_wheel: nullable_boolean, hands_on_state: nullable_string, hands_on_warning: nullable_string, drowsiness_state: nullable_string, drowsiness_warning: nullable_string, distraction_state: nullable_string, distraction_warning: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [hands_on_wheel, hands_on_state, hands_on_warning, drowsiness_state, drowsiness_warning, distraction_state, distraction_warning]}
+    derivation: Preserve VHAL enums; VSS boolean is a direct complementary fact.
+    availability: UNAVAILABLE
+    notes: New minimum mother type; no reliable runtime source exists.
+    field_provenance:
+      hands_on_wheel: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0/spec/Driver/Driver.vspec, standard_entity_or_field: Vehicle.Driver.IsHandsOnWheel, data_type: boolean, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      hands_on_state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: HANDS_ON_DETECTION_DRIVER_STATE, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      hands_on_warning: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: HANDS_ON_DETECTION_WARNING, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      drowsiness_state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: DRIVER_DROWSINESS_ATTENTION_STATE, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      drowsiness_warning: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: DRIVER_DROWSINESS_ATTENTION_WARNING, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      distraction_state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: DRIVER_DISTRACTION_STATE, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      distraction_warning: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: DRIVER_DISTRACTION_WARNING, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+  - canonical_type: SURROUNDING_OBJECT_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, CAMERA, RADAR, LIDAR, ULTRASONIC]
+    source_fields: [front_obstacle_distance, rear_obstacle_distance, collision_state]
+    value_schema:
+      type: object
+      fields:
+        objects:
+          type: nullable_array
+          items:
+            type: object
+            fields: {object_id: any, entity_kind: nullable_string, region: nullable_string, exists: nullable_boolean, position_x: nullable_number, position_y: nullable_number, position_z: nullable_number, velocity_x: nullable_number, velocity_y: nullable_number, velocity_z: nullable_number, acceleration_x: nullable_number, acceleration_y: nullable_number, acceleration_z: nullable_number, distance: nullable_number, relative_speed: nullable_number, motion_state: nullable_string, risk_level: nullable_string, source_kind: nullable_string, sensor_id: any, ground_truth: nullable_boolean}
+        front_obstacle_distance: nullable_number
+        rear_obstacle_distance: nullable_number
+        collision_state: any
+    usability: {mode: ANY_NON_NULL, fields: [objects, front_obstacle_distance, rear_obstacle_distance, collision_state]}
+    derivation: OSI spatial state remains direct; region, distance, relative speed, motion state and risk are derived.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Eight directions are region values, never Evidence Types; device technology is source_kind.
+    field_provenance:
+      objects: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_groundtruth.proto, standard_entity_or_field: GroundTruth.moving_object/stationary_object normalized collection, data_type: array, unit: null, previous_runtime_field: objects, alignment: B_EXTEND}
+      objects[].object_id: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_object.proto, standard_entity_or_field: MovingObject.id / StationaryObject.id, data_type: Identifier, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].entity_kind: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_object.proto, standard_entity_or_field: MovingObject.type/vehicle_classification.type or StationaryObject.classification.type normalized, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].region: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: derived from relative position using eight-region policy, data_type: enum, unit: null, allowed_values: [FRONT, FRONT_LEFT, FRONT_RIGHT, LEFT, RIGHT, REAR_LEFT, REAR_RIGHT, REAR], previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].exists: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: derived from presence/track validity, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].position_x: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.position.x / BaseStationary.position.x, data_type: double, unit: m, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].position_y: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.position.y / BaseStationary.position.y, data_type: double, unit: m, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].position_z: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.position.z / BaseStationary.position.z, data_type: double, unit: m, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].velocity_x: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.velocity.x, data_type: double, unit: m/s, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].velocity_y: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.velocity.y, data_type: double, unit: m/s, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].velocity_z: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.velocity.z, data_type: double, unit: m/s, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].acceleration_x: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.acceleration.x, data_type: double, unit: m/s^2, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].acceleration_y: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.acceleration.y, data_type: double, unit: m/s^2, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].acceleration_z: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_common.proto, standard_entity_or_field: BaseMoving.acceleration.z, data_type: double, unit: m/s^2, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].distance: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: Euclidean/planar distance derived from relative position, data_type: double, unit: m, previous_runtime_field: front_obstacle_distance/rear_obstacle_distance, alignment: C_UNIFY}
+      objects[].relative_speed: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: projected relative velocity to host, data_type: double, unit: m/s, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].motion_state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: derived from relative/absolute velocity, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].risk_level: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: derived from distance relative speed trajectory and policy, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].source_kind: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_sensorview.proto, standard_entity_or_field: SensorView camera_sensor_view/radar_sensor_view/lidar_sensor_view/ultrasonic_sensor_view normalized, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].sensor_id: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_sensorview.proto, standard_entity_or_field: SensorView.sensor_id, data_type: Identifier, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      objects[].ground_truth: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_sensorview.proto, standard_entity_or_field: provenance flag for SensorView.global_ground_truth / GroundTruth, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      front_obstacle_distance: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: nearest object distance where region=FRONT, data_type: double, unit: m, previous_runtime_field: front_obstacle_distance, alignment: C_UNIFY}
+      rear_obstacle_distance: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: nearest object distance where region=REAR, data_type: double, unit: m, previous_runtime_field: rear_obstacle_distance, alignment: C_UNIFY}
+      collision_state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: simulator/runtime collision observation, data_type: any, unit: null, previous_runtime_field: collision_state, alignment: A_REUSE}
+  - canonical_type: LANE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [CAMERA, LIDAR, SIMULATION]
+    source_fields: []
+    value_schema: {type: object, fields: {current_lane_id: any, lane_type: nullable_string, left_adjacent_lane_ids: nullable_array, right_adjacent_lane_ids: nullable_array, boundaries: nullable_array, logical_lane_ids: nullable_array, lane_state: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [current_lane_id, lane_type, left_adjacent_lane_ids, right_adjacent_lane_ids, boundaries, logical_lane_ids, lane_state]}
+    derivation: Associate host pose to OSI/OpenDRIVE lane; lane_state is a normalized project fact.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      current_lane_id: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_lane.proto, standard_entity_or_field: host assignment to Lane.id, data_type: Identifier, unit: null, previous_runtime_field: current_lane, alignment: C_UNIFY}
+      lane_type: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_lane.proto, standard_entity_or_field: Lane.classification.type, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      left_adjacent_lane_ids: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_lane.proto, standard_entity_or_field: Lane.classification.left_adjacent_lane_id, data_type: 'Identifier[]', unit: null, previous_runtime_field: left_adjacent_lane, alignment: C_UNIFY}
+      right_adjacent_lane_ids: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_lane.proto, standard_entity_or_field: Lane.classification.right_adjacent_lane_id, data_type: 'Identifier[]', unit: null, previous_runtime_field: right_adjacent_lane, alignment: C_UNIFY}
+      boundaries: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_lane.proto, standard_entity_or_field: LaneBoundary / Lane.classification.lane_pairing, data_type: array, unit: null, previous_runtime_field: boundaries, alignment: A_REUSE}
+      logical_lane_ids: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_logicallane.proto, standard_entity_or_field: LogicalLane.id, data_type: 'Identifier[]', unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      lane_state: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized open/closed/blocked/unknown lane state, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+  - canonical_type: ROAD_STRUCTURE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [MAP, SIMULATION]
+    source_fields: []
+    value_schema: {type: object, fields: {road_id: nullable_string, road_type: nullable_string, junction_id: nullable_string, at_junction: nullable_boolean, traffic_rule: nullable_string, lane_section_count: nullable_number, surface_reference: nullable_string, surface_purpose: nullable_string}}
+    usability: {mode: ANY_NON_NULL, fields: [road_id, road_type, junction_id, at_junction, traffic_rule, lane_section_count, surface_reference, surface_purpose]}
+    derivation: Resolve host map position to the applicable OpenDRIVE road, type and junction.
+    availability: UNAVAILABLE
+    notes: New static-road mother type; OpenDRIVE surface is a CRG reference, not dynamic wetness/friction.
+    field_provenance:
+      road_id: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/04_asam_opendrive_v1.9.0/ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/OpenDRIVE_Road.xsd, standard_entity_or_field: t_road.@id, data_type: string, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      road_type: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/04_asam_opendrive_v1.9.0/ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/OpenDRIVE_Road.xsd, standard_entity_or_field: t_road_type.@type, data_type: e_roadType, unit: enum, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      junction_id: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/04_asam_opendrive_v1.9.0/ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/OpenDRIVE_Road.xsd, standard_entity_or_field: t_road.@junction, data_type: string, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      at_junction: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: derived from t_road.@junction and host road match, data_type: boolean, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      traffic_rule: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/04_asam_opendrive_v1.9.0/ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/OpenDRIVE_Road.xsd, standard_entity_or_field: t_road.@rule, data_type: e_trafficRule, unit: enum, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      lane_section_count: {mapping_kind: DERIVED, local_source_file: references/standards/04_asam_opendrive_v1.9.0/ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/OpenDRIVE_Lane.xsd, standard_entity_or_field: count(t_road_lanes.laneSection), data_type: integer, unit: count, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      surface_reference: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/04_asam_opendrive_v1.9.0/ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/OpenDRIVE_Road.xsd, standard_entity_or_field: t_road_surface_CRG.@file, data_type: string, unit: URI/path, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      surface_purpose: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/04_asam_opendrive_v1.9.0/ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/OpenDRIVE_Road.xsd, standard_entity_or_field: t_road_surface_CRG.@purpose, data_type: e_road_surface_CRG_purpose, unit: enum, previous_runtime_field: null, alignment: D_NEW_TYPE}
+  - canonical_type: TRAFFIC_LIGHT_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [CAMERA, MAP, SIMULATION]
+    source_fields: []
+    value_schema: {type: object, fields: {traffic_light_id: any, state: nullable_string, color: nullable_string, lane_ids: nullable_array}}
+    usability: {mode: ANY_NON_NULL, fields: [traffic_light_id, state, color, lane_ids]}
+    derivation: Normalize OSI classification and lane assignments.
+    availability: UNAVAILABLE
+    notes: No reliable runtime source exists.
+    field_provenance:
+      traffic_light_id: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_trafficlight.proto, standard_entity_or_field: TrafficLight.id, data_type: Identifier, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      state: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_trafficlight.proto, standard_entity_or_field: normalized TrafficLight.classification, data_type: enum, unit: null, previous_runtime_field: state, alignment: A_REUSE}
+      color: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_trafficlight.proto, standard_entity_or_field: TrafficLight.classification.color, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      lane_ids: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_trafficlight.proto, standard_entity_or_field: TrafficLight.classification.assigned_lane_id, data_type: 'Identifier[]', unit: null, previous_runtime_field: lane_relation, alignment: C_UNIFY}
+  - canonical_type: SPEED_LIMIT_STATE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, CAMERA, MAP]
+    source_fields: [speed_limit]
+    value_schema: {type: number, unit: km/h, nullable: true}
+    usability: {mode: VALUE_NON_NULL}
+    derivation: Normalize OSI sign/OpenDRIVE road speed into the canonical configured km/h unit.
+    availability: AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Existing scalar becomes an object so provenance and unit are explicit.
+    field_provenance:
+      value: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_trafficsign.proto, standard_entity_or_field: TrafficSign speed-limit classification value or t_road_type_speed.@max normalized to km/h, data_type: double, unit: km/h, previous_runtime_field: value, alignment: A_REUSE}
+  - canonical_type: FREE_SPACE_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [CAMERA, RADAR, LIDAR, ULTRASONIC, SIMULATION]
+    source_fields: []
+    value_schema: {type: object, fields: {region: nullable_string, free_space_probability: nullable_number, geometry: any}}
+    usability: {mode: ANY_NON_NULL, fields: [free_space_probability, geometry]}
+    derivation: Region derives from geometry in host coordinates.
+    availability: UNAVAILABLE
+    notes: No free-space result exists; parking interlock values are not fabricated into free space.
+    field_provenance:
+      region: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: derived from free-space geometry, data_type: enum, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      free_space_probability: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_featuredata.proto, standard_entity_or_field: FeatureData.free_space.free_space_probability, data_type: double, unit: ratio, previous_runtime_field: free_space_probability, alignment: A_REUSE}
+      geometry: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_featuredata.proto, standard_entity_or_field: FeatureData.free_space geometry, data_type: object, unit: m, previous_runtime_field: geometry, alignment: A_REUSE}
+  - canonical_type: ENVIRONMENT_CONDITIONS
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SIMULATION, CAMERA, WEATHER_SERVICE]
+    source_fields: [ambient_light, weather]
+    value_schema: {type: object, fields: {ambient_illumination: any, visibility: nullable_number, weather: nullable_string, precipitation: any, fog: any, precipitation_type: nullable_string, precipitation_intensity: nullable_number, fog_visibility: nullable_number, time_of_day: any, ambient_temperature: nullable_number, atmospheric_pressure: nullable_number, relative_humidity: nullable_number, sun_azimuth: nullable_number, sun_elevation: nullable_number, sun_illuminance: nullable_number}}
+    usability: {mode: ANY_NON_NULL, fields: [ambient_illumination, visibility, weather, precipitation, fog, precipitation_type, precipitation_intensity, fog_visibility, time_of_day, ambient_temperature, atmospheric_pressure, relative_humidity, sun_azimuth, sun_elevation, sun_illuminance]}
+    derivation: Preserve direct values; visibility may normalize fog visual range or a trusted observation; weather is a project summary.
+    availability: PARTIALLY_AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Simulator has ambient_light and weather only; missing precipitation/fog values remain null.
+    field_provenance:
+      ambient_illumination: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_environment.proto, standard_entity_or_field: EnvironmentalConditions.ambient_illumination, data_type: enum, unit: category, previous_runtime_field: ambient_illumination, alignment: B_EXTEND}
+      visibility: {mapping_kind: DERIVED, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: normalized from Fog.@visualRange or trusted visibility source, data_type: double, unit: m, previous_runtime_field: null, alignment: B_EXTEND}
+      weather: {mapping_kind: DERIVED, local_source_file: null, standard_entity_or_field: normalized provider weather summary, data_type: enum, unit: null, previous_runtime_field: weather, alignment: A_REUSE}
+      precipitation: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_environment.proto, standard_entity_or_field: compatibility-preserving precipitation observation, data_type: any, unit: null, previous_runtime_field: precipitation, alignment: A_REUSE}
+      fog: {mapping_kind: DERIVED, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_environment.proto, standard_entity_or_field: compatibility-preserving fog observation, data_type: any, unit: null, previous_runtime_field: fog, alignment: A_REUSE}
+      precipitation_type: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: Precipitation.@precipitationType, data_type: PrecipitationType, unit: enum, previous_runtime_field: precipitation, alignment: C_UNIFY}
+      precipitation_intensity: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: Precipitation.@precipitationIntensity, data_type: Double, unit: m/s, previous_runtime_field: precipitation, alignment: C_UNIFY}
+      fog_visibility: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: Fog.@visualRange, data_type: Double, unit: m, previous_runtime_field: fog, alignment: C_UNIFY}
+      time_of_day: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_environment.proto, standard_entity_or_field: EnvironmentalConditions.time_of_day, data_type: enum, unit: category, previous_runtime_field: time_of_day, alignment: A_REUSE}
+      ambient_temperature: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: Weather.@temperature, data_type: Double, unit: K, previous_runtime_field: null, alignment: B_EXTEND}
+      atmospheric_pressure: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_environment.proto, standard_entity_or_field: EnvironmentalConditions.atmospheric_pressure, data_type: double, unit: Pa, previous_runtime_field: null, alignment: B_EXTEND}
+      relative_humidity: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0/osi_environment.proto, standard_entity_or_field: EnvironmentalConditions.relative_humidity, data_type: double, unit: percent, previous_runtime_field: null, alignment: B_EXTEND}
+      sun_azimuth: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: Sun.@azimuth, data_type: Double, unit: rad, previous_runtime_field: null, alignment: B_EXTEND}
+      sun_elevation: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: Sun.@elevation, data_type: Double, unit: rad, previous_runtime_field: null, alignment: B_EXTEND}
+      sun_illuminance: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/03_asam_openscenario_xml_v1.4.0/ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, standard_entity_or_field: Sun.@illuminance, data_type: Double, unit: lx, previous_runtime_field: null, alignment: B_EXTEND}
+  - canonical_type: COLLISION_ASSIST_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {feature: nullable_string, area: nullable_string, enabled: nullable_boolean, state: nullable_string, warning_level: nullable_string, error_state: nullable_string}}
+    usability: {mode: REQUIRED_NON_NULL, fields: [feature, state]}
+    derivation: Feature and area parameterize VHAL properties; ErrorState remains explicit.
+    availability: UNAVAILABLE
+    notes: New mother type; no reliable runtime source exists.
+    field_provenance:
+      feature: {mapping_kind: DERIVED, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: property identity normalized to AEB/FCW/BSW/LSAEB/LSCW/CROSS_TRAFFIC, data_type: enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      area: {mapping_kind: DERIVED, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: VehicleArea (for example MIRROR for BSW) normalized to area, data_type: enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      enabled: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: '*_ENABLED', data_type: boolean, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: '*_STATE', data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      warning_level: {mapping_kind: DERIVED, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle, standard_entity_or_field: normalized feature-specific warning enum, data_type: enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      error_state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/ErrorState.aidl, standard_entity_or_field: ErrorState, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+  - canonical_type: LANE_ASSIST_STATE
+    runtime_mode: UNAVAILABLE
+    provider: null
+    sources: [VEHICLE_BUS]
+    source_fields: []
+    value_schema: {type: object, fields: {feature: nullable_string, enabled: nullable_boolean, state: nullable_string, error_state: nullable_string}}
+    usability: {mode: REQUIRED_NON_NULL, fields: [feature, state]}
+    derivation: Feature parameterizes VHAL LDW/LKA/LCA/ELKA properties.
+    availability: UNAVAILABLE
+    notes: New mother type; no reliable runtime source exists.
+    field_provenance:
+      feature: {mapping_kind: DERIVED, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: property identity normalized to LDW/LKA/LCA/ELKA, data_type: enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      enabled: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: LANE_*_ENABLED / EMERGENCY_LANE_KEEP_ASSIST_ENABLED, data_type: boolean, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/VehicleProperty.aidl, standard_entity_or_field: LANE_*_STATE / EMERGENCY_LANE_KEEP_ASSIST_STATE, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+      error_state: {mapping_kind: DIRECT_STANDARD, local_source_file: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle/ErrorState.aidl, standard_entity_or_field: ErrorState, data_type: int32 enum, unit: null, previous_runtime_field: null, alignment: D_NEW_TYPE}
+  - canonical_type: AUTHORIZATION_STATE
+    runtime_mode: SIMULATED
+    provider: trusted_authorization_context
+    sources: [AUTHORIZATION_SERVICE]
+    source_fields: [authentication_state, subject_role, subject_zone, zone_permission]
+    value_schema: {type: object, fields: {authentication_state: any, authenticated: nullable_boolean, subject_role: nullable_string, subject_zone: nullable_string, intent_authorizations: {type: array, items: {type: object, fields: {clause_index: number, intent_id: string, control_domain: string, permission_label: string, permission_score: number, authorized: nullable_boolean}}}, authorized_for_request: nullable_boolean}}
+    usability: {mode: REQUIRED_NON_NULL, fields: [subject_role, subject_zone, intent_authorizations, authorized_for_request]}
+    derivation: Combine trusted identity and occurrence-level intent authorization; request claims never alter it.
+    availability: AVAILABLE_ONLY_WITH_TRUSTED_RUNTIME_CONTEXT
+    notes: Internal security fact; not mapped to ASAM/COVESA.
+    field_provenance:
+      authentication_state: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: trusted authentication backend state, data_type: any, unit: null, previous_runtime_field: authentication_state, alignment: A_REUSE}
+      authenticated: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: trusted authentication result, data_type: boolean, unit: null, previous_runtime_field: authenticated, alignment: A_REUSE}
+      subject_role: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: trusted backend subject role, data_type: string, unit: null, previous_runtime_field: subject_role, alignment: A_REUSE}
+      subject_zone: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: trusted backend subject zone, data_type: string, unit: null, previous_runtime_field: subject_zone, alignment: A_REUSE}
+      intent_authorizations: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: per-occurrence authorization decisions, data_type: array, unit: null, previous_runtime_field: intent_authorizations, alignment: A_REUSE}
+      intent_authorizations[].clause_index: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: semantic clause occurrence index, data_type: number, unit: index, previous_runtime_field: clause_index, alignment: A_REUSE}
+      intent_authorizations[].intent_id: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: canonical intent identity, data_type: string, unit: null, previous_runtime_field: intent_id, alignment: A_REUSE}
+      intent_authorizations[].control_domain: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: protected control domain, data_type: string, unit: null, previous_runtime_field: control_domain, alignment: A_REUSE}
+      intent_authorizations[].permission_label: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: authorization policy result label, data_type: string, unit: null, previous_runtime_field: permission_label, alignment: A_REUSE}
+      intent_authorizations[].permission_score: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: authorization policy score, data_type: number, unit: score, previous_runtime_field: permission_score, alignment: A_REUSE}
+      intent_authorizations[].authorized: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: occurrence authorization result, data_type: boolean, unit: null, previous_runtime_field: authorized, alignment: A_REUSE}
+      authorized_for_request: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: aggregate request authorization result, data_type: boolean, unit: null, previous_runtime_field: authorized_for_request, alignment: A_REUSE}
+  - canonical_type: SYSTEM_MODE
+    runtime_mode: SIMULATED
+    provider: simulator_vehicle_state
+    sources: [SYSTEM_RUNTIME, SIMULATION]
+    source_fields: [vehicle_mode, safety_constraint]
+    value_schema: {type: object, fields: {vehicle_mode: nullable_string, safety_constraint: nullable_string, simulation: nullable_boolean, test_mode: nullable_boolean, degraded: nullable_boolean}}
+    usability: {mode: ANY_NON_NULL, fields: [vehicle_mode, safety_constraint, simulation, test_mode, degraded]}
+    derivation: Trusted runtime facts only; public claims cannot mutate them.
+    availability: AVAILABLE_IN_CURRENT_SIMULATOR
+    notes: Internal security fact; navigation/display/music state is excluded.
+    field_provenance:
+      vehicle_mode: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: trusted vehicle runtime mode, data_type: enum, unit: null, previous_runtime_field: vehicle_mode, alignment: A_REUSE}
+      safety_constraint: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: protected safety constraint state, data_type: enum, unit: null, previous_runtime_field: safety_constraint, alignment: A_REUSE}
+      simulation: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: trusted adapter/runtime provenance, data_type: boolean, unit: null, previous_runtime_field: runtime_mode, alignment: B_EXTEND}
+      test_mode: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: trusted runtime configuration, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}
+      degraded: {mapping_kind: INTERNAL_SECURITY, local_source_file: null, standard_entity_or_field: runtime capability health, data_type: boolean, unit: null, previous_runtime_field: null, alignment: B_EXTEND}

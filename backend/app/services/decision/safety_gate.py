@@ -36,6 +36,10 @@ class SafetyGateService:
 
     def __init__(self, config: dict[str, Any]) -> None:
         self.rules = list(config.get("gate_rules", []))
+        self.constraint_overlay = config.get("constraint_overlay") or {}
+        self.constraint_required = bool(config.get("constraint_required", False))
+        if self.constraint_required:
+            self._precheck_constraints()
         self._evaluators: dict[
             str,
             Callable[
@@ -95,6 +99,31 @@ class SafetyGateService:
                         raise ValueError(
                             f"{intent_id} SafetyGate mode selector 不合法: {rule['mode']}"
                         )
+
+
+    def _precheck_constraints(self) -> None:
+        """正式模式启动预检：overlay 必须覆盖全部约束规则且参数完整。"""
+        required_rules = {
+            "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED": ("low_light_lux",),
+            "MOVING_DOOR_OPEN_PROHIBITED": (),
+            "FRONT_OBSTACLE_ACCELERATION_PROHIBITED": ("threshold_m",),
+            "REAR_STATE_DECELERATION_CONFLICT": ("threshold_m",),
+            "DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED": ("dense_fog_values",),
+        }
+        for rule in self.rules:
+            rid = str(rule.get("id"))
+            if rid not in required_rules:
+                continue
+            entry = self.constraint_overlay.get(rid)
+            if entry is None:
+                raise ValueError(
+                    f"constraint_required 模式启动失败: 规则 {rid} 无知识 overlay（节点缺失）"
+                )
+            for key in required_rules[rid]:
+                if key not in entry:
+                    raise ValueError(
+                        f"constraint_required 模式启动失败: 规则 {rid} 缺知识参数 {key}"
+                    )
 
     @staticmethod
     def _latest_by_type(evidence: list[EvidenceNode]) -> dict[str, EvidenceNode]:
@@ -240,8 +269,11 @@ class SafetyGateService:
         light_value = SafetyGateService._field(light, "ambient_illumination")
         low = (
             str(light_value).upper() in {"LOW", "DARK", "NIGHT"}
-            or is_finite_number(light_value)
-            and light_value < float(rule.get("low_light_lux", 20))
+            or (
+                is_finite_number(light_value)
+                and _knowledge_threshold(rule, "low_light_lux", 20, "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED")
+                and light_value < _knowledge_threshold(rule, "low_light_lux", 20, "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED")
+            )
         )
         # off_intent_ids 覆盖 LOW_BEAM_OFF/HIGH_BEAM_OFF 这类"本身就是关闭"的意图
         off_intent_ids = {str(item) for item in rule.get("off_intent_ids", [])}
@@ -276,9 +308,10 @@ class SafetyGateService:
         value = str(raw_weather).strip().upper() if raw_weather is not None else None
         dense_fog_values = {
             str(item).strip().upper()
-            for item in rule.get(
-                "dense_fog_values",
+            for item in _knowledge_threshold(
+                rule, "dense_fog_values",
                 ["DENSE_FOG", "HEAVY_FOG", "FOG", "浓雾", "大雾"],
+                "DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED",
             )
         }
         hit = (
@@ -356,7 +389,7 @@ class SafetyGateService:
         del demand, evidence, validation
         obstacle = by_type.get("SURROUNDING_OBJECT_STATE")
         value = SafetyGateService._field(obstacle, "front_obstacle_distance")
-        threshold = float(rule.get("threshold_m", 5))
+        threshold = _knowledge_threshold(rule, "threshold_m", 5, "FRONT_OBSTACLE_ACCELERATION_PROHIBITED")
         hit = (
             intent.intent_id in {str(item) for item in rule.get("intent_ids", [])}
             and is_finite_number(value)
@@ -373,7 +406,7 @@ class SafetyGateService:
             "REAR" in item.rule_id or "rear" in item.reason.lower()
             for item in validation.conflicts
         )
-        threshold = float(rule.get("threshold_m", 1.5))
+        threshold = _knowledge_threshold(rule, "threshold_m", 1.5, "REAR_STATE_DECELERATION_CONFLICT")
         applies = intent.intent_id in {
             str(item) for item in rule.get("intent_ids", [])
         }
@@ -490,6 +523,9 @@ class SafetyGateService:
             rule = dict(rule)
             rule["_runtime_capability"] = runtime_capability
             rule["_runtime_safety_context"] = runtime_safety_context
+            overlay_entry = self.constraint_overlay.get(str(rule.get("id")))
+            rule["_knowledge_params"] = overlay_entry if overlay_entry else None
+            rule["_constraint_required"] = self.constraint_required
             evaluator_name = str(rule.get("evaluator"))
             evaluator = self._evaluators.get(evaluator_name)
             if evaluator is None:
@@ -652,7 +688,43 @@ class SafetyGateService:
             (check for check in checks if check.rule_id == "MANDATORY_EVIDENCE_AVAILABLE"),
             None,
         )
-        return SafetyGateResult(
+        # ============ 裁决溯源（知识约束 trace） ============
+        knowledge_trace = []
+        ev_index = {}
+        for ev_node in evidence:
+            ev_index.setdefault(ev_node.evidence_type, []).append(ev_node)
+        for check in checks:
+            rule_id = check.rule_id
+            overlay_entry = self.constraint_overlay.get(rule_id)
+            if overlay_entry is None:
+                continue
+            node_id = overlay_entry.get("_constraint_node_id", "")
+            preds = overlay_entry.get("_constraint_predicates", [])
+            ev_actual = {}
+            for p in preds:
+                etype = p.get("evidence_type")
+                efield = p.get("evidence_field")
+                nodes_of_type = ev_index.get(etype) or []
+                node = nodes_of_type[-1] if nodes_of_type else None
+                if node is None:
+                    ev_actual[f"{etype}.{efield}"] = None
+                elif isinstance(node.value, dict):
+                    ev_actual[f"{etype}.{efield}"] = node.value.get(efield)
+                else:
+                    ev_actual[f"{etype}.{efield}"] = node.value
+            knowledge_trace.append({
+                "rule_id": rule_id,
+                "node_id": node_id,
+                "runtime_parameter_source": node_id,   # 运行时参数实际来源：知识节点
+                "basis_reference": overlay_entry.get("_constraint_threshold_ref", ""),  # 冻结依据
+                "reason_code": rule_id,
+                "intent_id": frame.intents[0].intent_id if frame.intents else None,
+                "evidence": ev_actual,
+                "predicates": preds,
+                "gate_hit": check.hit,
+                "gate_reason": check.reason,
+            })
+        result = SafetyGateResult(
             blocked=bool(hit_rules),
             gate_blocked=bool(hit_rules),
             mandatory_evidence_missing=bool(missing_check and missing_check.hit),
@@ -662,3 +734,29 @@ class SafetyGateService:
             observed_values={check.rule_id: check.observed for check in checks if check.hit},
             supporting_evidence_ids=supporting,
         )
+        result.knowledge_trace = knowledge_trace
+        return result
+
+
+def _knowledge_threshold(rule: dict, key: str, fallback, rule_id: str):
+    """知识参数读取。
+
+    - 有 overlay：必须用知识参数（缺失→拒绝启动）
+    - 无 overlay 且 constraint_required=True：拒绝启动（正式模式不允许回退）
+    - 无 overlay 且 constraint_required=False：回退（测试/遗留兼容）
+    """
+    kp = rule.get("_knowledge_params")
+    required = bool(rule.get("_constraint_required", False))
+    if kp is None:
+        if required:
+            raise ValueError(
+                f"知识约束未注入: rule={rule_id} — constraint_required 模式下禁止回退硬编码值，拒绝启动"
+            )
+        return fallback
+    if key not in kp:
+        raise ValueError(
+            f"知识约束参数缺失: rule={rule_id} key={key} — 拒绝启动（禁止回退硬编码值）"
+        )
+    return kp[key]
+
+

@@ -98,6 +98,8 @@ from app.services.decision.merge import (
     merge_decision,
 )
 from app.services.decision.safety_gate import SafetyGateService
+from app.services.knowledge.constraint_adapter import build_rule_overlay
+from app.services.knowledge.constraint_parameter_loader import load_constraint_parameters
 from app.services.evidence.demand import EvidenceDemandService
 from app.services.evidence.demand_registry import EvidenceDemandRegistry
 from app.services.evidence.recall import MandatoryRecallService
@@ -328,7 +330,26 @@ class CommandPipeline:
         self.memory_service = DualMemoryService(memory_config)
         self.validation_service = AdvancedValidationService(load_yaml("jailbreak_policy.yaml"))
         self.causal_service = CausalCorrectionService(load_yaml("causal_policy.yaml"))
-        self.gate_service = SafetyGateService(safety_config)
+        knowledge_constraints_root = PROJECT_ROOT / "data" / "knowledge_constraints" / "v1"
+        constraint_parameters = load_constraint_parameters(
+            constraints_path=(
+                knowledge_constraints_root
+                / "acceptance"
+                / "knowledge_constraints_v1.jsonl"
+            ),
+            contract_path=(
+                knowledge_constraints_root
+                / "freezes"
+                / "knowledge_constraint_contract_v1.yaml"
+            ),
+        )
+        self.gate_service = SafetyGateService(
+            {
+                **safety_config,
+                "constraint_overlay": build_rule_overlay(constraint_parameters),
+                "constraint_required": True,
+            }
+        )
         self.decision_service = DecisionService(load_yaml("decision_policy.yaml"))
         self.regulation_kb_dir = PROJECT_ROOT / "data" / "regulation_kb_v8"
         self.regulation_kb = RegulationKnowledgeBase(self.embedder)
