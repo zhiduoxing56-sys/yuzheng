@@ -12,8 +12,9 @@
 import json, sys, io, tempfile, shutil
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-sys.path.insert(0, r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\backend")
-KC = Path(r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\knowledge-contract-v1")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
+KC = PROJECT_ROOT / "data" / "knowledge_constraints" / "v1"
 
 from app.services.knowledge.constraint_parameter_loader import load_constraint_parameters
 from app.services.knowledge.constraint_adapter import build_rule_overlay, normalize_fog
@@ -51,7 +52,9 @@ def run_evaluator(rule, evaluator_name, intent, ev, extra=None):
     sg = SafetyGateService({"gate_rules": []})
     rule = dict(rule)
     if extra:
-        rule.update(extra)
+        # evaluate() 会把规则对应的 overlay 放入 _knowledge_params；测试必须走同一路径。
+        rule["_knowledge_params"] = extra
+        rule["_constraint_required"] = True
     by_type = mk_ev(ev)
     hit, detail, _ = sg._evaluators[evaluator_name](rule, intent, None, by_type, [], AdvancedValidationResult())
     return hit, detail

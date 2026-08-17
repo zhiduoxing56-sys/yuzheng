@@ -7,15 +7,16 @@
   5. 增强用例回归（15 条）
 """
 import sys, io
+from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-sys.path.insert(0, r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\backend")
-KC = r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\knowledge-contract-v1"
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
+KC = PROJECT_ROOT / "data" / "knowledge_constraints" / "v1"
 
 from app.services.decision.safety_gate import SafetyGateService, _knowledge_threshold
 from app.services.knowledge.constraint_parameter_loader import load_constraint_parameters
 from app.services.knowledge.constraint_adapter import build_rule_overlay
 from app.models.schemas import EvidenceNode, SemanticIntent, EvidenceStatus, SecurityClass, AdvancedValidationResult
-from pathlib import Path
 import json
 import yaml
 
@@ -49,8 +50,8 @@ check("无 overlay: 4.9m 命中（旧规则 5m）", hit is True)
 
 # 3 有 overlay 用知识参数（注入 _knowledge_params）
 print("\n=== 3. 有 overlay 用知识参数 ===")
-params = load_constraint_parameters(Path(KC) / "acceptance" / "knowledge_constraints_v1.jsonl",
-                                    Path(KC) / "freezes" / "knowledge_constraint_contract_v1.yaml")
+params = load_constraint_parameters(KC / "acceptance" / "knowledge_constraints_v1.jsonl",
+                                    KC / "freezes" / "knowledge_constraint_contract_v1.yaml")
 overlay = build_rule_overlay(params)
 rule2 = dict(rule)
 rule2["_knowledge_params"] = overlay["FRONT_OBSTACLE_ACCELERATION_PROHIBITED"]
@@ -74,12 +75,12 @@ except ValueError as ex:
 # 5 增强用例回归
 print("\n=== 5. 增强用例回归（15 条，注入 overlay） ===")
 cases = []
-with open(KC + r"\acceptance\safety_gate_enhancement_cases_v1.jsonl", encoding="utf-8") as f:
+with (KC / "acceptance" / "safety_gate_enhancement_cases_v1.jsonl").open(encoding="utf-8") as f:
     for line in f:
         line = line.strip()
         if line:
             cases.append(json.loads(line))
-rules = yaml.safe_load(open(KC + r"\freezes\safety_rules.yaml", encoding="utf-8"))["gate_rules"]
+rules = yaml.safe_load((KC / "freezes" / "safety_rules.yaml").read_text(encoding="utf-8"))["gate_rules"]
 rules = {r["evaluator"]: r for r in rules}
 
 def mk_ev2(ev):

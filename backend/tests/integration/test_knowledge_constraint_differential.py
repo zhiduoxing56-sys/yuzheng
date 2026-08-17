@@ -14,9 +14,11 @@
 """
 import json, sys, io, yaml
 from collections import Counter
+from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-sys.path.insert(0, r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\backend")
-KC = r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\knowledge-contract-v1"
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
+KC = PROJECT_ROOT / "data" / "knowledge_constraints" / "v1"
 
 from app.models.schemas import EvidenceNode, SemanticIntent, AdvancedValidationResult, JailbreakConflict, EvidenceStatus, SecurityClass
 from app.services.decision.safety_gate import SafetyGateService
@@ -69,7 +71,7 @@ def mk_validation(conflict=False):
     return v
 
 # ============ 规则与严格度 ============
-rules = yaml.safe_load(open(KC + r"\freezes\safety_rules.yaml", encoding="utf-8"))["gate_rules"]
+rules = yaml.safe_load((KC / "freezes" / "safety_rules.yaml").read_text(encoding="utf-8"))["gate_rules"]
 SG_RULES = [r for r in rules if r["evaluator"] in
             ("low_light_headlight", "moving_door", "acceleration_obstacle",
              "deceleration_rear_conflict", "dense_fog_defog")]
@@ -84,7 +86,7 @@ ENFORCEMENT = {"LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED": "BLOCK",
 
 # ============ 知识节点侧求值 ============
 nodes = []
-with open(KC + r"\acceptance\knowledge_constraints_v1.jsonl", encoding="utf-8") as f:
+with (KC / "acceptance" / "knowledge_constraints_v1.jsonl").open(encoding="utf-8") as f:
     for line in f:
         line = line.strip()
         if line:
@@ -187,7 +189,7 @@ CASES = []
 for path in ["knowledge_constraint_acceptance_v1.jsonl",
              "knowledge_constraint_eval_extended_v1.jsonl",
              "safety_gate_enhancement_cases_v1.jsonl"]:
-    with open(KC + rf"\acceptance\{path}", encoding="utf-8") as f:
+    with (KC / "acceptance" / path).open(encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
@@ -262,6 +264,4 @@ rep = {"total": len(rows), "stats": dict(stats), "rows": rows,
        "verdict": "PASS" if (stats.get("FAILED_KNOWLEDGE_STRICTER", 0) == 0
                              and stats.get("FAILED_UNEXPLAINED", 0) == 0
                              and stats.get("NOT_EXECUTABLE", 0) == 0) else "FAIL"}
-with open(KC + r"\acceptance\constraint_diff_matrix_v1.json", "w", encoding="utf-8") as f:
-    json.dump(rep, f, ensure_ascii=False, indent=1)
-print(f"\nverdict: {rep['verdict']} -> {KC}/acceptance/constraint_diff_matrix_v1.json")
+print(f"\nverdict: {rep['verdict']}")

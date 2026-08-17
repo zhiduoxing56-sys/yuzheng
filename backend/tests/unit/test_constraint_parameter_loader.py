@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """constraint_parameter_loader 单测：正常 + 失败路径。"""
 import json, sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-sys.path.insert(0, r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\backend")
-
 from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
 from app.services.knowledge.constraint_parameter_loader import (
     load_constraint_parameters, ConstraintParameterError, AUTHORITATIVE_CONTRACT_SHA256)
 
-KC = Path(r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\knowledge-contract-v1")
+KC = PROJECT_ROOT / "data" / "knowledge_constraints" / "v1"
 CONSTRAINTS = KC / "acceptance" / "knowledge_constraints_v1.jsonl"
 CONTRACT = KC / "freezes" / "knowledge_constraint_contract_v1.yaml"
 

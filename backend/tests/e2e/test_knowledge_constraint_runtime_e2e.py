@@ -11,8 +11,9 @@
 import sys, io, yaml, json
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-sys.path.insert(0, r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\backend")
-KC = Path(r"C:\Users\Leo\AppData\Local\Temp\opencode\yuzheng_clean\knowledge-contract-v1")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
+KC = PROJECT_ROOT / "data" / "knowledge_constraints" / "v1"
 
 from app.services.knowledge.constraint_parameter_loader import load_constraint_parameters
 from app.services.knowledge.constraint_adapter import build_rule_overlay
