@@ -1,0 +1,59 @@
+{
+  "title": "knowledge-constraint-v1 知识约束专项回归报告",
+  "date": "2026-08-16",
+  "scope": "知识约束专项（非项目全量回归；项目既有测试见说明）",
+  "runtime_code_version": {
+    "constraint_parameter_loader.py": "51e5a2730c51dd57",
+    "constraint_adapter.py": "eacba7fd8f1a7a4f",
+    "safety_gate.py": "67500fbc00c47e66",
+    "schemas.py(SafetyGateResult)": "2e06ed868056c42e",
+    "knowledge_constraints_v1.jsonl": "c3f06c8363ce57d2",
+    "knowledge_constraint_contract_v1.yaml": "3dff279543199f64",
+    "safety_rules.yaml": "99c488c18671fd42"
+  },
+  "suites": [
+    {
+      "name": "loader 单测",
+      "count": 14,
+      "passed": 14,
+      "result": "PASS"
+    },
+    {
+      "name": "正式模式启动预检",
+      "count": 3,
+      "passed": 3,
+      "result": "PASS"
+    },
+    {
+      "name": "SafetyGate 增强用例",
+      "count": 15,
+      "passed": 15,
+      "result": "PASS"
+    },
+    {
+      "name": "知识—SafetyGate 差分",
+      "count": 49,
+      "passed": 49,
+      "result": "PASS（42 CONSISTENT + 7 STRICTER）"
+    },
+    {
+      "name": "参数修改→行为变化",
+      "count": 6,
+      "passed": 6,
+      "result": "PASS"
+    },
+    {
+      "name": "真实全链路 E2E",
+      "count": 1,
+      "passed": 1,
+      "result": "PASS"
+    },
+    {
+      "name": "接口序列化兼容",
+      "count": 1,
+      "passed": 1,
+      "result": "PASS"
+    }
+  ],
+  "existing_project_tests": "既有项目测试（test_decision_merge/test_interpreter_and_review 等）引用 SafetyGateResult；本次改动新增 knowledge_trace 可选字段（默认[]），序列化兼容已验证；完整项目测试套件建议在 CI 环境单独跑（含模型加载，本地超时）"
+}

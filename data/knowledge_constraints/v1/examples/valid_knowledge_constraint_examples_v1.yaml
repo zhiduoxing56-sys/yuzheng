@@ -1,0 +1,191 @@
+# 合法知识约束节点示例（valid-knowledge-constraint-examples-v1）
+# 对齐队友 knowledge_constraint_contract_v1.yaml
+# 结构：source 为 string；chapter/clause 独立字段；when 只含 all 或 any 之一
+
+# ---------- 1. 夜间行驶关闭前照灯（数字比较 GT/LT + BLOCK） ----------
+- node_id: 知识.灯光.夜间关闭限制.001
+  node_type: 安全知识
+  title: 行驶且低照度时禁止关闭前照灯
+  source: GB 7258-2017
+  chapter: 第8章
+  clause: 8.2.1
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    area: ANY
+    mode: OFF
+  evidence:
+    speed:
+      type: VEHICLE_SPEED
+      field: value
+    light:
+      type: ENVIRONMENT_CONDITIONS
+      field: ambient_illumination
+  when:
+    all:
+      - field: speed
+        op: GT
+        value: 0
+      - field: light
+        op: LT
+        value: 20
+  effect:
+    then: BLOCK
+    else: ALLOW
+    reason_code: LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED
+    reason: 行驶且环境照度低于20 lux时禁止关闭前照灯
+
+# ---------- 2. 雨天关闭雨刷（枚举 IN + BLOCK） ----------
+- node_id: 知识.雨刮.雨天关闭限制.001
+  node_type: 安全知识
+  title: 雨天行驶中禁止关闭雨刷
+  source: 道路交通安全法
+  chapter: 第二十二条
+  clause: 22
+  command:
+    intent_id: WIPER_SET_MODE
+    action: SWITCH_MODE
+    target: WIPER
+    area: ANY
+    mode: OFF
+  evidence:
+    weather:
+      type: ENVIRONMENT_CONDITIONS
+      field: weather
+    speed:
+      type: VEHICLE_SPEED
+      field: value
+  when:
+    all:
+      - field: speed
+        op: GT
+        value: 0
+      - field: weather
+        op: IN
+        value: [RAIN, HEAVY_RAIN]
+  effect:
+    then: BLOCK
+    else: ALLOW
+    reason_code: RAIN_WIPER_OFF_PROHIBITED
+    reason: 雨天行驶中禁止关闭雨刷
+
+# ---------- 3. 行驶中打开车门（数字比较 + BLOCK） ----------
+- node_id: 知识.车门.行驶开门限制.001
+  node_type: 安全知识
+  title: 车辆行驶中禁止打开车门
+  source: 道路交通安全法实施条例
+  chapter: 第六十二条
+  clause: 62
+  command:
+    intent_id: DOOR_OPEN
+    action: OPEN
+    target: DOOR
+    area: ANY
+  evidence:
+    speed:
+      type: VEHICLE_SPEED
+      field: value
+  when:
+    all:
+      - field: speed
+        op: GT
+        value: 0
+  effect:
+    then: BLOCK
+    else: ALLOW
+    reason_code: MOVING_DOOR_OPEN_PROHIBITED
+    reason: 车辆行驶中禁止打开车门
+
+# ---------- 4. 未授权解锁车门（布尔 EQ + BLOCK） ----------
+- node_id: 知识.车门.未授权解锁限制.001
+  node_type: 安全知识
+  title: 未授权时禁止解锁车门
+  source: GB 7258-2017
+  chapter: 第11章
+  clause: 11.5.10
+  command:
+    intent_id: DOOR_LOCK
+    action: UNLOCK
+    target: DOOR
+    area: ANY
+  evidence:
+    auth:
+      type: AUTHORIZATION_STATE
+      field: authorized
+  when:
+    all:
+      - field: auth
+        op: EQ
+        value: false
+  effect:
+    then: BLOCK
+    else: ALLOW
+    reason_code: UNAUTHORIZED_DOOR_UNLOCK_BLOCKED
+    reason: 未授权时禁止解锁车门
+
+# ---------- 5. 倒车时关闭显示屏（REVIEW 示例） ----------
+- node_id: 知识.显示.倒车屏幕关闭.001
+  node_type: 安全知识
+  title: 倒车时关闭显示屏需复核
+  source: 工程安全规则
+  chapter: 倒车安全
+  clause: REV-01
+  command:
+    intent_id: DISPLAY_SET_POWER
+    action: TURN_OFF
+    target: DISPLAY
+    area: ANY
+  evidence:
+    gear:
+      type: GEAR_STATE
+      field: current_gear
+    cam:
+      type: REVERSE_CAMERA_STATE
+      field: active
+  when:
+    all:
+      - field: gear
+        op: EQ
+        value: REVERSE
+      - field: cam
+        op: EQ
+        value: true
+  effect:
+    then: REVIEW
+    else: ALLOW
+    reason_code: REVERSE_DISPLAY_OFF_REVIEW
+    reason: 倒车时关闭显示屏需复核
+
+# ---------- 6. 前方近距离障碍时加速（any 示例 + BLOCK） ----------
+- node_id: 知识.加速.近距障碍加速限制.001
+  node_type: 安全知识
+  title: 前方近距离障碍时禁止加速
+  source: 道路交通安全法
+  chapter: 第四十三条
+  clause: 43
+  command:
+    intent_id: ACCELERATE
+    action: INCREASE
+    target: VEHICLE_SPEED
+    area: ANY
+  evidence:
+    dist:
+      type: SURROUNDING_OBJECT_STATE
+      field: front_distance
+    ttc:
+      type: SURROUNDING_OBJECT_STATE
+      field: ttc_front
+  when:
+    any:
+      - field: dist
+        op: LT
+        value: 10
+      - field: ttc
+        op: LT
+        value: 2.0
+  effect:
+    then: BLOCK
+    else: ALLOW
+    reason_code: CLOSE_OBSTACLE_ACCELERATE_BLOCKED
+    reason: 前方近距离障碍时禁止加速

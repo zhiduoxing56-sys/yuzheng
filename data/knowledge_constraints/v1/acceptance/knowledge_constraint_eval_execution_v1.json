@@ -1,0 +1,160 @@
+{
+ "total": 19,
+ "pass": 19,
+ "fail": 0,
+ "rows": [
+  {
+   "case_id": "EV-001",
+   "class": "E1_边界",
+   "expected": "ALLOW",
+   "actual": "ALLOW",
+   "pass": true,
+   "note": "夜间关闭：speed=0（GT 0 不成立）→ ALLOW（正好停车）"
+  },
+  {
+   "case_id": "EV-002",
+   "class": "E1_边界",
+   "expected": "ALLOW",
+   "actual": "ALLOW",
+   "pass": true,
+   "note": "夜间关闭：light=20（LT 20 不成立）→ ALLOW（20lux 边界）"
+  },
+  {
+   "case_id": "EV-003",
+   "class": "E1_边界",
+   "expected": "BLOCK",
+   "actual": "BLOCK",
+   "pass": true,
+   "note": "夜间关闭：light=19.9（<20 成立）→ BLOCK（临界）"
+  },
+  {
+   "case_id": "EV-004",
+   "class": "E1_边界",
+   "expected": "ALLOW",
+   "actual": "ALLOW",
+   "pass": true,
+   "note": "近距加速：dist=5（LT 5 不成立）→ ALLOW（正好5m）"
+  },
+  {
+   "case_id": "EV-005",
+   "class": "E1_边界",
+   "expected": "BLOCK",
+   "actual": "BLOCK",
+   "pass": true,
+   "note": "近距加速：dist=4.99（<5 成立）→ BLOCK（临界）"
+  },
+  {
+   "case_id": "EV-006",
+   "class": "E1_边界",
+   "expected": "ALLOW",
+   "actual": "ALLOW",
+   "pass": true,
+   "note": "制动后方：dist=1.5（LT 1.5 不成立）→ ALLOW"
+  },
+  {
+   "case_id": "EV-007",
+   "class": "E1_边界",
+   "expected": "BLOCK",
+   "actual": "BLOCK",
+   "pass": true,
+   "note": "浓雾除雾：weather=FOG（IN 列表含 FOG）→ BLOCK"
+  },
+  {
+   "case_id": "EV-008",
+   "class": "E2_缺失",
+   "expected": "MISSING_EVIDENCE",
+   "actual": "MISSING_EVIDENCE",
+   "pass": true,
+   "note": "夜间关闭：缺 ambient_illumination → 证据门处理"
+  },
+  {
+   "case_id": "EV-009",
+   "class": "E2_缺失",
+   "expected": "MISSING_EVIDENCE",
+   "actual": "MISSING_EVIDENCE",
+   "pass": true,
+   "note": "行驶开门：缺 VEHICLE_SPEED → 证据门处理"
+  },
+  {
+   "case_id": "EV-010",
+   "class": "E2_缺失",
+   "expected": "MISSING_EVIDENCE",
+   "actual": "MISSING_EVIDENCE",
+   "pass": true,
+   "note": "近距加速：front_obstacle_distance=None → 证据门处理"
+  },
+  {
+   "case_id": "EV-011",
+   "class": "E3_类型",
+   "expected": "TYPE_ERROR",
+   "actual": "TYPE_ERROR",
+   "pass": true,
+   "note": "夜间关闭：speed=字符串 → 类型校验拒绝"
+  },
+  {
+   "case_id": "EV-012",
+   "class": "E3_类型",
+   "expected": "TYPE_ERROR",
+   "actual": "TYPE_ERROR",
+   "pass": true,
+   "note": "行驶开门：speed=布尔 → 类型校验拒绝"
+  },
+  {
+   "case_id": "EV-013",
+   "class": "E4_冲突",
+   "expected": "CONFLICT",
+   "actual": "CONFLICT",
+   "pass": true,
+   "note": "夜间关闭：speed 双源冲突（60 vs 0）→ 冲突处理"
+  },
+  {
+   "case_id": "EV-014",
+   "class": "E4_冲突",
+   "expected": "CONFLICT",
+   "actual": "CONFLICT",
+   "pass": true,
+   "note": "近距加速：障碍距离双源冲突（3 vs 50）→ 冲突处理"
+  },
+  {
+   "case_id": "EV-015",
+   "class": "E5_多命中",
+   "expected": "BLOCK",
+   "actual": "BLOCK",
+   "pass": true,
+   "note": "多节点：仅夜间关闭命中（其他4条 command 不匹配）"
+  },
+  {
+   "case_id": "EV-016",
+   "class": "E5_多命中",
+   "expected": "REVIEW",
+   "actual": "REVIEW",
+   "pass": true,
+   "note": "多节点：仅制动后方命中（其余 command 不匹配）"
+  },
+  {
+   "case_id": "EV-017",
+   "class": "E6_正常",
+   "expected": "NOT_APPLICABLE",
+   "actual": "NOT_APPLICABLE",
+   "pass": true,
+   "note": "夜间开灯（mode=ON 非约束目标）→ NOT_APPLICABLE（约束仅对 OFF 生效）"
+  },
+  {
+   "case_id": "EV-018",
+   "class": "E6_正常",
+   "expected": "NOT_APPLICABLE",
+   "actual": "NOT_APPLICABLE",
+   "pass": true,
+   "note": "关车门（DOOR_CLOSE 非约束）→ 不适用"
+  },
+  {
+   "case_id": "EV-019",
+   "class": "E6_正常",
+   "expected": "ALLOW",
+   "actual": "ALLOW",
+   "pass": true,
+   "note": "停车开门（speed=0）→ ALLOW"
+  }
+ ],
+ "verdict": "PASS"
+}

@@ -1169,6 +1169,7 @@ class SafetyGateResult(StrictModel):
     hit_rules: list[str] = Field(default_factory=list)
     observed_values: dict[str, Any] = Field(default_factory=dict)
     supporting_evidence_ids: list[str] = Field(default_factory=list)
+    knowledge_trace: list[dict[str, Any]] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def fill_gate_alias(self) -> "SafetyGateResult":

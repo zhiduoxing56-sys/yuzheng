@@ -1,0 +1,199 @@
+# 非法知识约束节点示例（invalid-knowledge-constraint-examples-v1）
+# 对齐队友 knowledge_constraint_contract_v1.yaml
+# 每条含 reject_reason，用于验证 schema 与注册表校验
+
+# ---------- 1. 未知 intent_id ----------
+- node_id: 知识.非法.未知意图.001
+  node_type: 安全知识
+  title: 未知意图
+  source: X
+  command:
+    intent_id: HEADLIGHT_DANCE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when: {all: [{field: speed, op: GT, value: 0}]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: intent_id 不在 FORMAL 意图注册表
+
+# ---------- 2. action/target 跨意图拼装 ----------
+- node_id: 知识.非法.跨意图拼装.001
+  node_type: 安全知识
+  title: 跨意图拼装
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: UNLOCK
+    target: DOOR
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when: {all: [{field: speed, op: GT, value: 0}]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: action/target 与 HEADLIGHT_SET_MODE 的冻结定义不一致
+
+# ---------- 3. 非法 mode ----------
+- node_id: 知识.非法.非法模式.001
+  node_type: 安全知识
+  title: 非法模式
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: LOW_BEAM
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when: {all: [{field: speed, op: GT, value: 0}]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: mode 不在 HEADLIGHT_SET_MODE 的 mode_contract 中
+
+# ---------- 4. 非法 area（自然语言） ----------
+- node_id: 知识.非法.自然语言区域.001
+  node_type: 安全知识
+  title: 自然语言区域
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    area: 驾驶位
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when: {all: [{field: speed, op: GT, value: 0}]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: area 必须来自 area_catalog 或 ANY
+
+# ---------- 5. 未知 evidence type ----------
+- node_id: 知识.非法.未知证据类型.001
+  node_type: 安全知识
+  title: 未知证据类型
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+  evidence:
+    magic: {type: MOON_PHASE, field: phase}
+  when: {all: [{field: magic, op: EQ, value: FULL}]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: evidence.type 不在 evidence_type_catalog_v1
+
+# ---------- 6. evidence field 与 type 不匹配 ----------
+- node_id: 知识.非法.字段类型错配.001
+  node_type: 安全知识
+  title: 字段类型错配
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+  evidence:
+    gear: {type: GEAR_STATE, field: ambient_illumination}
+  when: {all: [{field: gear, op: EQ, value: D}]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: ambient_illumination 不属于 GEAR_STATE
+
+# ---------- 7. 数字字段使用 IN ----------
+- node_id: 知识.非法.数字用IN.001
+  node_type: 安全知识
+  title: 数字字段用 IN
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when:
+    all:
+      - {field: speed, op: IN, value: [0, 10, 20]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: number 类型不允许 IN
+
+# ---------- 8. 字符串字段使用 GT ----------
+- node_id: 知识.非法.字符串用GT.001
+  node_type: 安全知识
+  title: 字符串用 GT
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+  evidence:
+    weather: {type: ENVIRONMENT_CONDITIONS, field: weather}
+  when:
+    all:
+      - {field: weather, op: GT, value: RAIN}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: string/enum 不允许 GT
+
+# ---------- 9. 自然语言条件 ----------
+- node_id: 知识.非法.自然语言条件.001
+  node_type: 安全知识
+  title: 自然语言条件
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when:
+    all: [高速行驶, 夜间]
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: when 必须使用 field/op/value 结构
+
+# ---------- 10. 未知 effect ----------
+- node_id: 知识.非法.未知效果.001
+  node_type: 安全知识
+  title: 未知效果
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when: {all: [{field: speed, op: GT, value: 0}]}
+  effect: {then: MAYBE, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: effect.then 只允许 ALLOW/BLOCK/REVIEW
+
+# ---------- 11. 缺少 then/else ----------
+- node_id: 知识.非法.缺少效果.001
+  node_type: 安全知识
+  title: 缺少效果
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when: {all: [{field: speed, op: GT, value: 0}]}
+  effect: {then: BLOCK}
+  reject_reason: effect 必须包含 then/else/reason_code/reason
+
+# ---------- 12. 未知字段 ----------
+- node_id: 知识.非法.未知字段.001
+  node_type: 安全知识
+  title: 未知字段
+  source: X
+  command:
+    intent_id: HEADLIGHT_SET_MODE
+    action: SWITCH_MODE
+    target: HEADLIGHT
+    mode: OFF
+    foo: BAR
+  evidence:
+    speed: {type: VEHICLE_SPEED, field: value}
+  when: {all: [{field: speed, op: GT, value: 0}]}
+  effect: {then: BLOCK, else: ALLOW, reason_code: X, reason: X}
+  reject_reason: additionalProperties=false 禁止未知字段
