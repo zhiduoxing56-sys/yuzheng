@@ -1687,6 +1687,9 @@ class AuditRecord(StrictModel):
     runtime_capability: RuntimeCapabilityStatus | None = None
     previous_hash: str = ""
     current_hash: str = ""
+    signature: str | None = None
+    signature_algorithm: str | None = None
+    signature_key_id: str | None = None
     created_at: datetime = Field(default_factory=utc_now)
 
 
@@ -1707,6 +1710,9 @@ class ReviewOutcomeRecord(StrictModel):
     created_at: datetime = Field(default_factory=utc_now)
     previous_hash: str = ""
     current_hash: str = ""
+    signature: str | None = None
+    signature_algorithm: str | None = None
+    signature_key_id: str | None = None
 
     @model_validator(mode="after")
     def validate_review_outcome(self) -> "ReviewOutcomeRecord":

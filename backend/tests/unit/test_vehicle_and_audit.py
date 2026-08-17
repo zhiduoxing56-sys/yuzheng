@@ -56,6 +56,81 @@ def test_audit_hash_chain_detects_database_tampering(pipeline) -> None:
     assert pipeline.audit_repository.verify_chain() is False
 
 
+def test_signed_audit_chain_reports_hash_chain_and_signature_tampering(pipeline) -> None:
+    first = pipeline.process_text(TextCommandRequest(text="打开车门"))
+    pipeline.process_text(TextCommandRequest(text="把那个打开"))
+    report = pipeline.audit_repository.verify_chain_report()
+    assert report["valid"] is True
+    assert report["signature_protected_records"] == 2
+    assert report["signature_verified_records"] == 2
+    assert first.audit.signature is not None
+    assert first.audit.signature_algorithm == "Ed25519"
+    assert first.audit.signature_key_id
+
+    with sqlite3.connect(pipeline.audit_repository.database_path) as connection:
+        original_json = connection.execute(
+            "SELECT record_json FROM audit_records WHERE audit_id = ?", (first.audit.audit_id,)
+        ).fetchone()[0]
+        tampered = json.loads(original_json)
+        tampered["final_decision"]["final_decision"] = (
+            "BLOCK"
+            if tampered["final_decision"]["final_decision"] != "BLOCK"
+            else "PASS"
+        )
+        connection.execute(
+            "UPDATE audit_records SET record_json = ? WHERE audit_id = ?",
+            (json.dumps(tampered, ensure_ascii=False), first.audit.audit_id),
+        )
+    report = pipeline.audit_repository.verify_chain_report()
+    assert report["first_anomaly"]["audit_id"] == first.audit.audit_id
+    assert report["first_anomaly"]["anomaly_type"] == "HASH_MISMATCH"
+
+    with sqlite3.connect(pipeline.audit_repository.database_path) as connection:
+        connection.execute(
+            "UPDATE audit_records SET record_json = ? WHERE audit_id = ?",
+            (original_json, first.audit.audit_id),
+        )
+        tampered = json.loads(original_json)
+        tampered["previous_hash"] = "f" * 64
+        connection.execute(
+            "UPDATE audit_records SET record_json = ?, previous_hash = ? WHERE audit_id = ?",
+            (json.dumps(tampered, ensure_ascii=False), tampered["previous_hash"], first.audit.audit_id),
+        )
+    report = pipeline.audit_repository.verify_chain_report()
+    assert report["first_anomaly"]["anomaly_type"] == "CHAIN_BROKEN"
+
+    with sqlite3.connect(pipeline.audit_repository.database_path) as connection:
+        tampered = json.loads(original_json)
+        tampered["signature"] = "not-a-valid-signature"
+        connection.execute(
+            "UPDATE audit_records SET record_json = ?, previous_hash = ? WHERE audit_id = ?",
+            (json.dumps(tampered, ensure_ascii=False), tampered["previous_hash"], first.audit.audit_id),
+        )
+    report = pipeline.audit_repository.verify_chain_report()
+    assert report["first_anomaly"]["anomaly_type"] == "SIGNATURE_INVALID"
+
+    with sqlite3.connect(pipeline.audit_repository.database_path) as connection:
+        tampered = json.loads(original_json)
+        tampered.pop("signature")
+        connection.execute(
+            "UPDATE audit_records SET record_json = ? WHERE audit_id = ?",
+            (json.dumps(tampered, ensure_ascii=False), first.audit.audit_id),
+        )
+    report = pipeline.audit_repository.verify_chain_report()
+    assert report["first_anomaly"]["anomaly_type"] == "SIGNATURE_MISSING"
+
+    with sqlite3.connect(pipeline.audit_repository.database_path) as connection:
+        connection.execute(
+            "UPDATE audit_records SET record_json = ? WHERE audit_id = ?",
+            (original_json, first.audit.audit_id),
+        )
+        connection.execute(
+            "DELETE FROM audit_records WHERE audit_id = ?", (first.audit.audit_id,)
+        )
+    report = pipeline.audit_repository.verify_chain_report()
+    assert report["first_anomaly"]["anomaly_type"] == "CHAIN_BROKEN"
+
+
 def test_audit_hash_chain_survives_compatible_model_evolution(pipeline) -> None:
     result = pipeline.process_text(TextCommandRequest(text="把那个打开"))
 
@@ -81,6 +156,9 @@ def test_audit_hash_chain_survives_compatible_model_evolution(pipeline) -> None:
         payload = dict(raw)
         payload.pop("previous_hash")
         payload.pop("current_hash")
+        payload.pop("signature")
+        payload.pop("signature_algorithm")
+        payload.pop("signature_key_id")
         digest = hashlib.sha256(
             (
                 raw["previous_hash"]

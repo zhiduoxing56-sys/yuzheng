@@ -13,7 +13,12 @@ vi.mock("../api/carla", () => ({
   patchVehicleState: vi.fn().mockResolvedValue({}), resetVehicleState: vi.fn().mockResolvedValue({}), spawnObstacle: vi.fn().mockResolvedValue({ ok: true }), clearObstacles: vi.fn().mockResolvedValue({ ok: true }), setTrafficLight: vi.fn().mockResolvedValue({ ok: true }),
   getSimulationContext: vi.fn().mockResolvedValue([]), replaceSimulationContext: vi.fn().mockResolvedValue([]),
 }));
-vi.mock("../api/scenarios", () => ({ listScenarios: vi.fn().mockResolvedValue([{ scenario_id: "risk", name: "右后自行车接近" }]), loadScenario: vi.fn().mockResolvedValue({}) }));
+vi.mock("../api/scenarios", () => ({ listScenarios: vi.fn().mockResolvedValue([{
+  scenario_id: "risk",
+  name: "右后自行车接近",
+  text: "打开右后车门",
+  conditions: ["车速：42 km/h", "挡位：D（前进）", "天气：晴朗", "周边目标：右后方自行车距离3 m接近高风险"],
+}]), loadScenario: vi.fn().mockResolvedValue({}) }));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -30,12 +35,12 @@ describe("CARLA 场景与补充上下文", () => {
     expect(screen.queryByRole("heading", { name: "物理场景控制" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "仿真补充上下文" })).toBeNull();
     expect(screen.getAllByRole("button", { name: "应用全部设置" })).toHaveLength(1);
-    expect(await screen.findByRole("option", { name: "右后自行车接近" })).toBeTruthy();
+    expect(await screen.findByRole("option", { name: "右后自行车接近｜车速：42 km/h · 挡位：D（前进） · 天气：晴朗 · 周边目标：右后方自行车距离3 m接近高风险｜指令：“打开右后车门”" })).toBeTruthy();
   });
 
   it("场景预设通过正式 load 接口激活", async () => {
     const user = userEvent.setup(); render(<MemoryRouter><CarlaPage /></MemoryRouter>);
-    await screen.findByRole("option", { name: "右后自行车接近" });
+    await screen.findByRole("option", { name: /右后自行车接近.*车速：42 km\/h.*指令：“打开右后车门”/ });
     await user.click(screen.getByRole("button", { name: "载入场景" }));
     await waitFor(() => expect(loadScenario).toHaveBeenCalledWith("risk"));
   });
@@ -57,7 +62,7 @@ describe("CARLA 场景与补充上下文", () => {
 
     const user = userEvent.setup();
     render(<MemoryRouter><CarlaPage /></MemoryRouter>);
-    await screen.findByRole("option", { name: "右后自行车接近" });
+    await screen.findByRole("option", { name: /右后自行车接近.*车速：42 km\/h.*指令：“打开右后车门”/ });
     await user.click(screen.getByRole("button", { name: "载入场景" }));
 
     expect(await screen.findByDisplayValue("夜间")).toBeTruthy();

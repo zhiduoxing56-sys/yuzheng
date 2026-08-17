@@ -934,6 +934,12 @@ export interface TranscriptionResult {
 export interface AuditSnapshotFact { key: string; label: string; value: string | number | boolean; unit?: string | null; source?: string | null; }
 export interface AuditVehicleSnapshot { captured_at: string; source: string; vehicle_state: AuditSnapshotFact[]; environment_state: AuditSnapshotFact[]; sensor_summary: Array<{ sensor: string; status: "AVAILABLE"; source?: string | null }>; }
 export interface AuditEvidenceFact { label: string; value: string | number | boolean; unit?: string | null; source?: string | null; }
+export interface DecisionExplanationStatusResponse {
+  status: "PENDING" | "AVAILABLE" | "FAILED";
+  explanation?: string | null;
+  generated_at?: string | null;
+  retryable: boolean;
+}
 export interface AuditDetailView {
   command_summary: { raw_command: string; input_type: "text" | "audio"; occurred_at: string; final_decision: DecisionLabel; execution_status: string; };
   resolved_operations: Array<{ operation: string; position?: string | null; value?: string | number | boolean | null }>;
@@ -948,6 +954,7 @@ export interface AuditDetailView {
   execution_before_snapshot?: AuditVehicleSnapshot | null;
   execution_after_snapshot?: AuditVehicleSnapshot | null;
   execution_changes: Array<{ key: string; label: string; before: string | number | boolean; after: string | number | boolean; unit?: string | null; delta?: number | null }>;
+  integrity_protection?: { previous_hash: string; current_hash: string; signature?: string | null; signature_algorithm?: string | null; signature_key_id?: string | null; protection_status: "LEGACY_HASH_CHAIN" | "HASH_CHAIN_AND_SIGNATURE"; };
 }
 
 export interface AuditVerificationResponse {
@@ -962,11 +969,25 @@ export interface AuditVerificationResponse {
   relationship_valid: boolean;
   merge_decision_valid: boolean;
   effective_outcome_valid: boolean;
+  signature_status?: string;
+  signature_valid?: boolean | null;
   failure_reason?: string | null;
 }
 
 export interface GlobalAuditChainResponse {
   valid: boolean;
+  total_records: number;
+  hash_verified_records: number;
+  legacy_unsigned_records: number;
+  signature_protected_records: number;
+  signature_verified_records: number;
+  anomaly_count: number;
+  first_anomaly?: { rowid: number; audit_id: string; anomaly_type: string; message: string } | null;
+  hash_chain_status: "VALID" | "INVALID";
+  signature_status: "NOT_ENABLED" | "VALID" | "INVALID";
+  signature_start_rowid?: number | null;
+  signature_algorithm?: string | null;
+  signature_key_id?: string | null;
 }
 
 export type AuditExportPayload = Record<string, unknown>;
@@ -1133,5 +1154,7 @@ export interface ScenarioSummary {
   scenario_id: string;
   name?: string;
   description?: string;
+  text?: string;
+  conditions?: string[];
   [key: string]: unknown;
 }

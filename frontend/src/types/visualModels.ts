@@ -58,3 +58,9 @@ export interface DecisionResultView {
   decisionSources?: string[];
   mergeReason?: string | null;
 }
+
+export interface DecisionExplanationView {
+  status: "IDLE" | "PENDING" | "AVAILABLE" | "FAILED";
+  text: string | null;
+  retryable: boolean;
+}

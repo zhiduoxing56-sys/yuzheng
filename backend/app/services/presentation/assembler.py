@@ -1371,4 +1371,16 @@ class PresentationAssembler:
             execution_before_snapshot=before_snapshot,
             execution_after_snapshot=after_snapshot,
             execution_changes=self._execution_changes(before_snapshot, after_snapshot),
+            integrity_protection={
+                "previous_hash": record.previous_hash,
+                "current_hash": record.current_hash,
+                "signature": record.signature,
+                "signature_algorithm": record.signature_algorithm,
+                "signature_key_id": record.signature_key_id,
+                "protection_status": (
+                    "HASH_CHAIN_AND_SIGNATURE"
+                    if record.signature is not None
+                    else "LEGACY_HASH_CHAIN"
+                ),
+            },
         )

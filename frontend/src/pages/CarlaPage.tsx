@@ -103,6 +103,17 @@ function StateRow({ label, source, dirty, error, children }: { label: string; so
 }
 function GroupRow({ children }: { children: ReactNode }) { return <tr className="carla-state-group"><th colSpan={3}>{children}</th></tr>; }
 
+function scenarioOptionText(item: ScenarioSummary): string {
+  const name = item.name || item.scenario_id;
+  const conditions = item.conditions?.filter(Boolean).join(" · ");
+  const instruction = item.text?.trim();
+  return [
+    name,
+    conditions,
+    instruction ? `指令：“${instruction}”` : undefined,
+  ].filter(Boolean).join("｜");
+}
+
 export function CarlaPage() {
   const navigate = useNavigate(); const { data: state, refresh } = useVehicleState();
   const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]); const [scenarioId, setScenarioId] = useState("");
@@ -197,7 +208,7 @@ export function CarlaPage() {
 
   return <section className="visual-page-frame carla-page">
     <header className="carla-page-header"><div><h1 className="visual-gradient-title">CARLA 模拟画面</h1><p>车辆真实状态与下一次指令上下文统一管理</p></div><button className="carla-button" onClick={() => navigate("/decision")}>前往裁决页</button></header>
-    <div className="carla-scenario-strip"><label><span>场景预设</span><select value={scenarioId} disabled={busy} onChange={(event) => setScenarioId(event.target.value)}>{scenarios.map((item) => <option key={item.scenario_id} value={item.scenario_id}>{item.name || item.scenario_id}</option>)}</select></label><button className="carla-button carla-button-secondary" disabled={busy || !scenarioId} onClick={activateScenario}>载入场景</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={() => void refresh()}>刷新状态</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={resetAll}>一键重置</button></div>
+    <div className="carla-scenario-strip"><label><span>场景预设</span><select value={scenarioId} disabled={busy} onChange={(event) => setScenarioId(event.target.value)}>{scenarios.map((item) => { const optionText = scenarioOptionText(item); return <option key={item.scenario_id} value={item.scenario_id} title={optionText}>{optionText}</option>; })}</select></label><button className="carla-button carla-button-secondary" disabled={busy || !scenarioId} onClick={activateScenario}>载入场景</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={() => void refresh()}>刷新状态</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={resetAll}>一键重置</button></div>
     <div className="carla-unified-layout"><div className="carla-live-frame"><img src="/carla/stream" alt="CARLA 自动驾驶模拟器实时画面" /></div><section className="carla-unified-state-panel"><div className="carla-panel-heading"><div><h2>车辆与场景状态</h2><p>修改后的字段会标记为待应用；补充上下文用于下一次新指令。</p></div></div>
       <div className="carla-unified-table-wrap"><table className="carla-unified-table"><thead><tr><th>状态</th><th>当前值 / 待应用值</th><th>数据来源</th></tr></thead><tbody>
         <GroupRow>车辆控制</GroupRow>

@@ -60,6 +60,8 @@ describe("安全知识检索页面", () => {
     expect(screen.queryByText("相似度阈值")).toBeNull();
     expect(screen.getByText(/意图=DOOR_OPEN/)).toBeTruthy();
     expect(screen.getAllByText("车辆速度（VEHICLE_SPEED）")).toHaveLength(2);
+    expect(screen.getByText("VALID")).toBeTruthy();
+    expect(screen.getByText("可用度 100.00% · 新鲜度 100.00%")).toBeTruthy();
     expect(screen.queryByLabelText("最大连接数")).toBeNull();
     expect(screen.queryByText("强制召回审计")).toBeNull();
   });

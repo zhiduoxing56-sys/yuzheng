@@ -103,6 +103,13 @@ D:\software\anaconda\envs\yuzheng311\python.exe backend\scripts\migrate_audit_li
 - 审计和 WebSocket 保存 SHA-256 指纹、模型结果和处理事件，不保存原始音频。实际样本、限制和验收结果见 [docs/阶段五验收说明.md](docs/阶段五验收说明.md) 与 [docs/语音可信与ASR实现说明.md](docs/语音可信与ASR实现说明.md)。
 - 最小现场冒烟入口：`D:\software\anaconda\envs\yuzheng311\python.exe scripts\stage5_voice_smoke.py --human <真人WAV> --synthetic <合成WAV> --replay <扬声器重录WAV>`。
 
+## DeepSeek 异步裁决说明
+
+- 裁决与审计先完成并立即返回；DeepSeek 只在后台读取该轮冻结的指令、最终裁决状态和完整车辆/仿真上下文，生成约 25 个汉字的事后说明，不参与裁决、授权或执行。
+- 后端配置 `DEEPSEEK_API_KEY` 即可启用。可选变量：`DEEPSEEK_BASE_URL`、`DEEPSEEK_EXPLANATION_MODEL`（默认 `deepseek-v4-flash`）、`DEEPSEEK_EXPLANATION_TIMEOUT_SECONDS`（默认 15 秒）。
+- 裁决页只在“具体原因”框内轮询解释状态：等待时转圈，成功后显示说明，失败后提供重试；页面其他内容不等待模型。
+- 查询与重试接口分别为 `GET /api/turns/{turn_id}/decision-explanation` 和 `POST /api/turns/{turn_id}/decision-explanation/retry`。
+
 ## 阶段四冻结安全语义
 
 - 授权密钥具备稳定 `key_id`、版本、创建时间、SHA-256 指纹、来源和状态元数据；令牌表保存签发时的 `key_id`。

@@ -55,6 +55,7 @@ from app.models.frontend_contract import (
     RecallAuditRecentItem,
     RecallAuditRecentResponse,
     RecallAIAuditResponse,
+    DecisionExplanationStatusResponse,
 )
 from app.models.read_models import (
     CompactAuditListItem,
@@ -240,23 +241,26 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
 
     @router.post("/carla/obstacle")
     def carla_obstacle(request: CarlaObstacleRequest) -> dict[str, object]:
-        if not hasattr(pipeline.vehicle, "spawn_obstacle"):
-            raise HTTPException(status_code=400, detail="当前车辆适配器不是 CARLA，无法生成障碍物")
-        ok = pipeline.vehicle.spawn_obstacle(request.type)
-        return {"ok": ok, "obstacle_count": pipeline.vehicle.obstacle_count()}
+        try:
+            ok, obstacle_count = pipeline.spawn_simulation_obstacle(request.type)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {"ok": ok, "obstacle_count": obstacle_count}
 
     @router.post("/carla/obstacle/clear")
     def carla_obstacle_clear() -> dict[str, object]:
-        if not hasattr(pipeline.vehicle, "clear_obstacles"):
-            raise HTTPException(status_code=400, detail="当前车辆适配器不是 CARLA，无法清除障碍物")
-        cleared = pipeline.vehicle.clear_obstacles()
+        try:
+            cleared = pipeline.clear_simulation_obstacles()
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         return {"ok": True, "cleared": cleared}
 
     @router.post("/carla/traffic-light")
     def carla_traffic_light(request: CarlaTrafficLightRequest) -> dict[str, object]:
-        if not hasattr(pipeline.vehicle, "set_traffic_light"):
-            raise HTTPException(status_code=400, detail="当前车辆适配器不是 CARLA，无法控制交通灯")
-        ok = pipeline.vehicle.set_traffic_light(request.state)
+        try:
+            ok = pipeline.set_simulation_traffic_light(request.state)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         return {"ok": ok}
 
     @router.get("/evidence/current", response_model=CurrentEvidenceResponse)
@@ -384,6 +388,44 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                 "无法组装轮次展示数据",
                 turn_id=turn_id,
             ) from exc
+
+    @router.get(
+        "/turns/{turn_id}/decision-explanation",
+        response_model=DecisionExplanationStatusResponse,
+        responses=contract_errors,
+    )
+    def decision_explanation_status(
+        turn_id: str,
+    ) -> DecisionExplanationStatusResponse:
+        if pipeline.audit_repository.get_by_turn(turn_id) is None:
+            raise ContractError(
+                404, ErrorCode.TURN_NOT_FOUND, "未找到指定轮次", turn_id=turn_id
+            )
+        status = pipeline.decision_explanation_status(turn_id)
+        if status is None:
+            return DecisionExplanationStatusResponse(
+                status="FAILED", retryable=False
+            )
+        return status
+
+    @router.post(
+        "/turns/{turn_id}/decision-explanation/retry",
+        response_model=DecisionExplanationStatusResponse,
+        responses=contract_errors,
+    )
+    def retry_decision_explanation(
+        turn_id: str,
+    ) -> DecisionExplanationStatusResponse:
+        if pipeline.audit_repository.get_by_turn(turn_id) is None:
+            raise ContractError(
+                404, ErrorCode.TURN_NOT_FOUND, "未找到指定轮次", turn_id=turn_id
+            )
+        status = pipeline.retry_decision_explanation(turn_id)
+        if status is None:
+            return DecisionExplanationStatusResponse(
+                status="FAILED", retryable=False
+            )
+        return status
 
     @router.get(
         "/turns/{turn_id}/evidence/{node_id}",
@@ -591,8 +633,8 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
         return pipeline.audit_repository.learning_status()
 
     @router.get("/audits/verify-chain")
-    def audits_verify_chain() -> dict[str, bool]:
-        return {"valid": pipeline.audit_repository.verify_chain()}
+    def audits_verify_chain() -> dict[str, object]:
+        return pipeline.audit_repository.verify_chain_report()
 
     @router.get("/audits/compact", response_model=CompactAuditListResponse)
     def audits_compact(
@@ -784,6 +826,8 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             failures.append("终态前向链接校验失败")
         if not verification["workflow_chain_valid"]:
             failures.append("工作流链校验失败")
+        if verification["signature_valid"] is False:
+            failures.append(f"数字签名校验失败: {verification['signature_status']}")
         return AuditVerificationResponse(
             audit_id=audit_id,
             record_hash_valid=verification["record_hash_valid"],
@@ -796,6 +840,8 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
             relationship_valid=verification["relationship_valid"],
             merge_decision_valid=verification["merge_decision_valid"],
             effective_outcome_valid=verification["effective_outcome_valid"],
+            signature_status=verification["signature_status"],
+            signature_valid=verification["signature_valid"],
             failure_reason="；".join(failures) or None,
         )
 

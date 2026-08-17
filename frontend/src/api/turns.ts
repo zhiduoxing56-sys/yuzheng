@@ -7,10 +7,32 @@ import type {
   TurnPresentationResponse,
   WorkflowChainVerification,
   InteractionAction,
+  DecisionExplanationStatusResponse,
 } from "../types/contract";
 
 export function getTurnPresentation(turnId: string, signal?: AbortSignal): Promise<TurnPresentationResponse> {
   return apiClient.get<TurnPresentationResponse>(`/api/turns/${encodeURIComponent(turnId)}/presentation`, undefined, { signal, timeoutMs: 45_000 });
+}
+
+export function getDecisionExplanation(
+  turnId: string,
+  signal?: AbortSignal,
+): Promise<DecisionExplanationStatusResponse> {
+  return apiClient.get<DecisionExplanationStatusResponse>(
+    `/api/turns/${encodeURIComponent(turnId)}/decision-explanation`,
+    undefined,
+    { signal, timeoutMs: 10_000 },
+  );
+}
+
+export function retryDecisionExplanation(
+  turnId: string,
+): Promise<DecisionExplanationStatusResponse> {
+  return apiClient.post<DecisionExplanationStatusResponse>(
+    `/api/turns/${encodeURIComponent(turnId)}/decision-explanation/retry`,
+    {},
+    { timeoutMs: 10_000 },
+  );
 }
 
 export function submitTurnInteraction(turnId: string, request: { interaction_id: string; action: InteractionAction; candidate_id?: string; text?: string; parameters?: Record<string, unknown>; }): Promise<{ interaction_id: string; command_result: import("../types/contract").TextCommandResponse | null }> {

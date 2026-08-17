@@ -50,7 +50,13 @@ def create_app(
             path.startswith("/api/audits")
             or (path.startswith("/api/turns/") and any(
                 marker in path
-                for marker in ("/presentation", "/evidence/", "/review", "/timeline")
+                for marker in (
+                    "/presentation",
+                    "/evidence/",
+                    "/review",
+                    "/timeline",
+                    "/decision-explanation",
+                )
             ))
         )
 
@@ -138,6 +144,7 @@ def create_app(
 
     application.include_router(build_router(pipeline))
     application.include_router(build_websocket_router(pipeline))
+    application.router.add_event_handler("shutdown", pipeline.close)
     return application
 
 

@@ -91,4 +91,6 @@ def test_stage3_endpoints_return_content_not_only_status(api_client) -> None:
     assert rebuilt["excluded_record_count"] == 0
     assert rebuilt["auto_rebuild_enabled"] is False
     assert learning["quality_distribution"] == {"TEST_ONLY": 1}
-    assert chain == {"valid": True}
+    assert chain["valid"] is True
+    assert chain["hash_chain_status"] == "VALID"
+    assert chain["signature_status"] == "VALID"

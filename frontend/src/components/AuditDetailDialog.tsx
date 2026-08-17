@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useAuditDetail } from "../hooks/useAuditDetail";
+import { useAuditVerification } from "../hooks/useAuditVerification";
+import { AuditVerificationPanel } from "./AuditVerificationPanel";
 import {
   AuditCommandSection,
   AuditDecisionSection,
   AuditExecutionSection,
+  AuditIntegritySection,
   AuditReviewSection,
   AuditSnapshotSection,
   AuditUnderstandingSection,
@@ -16,6 +19,7 @@ interface AuditDetailDialogProps {
 
 export function AuditDetailDialog({ auditId, onClose }: AuditDetailDialogProps) {
   const detail = useAuditDetail(auditId);
+  const verification = useAuditVerification(auditId);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -34,9 +38,7 @@ export function AuditDetailDialog({ auditId, onClose }: AuditDetailDialogProps) 
     <section className="audit-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="audit-detail-dialog-title" onMouseDown={(event) => event.stopPropagation()}>
       <header className="audit-detail-dialog-header">
         <div>
-          <span>审计详情</span>
-          <h2 id="audit-detail-dialog-title">人类可读安全审计</h2>
-          <p>审计编号：{auditId}</p>
+          <h2 id="audit-detail-dialog-title">审计详情</h2>
         </div>
         <div className="audit-detail-dialog-actions">
           <button type="button" disabled={detail.loading} onClick={detail.refresh}>{detail.loading ? "加载中…" : "刷新"}</button>
@@ -55,6 +57,8 @@ export function AuditDetailDialog({ auditId, onClose }: AuditDetailDialogProps) 
           <AuditDecisionSection data={detail.data} />
           <AuditReviewSection data={detail.data} />
           <AuditExecutionSection data={detail.data} />
+          <AuditIntegritySection data={detail.data} />
+          <AuditVerificationPanel data={verification.data} loading={verification.loading} error={verification.error} verifiedAt={verification.verifiedAt} onRefresh={verification.refresh} />
         </main>}
       </div>
     </section>

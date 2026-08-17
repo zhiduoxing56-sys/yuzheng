@@ -34,15 +34,25 @@ GENESIS_HASH = "0" * 64
 
 
 from app.services.workflow.hashing import canonical_workflow_event
+from app.services.audit.signing import AuditSigner
 
 
 def canonical_json(record: AuditChainRecord | dict[str, object]) -> str:
     if isinstance(record, (AuditRecord, ReviewOutcomeRecord)):
-        data = record.model_dump(mode="json", exclude={"previous_hash", "current_hash"})
+        data = record.model_dump(
+            mode="json",
+            exclude={
+                "previous_hash", "current_hash", "signature",
+                "signature_algorithm", "signature_key_id",
+            },
+        )
     else:
         data = dict(record)
         data.pop("previous_hash", None)
         data.pop("current_hash", None)
+        data.pop("signature", None)
+        data.pop("signature_algorithm", None)
+        data.pop("signature_key_id", None)
     return json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
@@ -125,7 +135,40 @@ class AuditRepository:
         self._chain_incremental_runs = 0
         self._chain_cache_hits = 0
         self._chain_waits = 0
+        self.audit_signer = AuditSigner(database_path)
         self._initialize()
+
+    def _seal_record(
+        self, connection: sqlite3.Connection, record: AuditChainRecord
+    ) -> AuditChainRecord:
+        tail = connection.execute(
+            "SELECT rowid, current_hash FROM audit_records ORDER BY rowid DESC LIMIT 1"
+        ).fetchone()
+        previous_hash = str(tail["current_hash"]) if tail else GENESIS_HASH
+        maximum_rowid = int(tail["rowid"]) if tail else 0
+        with_previous = record.model_copy(
+            update={
+                "previous_hash": previous_hash,
+                "current_hash": "",
+                "signature": None,
+                "signature_algorithm": None,
+                "signature_key_id": None,
+            }
+        )
+        digest = hashlib.sha256(
+            (previous_hash + canonical_json(with_previous)).encode("utf-8")
+        ).hexdigest()
+        signature, state = self.audit_signer.sign_current_hash(
+            digest, maximum_rowid=maximum_rowid
+        )
+        return with_previous.model_copy(
+            update={
+                "current_hash": digest,
+                "signature": signature,
+                "signature_algorithm": state.algorithm,
+                "signature_key_id": state.key_id,
+            }
+        )
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.database_path, timeout=10)
@@ -457,9 +500,8 @@ class AuditRepository:
         )
         normalization_ms = (perf_counter() - normalization_started) * 1000
         set_metric("audit_normalize_ms", round(normalization_ms, 4))
-        normalized_payload = record.model_dump(mode="json")
         canonical_started = perf_counter()
-        canonical_payload = canonical_json(normalized_payload)
+        canonical_json(record)
         canonical_serialize_ms = (perf_counter() - canonical_started) * 1000
         summary_started = perf_counter()
         prepared_summary = self._summary_values(record)
@@ -471,18 +513,11 @@ class AuditRepository:
         try:
             database_started = perf_counter()
             connection.execute("BEGIN IMMEDIATE")
-            row = connection.execute(
-                "SELECT current_hash FROM audit_records ORDER BY rowid DESC LIMIT 1"
-            ).fetchone()
-            previous_hash = str(row["current_hash"]) if row else GENESIS_HASH
-            with_previous = record.model_copy(update={"previous_hash": previous_hash, "current_hash": ""})
             hash_started = perf_counter()
-            digest = hashlib.sha256(
-                (previous_hash + canonical_payload).encode("utf-8")
-            ).hexdigest()
+            saved = self._seal_record(connection, record)
+            digest = saved.current_hash
             set_metric("audit_hash_ms", round((perf_counter() - hash_started) * 1000, 4))
             mark_stage("audit_hash_complete")
-            saved = with_previous.model_copy(update={"current_hash": digest})
             persistence_serialize_started = perf_counter()
             payload = saved.model_dump_json()
             persistence_serialize_ms = (
@@ -528,7 +563,7 @@ class AuditRepository:
                         ensure_ascii=False,
                     ),
                     payload,
-                    previous_hash,
+                    saved.previous_hash,
                     digest,
                     saved.record_type,
                     None,
@@ -580,19 +615,7 @@ class AuditRepository:
                 connection.commit()
                 return saved_existing, [], False
 
-            previous_row = connection.execute(
-                "SELECT current_hash FROM audit_records ORDER BY rowid DESC LIMIT 1"
-            ).fetchone()
-            previous_hash = (
-                str(previous_row["current_hash"]) if previous_row else GENESIS_HASH
-            )
-            with_previous = outcome.model_copy(
-                update={"previous_hash": previous_hash, "current_hash": ""}
-            )
-            digest = hashlib.sha256(
-                (previous_hash + canonical_json(with_previous)).encode("utf-8")
-            ).hexdigest()
-            saved = with_previous.model_copy(update={"current_hash": digest})
+            saved = self._seal_record(connection, outcome)
             connection.execute(
                 """
                 INSERT INTO audit_records (
@@ -1501,6 +1524,97 @@ class AuditRepository:
 
         return self._verify_chain_singleflight(force_full=True)
 
+    def verify_chain_report(self) -> dict[str, object]:
+        """Verify the existing SHA-256 chain and its post-boundary signatures."""
+
+        state = self.audit_signer.read_state()
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT rowid, audit_id, record_json, previous_hash, current_hash "
+                "FROM audit_records ORDER BY rowid"
+            ).fetchall()
+        previous_hash = GENESIS_HASH
+        anomalies: list[dict[str, object]] = []
+        hash_verified_records = 0
+        legacy_unsigned_records = 0
+        signature_protected_records = 0
+        signature_verified_records = 0
+        for row in rows:
+            raw_record = json.loads(str(row["record_json"]))
+            rowid = int(row["rowid"])
+            audit_id = str(row["audit_id"])
+            embedded_previous = str(raw_record.get("previous_hash", ""))
+            embedded_current = str(raw_record.get("current_hash", ""))
+            expected = hashlib.sha256(
+                (previous_hash + canonical_json(raw_record)).encode("utf-8")
+            ).hexdigest()
+            anomaly: tuple[str, str] | None = None
+            if (
+                embedded_previous != previous_hash
+                or str(row["previous_hash"]) != embedded_previous
+            ):
+                anomaly = ("CHAIN_BROKEN", "前序审计链哈希不连续")
+            elif embedded_current != expected or str(row["current_hash"]) != embedded_current:
+                anomaly = ("HASH_MISMATCH", "当前记录哈希与规范化审计事实不一致")
+            else:
+                hash_verified_records += 1
+
+            if state is None or rowid < state.start_rowid:
+                legacy_unsigned_records += 1
+            else:
+                signature_protected_records += 1
+                signature_anomaly = self.audit_signer.verify(
+                    embedded_current,
+                    raw_record.get("signature"),
+                    raw_record.get("signature_algorithm"),
+                    raw_record.get("signature_key_id"),
+                    state,
+                )
+                if signature_anomaly is not None and anomaly is None:
+                    messages = {
+                        "SIGNATURE_MISSING": "签名保护边界后的记录缺少数字签名",
+                        "SIGNATURE_INVALID": "Ed25519 数字签名验证失败",
+                        "SIGNATURE_METADATA_MISMATCH": "签名算法或密钥标识不匹配",
+                    }
+                    anomaly = (signature_anomaly, messages[signature_anomaly])
+                elif signature_anomaly is None:
+                    signature_verified_records += 1
+            if anomaly is not None:
+                anomalies.append(
+                    {
+                        "rowid": rowid,
+                        "audit_id": audit_id,
+                        "anomaly_type": anomaly[0],
+                        "message": anomaly[1],
+                    }
+                )
+            previous_hash = embedded_current
+        signature_status = (
+            "NOT_ENABLED"
+            if state is None
+            else ("VALID" if not any(item["anomaly_type"].startswith("SIGNATURE_") for item in anomalies) else "INVALID")
+        )
+        hash_chain_status = (
+            "VALID"
+            if not any(item["anomaly_type"] in {"HASH_MISMATCH", "CHAIN_BROKEN"} for item in anomalies)
+            else "INVALID"
+        )
+        return {
+            "valid": not anomalies,
+            "total_records": len(rows),
+            "hash_verified_records": hash_verified_records,
+            "legacy_unsigned_records": legacy_unsigned_records,
+            "signature_protected_records": signature_protected_records,
+            "signature_verified_records": signature_verified_records,
+            "anomaly_count": len(anomalies),
+            "first_anomaly": anomalies[0] if anomalies else None,
+            "hash_chain_status": hash_chain_status,
+            "signature_status": signature_status,
+            "signature_start_rowid": state.start_rowid if state else None,
+            "signature_algorithm": state.algorithm if state else None,
+            "signature_key_id": state.key_id if state else None,
+        }
+
     def chain_verification_stats(self) -> dict[str, int]:
         with self._chain_condition:
             return {
@@ -1578,6 +1692,27 @@ class AuditRepository:
             return None
         selected["audit_chain_valid"] = chain_valid
         return selected
+
+    def signature_status_for_record(self, audit_id: str) -> tuple[str, bool | None] | None:
+        state = self.audit_signer.read_state()
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT rowid, record_json FROM audit_records WHERE audit_id = ?",
+                (audit_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        if state is None or int(row["rowid"]) < state.start_rowid:
+            return "LEGACY_HASH_CHAIN", None
+        raw = json.loads(str(row["record_json"]))
+        anomaly = self.audit_signer.verify(
+            str(raw.get("current_hash", "")),
+            raw.get("signature"),
+            raw.get("signature_algorithm"),
+            raw.get("signature_key_id"),
+            state,
+        )
+        return ("VALID", True) if anomaly is None else (anomaly, False)
 
     def health(self) -> str:
         with self._connect() as connection:

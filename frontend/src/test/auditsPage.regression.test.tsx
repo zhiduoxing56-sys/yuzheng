@@ -7,10 +7,14 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { listAuditRecords } from "../api/auditRecords";
 import { useAuditDetail } from "../hooks/useAuditDetail";
+import { useAuditVerification } from "../hooks/useAuditVerification";
+import { useGlobalAuditChain } from "../hooks/useGlobalAuditChain";
 import { AuditsPage } from "../pages/AuditsPage";
 
 vi.mock("../api/auditRecords", () => ({ listAuditRecords: vi.fn() }));
 vi.mock("../hooks/useAuditDetail", () => ({ useAuditDetail: vi.fn() }));
+vi.mock("../hooks/useAuditVerification", () => ({ useAuditVerification: vi.fn() }));
+vi.mock("../hooks/useGlobalAuditChain", () => ({ useGlobalAuditChain: vi.fn() }));
 
 function response(items: unknown[] = [{
   audit_id: "AUDIT-1",
@@ -31,6 +35,8 @@ function mount(strict = false) {
 beforeEach(() => {
   vi.mocked(listAuditRecords).mockReset();
   vi.mocked(useAuditDetail).mockReturnValue({ data: null, loading: true, error: null, refresh: vi.fn() });
+  vi.mocked(useAuditVerification).mockReturnValue({ data: null, loading: false, error: null, verifiedAt: null, refresh: vi.fn() });
+  vi.mocked(useGlobalAuditChain).mockReturnValue({ data: null, loading: false, error: null, verifiedAt: null, refresh: vi.fn() });
 });
 afterEach(cleanup);
 
@@ -53,8 +59,8 @@ describe("human-readable audit list", () => {
     const user = userEvent.setup();
     mount();
     await user.click(await screen.findByText("关闭前照灯"));
-    expect(screen.getByRole("dialog", { name: "人类可读安全审计" })).toBeTruthy();
-    expect(screen.getByText("审计编号：AUDIT-1")).toBeTruthy();
+    expect(screen.getByRole("dialog", { name: "审计详情" })).toBeTruthy();
+    expect(screen.queryByText("审计编号：AUDIT-1")).toBeNull();
     expect(screen.queryByText("详情已打开")).toBeNull();
     await user.click(screen.getByRole("button", { name: "关闭" }));
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -70,6 +76,17 @@ describe("human-readable audit list", () => {
     vi.mocked(listAuditRecords).mockResolvedValue({ invalid: true });
     mount();
     await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("审计记录加载失败"));
+  });
+
+  it("shows the first integrity anomaly returned by the existing verification API", async () => {
+    vi.mocked(listAuditRecords).mockResolvedValue(response());
+    vi.mocked(useGlobalAuditChain).mockReturnValue({
+      data: { state: "invalid", invalidCount: 1, totalRecords: 2, legacyUnsignedRecords: 0, signatureProtectedRecords: 2, signatureVerifiedRecords: 1, hashChainStatus: "INVALID", signatureStatus: "INVALID", firstAnomaly: { auditId: "AUDIT-1", type: "HASH_MISMATCH", message: "当前记录哈希与规范化审计事实不一致" } },
+      loading: false, error: null, verifiedAt: null, refresh: vi.fn(),
+    });
+    mount();
+    expect(await screen.findByText(/检测到异常：AUDIT-1/)).toBeTruthy();
+    expect(screen.getByText(/HASH_MISMATCH/)).toBeTruthy();
   });
 
   it("aborts the active request when unmounted", async () => {

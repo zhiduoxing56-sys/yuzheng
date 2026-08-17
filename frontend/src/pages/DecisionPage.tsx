@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
-import { executeTurn, getTurnPresentation, submitTurnInteraction } from "../api/turns";
+import { executeTurn, getDecisionExplanation, getTurnPresentation, retryDecisionExplanation, submitTurnInteraction } from "../api/turns";
 import { InteractionModal } from "../components/InteractionModal";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
 import { useSession } from "../stores/sessionStore";
 import type { AudioCommandResponse, ExecuteResult, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
-import type { CommandInputMode, DecisionResultView } from "../types/visualModels";
+import type { CommandInputMode, DecisionExplanationView, DecisionResultView } from "../types/visualModels";
 
 interface CurrentTurnData {
   turn_id: string;
@@ -17,6 +17,9 @@ interface CurrentTurnData {
 interface BoundExecutionToken extends ExecutionTokenView { turnId: string; }
 const MAX_WAV_SIZE_BYTES = 20 * 1024 * 1024;
 const EMPTY_RESULT: DecisionResultView = { state: null, dimensions: ["C_sem", "C_cov", "C_trust", "C_jb", "C_nec"].map((dimension) => ({ id: dimension, dimension, detail: null })), score: null, reason: null };
+const EMPTY_EXPLANATION: DecisionExplanationView = { status: "IDLE", text: null, retryable: false };
+const EXPLANATION_POLL_INTERVAL_MS = 1_000;
+const EXPLANATION_WAIT_LIMIT_MS = 30_000;
 
 function tokensFor(response: TextCommandResponse): BoundExecutionToken[] {
   const tokens = response.decision?.execution_tokens || [];
@@ -85,6 +88,8 @@ export function DecisionPage() {
   const [recording, setRecording] = useState(false);
   const [currentTurn, setCurrentTurn] = useState<CurrentTurnData | null>(null);
   const [result, setResult] = useState<DecisionResultView>(EMPTY_RESULT);
+  const [explanation, setExplanation] = useState<DecisionExplanationView>(EMPTY_EXPLANATION);
+  const [explanationAttempt, setExplanationAttempt] = useState(0);
   const [tokens, setTokens] = useState<BoundExecutionToken[]>([]);
   const [execResults, setExecResults] = useState<Record<string, ExecuteResult>>({});
   const [execBusyTurnId, setExecBusyTurnId] = useState<string | null>(null);
@@ -153,6 +158,37 @@ export function DecisionPage() {
     return () => controller.abort();
   }, [currentTurn?.turn_id, setActiveTurn, turnId]);
 
+  useEffect(() => {
+    if (!turnId) { setExplanation(EMPTY_EXPLANATION); return; }
+    const controller = new AbortController();
+    const deadline = Date.now() + EXPLANATION_WAIT_LIMIT_MS;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    setExplanation({ status: "PENDING", text: null, retryable: false });
+    const poll = async () => {
+      try {
+        const value = await getDecisionExplanation(turnId, controller.signal);
+        if (controller.signal.aborted) return;
+        if (value.status === "AVAILABLE") {
+          setExplanation({ status: "AVAILABLE", text: value.explanation?.trim() || null, retryable: false });
+          return;
+        }
+        if (value.status === "FAILED") {
+          setExplanation({ status: "FAILED", text: null, retryable: value.retryable });
+          return;
+        }
+      } catch {
+        if (controller.signal.aborted) return;
+      }
+      if (Date.now() >= deadline) {
+        setExplanation({ status: "FAILED", text: null, retryable: true });
+        return;
+      }
+      timer = setTimeout(() => { void poll(); }, EXPLANATION_POLL_INTERVAL_MS);
+    };
+    void poll();
+    return () => { controller.abort(); if (timer) clearTimeout(timer); };
+  }, [explanationAttempt, turnId]);
+
   const submit = useCallback(() => {
     const controller = new AbortController(); activeRequestRef.current?.abort(); activeRequestRef.current = controller;
     setBusy(true); setHasError(false); setFeedback("正在解析语义帧…");
@@ -172,6 +208,24 @@ export function DecisionPage() {
     finally { setExecBusyTurnId(null); }
   }, []);
 
+  const retryExplanation = useCallback(() => {
+    if (!turnId) return;
+    setExplanation({ status: "PENDING", text: null, retryable: false });
+    void retryDecisionExplanation(turnId)
+      .then((value) => {
+        if (value.status === "FAILED") {
+          setExplanation({ status: "FAILED", text: null, retryable: value.retryable });
+          return;
+        }
+        if (value.status === "AVAILABLE") {
+          setExplanation({ status: "AVAILABLE", text: value.explanation?.trim() || null, retryable: false });
+          return;
+        }
+        setExplanationAttempt((current) => current + 1);
+      })
+      .catch(() => setExplanation({ status: "FAILED", text: null, retryable: true }));
+  }, [turnId]);
+
   const resolve = useCallback((action: InteractionAction, candidateId?: string, text?: string, parameters?: Record<string, unknown>) => {
     if (!interaction) return;
     setClarificationBusy(true); setClarificationError(null);
@@ -188,7 +242,7 @@ export function DecisionPage() {
       <SemanticFrameDisplay frame={currentTurn?.semantic_frame || null} />
     </div>
     <div className="decision-result-column"><div className="decision-child-detail-card">
-      <DecisionResultDisplay result={result} />
+      <DecisionResultDisplay result={result} explanation={explanation} onExplanationRetry={retryExplanation} />
       <section className="decision-execution-panel"><div className="decision-execution-actions">
         {tokens.length === 0 ? <button type="button" disabled className="decision-execution-button">无待确认执行</button> : <p>请在执行确认交互中确认执行。</p>}
       </div>{Object.values(execResults).map((entry) => <div key={entry.reason} className="decision-execution-result"><span>{entry.reason}</span></div>)}</section>

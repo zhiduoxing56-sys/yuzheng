@@ -61,6 +61,9 @@ def test_cancel_appends_terminal_audit_and_all_public_reads_use_effective_state(
     assert outcome is not None
     assert outcome.audit_id == terminal_audit_id
     assert outcome.record_type == "REVIEW_OUTCOME"
+    assert outcome.signature is not None
+    assert outcome.signature_algorithm == "Ed25519"
+    assert outcome.signature_key_id
     assert outcome.original_turn_id == turn_id
     assert outcome.original_final_decision.value == "REVIEW"
     assert outcome.effective_final_decision.value == "BLOCK"

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
 import type { SemanticFrame, SemanticIntent } from "../types/contract";
-import type { CommandInputMode, DecisionResultView, DecisionVisualState } from "../types/visualModels";
+import type { CommandInputMode, DecisionExplanationView, DecisionResultView, DecisionVisualState } from "../types/visualModels";
 
 const INPUT_TABS: Array<{ mode: CommandInputMode; label: string }> = [
   { mode: "text", label: "文本指令" },
@@ -191,7 +191,7 @@ function mergeReasonDisplay(value: string | null | undefined): string {
   );
 }
 
-export function DecisionResultDisplay({ result, selector }: { result: DecisionResultView; selector?: ReactNode }) {
+export function DecisionResultDisplay({ result, selector, explanation, onExplanationRetry }: { result: DecisionResultView; selector?: ReactNode; explanation?: DecisionExplanationView; onExplanationRetry?: () => void }) {
   const state = result.state ? DECISION_STATE_VIEW[result.state] : null;
   return <section className={`decision-result-section state-${result.state || "empty"}`} aria-labelledby="decision-result-heading">
     <div className="decision-result-heading-row">
@@ -210,7 +210,14 @@ export function DecisionResultDisplay({ result, selector }: { result: DecisionRe
       <div className="decision-merge-basis"><dt>裁决来源</dt><dd>{result.decisionSources?.length ? result.decisionSources.map(decisionSourceDisplay).join("、") : "暂无来源"}</dd></div>
       <div className="decision-merge-basis"><dt>合并原因</dt><dd>{mergeReasonDisplay(result.mergeReason)}</dd></div>
     </dl>
-    <div className="decision-reason"><h2>具体原因：</h2><div>{result.reason?.trim() || "暂无"}</div></div>
+    <div className="decision-reason"><h2>具体原因：</h2>
+      <div className={`decision-reason-content is-${explanation?.status.toLowerCase() || "idle"}`}>
+        {explanation?.status === "PENDING" ? <span className="decision-reason-spinner" role="status" aria-label="具体原因生成中" />
+          : explanation?.status === "AVAILABLE" ? <span>{explanation.text}</span>
+            : explanation?.status === "FAILED" ? <button type="button" className="decision-reason-retry" disabled={!explanation.retryable} onClick={onExplanationRetry}>重试</button>
+              : <span>暂无</span>}
+      </div>
+    </div>
     <details className="decision-diagnostic-score"><summary>诊断评分（不覆盖安全门）</summary>
       <div className="decision-dimension-table"><table><thead><tr><th>维度</th><th>得分</th></tr></thead><tbody>{result.dimensions.map((row) => <tr key={row.id}><td>{row.dimension}</td><td>{diagnosticDisplay(row.detail)}</td></tr>)}</tbody></table></div>
       <p className="decision-score">五维安全评分： <strong>{diagnosticDisplay(result.score)}</strong></p>
