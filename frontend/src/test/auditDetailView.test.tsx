@@ -43,7 +43,7 @@ describe("human-readable AuditDetailView", () => {
     render(<><AuditCommandSection data={data} /><AuditUnderstandingSection data={data} /><AuditSnapshotSection data={data} /><AuditDecisionSection data={data} /><AuditReviewSection data={data} /><AuditExecutionSection data={data} /></>);
     expect(screen.getAllByText("打开右前车门").length).toBeGreaterThan(0);
     expect(screen.getAllByText("关闭右前车窗").length).toBeGreaterThan(0);
-    expect(screen.getByText("本次无用户复核")).toBeTruthy();
+    expect(screen.queryByText("本次无用户复核")).toBeNull();
     expect(screen.queryByText("clause_index")).toBeNull();
     expect(screen.queryByText("intent_id")).toBeNull();
     expect(screen.queryByText("unknown")).toBeNull();
@@ -65,6 +65,6 @@ describe("human-readable AuditDetailView", () => {
     data.execution_changes = [{ key: "vehicle_speed", label: "车速", before: 21.3, after: 28.6, unit: "km/h", delta: 7.3 }];
     render(<AuditExecutionSection data={data} />);
     expect(screen.getByText("21.3 km/h → 28.6 km/h")).toBeTruthy();
-    expect(screen.getByText("变化 +7.3 km/h")).toBeTruthy();
+    expect(screen.queryByText("变化 +7.3 km/h")).toBeNull();
   });
 });

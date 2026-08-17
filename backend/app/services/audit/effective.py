@@ -143,6 +143,7 @@ class EffectiveAuditResolver:
         workflow_valid = workflow_repository.verify_chain(
             original.root_turn_id or original.turn_id
         ).valid
+        signature_status = self.repository.signature_status_for_record(original.audit_id)
         return {
             **original_verification,
             "workflow_chain_valid": workflow_valid,
@@ -160,4 +161,6 @@ class EffectiveAuditResolver:
             "relationship_valid": relationship_valid,
             "merge_decision_valid": merge_valid,
             "effective_outcome_valid": effective_valid,
+            "signature_status": signature_status[0] if signature_status else "NOT_FOUND",
+            "signature_valid": signature_status[1] if signature_status else False,
         }

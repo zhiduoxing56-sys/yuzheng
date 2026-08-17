@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from threading import Event
+from time import sleep
+
 from app.models.schemas import (
     TextCommandRequest,
+    EvidenceObservationInput,
     VehicleExecutionResult,
     VehicleState,
     VehicleStatePatch,
@@ -92,28 +96,66 @@ class _ExplanationProvider:
     def __init__(self, pipeline) -> None:
         self.pipeline = pipeline
         self.calls = 0
+        self.called = Event()
+        self.payload = None
 
     def generate(self, _system_prompt, payload):
         self.calls += 1
         assert self.pipeline.audit_repository.count() >= 1
-        return {
-            "llm_explanation": f"结构化事实已给出 {payload['final_decision']} 裁决。"
-        }
+        assert set(payload) == {"instruction", "decision_status", "vehicle_context"}
+        self.payload = payload
+        self.called.set()
+        return {"explanation": "车辆当前状态不满足操作条件，因此本次指令需要拒绝"}
 
 
 def test_llm_explanation_runs_once_after_audit_persistence_and_is_append_only(pipeline) -> None:
     provider = _ExplanationProvider(pipeline)
     pipeline.audit_explanation_service.provider = provider
+    pipeline.update_vehicle_state(
+        VehicleStatePatch(vehicle_speed=35, gear_position="D", weather="RAIN")
+    )
+    pipeline.set_simulation_evidence(
+        [
+            EvidenceObservationInput(
+                evidence_type="ENVIRONMENT_CONDITIONS",
+                source="SIMULATION",
+                value={
+                    "time_of_day": "NIGHT",
+                    "visibility": 80,
+                    "precipitation": "RAIN",
+                    "fog": "LIGHT",
+                },
+            ),
+            EvidenceObservationInput(
+                evidence_type="ROAD_FRICTION_STATE",
+                source="SIMULATION",
+                value={"road_condition": "WET", "friction_scale_factor": 0.5},
+            ),
+        ]
+    )
     result = pipeline.process_text(TextCommandRequest(text="打开车窗"))
+    assert provider.called.wait(timeout=2)
+    for _ in range(100):
+        if pipeline.decision_explanation_status(result.turn_id).status == "AVAILABLE":
+            break
+        sleep(0.01)
     assert provider.calls == 1
+    assert provider.payload["vehicle_context"]["vehicle"]["speed_kmh"] == 35
+    assert provider.payload["vehicle_context"]["simulation_context"][
+        "ENVIRONMENT_CONDITIONS"
+    ]["visibility"] == 80
+    assert provider.payload["vehicle_context"]["simulation_context"][
+        "ROAD_FRICTION_STATE"
+    ]["friction_scale_factor"] == 0.5
     events = pipeline.workflow_repository.events(result.root_turn_id or result.turn_id)
     explanation_events = [
         event
         for event in events
         if event.event_type == WorkflowEventType.LLM_EXPLANATION_GENERATED
     ]
-    assert len(explanation_events) == 1
-    assert explanation_events[0].payload["llm_explanation_status"] == "AVAILABLE"
+    assert [
+        event.payload["llm_explanation_status"] for event in explanation_events
+    ] == ["PENDING", "AVAILABLE"]
     stored = pipeline.audit_repository.get_by_turn(result.turn_id)
     assert stored is not None
     assert stored.current_hash == result.audit.current_hash

@@ -9,6 +9,7 @@ data/database/*.db-*
 data/database/backups/
 data/database/
 data/secrets/
+data/keys/
 tmp/
 dist/
 

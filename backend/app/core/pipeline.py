@@ -55,6 +55,8 @@ from app.models.schemas import (
     RetrievalMetadata,
     RuntimeCapabilityStatus,
     RuntimeSafetyContext,
+    OrderedSemanticUnit,
+    RequestRouting,
     SafetyGateResult,
     SemanticUnitKind,
     SemanticControlMode,
@@ -76,7 +78,14 @@ from app.models.schemas import (
 from app.services.audit.repository import AuditRepository
 from app.services.audit.recall_ai import RecallAIAuditService
 from app.services.audit.effective import EffectiveAuditResolver
-from app.services.audit.explanation import AuditExplanationService
+from app.services.audit.explanation import (
+    AuditExplanationService,
+    deepseek_explanation_provider_from_environment,
+)
+from app.services.audit.explanation_jobs import (
+    DecisionExplanationCoordinator,
+    DecisionExplanationJobRepository,
+)
 from app.services.authorization.service import AuthorizationTokenError, AuthorizationTokenService
 from app.services.causal.service import CausalCorrectionService
 from app.services.claim.service import ClaimCheckResult, ContextClaimService
@@ -113,7 +122,12 @@ from app.services.vector.embedding import build_embedding_service
 from app.services.vehicle.carla import CarlaVehicleAdapter
 from app.services.vehicle.capabilities import CanonicalCapabilityRegistry
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
+from app.services.vehicle.scenario_summary import scenario_conditions
 from app.services.asr.whisper import ASRModelError, WhisperASRService
+from app.services.asr.text_normalizer import (
+    ASRTextNormalizationError,
+    TraditionalChineseNormalizer,
+)
 from app.services.voice.antispoof import (
     ASVspoofLADetector,
     ASVspoofPADetector,
@@ -229,6 +243,7 @@ class CommandPipeline:
             self.voice_config["zone_permission"]
         )
         self.asr_service = WhisperASRService(self.voice_config["asr"])
+        self.asr_text_normalizer = TraditionalChineseNormalizer()
         self.semantic_service = SemanticOrchestratorService()
         self.request_routing_service = RequestRoutingService()
         self.claim_service = ContextClaimService()
@@ -239,7 +254,10 @@ class CommandPipeline:
             embedder=self.embedder,
         )
         self.interpreter_service = InterpreterService(self.interpreter_config)
-        audit_explanation_provider = self.interpreter_service.provider
+        audit_explanation_provider = (
+            deepseek_explanation_provider_from_environment()
+            or self.interpreter_service.provider
+        )
         self.audit_explanation_service = AuditExplanationService(
             audit_explanation_provider
         )
@@ -289,6 +307,15 @@ class CommandPipeline:
         self.recall_ai_audit_service = RecallAIAuditService(self.audit_repository)
         self.effective_audit_resolver = EffectiveAuditResolver(self.audit_repository)
         self.workflow_repository = WorkflowRepository(self.audit_repository.database_path)
+        self.decision_explanation_repository = DecisionExplanationJobRepository(
+            self.audit_repository.database_path
+        )
+        self.decision_explanation_coordinator = DecisionExplanationCoordinator(
+            repository=self.decision_explanation_repository,
+            explanation_service=self.audit_explanation_service,
+            workflow_repository=self.workflow_repository,
+        )
+        self._simulation_control_context: dict[str, str] = {}
         self.authorization_service = AuthorizationTokenService(
             load_yaml("authorization.yaml"),
             self.workflow_repository,
@@ -963,9 +990,33 @@ class CommandPipeline:
                 audio_input_metadata=metadata,
                 emit=emit,
             )
+        try:
+            semantic_text = self.asr_text_normalizer.to_simplified(
+                transcription.transcribed_text
+            )
+        except ASRTextNormalizationError as exc:
+            semantic_text = transcription.transcribed_text
+            normalization_failure_reason = "ASR_TEXT_NORMALIZATION_FAILED"
+            emit(
+                "ASR_TEXT_NORMALIZATION_FAILED",
+                "ASR 简繁归一失败，转入语义复核",
+                {"error": str(exc)},
+            )
+        else:
+            normalization_failure_reason = None
+            emit(
+                "ASR_TEXT_NORMALIZED",
+                "ASR 文本已完成简繁归一",
+                {
+                    "source_text": transcription.transcribed_text,
+                    "normalized_text": semantic_text,
+                    "changed": semantic_text != transcription.transcribed_text,
+                    "adapter": "opencc_t2s",
+                },
+            )
         pipeline_result = self.process_text(
             TextCommandRequest(
-                text=transcription.transcribed_text,
+                text=semantic_text,
                 speaker_zone=decoded.speaker_zone,
                 speaker_role=speaker_role,
                 session_id=session_id,
@@ -990,6 +1041,7 @@ class CommandPipeline:
             audio_input_metadata=metadata,
             event_sink=sink,
             event_sequence_start=sequence,
+            semantic_normalization_failure_reason=normalization_failure_reason,
         )
         return AudioCommandResponse(
             turn_id=turn_id,
@@ -1401,6 +1453,7 @@ class CommandPipeline:
         audio_input_metadata: dict[str, Any] | None = None,
         event_sequence_start: int = 0,
         trusted_context: TrustedRuntimeContext | None = None,
+        semantic_normalization_failure_reason: str | None = None,
     ) -> TextCommandResponse:
         if trusted_context is not None and not isinstance(
             trusted_context, TrustedRuntimeContext
@@ -1468,6 +1521,7 @@ class CommandPipeline:
                         **({"session_id": request.session_id} if request.session_id else {}),
                     },
                     trusted_context=trusted_context,
+                    semantic_normalization_failure_reason=semantic_normalization_failure_reason,
                     emit=emit,
                 )
         except Exception as exc:
@@ -1498,6 +1552,7 @@ class CommandPipeline:
         spectrum_analysis: SpectrumAnalysisResult | None,
         audio_input_metadata: dict[str, Any],
         trusted_context: TrustedRuntimeContext | None,
+        semantic_normalization_failure_reason: str | None,
         emit: Callable[[str, str, dict[str, Any] | None], None],
     ) -> TextCommandResponse:
         overall_started = perf_counter()
@@ -1545,10 +1600,30 @@ class CommandPipeline:
                 "文本直通，无 ASR 模型推理",
                 {"adapter": transcription.adapter},
             )
-        request_routing = self.request_routing_service.route(request.text)
+        if semantic_normalization_failure_reason is None:
+            request_routing = self.request_routing_service.route(request.text)
+        else:
+            request_routing = RequestRouting(
+                raw_text=request.text,
+                units=[
+                    OrderedSemanticUnit(
+                        unit_index=0,
+                        kind=SemanticUnitKind.UNCERTAIN,
+                        normalized_text=request.text.strip() or "无法理解",
+                    )
+                ],
+                model_metrics={
+                    "fallback": True,
+                    "fallback_reason": semantic_normalization_failure_reason,
+                },
+            )
         frame = self.semantic_service.parse_ordered_units(
             turn_id, request.text, request_routing.units
         )
+        if semantic_normalization_failure_reason is not None:
+            frame = frame.model_copy(
+                update={"review_reasons": [semantic_normalization_failure_reason]}
+            )
         if not request_routing.contains_vehicle_control:
             return self._semantic_terminal_response(
                 frame=frame,
@@ -2742,47 +2817,37 @@ class CommandPipeline:
             }
         )
         try:
-            decision_snapshot = persisted_decision_snapshot
             explanation_context = self.audit_explanation_service.context(
                 saved_audit,
-                decision_snapshot=(
-                    decision_snapshot.model_dump(mode="json")
-                    if decision_snapshot is not None
-                    else None
+                vehicle_context=self._decision_explanation_vehicle_context(
+                    state,
+                    [*persistent_simulation_evidence, *request_evidence_overrides],
                 ),
             )
-            explanation_context = explanation_context.model_copy(
-                update={
-                    "authorization_status": (
-                        "AUTHORIZED"
-                        if response_decision.authorization_token is not None
-                        else "NOT_AUTHORIZED"
-                    ),
-                    "execution_status": None,
-                }
-            )
-            explanation_result = self.audit_explanation_service.generate(
-                explanation_context
-            )
-            self.workflow_repository.append_event(
+            self.decision_explanation_coordinator.create_and_schedule(
+                turn_id=turn_id,
+                audit_id=saved_audit.audit_id,
                 root_turn_id=root_turn_id,
-                related_turn_id=turn_id,
                 parent_turn_id=parent_turn_id,
-                event_type=WorkflowEventType.LLM_EXPLANATION_GENERATED,
-                payload={
-                    "audit_id": saved_audit.audit_id,
-                    "llm_explanation_status": explanation_result.status,
-                    "llm_explanation": explanation_result.explanation,
-                    "llm_model": explanation_result.model,
-                    "llm_generated_at": explanation_result.generated_at.isoformat(),
-                    "failure_reason": explanation_result.failure_reason,
-                },
+                context=explanation_context,
             )
         except Exception:
             # Explanation is strictly post-decision and must never invalidate the
             # persisted audit, authorization grant, or command response.
             _LOGGER.warning("AI audit explanation append failed", exc_info=True)
         return response
+
+    def decision_explanation_status(self, turn_id: str):
+        return self.decision_explanation_coordinator.status(turn_id)
+
+    def retry_decision_explanation(self, turn_id: str):
+        return self.decision_explanation_coordinator.retry(turn_id)
+
+    def close(self) -> None:
+        self.decision_explanation_coordinator.close()
+        close_semantic = getattr(self.semantic_service, "close", None)
+        if callable(close_semantic):
+            close_semantic()
 
     def current_evidence(self) -> CurrentEvidenceResponse:
         nodes = self.evidence_repository.current_nodes()
@@ -2881,6 +2946,118 @@ class CommandPipeline:
             return []
         return [item.model_copy(deep=True) for item in provider()]
 
+    @staticmethod
+    def _present_explanation_context_value(value: Any) -> bool:
+        return not (
+            value is None
+            or (
+                isinstance(value, str)
+                and value.strip().lower()
+                in {"", "unknown", "n/a", "not_applicable", "--"}
+            )
+        )
+
+    @classmethod
+    def _compact_explanation_context(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            return {
+                str(key): cls._compact_explanation_context(item)
+                for key, item in value.items()
+                if cls._present_explanation_context_value(item)
+            }
+        if isinstance(value, list):
+            return [
+                cls._compact_explanation_context(item)
+                for item in value
+                if cls._present_explanation_context_value(item)
+            ]
+        return value
+
+    def _decision_explanation_vehicle_context(
+        self,
+        state: VehicleState,
+        observations: list[EvidenceObservationInput],
+    ) -> dict[str, Any]:
+        context: dict[str, Any] = {
+            "vehicle": {
+                "speed_kmh": state.vehicle_speed,
+                "gear": state.gear_position,
+                "brake_state": state.brake_state,
+                "door_lock_state": state.door_lock_state,
+                "door_state": state.door_state,
+                "window_state": state.window_state,
+                "sunroof_state": state.sunroof_state,
+                "headlight_state": state.headlight_state,
+                "navigation_active": state.navigation_active,
+                "reverse_camera_active": state.reverse_camera_active,
+                "display_state": state.display_state,
+                "music_state": state.music_state,
+                "ac_state": state.ac_state,
+            },
+            "environment": {
+                "weather": state.weather,
+                "ambient_light_lux": state.ambient_light,
+                "road_condition": state.road_condition,
+                "speed_limit_kmh": state.speed_limit,
+            },
+            "surroundings": {
+                "front_obstacle_distance_m": state.front_obstacle_distance,
+                "rear_obstacle_distance_m": state.rear_obstacle_distance,
+                "ultrasonic_distance_m": state.ultrasonic_distance,
+                "collision_state": state.collision_state,
+                "collision_target": state.collision_target,
+                "objects": state.surrounding_objects,
+                **self._simulation_control_context,
+            },
+            "system": {
+                "vehicle_mode": state.vehicle_mode,
+                "occupant_role": state.occupant_role,
+                "speaker_zone": state.speaker_zone,
+                "authentication_state": state.authentication_state,
+                "safety_constraint": state.safety_constraint,
+                "emergency_flag": state.emergency_flag,
+                "surround_camera_state": state.surround_camera_state,
+            },
+            "simulation_context": {
+                item.evidence_type: item.value for item in observations
+            },
+        }
+        return self._compact_explanation_context(context)
+
+    def record_simulation_control(self, key: str, value: str) -> None:
+        with self._command_lock:
+            self._simulation_control_context[key] = value
+
+    def spawn_simulation_obstacle(self, kind: str) -> tuple[bool, int]:
+        with self._command_lock:
+            spawn = getattr(self.vehicle, "spawn_obstacle", None)
+            count = getattr(self.vehicle, "obstacle_count", None)
+            if not callable(spawn) or not callable(count):
+                raise RuntimeError("当前车辆适配器不是 CARLA，无法生成障碍物")
+            ok = bool(spawn(kind))
+            if ok:
+                self._simulation_control_context["obstacle_mode"] = kind.upper()
+            return ok, int(count())
+
+    def clear_simulation_obstacles(self) -> int:
+        with self._command_lock:
+            clear = getattr(self.vehicle, "clear_obstacles", None)
+            if not callable(clear):
+                raise RuntimeError("当前车辆适配器不是 CARLA，无法清除障碍物")
+            cleared = int(clear())
+            self._simulation_control_context["obstacle_mode"] = "NONE"
+            return cleared
+
+    def set_simulation_traffic_light(self, state: str) -> bool:
+        with self._command_lock:
+            setter = getattr(self.vehicle, "set_traffic_light", None)
+            if not callable(setter):
+                raise RuntimeError("当前车辆适配器不是 CARLA，无法控制交通灯")
+            ok = bool(setter(state))
+            if ok:
+                self._simulation_control_context["traffic_light"] = state.upper()
+            return ok
+
     def set_simulation_evidence(
         self, observations: list[EvidenceObservationInput]
     ) -> list[EvidenceObservationInput]:
@@ -2931,6 +3108,7 @@ class CommandPipeline:
                 "scenario_id": scenario_id,
                 "name": scenario.get("name", scenario_id),
                 "text": scenario.get("text", ""),
+                "conditions": scenario_conditions(scenario),
             }
             for scenario_id, scenario in values.items()
         ]

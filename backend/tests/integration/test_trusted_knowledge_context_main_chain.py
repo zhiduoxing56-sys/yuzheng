@@ -79,3 +79,6 @@ def test_demo_context_enters_formal_evidence_repository_before_knowledge_query(
         "LIDAR",
         "ULTRASONIC",
     }.intersection(item["source"] for item in context_sources)
+    assert all(item["quality_label"] == "VALID" for item in context_sources)
+    assert all(item["availability"] > 0 for item in context_sources)
+    assert all(item["freshness"] > 0 for item in context_sources)

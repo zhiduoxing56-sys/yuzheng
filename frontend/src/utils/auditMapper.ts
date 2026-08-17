@@ -24,7 +24,8 @@ export function auditVerificationPassed(data: AuditVerificationResponse | null):
   if (!data) return null;
   const required = [data.record_hash_valid, data.previous_link_valid, data.audit_chain_valid, data.workflow_chain_valid, data.relationship_valid, data.merge_decision_valid, data.effective_outcome_valid];
   const terminal = [data.terminal_record_hash_valid, data.terminal_previous_link_valid].filter((value): value is boolean => typeof value === "boolean");
-  return [...required, ...terminal].every(Boolean);
+  const signature = typeof data.signature_valid === "boolean" ? [data.signature_valid] : [];
+  return [...required, ...terminal, ...signature].every(Boolean);
 }
 
 export function asDecisionLabel(value: string): DecisionLabel | null {

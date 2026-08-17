@@ -722,6 +722,13 @@ class AuditLLMExplanation(StrictModel):
     generated_at: datetime | None = None
 
 
+class DecisionExplanationStatusResponse(StrictModel):
+    status: Literal["PENDING", "AVAILABLE", "FAILED"]
+    explanation: str | None = None
+    generated_at: datetime | None = None
+    retryable: bool = False
+
+
 class AuditClarificationCandidate(StrictModel):
     display_text: str
 
@@ -761,6 +768,15 @@ class AuditExecutionChange(StrictModel):
     delta: float | None = None
 
 
+class AuditIntegrityProtection(StrictModel):
+    previous_hash: str
+    current_hash: str
+    signature: str | None = None
+    signature_algorithm: str | None = None
+    signature_key_id: str | None = None
+    protection_status: Literal["LEGACY_HASH_CHAIN", "HASH_CHAIN_AND_SIGNATURE"]
+
+
 class AuditDetailView(StrictModel):
     command_summary: AuditCommandSummary
     resolved_operations: list[AuditResolvedOperation] = Field(default_factory=list)
@@ -775,6 +791,7 @@ class AuditDetailView(StrictModel):
     execution_before_snapshot: AuditVehicleSnapshot | None = None
     execution_after_snapshot: AuditVehicleSnapshot | None = None
     execution_changes: list[AuditExecutionChange] = Field(default_factory=list)
+    integrity_protection: AuditIntegrityProtection
 
 
 class AuditVerificationResponse(StrictModel):
@@ -789,6 +806,8 @@ class AuditVerificationResponse(StrictModel):
     relationship_valid: bool = True
     merge_decision_valid: bool = True
     effective_outcome_valid: bool = True
+    signature_status: str = "LEGACY_HASH_CHAIN"
+    signature_valid: bool | None = None
     failure_reason: str | None = None
 
 

@@ -860,6 +860,11 @@ class TrustedKnowledgeIndexService:
                                         "node_id": item["node_id"],
                                         "source": item["source"],
                                         "source_field": item["source_field"],
+                                        "timestamp": item["timestamp"],
+                                        "expires_at": item["expires_at"],
+                                        "freshness": item["freshness"],
+                                        "availability": item["availability"],
+                                        "quality_label": item["quality_label"],
                                     }
                                     for item in context_fields
                                 ],
@@ -894,6 +899,11 @@ class TrustedKnowledgeIndexService:
                     "node_id": item["node_id"],
                     "source": item["source"],
                     "source_field": item["source_field"],
+                    "timestamp": item["timestamp"],
+                    "expires_at": item["expires_at"],
+                    "freshness": item["freshness"],
+                    "availability": item["availability"],
+                    "quality_label": item["quality_label"],
                 }
                 for item in context_fields
             ]

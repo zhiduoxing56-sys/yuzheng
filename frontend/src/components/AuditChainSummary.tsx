@@ -4,9 +4,19 @@ import { formatDateTime } from "../utils/formatters";
 interface Props { data: GlobalAuditChainView | null; loading: boolean; error: string | null; verifiedAt: Date | null; onRefresh: () => void; }
 
 export function AuditChainSummary({ data, loading, error, verifiedAt, onRefresh }: Props) {
-  return <section className={`audit-chain-summary ${data?.state === "invalid" ? "invalid" : ""}`}>
-    <div><span className="eyebrow">GLOBAL CHAIN</span><strong>{data ? data.state === "valid" ? "全局审计链通过" : data.state === "empty" ? "后端没有可校验记录" : `全局审计链异常（${data.invalidCount} 条）` : loading ? "正在校验全局审计链" : "尚未取得校验结果"}</strong><small>{verifiedAt ? `本次页面校验时间：${formatDateTime(verifiedAt.toISOString())}` : "等待本次页面校验。"}</small></div>
-    {error && <p className="inline-error">{error}。审计列表仍可继续使用。</p>}
-    <button className="secondary-button compact" onClick={onRefresh} disabled={loading}>{loading ? "校验中…" : data || error ? "重新校验" : "开始校验"}</button>
+  const status = loading
+    ? "正在验证"
+    : !data
+      ? "等待验证"
+      : data.state === "valid"
+        ? "审计链正常"
+        : data.firstAnomaly
+          ? `检测到异常：${data.firstAnomaly.auditId}（${data.firstAnomaly.type}）`
+          : "检测到审计记录完整性异常";
+  return <section className={`audit-chain-summary audit-integrity-summary ${data?.state === "invalid" ? "invalid" : ""}`}>
+    <div className="audit-integrity-status"><strong>{status}</strong>{verifiedAt && <small>本次页面验证时间：{formatDateTime(verifiedAt.toISOString())}</small>}</div>
+    <button className="audit-integrity-verify" onClick={onRefresh} disabled={loading}>{loading ? "验证中" : "验证"}</button>
+    {data && <dl className="audit-integrity-metrics"><div><dt>总记录</dt><dd>{data.totalRecords}</dd></div><div><dt>历史记录</dt><dd>{data.legacyUnsignedRecords}</dd></div><div><dt>签名保护</dt><dd>{data.signatureProtectedRecords}</dd></div><div><dt>签名通过</dt><dd>{data.signatureVerifiedRecords}</dd></div><div><dt>哈希链</dt><dd>{data.hashChainStatus === "VALID" ? "正常" : "异常"}</dd></div><div><dt>数字签名</dt><dd>{data.signatureStatus === "VALID" ? "有效" : data.signatureStatus === "NOT_ENABLED" ? "暂无" : "异常"}</dd></div></dl>}
+    {error && <p className="inline-error">{error}</p>}
   </section>;
 }

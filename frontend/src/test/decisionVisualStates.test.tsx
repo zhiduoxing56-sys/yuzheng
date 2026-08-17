@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { DecisionResultDisplay } from "../components/DecisionVisuals";
 import type { DecisionResultView, DecisionVisualState } from "../types/visualModels";
 
@@ -48,5 +49,22 @@ describe("DecisionResultDisplay", () => {
   it("translates the aggregate merge reason into a complete Chinese sentence", () => {
     render(<DecisionResultDisplay result={{ ...result("reject"), mergeReason: "Intent safety aggregate=BLOCK; top-level score is conservative projection from 2 occurrence assessments" }} />);
     expect(screen.getByText("各意图安全评价汇总为拒绝执行；顶层评分采用 2 个意图评价的保守投影")).toBeTruthy();
+  });
+
+  it("isolates the asynchronous explanation loading state inside the reason box", () => {
+    const { container } = render(<DecisionResultDisplay result={result("reject")} explanation={{ status: "PENDING", text: null, retryable: false }} />);
+    expect(screen.getByLabelText("具体原因生成中")).toBeTruthy();
+    expect(container.querySelector(".decision-reason-spinner")).not.toBeNull();
+    expect(screen.queryByText("正在生成")).toBeNull();
+  });
+
+  it("shows the generated explanation or a retry action without changing the decision", async () => {
+    const retry = vi.fn();
+    const view = render(<DecisionResultDisplay result={result("reject")} explanation={{ status: "FAILED", text: null, retryable: true }} onExplanationRetry={retry} />);
+    await userEvent.click(screen.getByRole("button", { name: "重试" }));
+    expect(retry).toHaveBeenCalledOnce();
+    view.rerender(<DecisionResultDisplay result={result("reject")} explanation={{ status: "AVAILABLE", text: "车辆行驶中开启车门风险较高，因此本次指令被拒绝", retryable: false }} />);
+    expect(screen.getByText("车辆行驶中开启车门风险较高，因此本次指令被拒绝")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toContain("拒绝");
   });
 });

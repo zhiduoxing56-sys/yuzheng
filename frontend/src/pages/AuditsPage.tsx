@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { listAuditRecords } from "../api/auditRecords";
 import { AuditDetailDialog } from "../components/AuditDetailDialog";
 import { AuditRecordTable } from "../components/AuditRecordTable";
+import { AuditChainSummary } from "../components/AuditChainSummary";
+import { useGlobalAuditChain } from "../hooks/useGlobalAuditChain";
 import type { AuditRecordView } from "../types/visualModels";
 
 type AuditLoadState = "loading" | "success" | "empty" | "error";
@@ -33,6 +35,7 @@ function mapAuditRecords(payload: unknown): AuditRecordView[] {
 }
 
 export function AuditsPage() {
+  const chain = useGlobalAuditChain();
   const [records, setRecords] = useState<AuditRecordView[]>([]);
   const [loadState, setLoadState] = useState<AuditLoadState>("loading");
   const [loading, setLoading] = useState(true);
@@ -91,6 +94,7 @@ export function AuditsPage() {
     {loadState === "empty" && <p className="audit-records-status" role="status">暂无审计记录</p>}
     {loadState === "error" && <p className="audit-records-status is-error" role="alert">审计记录加载失败：{error || "请稍后重试"}</p>}
     {error && loadState !== "error" && <p className="audit-records-status is-error" role="alert">刷新失败：{error}</p>}
+    <AuditChainSummary data={chain.data} loading={chain.loading} error={chain.error} verifiedAt={chain.verifiedAt} onRefresh={chain.refresh} />
     {loadState !== "error" && <AuditRecordTable records={records} onRecordClick={handleRecordClick} />}
     <AuditDetailDialog auditId={selectedAuditId} onClose={() => setSelectedAuditId(null)} />
   </div>;

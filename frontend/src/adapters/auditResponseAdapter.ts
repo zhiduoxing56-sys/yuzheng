@@ -43,14 +43,40 @@ export function adaptAuditVerification(raw: unknown): AuditVerificationResponse 
   return raw as AuditVerificationResponse;
 }
 
-export interface GlobalAuditChainView { state: "valid" | "invalid" | "empty"; invalidCount: number; }
+export interface GlobalAuditChainView {
+  state: "valid" | "invalid" | "empty";
+  invalidCount: number;
+  totalRecords: number;
+  legacyUnsignedRecords: number;
+  signatureProtectedRecords: number;
+  signatureVerifiedRecords: number;
+  hashChainStatus: string;
+  signatureStatus: string;
+  firstAnomaly: { auditId: string; type: string; message: string } | null;
+}
 
 export function adaptGlobalAuditChain(raw: unknown): GlobalAuditChainView {
   const root = record(raw, "globalAuditChain");
-  if ("valid" in root) return boolean(root.valid, "globalAuditChain.valid") ? { state: "valid", invalidCount: 0 } : { state: "invalid", invalidCount: 1 };
+  if ("valid" in root) {
+    const valid = boolean(root.valid, "globalAuditChain.valid");
+    const count = (value: unknown) => typeof value === "number" ? value : 0;
+    const anomaly = record(root.first_anomaly ?? {}, "globalAuditChain.first_anomaly");
+    return {
+      state: valid ? "valid" : "invalid",
+      invalidCount: count(root.anomaly_count) || (valid ? 0 : 1),
+      totalRecords: count(root.total_records),
+      legacyUnsignedRecords: count(root.legacy_unsigned_records),
+      signatureProtectedRecords: count(root.signature_protected_records),
+      signatureVerifiedRecords: count(root.signature_verified_records),
+      hashChainStatus: typeof root.hash_chain_status === "string" ? root.hash_chain_status : "NOT_CHECKED",
+      signatureStatus: typeof root.signature_status === "string" ? root.signature_status : "NOT_ENABLED",
+      firstAnomaly: typeof anomaly.audit_id === "string" && typeof anomaly.anomaly_type === "string" && typeof anomaly.message === "string"
+        ? { auditId: anomaly.audit_id, type: anomaly.anomaly_type, message: anomaly.message } : null,
+    };
+  }
   const values = Object.entries(root);
-  if (!values.length) return { state: "empty", invalidCount: 0 };
+  if (!values.length) return { state: "empty", invalidCount: 0, totalRecords: 0, legacyUnsignedRecords: 0, signatureProtectedRecords: 0, signatureVerifiedRecords: 0, hashChainStatus: "NOT_CHECKED", signatureStatus: "NOT_ENABLED", firstAnomaly: null };
   const flags = values.map(([key, value]) => boolean(value, `globalAuditChain.${key}`));
   const invalidCount = flags.filter((value) => !value).length;
-  return { state: invalidCount ? "invalid" : "valid", invalidCount };
+  return { state: invalidCount ? "invalid" : "valid", invalidCount, totalRecords: 0, legacyUnsignedRecords: 0, signatureProtectedRecords: 0, signatureVerifiedRecords: 0, hashChainStatus: "NOT_CHECKED", signatureStatus: "NOT_ENABLED", firstAnomaly: null };
 }

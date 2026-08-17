@@ -143,6 +143,33 @@ def test_default_enforce_mode_preserves_stage5_constraint_and_health(
         assert client.get("/api/health").json()["voice_trust_mode"] == "enforce"
 
 
+def test_traditional_asr_text_uses_simplified_semantic_input_and_keeps_raw_text(
+    observe_pipeline: CommandPipeline,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_scores(monkeypatch, observe_pipeline, la_score=0.0, pa_score=0.0)
+    _patch_asr(monkeypatch, observe_pipeline, "請打開車門")
+
+    result = observe_pipeline.process_audio_bytes(
+        _audio(),
+        speaker_zone="driver",
+        speaker_role="driver",
+        trusted_context=TrustedRuntimeContext(
+            subject_role="driver",
+            subject_zone="driver",
+            subject_source="voice_test",
+            zone_source="voice_test",
+        ),
+    )
+
+    assert result.asr_result is not None
+    assert result.asr_result.transcribed_text == "請打開車門"
+    assert result.semantic_frame.raw_text == "请打开车门"
+    assert result.semantic_frame.normalized_text == "请打开车门"
+    assert [intent.intent_id for intent in result.semantic_frame.intents] == ["DOOR_OPEN"]
+    assert result.decision.final_decision == DecisionLabel.PASS
+
+
 @pytest.mark.parametrize(
     ("la_score", "pa_score", "expected_label"),
     [(0.5, 0.5, "REVIEW"), (0.0, 0.0, "BLOCK")],
