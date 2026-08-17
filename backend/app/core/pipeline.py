@@ -3129,7 +3129,11 @@ class CommandPipeline:
             activate = getattr(self.vehicle, "activate_scenario", None)
             persistent_simulation = bool(
                 callable(activate)
-                and all(item.source == "SIMULATION" for item in observations)
+                and getattr(
+                    self.vehicle,
+                    "supports_multisource_scenario_evidence",
+                    False,
+                )
             )
             if not persistent_simulation:
                 return self.update_vehicle_state(patch)
