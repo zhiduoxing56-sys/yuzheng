@@ -1,0 +1,320 @@
+document_status: FORMAL_CANONICAL_CATALOG
+version: evidence-type-catalog-v1
+canonical_type_count: 38
+design_scope: VEHICLE_CONTROL_SAFETY
+basis:
+  COVESA_VSS: {version: '6.0', local_directory: references/standards/01_covesa_vss_v6.0/vehicle_signal_specification-6.0, machine_readable: [spec/VehicleSignalSpecification.vspec, spec/units.yaml, spec/quantities.yaml]}
+  ASAM_OSI: {version: '3.8.0', local_directory: references/standards/02_asam_osi_v3.8.0/open-simulation-interface-3.8.0, machine_readable: ['*.proto', VERSION]}
+  ASAM_OPENSCENARIO_XML: {version: '1.4.0', local_directory: references/standards/03_asam_openscenario_xml_v1.4.0, machine_readable: [ASAM_OpenSCENARIO_v1.4.0_Schema/OpenSCENARIO.xsd, 'ASAM_OpenSCENARIO_v1.4.0_Examples/*.xosc']}
+  ASAM_OPENDRIVE: {version: '1.9.0', local_directory: references/standards/04_asam_opendrive_v1.9.0, machine_readable: ['ASAM_OpenDRIVE_v1-9-0_xsd_schema_files/*.xsd', 'ASAM_OpenDRIVE_v1-9-0_examples_and_use-cases/**/*.xodr']}
+  ANDROID_AUTOMOTIVE_VHAL: {version: 'Android 16 local snapshot', local_directory: references/standards/05_android_automotive_vhal/repo/automotive/vehicle/aidl_property/android/hardware/automotive/vehicle, machine_readable: [VehicleProperty.aidl, '*.aidl']}
+mapping_kinds: [DIRECT_STANDARD, DERIVED, INTERNAL_SECURITY]
+method_note: >-
+  Canonical Evidence 类型是面向车控安全裁决的参数化事实母类，不是标准原始实体的复制。
+  标准原生字段、系统派生字段和内部安全字段的逐字段性质见 evidence_runtime_mapping_v1.yaml。
+
+evidence_types:
+  VEHICLE_SPEED:
+    display_name: 车辆速度
+    domain: SELF_MOTION
+    description: 当前自车纵向速度及由其派生的运动状态。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Speed]
+  VEHICLE_ACCELERATION:
+    display_name: 车辆加速度
+    domain: SELF_MOTION
+    description: 自车纵向、横向和垂向加速度。
+    standard_name: COVESA VSS / ASAM OSI
+    standard_version: '6.0 / 3.8.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Acceleration.Longitudinal, Vehicle.Acceleration.Lateral, Vehicle.Acceleration.Vertical, 'osi_common.proto:BaseMoving.acceleration']
+  GEAR_STATE:
+    display_name: 挡位状态
+    domain: SELF_MOTION
+    description: 当前挡位、选择挡位和换挡模式。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Powertrain.Transmission.CurrentGear, Vehicle.Powertrain.Transmission.SelectedGear, Vehicle.Powertrain.Transmission.GearChangeMode]
+  SERVICE_BRAKE_STATE:
+    display_name: 行车制动状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 制动踏板输入、制动执行状态与紧急制动检测。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DERIVED
+    standard_mappings: [Vehicle.Chassis.Brake.PedalPosition, Vehicle.Chassis.Brake.IsDriverEmergencyBrakingDetected]
+  PARKING_BRAKE_STATE:
+    display_name: 驻车制动状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 驻车制动施加与自动施加配置。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Chassis.ParkingBrake.IsEngaged, Vehicle.Chassis.ParkingBrake.IsAutoApplyEnabled]
+  STEERING_STATE:
+    display_name: 转向状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 方向盘角、车轴转角与转向运动事实。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Chassis.SteeringWheel.Angle, Vehicle.Chassis.Axle.SteeringAngle]
+  ESC_STATE:
+    display_name: 车身稳定系统状态
+    domain: ADAS
+    description: ESC 启用、介入和故障状态。
+    standard_name: COVESA VSS / Android Automotive VHAL
+    standard_version: '6.0 / Android 16 local snapshot'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.ADAS.ESC.IsEnabled, Vehicle.ADAS.ESC.IsEngaged, Vehicle.ADAS.ESC.IsError, ELECTRONIC_STABILITY_CONTROL_STATE]
+  ROAD_FRICTION_STATE:
+    display_name: 道路附着状态
+    domain: ROAD
+    description: 路面湿润、摩擦缩放和车辆侧估计附着水平。
+    standard_name: COVESA VSS / ASAM OpenSCENARIO XML
+    standard_version: '6.0 / 1.4.0'
+    mapping_kind: DERIVED
+    standard_mappings: [Vehicle.ADAS.ESC.RoadFriction.LowerBound, Vehicle.ADAS.ESC.RoadFriction.MostProbable, Vehicle.ADAS.ESC.RoadFriction.UpperBound, RoadCondition.frictionScaleFactor, RoadCondition.wetness]
+  CRUISE_STATE:
+    display_name: 巡航系统状态
+    domain: ADAS
+    description: 标准、适应式或预测式巡航的启用、运行、目标速度和时距。
+    standard_name: COVESA VSS / Android Automotive VHAL
+    standard_version: '6.0 / Android 16 local snapshot'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.ADAS.CruiseControl.IsEnabled, Vehicle.ADAS.CruiseControl.IsActive, Vehicle.ADAS.CruiseControl.SpeedSet, CRUISE_CONTROL_ENABLED, CRUISE_CONTROL_TYPE, CRUISE_CONTROL_STATE, CRUISE_CONTROL_TARGET_SPEED, ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP]
+  DOOR_STATE:
+    display_name: 车门状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 按车门区域参数表达开闭和开度。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Cabin.Door.*.IsOpen', 'Vehicle.Cabin.Door.*.Position']
+  DOOR_LOCK_STATE:
+    display_name: 车门锁状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 按车门区域参数表达锁定和儿童锁。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Cabin.Door.*.IsLocked', 'Vehicle.Cabin.Door.*.IsChildLockActive']
+  WINDOW_STATE:
+    display_name: 车窗状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 按车窗区域参数表达开闭、开度和儿童锁。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Cabin.Door.*.Window.IsOpen', 'Vehicle.Cabin.Door.*.Window.Position', Vehicle.Cabin.IsWindowChildLockEngaged]
+  SUNROOF_STATE:
+    display_name: 天窗状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 天窗开度和倾斜状态。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Cabin.Sunroof.Position]
+  TRUNK_STATE:
+    display_name: 行李厢状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 前/后行李厢开闭和开度。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Body.Trunk.*.IsOpen', 'Vehicle.Body.Trunk.*.Position']
+  TRUNK_LOCK_STATE:
+    display_name: 行李厢锁状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 前/后行李厢锁定状态。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Body.Trunk.*.IsLocked']
+  HOOD_STATE:
+    display_name: 前舱盖状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 前舱盖开闭和位置。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Body.Hood.IsOpen, Vehicle.Body.Hood.Position]
+  MIRROR_STATE:
+    display_name: 外后视镜状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 按镜面区域参数表达折叠、锁定、水平和垂直位置。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Body.Mirrors.*.IsFolded', 'Vehicle.Body.Mirrors.*.IsLocked', 'Vehicle.Body.Mirrors.*.Pan', 'Vehicle.Body.Mirrors.*.Tilt', 'Vehicle.Body.Mirrors.*.Yaw']
+  MIRROR_HEATING_STATE:
+    display_name: 外后视镜加热状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 按镜面区域参数表达加热开关。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Body.Mirrors.*.IsHeatingOn']
+  SEAT_POSITION_STATE:
+    display_name: 座椅位置状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 按座椅区域参数表达位置、高度、倾角、靠背和腰托。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Cabin.Seat.*.Position', 'Vehicle.Cabin.Seat.*.Height', 'Vehicle.Cabin.Seat.*.Tilt', 'Vehicle.Cabin.Seat.*.Backrest.Recline', 'Vehicle.Cabin.Seat.*.Backrest.LumbarHeight', 'Vehicle.Cabin.Seat.*.Backrest.LumbarSupport']
+  STEERING_WHEEL_POSITION_STATE:
+    display_name: 方向盘调节位置状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 方向盘伸缩和倾斜位置。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Chassis.SteeringWheel.Extension, Vehicle.Chassis.SteeringWheel.Tilt]
+  HVAC_STATE:
+    display_name: 空调状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 以 station/area 参数表达温度、风量、送风和循环状态。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Cabin.HVAC.IsAirConditioningActive, Vehicle.Cabin.HVAC.IsRecirculationActive, 'Vehicle.Cabin.HVAC.Station.*.Temperature', 'Vehicle.Cabin.HVAC.Station.*.FanSpeed', 'Vehicle.Cabin.HVAC.Station.*.AirDistribution']
+  DEFROST_STATE:
+    display_name: 风挡除霜除雾状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 前后风挡除霜除雾状态。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Cabin.HVAC.IsFrontDefrosterActive, Vehicle.Cabin.HVAC.IsRearDefrosterActive]
+  WINDSHIELD_HEATING_STATE:
+    display_name: 风挡加热状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 前后风挡加热状态。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Body.Windshield.*.IsHeatingOn']
+  LIGHTING_STATE:
+    display_name: 车辆外部灯光状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 前照灯、远近光、雾灯、驻车灯、危险警示和转向灯状态。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [Vehicle.Body.Lights.LightSwitch, Vehicle.Body.Lights.IsHighBeamSwitchOn, Vehicle.Body.Lights.Beam.High.IsOn, Vehicle.Body.Lights.Beam.Low.IsOn, 'Vehicle.Body.Lights.Fog.*.IsOn', Vehicle.Body.Lights.Parking.IsOn, Vehicle.Body.Lights.Hazard.IsSignaling, 'Vehicle.Body.Lights.DirectionIndicator.*.IsSignaling']
+  WIPER_STATE:
+    display_name: 雨刮状态
+    domain: VEHICLE_FUNCTION_STATE
+    description: 按风挡区域参数表达雨刮模式、强度、频率、运动和故障。
+    standard_name: COVESA VSS
+    standard_version: '6.0'
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: ['Vehicle.Body.Windshield.*.Wiping.Mode', 'Vehicle.Body.Windshield.*.Wiping.Intensity', 'Vehicle.Body.Windshield.*.Wiping.System.Frequency', 'Vehicle.Body.Windshield.*.Wiping.System.IsWiping', 'Vehicle.Body.Windshield.*.Wiping.System.IsWiperError']
+  OCCUPANT_STATE:
+    display_name: 乘员状态
+    domain: OCCUPANT
+    description: 按座椅区域表达占用、安全带、角色和手部控制状态。
+    standard_name: COVESA VSS / ASAM OSI / Android Automotive VHAL
+    standard_version: '6.0 / 3.8.0 / Android 16 local snapshot'
+    mapping_kind: DERIVED
+    standard_mappings: ['Vehicle.Cabin.Seat.*.OccupancyStatus', 'Vehicle.Cabin.Seat.*.IsBelted', Vehicle.Driver.IsHandsOnWheel, 'osi_occupant.proto:Occupant.classification', SEAT_OCCUPANCY]
+  DRIVER_MONITORING_STATE:
+    display_name: 驾驶员监测状态
+    domain: OCCUPANT
+    description: 驾驶员注意力、分心、困倦和手握方向盘告警状态。
+    standard_name: COVESA VSS / Android Automotive VHAL
+    standard_version: '6.0 / Android 16 local snapshot'
+    mapping_kind: DERIVED
+    standard_mappings: [Vehicle.Driver.IsHandsOnWheel, DRIVER_DROWSINESS_ATTENTION_STATE, DRIVER_DROWSINESS_ATTENTION_WARNING, DRIVER_DISTRACTION_STATE, DRIVER_DISTRACTION_WARNING, HANDS_ON_DETECTION_DRIVER_STATE, HANDS_ON_DETECTION_WARNING]
+  SURROUNDING_OBJECT_STATE:
+    display_name: 周边目标状态
+    domain: SURROUNDING_OBJECT
+    description: 用一个参数化母类表达运动/静止目标的空间、类别和相对运动；八方向由位置派生。
+    standard_name: ASAM OSI
+    standard_version: '3.8.0'
+    mapping_kind: DERIVED
+    standard_mappings: ['osi_object.proto:MovingObject.base/type/vehicle_classification', 'osi_object.proto:StationaryObject.base/classification', 'osi_common.proto:BaseMoving.position/velocity/acceleration', 'osi_groundtruth.proto:GroundTruth.moving_object/stationary_object']
+  LANE_STATE:
+    display_name: 车道状态
+    domain: ROAD
+    description: 当前车道、相邻车道、边界和逻辑车道关系。
+    standard_name: ASAM OSI / ASAM OpenDRIVE
+    standard_version: '3.8.0 / 1.9.0'
+    mapping_kind: DERIVED
+    standard_mappings: ['osi_lane.proto:Lane.classification/left_adjacent_lane_id/right_adjacent_lane_id', 'osi_logicallane.proto:LogicalLane', 'OpenDRIVE_Lane.xsd:t_road_lanes/t_road_lanes_laneSection']
+  ROAD_STRUCTURE_STATE:
+    display_name: 道路结构状态
+    domain: ROAD
+    description: 当前道路类型、路口关系、交通规则、几何/结构和静态表面引用。
+    standard_name: ASAM OpenDRIVE
+    standard_version: '1.9.0'
+    mapping_kind: DERIVED
+    standard_mappings: ['OpenDRIVE_Road.xsd:t_road/type/lanes/surface/@junction/@rule', 'OpenDRIVE_Junction.xsd:t_junction', 'OpenDRIVE_Road.xsd:t_road_surface_CRG']
+  TRAFFIC_LIGHT_STATE:
+    display_name: 交通信号灯状态
+    domain: ROAD
+    description: 与当前道路或车道相关的交通信号灯分类和颜色。
+    standard_name: ASAM OSI
+    standard_version: '3.8.0'
+    mapping_kind: DERIVED
+    standard_mappings: ['osi_trafficlight.proto:TrafficLight.classification/color_description', 'osi_groundtruth.proto:GroundTruth.traffic_light']
+  SPEED_LIMIT_STATE:
+    display_name: 道路限速状态
+    domain: ROAD
+    description: 由交通标志或道路类型获取的有效限速。
+    standard_name: ASAM OSI / ASAM OpenDRIVE
+    standard_version: '3.8.0 / 1.9.0'
+    mapping_kind: DERIVED
+    standard_mappings: ['osi_trafficsign.proto:TrafficSign.Classification.Type.TYPE_SPEED_LIMIT_*', 'OpenDRIVE_Road.xsd:t_road_type_speed']
+  FREE_SPACE_STATE:
+    display_name: 自由空间状态
+    domain: SURROUNDING_OBJECT
+    description: 可通行或泊车自由空间概率与几何。
+    standard_name: ASAM OSI
+    standard_version: '3.8.0'
+    mapping_kind: DERIVED
+    standard_mappings: ['osi_featuredata.proto:FeatureData.free_space']
+  ENVIRONMENT_CONDITIONS:
+    display_name: 外部环境条件
+    domain: ENVIRONMENT
+    description: 照度、能见度、天气、降水、雾、温度、湿度、气压、时间和太阳信息。
+    standard_name: ASAM OSI / ASAM OpenSCENARIO XML
+    standard_version: '3.8.0 / 1.4.0'
+    mapping_kind: DERIVED
+    standard_mappings: ['osi_environment.proto:EnvironmentalConditions', 'OpenSCENARIO.xsd:Weather/Sun/Fog/Precipitation']
+  COLLISION_ASSIST_STATE:
+    display_name: 碰撞辅助状态
+    domain: ADAS
+    description: 用 feature 参数表达 AEB、FCW、BSW、低速碰撞和横穿交通功能状态。
+    standard_name: Android Automotive VHAL
+    standard_version: Android 16 local snapshot
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [AUTOMATIC_EMERGENCY_BRAKING_ENABLED, AUTOMATIC_EMERGENCY_BRAKING_STATE, FORWARD_COLLISION_WARNING_ENABLED, FORWARD_COLLISION_WARNING_STATE, BLIND_SPOT_WARNING_ENABLED, BLIND_SPOT_WARNING_STATE, LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE, LOW_SPEED_COLLISION_WARNING_STATE, CROSS_TRAFFIC_MONITORING_WARNING_STATE]
+  LANE_ASSIST_STATE:
+    display_name: 车道辅助状态
+    domain: ADAS
+    description: 用 feature 参数表达 LDW、LKA、LCA 和 ELKA 功能状态。
+    standard_name: Android Automotive VHAL
+    standard_version: Android 16 local snapshot
+    mapping_kind: DIRECT_STANDARD
+    standard_mappings: [LANE_DEPARTURE_WARNING_ENABLED, LANE_DEPARTURE_WARNING_STATE, LANE_KEEP_ASSIST_ENABLED, LANE_KEEP_ASSIST_STATE, LANE_CENTERING_ASSIST_ENABLED, LANE_CENTERING_ASSIST_STATE, EMERGENCY_LANE_KEEP_ASSIST_ENABLED, EMERGENCY_LANE_KEEP_ASSIST_STATE]
+  AUTHORIZATION_STATE:
+    display_name: 授权状态
+    domain: AUTHORIZATION
+    description: 可信身份、区域与逐意图车控权限。
+    standard_name: PROJECT_INTERNAL
+    standard_version: evidence-space-v1
+    mapping_kind: INTERNAL_SECURITY
+    standard_mappings: []
+  SYSTEM_MODE:
+    display_name: 系统运行模式
+    domain: SYSTEM_RUNTIME
+    description: 可信运行模式、安全约束和模拟/测试状态。
+    standard_name: PROJECT_INTERNAL
+    standard_version: evidence-space-v1
+    mapping_kind: INTERNAL_SECURITY
+    standard_mappings: []

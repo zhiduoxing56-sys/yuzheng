@@ -1,0 +1,79 @@
+# 当前约束迁移清单（current-constraint-migration-scope-v1）
+# 阈值来源：freezes/safety_rules.yaml（队友权威版，2026-08-16）
+
+迁移原则：
+1. 法规数值/条件 → 知识节点 when 谓词（阈值必须可溯源）
+2. 工程判定阈值 → Evidence Registry（不写节点）
+3. 最终裁决策略 → Safety Gate（HARD violation→BLOCK 等）
+
+## 一、必须迁移的规则（MUST_MIGRATE，含真实阈值）
+
+constraints:
+  - rule_id: LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: 知识.灯光.夜间关闭限制.001
+    target_status: MUST_MIGRATE
+    enforcement_class: HARD
+    note: 夜间或低照度行驶中禁止关闭前照灯；low_light_lux=20
+  - rule_id: MOVING_DOOR_OPEN_PROHIBITED
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: 知识.车门.行驶开门限制.001
+    target_status: MUST_MIGRATE
+    enforcement_class: HARD
+    note: 行驶中禁止打开车门（DOOR_OPEN/DOOR_SET_POSITION）
+  - rule_id: UNAUTHORIZED_DOOR_UNLOCK_BLOCKED
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: 知识.车门.未授权解锁限制.001
+    target_status: MUST_MIGRATE
+    enforcement_class: HARD
+    note: 未授权解锁车门 → BLOCK
+  - rule_id: REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: 知识.显示.倒车屏幕关闭.001
+    target_status: MUST_MIGRATE
+    enforcement_class: HARD
+    note: 倒车影像开启时禁止关闭显示屏（DISPLAY_OFF）
+  - rule_id: DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: 知识.除雾.浓雾关闭限制.001
+    target_status: MUST_MIGRATE
+    enforcement_class: HARD
+    note: 浓雾环境禁止关闭前挡风除雾；dense_fog_values=['DENSE_FOG', 'HEAVY_FOG', 'FOG', '浓雾', '大雾']
+  - rule_id: FRONT_OBSTACLE_ACCELERATION_PROHIBITED
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: 知识.加速.近距障碍加速限制.001
+    target_status: MUST_MIGRATE
+    enforcement_class: HARD
+    note: 前方障碍距离过近禁止加速；threshold_m=5
+  - rule_id: REAR_STATE_DECELERATION_CONFLICT
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: 知识.制动.后方冲突复核.001
+    target_status: MUST_MIGRATE
+    enforcement_class: SOFT
+    note: 制动/减速时关键后方状态冲突；threshold_m=1.5
+  - rule_id: MANDATORY_TRUST_THRESHOLD
+    current_source: config/safety_rules.yaml (freezes/safety_rules.yaml)
+    target_node: （治理层）
+    target_status: MUST_MIGRATE
+    enforcement_class: HARD
+    note: 强制证据平均可信度低于阈值 0.45 → BLOCK
+
+## 二、非业务规则（保留在 Safety Gate，不迁移到知识节点）
+
+以下规则是"治理/安全机制"而非"业务约束"，继续由 Safety Gate evaluator 执行：
+  - SEMANTIC_MODEL_DEGRADED_HIGH_RISK（语义模型降级）
+  - MANDATORY_EVIDENCE_AVAILABLE / INTEGRITY / FRESHNESS（证据门）
+  - LEVEL3_JAILBREAK_CONFLICT（越狱检测）
+  - NON_DRIVER_DRIVING_CONTROL_PROHIBITED（非驾驶员控制）
+  - REAL_ROAD_SAFETY_BYPASS_PROHIBITED（真实道路绕过）
+  - UNAUTHORIZED_DIRECT_INTERFACE / CONTROL_FRAME（未授权接口）
+
+## 三、迁移输入
+inputs:
+  - freezes/safety_rules.yaml（队友权威版，含真实阈值）
+  - config/safety_rules.yaml（工程内现有）
+  - 旧知识节点（v10 规范层）
+  - freezes/evidence_demand_registry_v1.yaml（强制证据基线）
+
+## 四、验收
+- knowledge_constraints_v1.jsonl 每行通过 schema + 注册表 + 验收用例
