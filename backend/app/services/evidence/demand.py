@@ -36,8 +36,10 @@ class EvidenceDemandService:
             parts.append(demand.area)
         if demand.required_types:
             parts.extend(["REQUIRED", *demand.required_types])
-        if demand.optional_types:
-            parts.extend(["OPTIONAL", *demand.optional_types])
+        if demand.knowledge_required_types:
+            parts.extend(["KNOWLEDGE_REQUIRED", *demand.knowledge_required_types])
+        if demand.assessment_types:
+            parts.extend(["ASSESSMENT", *demand.assessment_types])
         return " ".join(parts)
 
     def build(self, frame: SemanticFrame) -> EvidenceDemand:
@@ -70,6 +72,7 @@ class EvidenceDemandService:
                 risk_level=intent.risk_level,
                 query_text="",
                 required_types=required_types,
+                assessment_types=optional_types,
                 optional_types=optional_types,
                 priority=0,
                 retrieval_scope="control_evidence",

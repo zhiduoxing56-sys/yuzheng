@@ -314,6 +314,17 @@ class EvidenceRepository:
                 },
             ),
             (
+                "WIPER_STATE",
+                {
+                    "area": "FRONT",
+                    "mode": state.wiper_mode,
+                    "intensity": state.wiper_intensity,
+                    "frequency": state.wiper_frequency,
+                    "wiping": state.wiper_wiping,
+                    "error": state.wiper_error,
+                },
+            ),
+            (
                 "SURROUNDING_OBJECT_STATE",
                 {
                     "front_obstacle_distance": state.front_obstacle_distance,

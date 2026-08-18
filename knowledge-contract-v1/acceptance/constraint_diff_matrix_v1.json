@@ -1,0 +1,503 @@
+{
+ "total": 49,
+ "stats": {
+  "CONSISTENT": 42,
+  "SAFETYGATE_STRICTER": 7
+ },
+ "rows": [
+  {
+   "source": "knowledge",
+   "case_id": "KC-001",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-002",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-003",
+   "kn_decision": "NOT_APPLICABLE",
+   "kn_reason": "无节点命中",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "均无约束放行（NOT_APPLICABLE 与 ALLOW 等价）"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-004",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "MOVING_DOOR_OPEN_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-005",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-006",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "MOVING_DOOR_OPEN_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-007",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "FRONT_OBSTACLE_ACCELERATION_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-008",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-009",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "FRONT_OBSTACLE_ACCELERATION_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-010",
+   "kn_decision": "REVIEW",
+   "kn_reason": "when求值",
+   "sg_decision": "REVIEW",
+   "sg_reason": "REAR_STATE_DECELERATION_CONFLICT(REAR_DISTANCE_BELOW_THRESHOLD)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-011",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-012",
+   "kn_decision": "REVIEW",
+   "kn_reason": "when求值",
+   "sg_decision": "REVIEW",
+   "sg_reason": "REAR_STATE_DECELERATION_CONFLICT(REAR_DISTANCE_BELOW_THRESHOLD)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-013",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-014",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "KC-015",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-001",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-002",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-003",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-004",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-005",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "FRONT_OBSTACLE_ACCELERATION_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-006",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-007",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-008",
+   "kn_decision": "REVIEW",
+   "kn_reason": "证据缺失→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "证据缺失(ENVIRONMENT_CONDITIONS.ambient_illumination)→证据门REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-009",
+   "kn_decision": "REVIEW",
+   "kn_reason": "证据缺失→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "证据缺失(VEHICLE_SPEED.value)→证据门REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-010",
+   "kn_decision": "REVIEW",
+   "kn_reason": "证据缺失→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "证据缺失(SURROUNDING_OBJECT_STATE.front_obstacle_distance)→证据门REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-011",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "类型错误→值校验REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-012",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "类型错误→值校验REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-013",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-014",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "FRONT_OBSTACLE_ACCELERATION_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-015",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-016",
+   "kn_decision": "REVIEW",
+   "kn_reason": "when求值",
+   "sg_decision": "REVIEW",
+   "sg_reason": "REAR_STATE_DECELERATION_CONFLICT(REAR_DISTANCE_BELOW_THRESHOLD)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-017",
+   "kn_decision": "NOT_APPLICABLE",
+   "kn_reason": "无节点命中",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "均无约束放行（NOT_APPLICABLE 与 ALLOW 等价）"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-018",
+   "kn_decision": "NOT_APPLICABLE",
+   "kn_reason": "无节点命中",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "均无约束放行（NOT_APPLICABLE 与 ALLOW 等价）"
+  },
+  {
+   "source": "knowledge",
+   "case_id": "EV-019",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-001",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "SAFETYGATE_STRICTER",
+   "diff_reason": "知识=REVIEW，SafetyGate=BLOCK（LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-002",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "SAFETYGATE_STRICTER",
+   "diff_reason": "知识=REVIEW，SafetyGate=BLOCK（LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-003",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "SAFETYGATE_STRICTER",
+   "diff_reason": "知识=REVIEW，SafetyGate=BLOCK（LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-004",
+   "kn_decision": "REVIEW",
+   "kn_reason": "证据缺失→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "证据缺失(VEHICLE_SPEED.value)→证据门REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-005",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "类型错误→值校验REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-006",
+   "kn_decision": "NOT_APPLICABLE",
+   "kn_reason": "无节点命中",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "SAFETYGATE_STRICTER",
+   "diff_reason": "知识节点不适用，SafetyGate BLOCK（evaluator 覆盖更广）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-007",
+   "kn_decision": "NOT_APPLICABLE",
+   "kn_reason": "无节点命中",
+   "sg_decision": "BLOCK",
+   "sg_reason": "LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED(hit)",
+   "status": "SAFETYGATE_STRICTER",
+   "diff_reason": "知识节点不适用，SafetyGate BLOCK（evaluator 覆盖更广）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-008",
+   "kn_decision": "NOT_APPLICABLE",
+   "kn_reason": "无节点命中",
+   "sg_decision": "BLOCK",
+   "sg_reason": "MOVING_DOOR_OPEN_PROHIBITED(hit)",
+   "status": "SAFETYGATE_STRICTER",
+   "diff_reason": "知识节点不适用，SafetyGate BLOCK（evaluator 覆盖更广）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-009",
+   "kn_decision": "NOT_APPLICABLE",
+   "kn_reason": "无节点命中",
+   "sg_decision": "ALLOW",
+   "sg_reason": "无规则命中",
+   "status": "CONSISTENT",
+   "diff_reason": "均无约束放行（NOT_APPLICABLE 与 ALLOW 等价）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-010",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "类型错误→值校验REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-011",
+   "kn_decision": "REVIEW",
+   "kn_reason": "类型错误→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "类型错误→值校验REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-012",
+   "kn_decision": "REVIEW",
+   "kn_reason": "when求值",
+   "sg_decision": "REVIEW",
+   "sg_reason": "REAR_STATE_DECELERATION_CONFLICT(REAR_VALIDATION_CONFLICT)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-013",
+   "kn_decision": "REVIEW",
+   "kn_reason": "证据缺失→按策略REVIEW",
+   "sg_decision": "REVIEW",
+   "sg_reason": "证据缺失(SURROUNDING_OBJECT_STATE.rear_obstacle_distance)→证据门REVIEW",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-014",
+   "kn_decision": "ALLOW",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED(hit)",
+   "status": "SAFETYGATE_STRICTER",
+   "diff_reason": "知识=ALLOW，SafetyGate=BLOCK（DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED(hit)）"
+  },
+  {
+   "source": "safety",
+   "case_id": "SG-015",
+   "kn_decision": "BLOCK",
+   "kn_reason": "when求值",
+   "sg_decision": "BLOCK",
+   "sg_reason": "DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED(hit)",
+   "status": "CONSISTENT",
+   "diff_reason": "一致"
+  }
+ ],
+ "accept": 49,
+ "failed": 0,
+ "not_executable": 0,
+ "verdict": "PASS"
+}

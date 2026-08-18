@@ -12,7 +12,7 @@ export function EvidenceDemandPanel({ data }: { data: TurnPresentationResponse |
         {intent.knowledge_hits?.length ? <p><strong>命中知识</strong>：{intent.knowledge_hits.map((hit) => hit.title ?? hit.node_id).join("；")}</p> : null}
       </div> : null}
       <ul className="evidence-demand-list">{intent.demand_items.map((item) => <li key={`${intent.clause_index}:${item.evidence_type}:${item.required}`}>
-      <div><strong>{item.evidence_type}</strong><span>{item.required ? "必需" : "可选"}</span></div>
+      <div><strong>{item.evidence_type}</strong><span>{item.requirement_level === "KNOWLEDGE_REQUIRED" ? "知识检索·缺失需复核" : item.requirement_level === "ASSESSMENT" ? "评估佐证·影响评分" : item.required ? "硬前置·缺失拒绝" : "评估佐证"}</span></div>
       <small>{item.status} · {item.retrieval_origin}</small>
       <p>{item.reason}</p>
     </li>)}</ul></article>)}

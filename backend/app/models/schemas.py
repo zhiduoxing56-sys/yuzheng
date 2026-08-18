@@ -574,6 +574,8 @@ class IntentEvidenceDemand(StrictModel):
     query_vector: list[float] = Field(default_factory=list)
     vectorization_metadata: "VectorizationMetadata | None" = None
     required_types: list[str] = Field(default_factory=list)
+    assessment_types: list[str] = Field(default_factory=list)
+    knowledge_required_types: list[str] = Field(default_factory=list)
     optional_types: list[str] = Field(default_factory=list)
     knowledge_augmented_types: list[str] = Field(default_factory=list)
     knowledge_augmented_optional_types: list[str] = Field(default_factory=list)
@@ -849,12 +851,13 @@ class IntentEvidenceBinding(StrictModel):
     clause_index: int = Field(ge=0)
     intent_id: str
     evidence_type: str
-    requirement_level: Literal["REQUIRED", "OPTIONAL"]
+    requirement_level: Literal["REQUIRED", "KNOWLEDGE_REQUIRED", "ASSESSMENT", "OPTIONAL"]
     node_id: str | None = None
     resolution_status: Literal[
         "RETRIEVED",
         "MANDATORY_RECALLED",
         "MISSING",
+        "KNOWLEDGE_MISSING",
         "OPTIONAL_NOT_FOUND",
     ]
     retrieval_origin: RetrievalOrigin
@@ -868,6 +871,7 @@ class IntentEvidenceResolution(StrictModel):
     bindings: list[IntentEvidenceBinding] = Field(default_factory=list)
     mandatory_recall_records: list[MandatoryRecallRecord] = Field(default_factory=list)
     missing_required_types: list[str] = Field(default_factory=list)
+    missing_knowledge_required_types: list[str] = Field(default_factory=list)
 
 
 class EvidenceQualityMetrics(StrictModel):
@@ -1080,7 +1084,9 @@ class CausalPriorComponents(StrictModel):
     clause_index: int | None = Field(default=None, ge=0)
     intent_id: str | None = None
     binding_similarity: float | None = Field(default=None, ge=0, le=1)
-    requirement_level: Literal["REQUIRED", "OPTIONAL"] | None = None
+    requirement_level: Literal[
+        "REQUIRED", "KNOWLEDGE_REQUIRED", "ASSESSMENT", "OPTIONAL"
+    ] | None = None
     memory_initial_confidence: float | None = Field(default=None, ge=0)
     sas_component: float | None = Field(default=None, ge=0, le=1)
     layer_confidence_component: float | None = Field(default=None, ge=0)
@@ -1339,6 +1345,7 @@ class SafetyGateResult(StrictModel):
     hit_rules: list[str] = Field(default_factory=list)
     observed_values: dict[str, Any] = Field(default_factory=dict)
     supporting_evidence_ids: list[str] = Field(default_factory=list)
+    knowledge_trace: list[dict[str, Any]] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def fill_gate_alias(self) -> "SafetyGateResult":
@@ -1487,6 +1494,11 @@ class VehicleState(StrictModel):
     authentication_state: str | bool | None = "AUTHENTICATED"
     ambient_light: float | int | str | None = 100
     headlight_state: str | None = "OFF"
+    wiper_mode: str | None = "OFF"
+    wiper_intensity: float | None = Field(default=0, ge=0)
+    wiper_frequency: float | None = Field(default=0, ge=0)
+    wiper_wiping: bool | None = False
+    wiper_error: bool | None = False
     weather: str | None = "CLEAR"
     window_state: str | None = "CLOSED"
     sunroof_state: str | None = "CLOSED"
@@ -1527,6 +1539,11 @@ class VehicleStatePatch(StrictModel):
     authentication_state: str | bool | None = None
     ambient_light: float | int | str | None = None
     headlight_state: str | None = None
+    wiper_mode: str | None = None
+    wiper_intensity: float | None = Field(default=None, ge=0)
+    wiper_frequency: float | None = Field(default=None, ge=0)
+    wiper_wiping: bool | None = None
+    wiper_error: bool | None = None
     weather: str | None = None
     window_state: str | None = None
     sunroof_state: str | None = None
@@ -1639,6 +1656,7 @@ class AuditRecord(StrictModel):
     spectrum_analysis: SpectrumAnalysisResult | None = None
     zone_permission_result: ZonePermissionResult | None = None
     audio_input_metadata: dict[str, Any] = Field(default_factory=dict)
+    active_scenario: dict[str, Any] = Field(default_factory=dict)
     semantic_frame: SemanticFrame
     request_routing: RequestRouting | None = None
     evidence_demand: EvidenceDemand

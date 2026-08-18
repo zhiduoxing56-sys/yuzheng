@@ -154,9 +154,9 @@ def test_stage3_primary_safety_scenarios_and_real_reasoning(pipeline) -> None:
         display_state="ON",
     )
     assert display.semantic_frame.semantic_status == "OK"
-    assert display.semantic_frame.intents[0].runtime_identity == "KNOWN_NON_EXECUTABLE"
-    assert display.safety_gate.checks == []
-    assert "REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED" not in display.safety_gate.hit_rules
+    assert display.semantic_frame.intents[0].runtime_identity == "FORMAL"
+    assert "REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED" in display.safety_gate.hit_rules
+    assert display.decision.final_decision == DecisionLabel.BLOCK
 
     vague = _run(pipeline, "把那个打开")
     assert vague.actionable is False
@@ -194,9 +194,8 @@ def test_remaining_configured_hard_gates_and_emergency_wording(pipeline) -> None
     )
     assert navigation.semantic_frame.semantic_status in {"OK", "REVIEW"}
     if navigation.semantic_frame.intents:
-        assert navigation.semantic_frame.intents[0].runtime_identity == "KNOWN_NON_EXECUTABLE"
-    assert navigation.safety_gate.checks == []
-    assert navigation.safety_gate.hit_rules == []
+        assert navigation.semantic_frame.intents[0].runtime_identity == "FORMAL"
+    assert "REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED" not in navigation.safety_gate.hit_rules
     assert navigation.decision.authorization_token is None
 
     autopark = _run(

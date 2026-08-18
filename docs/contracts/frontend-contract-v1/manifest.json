@@ -1,12 +1,12 @@
 {
   "contract_status": "FROZEN",
   "contract_version": "1.0.0",
-  "frontend_contract_json_sha256": "74ba17c2bf5b887c39d85a25aa9a4a2b97977d54149aeee507f61c0c1ec427c3",
-  "frontend_contract_markdown_sha256": "39aeeec734698530a5116b84fc2f5518a1a8b9adb35e3a21183004c93b86fcb6",
+  "frontend_contract_json_sha256": "08afe50e321dc75487ee43af1a564c7dd8c0c31728daedf239e5196c6faea5e5",
+  "frontend_contract_markdown_sha256": "ad1516ca88ab6b83e3c770b9695dd94f96d6b153ac22deff64b67bf234417ee6",
   "frozen": true,
   "generator_version": "1.0.0",
-  "production_schema_digest": "0c63ef206fa9392122b30638251e28f370c51dc561a1aab6b9735d15b40822be",
-  "public_openapi_sha256": "d4650879ce28e9a340b9d6b39f4ffcce0a53b951a2559df9e0f273a3a054470f",
+  "production_schema_digest": "cc3f5cce00385ef2e9dcb540c1e6d55887f02f52b6c52971ec3cdaaecf68610c",
+  "public_openapi_sha256": "0da3308437aa44a3c04788873ec9ae9905667b4d4839f9bd85f0b246dec19888",
   "readme_sha256": "dfab6055d03ef9c0da7606a711833e139866a092355ee9e085f3e37f61e8b738",
   "source_commit": "d894002bd7add4bc89e5513ffdee8807fc501a01"
 }

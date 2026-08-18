@@ -1,0 +1,107 @@
+[
+  {
+    "path": "a_class_final_partition.json",
+    "sha256": "c633e8aa03424b604e158414ae73a542889d633beffdf65e22a05a2f01ec3150",
+    "bytes": 7727
+  },
+  {
+    "path": "acceptance/constraint_diff_matrix_v1.json",
+    "sha256": "37b0e35d68281fd0f241e184ce9424014d47c2b450b33b577042dac1dda74000",
+    "bytes": 13638
+  },
+  {
+    "path": "acceptance/knowledge_constraint_acceptance_v1.jsonl",
+    "sha256": "2e53406ee4c420282523480c6ad7250d3b46f3caa45b19fdbad13164bd3cb071",
+    "bytes": 5048
+  },
+  {
+    "path": "acceptance/knowledge_constraint_eval_execution_v1.json",
+    "sha256": "d8f700b57f3aa76670245ab341a6365282a146c2e07e267d1c152b31ac161e7c",
+    "bytes": 3926
+  },
+  {
+    "path": "acceptance/knowledge_constraint_eval_extended_v1.jsonl",
+    "sha256": "7b0b1253517f135d8b91a25300d8aea59bf74bdd0a25a1e3f898316f30c90424",
+    "bytes": 6189
+  },
+  {
+    "path": "acceptance/knowledge_constraint_validation_report_v1.json",
+    "sha256": "9d097ba2a574f80ce6dbb7855e69107dd41428d25222384855fe2c9c570fd76d",
+    "bytes": 226
+  },
+  {
+    "path": "acceptance/knowledge_constraints_v1.jsonl",
+    "sha256": "32f773432222dbbe20b835e867f06524386a795dc301e8482ceb648f6f7496fc",
+    "bytes": 5667
+  },
+  {
+    "path": "acceptance/safety_gate_enhancement_cases_v1.jsonl",
+    "sha256": "fd2590c2674f35fc97dc8e83e6a4d10430a2d40f2991dc2eaeeea719d23c31b6",
+    "bytes": 4770
+  },
+  {
+    "path": "acceptance/safety_gate_enhancement_execution_v1.json",
+    "sha256": "dedca62998d75bc4439c282de33117ccde29c56e2f77f0f796859a44a74bb267",
+    "bytes": 5437
+  },
+  {
+    "path": "examples/invalid_knowledge_constraint_examples_v1.yaml",
+    "sha256": "77067565faa25a25b930948e55a8c1417b34366bb20475a4d74b42567443d59f",
+    "bytes": 6116
+  },
+  {
+    "path": "examples/valid_knowledge_constraint_examples_v1.yaml",
+    "sha256": "faececbb3e3fd3590a5cb1b4c9cea59d57673fcf05f47c55b3592ed37a9987c2",
+    "bytes": 4637
+  },
+  {
+    "path": "freezes/evidence_demand_registry_v1.yaml",
+    "sha256": "48a5e758f2757a3a96408628132567217f45b19b8d85e68d903508eff79b62e9",
+    "bytes": 31162
+  },
+  {
+    "path": "freezes/evidence_runtime_mapping_v1.yaml",
+    "sha256": "a80c3d1e88b8ef195471d64dbf0cbacb26874ee106fdc7df92fa6829e8881c6d",
+    "bytes": 89362
+  },
+  {
+    "path": "freezes/evidence_type_catalog_v1.yaml",
+    "sha256": "ad55a932a72569b957610d24540f349b3511ef960ac24336aa263fef7e096fed",
+    "bytes": 17280
+  },
+  {
+    "path": "freezes/intent_registry_unified_v1.yaml",
+    "sha256": "a5de44f42df48ee2045cd1676f5f3c01dab77ab91cd70e5dfd5edd1fdf59493a",
+    "bytes": 128417
+  },
+  {
+    "path": "freezes/knowledge_constraint_contract_v1.yaml",
+    "sha256": "3dff279543199f64bb09c674d1f646b0f7b1e74db0bdf51937cc7b40d52845d2",
+    "bytes": 9768
+  },
+  {
+    "path": "freezes/safety_rules.yaml",
+    "sha256": "5287d8b600b6b1b55a7be672f07ea6a84eecc0e5144c42a6c84746a9aaad8bcd",
+    "bytes": 2505
+  },
+  {
+    "path": "migration/current_constraint_migration_scope_v1.yaml",
+    "sha256": "52c8b18e307069cee141c5e4bbbdc5edc005bc81ae34ab043527aaa71840a2f6",
+    "bytes": 3814
+  },
+  {
+    "path": "spec/knowledge_constraint_authoring_v1.md",
+    "sha256": "ed5858d46fc155fac8beb2b221e32da38640b61ed5f7979be5bb0b8f5539cfa3",
+    "bytes": 5438
+  },
+  {
+    "path": "spec/knowledge_constraint_node_v1.schema.json",
+    "sha256": "37037d52575bf4702946b3c19198b9a4762f5f0dd132818300ab6aaa77e2933a",
+    "bytes": 4418
+  },
+  {
+    "path": "spec/knowledge_contract_freeze_v1.json",
+    "sha256": "edbcf6ab4175cc6b395acf7277f30a731d690f625b7a91544b7c247ddde74e3a",
+    "bytes": 2276
+  }
+]

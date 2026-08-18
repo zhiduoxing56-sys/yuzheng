@@ -250,10 +250,11 @@ class SemanticOrchestratorService:
             )
         vehicle_units = [unit for unit in units if unit.kind == SemanticUnitKind.VEHICLE_CONTROL]
         if not vehicle_units:
-            return SemanticFrame(
-                turn_id=turn_id, raw_text=raw_text, normalized_text=_normalized_text(raw_text),
-                semantic_confidence=1.0, ambiguity_score=0.0, semantic_status="OK",
-            )
+            # Non-vehicle text still traverses the frozen security guard.  It must
+            # not manufacture a vehicle intent, but detected security claims must
+            # remain available to the terminal decision route.
+            run = self._orchestrator.run_ordered_units(raw_text, [])
+            return self._frame_from_run(turn_id, raw_text, run)
         run = self._orchestrator.run_ordered_units(
             raw_text,
             [

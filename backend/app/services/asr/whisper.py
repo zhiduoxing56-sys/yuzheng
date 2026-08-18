@@ -16,6 +16,7 @@ class ASRModelError(RuntimeError):
 
 class WhisperASRService:
     CONFIDENCE_METHOD = "mean_generated_token_probability"
+    adapter = "whisper_transformers_local"
 
     def __init__(self, config: dict[str, Any]) -> None:
         self.model_name = str(config["model_name"])
@@ -92,7 +93,7 @@ class WhisperASRService:
             turn_id=turn_id,
             text=text,
             confidence=confidence,
-            adapter="whisper_transformers_local",
+            adapter=self.adapter,
             model_inference_performed=True,
             transcribed_text=text,
             asr_confidence=confidence,

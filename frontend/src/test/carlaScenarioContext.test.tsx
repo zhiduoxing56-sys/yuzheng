@@ -4,13 +4,14 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getSimulationContext, patchVehicleState, replaceSimulationContext } from "../api/carla";
+import { getActiveScenario, getSimulationContext, patchVehicleState, replaceSimulationContext } from "../api/carla";
 import { loadScenario } from "../api/scenarios";
 import { CarlaPage } from "../pages/CarlaPage";
 
 vi.mock("../hooks/useVehicleState", () => ({ useVehicleState: () => ({ data: { vehicle_speed: 0, gear_position: "P", weather: "CLEAR", headlight_state: "OFF", surrounding_objects: [] }, refresh: vi.fn().mockResolvedValue(undefined) }) }));
 vi.mock("../api/carla", () => ({
   patchVehicleState: vi.fn().mockResolvedValue({}), resetVehicleState: vi.fn().mockResolvedValue({}), spawnObstacle: vi.fn().mockResolvedValue({ ok: true }), clearObstacles: vi.fn().mockResolvedValue({ ok: true }), setTrafficLight: vi.fn().mockResolvedValue({ ok: true }),
+  getActiveScenario: vi.fn().mockResolvedValue({ active: false, scenario_id: null, name: null, version: 0, activated_at: null, evidence_count: 0, evidence_types: [] }),
   getSimulationContext: vi.fn().mockResolvedValue([]), replaceSimulationContext: vi.fn().mockResolvedValue([]),
 }));
 vi.mock("../api/scenarios", () => ({ listScenarios: vi.fn().mockResolvedValue([{
@@ -23,6 +24,7 @@ vi.mock("../api/scenarios", () => ({ listScenarios: vi.fn().mockResolvedValue([{
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(getSimulationContext).mockResolvedValue([]);
+  vi.mocked(getActiveScenario).mockResolvedValue({ active: false, scenario_id: null, name: null, version: 0, activated_at: null, evidence_count: 0, evidence_types: [] });
   vi.mocked(loadScenario).mockResolvedValue({} as Awaited<ReturnType<typeof loadScenario>>);
 });
 afterEach(cleanup);
@@ -43,6 +45,24 @@ describe("CARLA 场景与补充上下文", () => {
     await screen.findByRole("option", { name: /右后自行车接近.*车速：42 km\/h.*指令：“打开右后车门”/ });
     await user.click(screen.getByRole("button", { name: "载入场景" }));
     await waitFor(() => expect(loadScenario).toHaveBeenCalledWith("risk"));
+  });
+
+  it("载入成功后只展示大字号场景名和非空条件", async () => {
+    vi.mocked(getActiveScenario)
+      .mockResolvedValueOnce({ active: false, scenario_id: null, name: null, version: 0, activated_at: null, evidence_count: 0, evidence_types: [] })
+      .mockResolvedValue({ active: true, scenario_id: "risk", name: "右后自行车接近", version: 2, activated_at: "2026-08-18T12:00:00Z", evidence_count: 3, evidence_types: ["VEHICLE_SPEED"] });
+    const user = userEvent.setup();
+    render(<MemoryRouter><CarlaPage /></MemoryRouter>);
+    await screen.findByRole("option", { name: /右后自行车接近/ });
+    await user.click(screen.getByRole("button", { name: "载入场景" }));
+
+    const display = await screen.findByLabelText("当前激活场景");
+    await waitFor(() => expect(display.textContent).toContain("当前场景：右后自行车接近"));
+    expect(display.textContent).toContain("车速：42 km/h");
+    expect(display.textContent).toContain("周边目标：右后方自行车距离3 m接近高风险");
+    expect(display.textContent).not.toContain("版本");
+    expect(display.textContent).not.toContain("覆盖证据");
+    expect(display.querySelector("small")).toBeNull();
   });
 
   it("场景激活后回填 CARLA 控件和仿真补充表单", async () => {

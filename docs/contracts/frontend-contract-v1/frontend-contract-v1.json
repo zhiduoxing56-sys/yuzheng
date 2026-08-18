@@ -162,6 +162,7 @@
       "EXECUTION_REQUESTED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "EXECUTION_SUCCEEDED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "FINAL_DECISION_UPDATED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
+      "INTERACTION_CONFIRMED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "KEY_INVALIDATED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "LA_CHECKED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
       "LLM_EXPLANATION_GENERATED": "由生产定义 app.models.schemas.WorkflowEventType 约束",
@@ -329,6 +330,7 @@
       "REVIEW_CONFIRMED",
       "REVIEW_CORRECTED",
       "REVIEW_CANCELLED",
+      "INTERACTION_CONFIRMED",
       "CLARIFICATION_REQUESTED",
       "CLARIFICATION_RESOLVED",
       "FINAL_DECISION_UPDATED",
@@ -1247,6 +1249,7 @@
       "terminal_audit_id",
       "terminal_record_hash_valid",
       "terminal_previous_link_valid",
+      "signature_valid",
       "failure_reason"
     ],
     "AuthorizationPresentation": [
@@ -1377,6 +1380,8 @@
       "audit_id"
     ],
     "TurnPresentationResponse": [
+      "request_routing",
+      "interaction_request",
       "clarification_request"
     ],
     "ValidationResultPresentation": [
@@ -1415,7 +1420,8 @@
           "execution_summary",
           "execution_before_snapshot",
           "execution_after_snapshot",
-          "execution_changes"
+          "execution_changes",
+          "integrity_protection"
         ],
         "model": "AuditDetailView",
         "required": [
@@ -1423,7 +1429,8 @@
           "decision_summary",
           "llm_explanation",
           "authorization_summary",
-          "execution_summary"
+          "execution_summary",
+          "integrity_protection"
         ]
       },
       {
@@ -1484,6 +1491,8 @@
           "relationship_valid",
           "merge_decision_valid",
           "effective_outcome_valid",
+          "signature_status",
+          "signature_valid",
           "failure_reason"
         ],
         "model": "AuditVerificationResponse",
@@ -1842,7 +1851,10 @@
           "canonicalization_warnings",
           "incoming_propagation",
           "causal_parents",
-          "causal_occurrence_weights"
+          "causal_occurrence_weights",
+          "intent_ids",
+          "knowledge_hits",
+          "regulation_hits"
         ],
         "model": "EvidenceNodeDetail",
         "required": [
@@ -1911,6 +1923,7 @@
           "voice_trust_mode",
           "input",
           "semantic_frame",
+          "request_routing",
           "evidence_demand",
           "retrieval_summary",
           "evidence",
@@ -1922,6 +1935,7 @@
           "authorization",
           "execution",
           "audit",
+          "interaction_request",
           "clarification_request"
         ],
         "model": "TurnPresentationResponse",
@@ -1950,7 +1964,7 @@
     ]
   },
   "pending_steps": [],
-  "production_schema_digest": "0c63ef206fa9392122b30638251e28f370c51dc561a1aab6b9735d15b40822be",
+  "production_schema_digest": "cc3f5cce00385ef2e9dcb540c1e6d55887f02f52b6c52971ec3cdaaecf68610c",
   "review_semantics": {
     "CANCEL": "追加 ReviewOutcome 有效终态 BLOCK，不重跑原指令",
     "CONFIRM": "必须选择原轮次持久化 VALID candidate，并创建 child turn 完整重跑",

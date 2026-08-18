@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import type { InteractionAction, InteractionRequest } from "../types/contract";
 
 /** A renderer only: interaction_type is authored by the backend. */
-export function InteractionModal({ request, busy, error, onSubmit }: { request: InteractionRequest; busy: boolean; error: string | null; onSubmit: (action: InteractionAction, candidateId?: string, text?: string, parameters?: Record<string, unknown>) => void; }) {
+export function InteractionModal({ request, busy, error, onSubmit, executionDemoEnabled = false, onExecutionDemoEnabledChange }: { request: InteractionRequest; busy: boolean; error: string | null; onSubmit: (action: InteractionAction, candidateId?: string, text?: string, parameters?: Record<string, unknown>) => void; executionDemoEnabled?: boolean; onExecutionDemoEnabledChange?: (enabled: boolean) => void; }) {
   const [rephrasing, setRephrasing] = useState(false);
   const [text, setText] = useState("");
   const [parameter, setParameter] = useState("");
@@ -17,6 +17,6 @@ export function InteractionModal({ request, busy, error, onSubmit }: { request: 
   else if (request.interaction_type === "SEMANTIC_DISAMBIGUATION") body = <>{reason}{request.candidates.map((item) => <button key={item.candidate_id} disabled={busy} onClick={() => onSubmit("SELECT_CANDIDATE", item.candidate_id)} type="button">{item.display_text}</button>)}{rephrase}{cancel}</>;
   else if (request.interaction_type === "UNRESOLVED_VEHICLE_CONTROL") body = <>{reason}{rephrase}{cancel}</>;
   else if (request.interaction_type === "SAFETY_REVIEW") body = <>{reason}<button disabled={busy} onClick={() => onSubmit("CONFIRM")} type="button">确认继续</button>{cancel}</>;
-  else body = <>{reason}<button disabled={busy} onClick={() => onSubmit("EXECUTE")} type="button">确认执行</button>{cancel}</>;
+  else body = <>{reason}{onExecutionDemoEnabledChange && <button type="button" className="decision-demo-toggle" aria-pressed={executionDemoEnabled} disabled={busy} onClick={() => onExecutionDemoEnabledChange(!executionDemoEnabled)}>{executionDemoEnabled ? "已启用本地验收演示" : "启用本地验收演示"}</button>}<button disabled={busy} onClick={() => onSubmit("EXECUTE")} type="button">确认执行</button>{cancel}</>;
   return <div className="clarification-modal-backdrop"><section className="clarification-modal" role="dialog" aria-modal="true">{body}{error && <p className="clarification-error">{error}</p>}</section></div>;
 }

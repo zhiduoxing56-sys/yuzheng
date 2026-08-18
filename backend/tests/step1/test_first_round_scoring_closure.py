@@ -55,3 +55,24 @@ def test_existing_emergency_brake_keeps_scene_necessity_formula(pipeline) -> Non
     assert factor.configured_weight == 0.025
     assert factor.actual_weight == 0.025
     assert factor.contribution == 0.025
+
+
+def test_formal_emergency_brake_uses_runtime_brake_evidence_without_globalizing_knowledge_requirements(pipeline) -> None:
+    result = _run(
+        pipeline,
+        "这是紧急情况，立即制动",
+        emergency_flag=True,
+        vehicle_speed=60,
+        gear_position="D",
+        brake_state="REQUIRED",
+    )
+
+    assert result.semantic_frame.intents[0].intent_id == "EMERGENCY_BRAKE"
+    factor = result.decision.score_factors.five_factors["Cnec"]
+    assert factor.applicable is True
+    assert factor.value == 1.0
+    resolution = result.evidence_subgraph.intent_evidence_resolutions[0]
+    assert "LANE_STATE" in resolution.missing_knowledge_required_types
+    assert result.safety_gate.mandatory_evidence_missing is False
+    assert result.quality_metrics.evidence_alignment_route == "EVIDENCE_PASS"
+    assert result.decision.final_decision.value == "PASS"

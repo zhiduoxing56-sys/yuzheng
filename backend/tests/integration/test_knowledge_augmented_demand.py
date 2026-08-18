@@ -35,14 +35,15 @@ def _valid_mock(tmp_path):
 
 
 def test_pipeline_augments_demand_from_knowledge(tmp_path) -> None:
-    """知识库命中后，WINDOW_OPEN 的 required_types 被追加 OCCUPANT_STATE/WINDOW_STATE。"""
+    """知识命中只追加知识层，不得隐式制造硬前置证据。"""
     pipeline = _pipeline(tmp_path, knowledge_data_path=_valid_mock(tmp_path))
     result = pipeline.process_text(TextCommandRequest(text="打开车窗"))
     intent_demand = result.evidence_demand.intent_demands[0]
     assert intent_demand.intent_id == "WINDOW_OPEN"
-    required = intent_demand.required_types
-    assert "OCCUPANT_STATE" in required
-    assert "WINDOW_STATE" in required
+    assert "OCCUPANT_STATE" not in intent_demand.required_types
+    assert "WINDOW_STATE" not in intent_demand.required_types
+    assert "OCCUPANT_STATE" in intent_demand.knowledge_required_types
+    assert "WINDOW_STATE" in intent_demand.knowledge_required_types
 
 
 def test_pipeline_graceful_when_knowledge_absent(tmp_path) -> None:
@@ -60,3 +61,5 @@ def test_pipeline_leakage_zero(tmp_path) -> None:
     intent_demand = result.evidence_demand.intent_demands[0]
     assert "SERVICE_BRAKE_STATE" not in intent_demand.required_types
     assert "ESC_STATE" not in intent_demand.required_types
+    assert "SERVICE_BRAKE_STATE" not in intent_demand.knowledge_required_types
+    assert "ESC_STATE" not in intent_demand.knowledge_required_types

@@ -242,6 +242,7 @@ export interface EvidenceNodeDetail extends Omit<EvidenceNode,
 export interface EvidenceDemandItem {
   evidence_type: string;
   required: boolean;
+  requirement_level?: "HARD_REQUIRED" | "KNOWLEDGE_REQUIRED" | "ASSESSMENT";
   status: EvidenceDemandStatus;
   node_ids: string[];
   retrieval_origin: RetrievalOrigin;
@@ -274,6 +275,9 @@ export interface KnowledgeNodeObservability {
   similarity?: number;
   result_scope?: "ONLINE_TOP_K" | "DIAGNOSTIC_ONLY";
   threshold_status?: "ACCEPTED" | "BELOW_THRESHOLD" | "NOT_IN_ONLINE_TOP_K";
+  evidence?: Record<string, { type?: string; field?: string }>;
+  when?: Record<string, Array<{ field?: string; op?: string; value?: unknown }>>;
+  effect?: Record<string, unknown>;
 }
 
 export interface KnowledgeContextSource {
@@ -315,7 +319,7 @@ export interface EvidenceDemandPresentation {
   turn_id: string;
   intent_demands: Array<{
     intent_id: string; clause_index: number; action: string; target: string; area: string;
-    risk_level: string; query_text: string; required_types: string[]; optional_types: string[];
+    risk_level: string; query_text: string; required_types: string[]; assessment_types?: string[]; knowledge_required_types?: string[]; optional_types: string[];
     knowledge_augmented_types?: string[]; knowledge_hits?: KnowledgeHit[];
     knowledge_query_text?: string;
     knowledge_retrieval_metadata?: KnowledgeRetrievalMetadata;
@@ -460,6 +464,26 @@ export interface GateResultPresentation {
   hit_rules?: string[];
   reasons?: string[];
   observed?: Record<string, unknown>;
+  knowledge_trace?: KnowledgeConstraintTrace[];
+}
+
+export interface KnowledgeConstraintPredicate {
+  evidence_type: string;
+  evidence_field: string;
+  op: "GT" | "GTE" | "LT" | "LTE" | "EQ" | "NE" | "IN" | "NOT_IN" | string;
+  value: unknown;
+}
+
+export interface KnowledgeConstraintTrace {
+  rule_id: string;
+  node_id: string;
+  intent_id?: string | null;
+  runtime_parameter_source?: string;
+  basis_reference?: string;
+  evidence: Record<string, unknown>;
+  predicates: KnowledgeConstraintPredicate[];
+  gate_hit: boolean;
+  gate_reason?: string;
 }
 
 export interface GateCheck {
@@ -755,6 +779,57 @@ export interface CausalPresentation {
   insufficiency_reason: string | null;
 }
 
+export interface BayesianEvidenceInput {
+  factor_id: string;
+  label: string;
+  evidence_type: string;
+  evidence_field: string | null;
+  source_node_id: string | null;
+  observed_value: unknown;
+  normalized_risk: number;
+  reliability: number;
+  weight: number;
+  used_prior: boolean;
+  prior_risk: number;
+}
+
+export interface BayesianFactorContribution {
+  factor_id: string;
+  label: string;
+  risk_with_factor: number;
+  risk_without_factor: number;
+  contribution: number;
+}
+
+export interface BayesianIntentDiagnostic {
+  clause_index: number;
+  intent_id: string;
+  action: string;
+  target: string;
+  supported: boolean;
+  profile_id: string | null;
+  model_version: string | null;
+  risk_probability: number | null;
+  safe_probability: number | null;
+  entropy: number | null;
+  estimate_mode: "FULL_EVIDENCE" | "PARTIAL_PRIOR" | "UNSUPPORTED";
+  base_risk: number | null;
+  missing_evidence_types: string[];
+  evidence_inputs: BayesianEvidenceInput[];
+  factor_contributions: BayesianFactorContribution[];
+  explanation: string;
+}
+
+export interface BayesianDiagnosticResponse {
+  turn_id: string;
+  display_only: true;
+  affects_decision: false;
+  calculation_stage: "POST_DECISION_READ_ONLY";
+  formula: string;
+  generated_at: string;
+  diagnostics: BayesianIntentDiagnostic[];
+}
+
 export interface RegulationHit {
   standard_id: string;
   clause: string;
@@ -939,6 +1014,7 @@ export interface DecisionExplanationStatusResponse {
   explanation?: string | null;
   generated_at?: string | null;
   retryable: boolean;
+  fact_bundle?: Record<string, unknown>;
 }
 export interface AuditDetailView {
   command_summary: { raw_command: string; input_type: "text" | "audio"; occurred_at: string; final_decision: DecisionLabel; execution_status: string; };
@@ -1058,6 +1134,11 @@ export interface VehicleState {
   gear_position?: string;
   door_lock_state?: string;
   headlight_state?: string;
+  wiper_mode?: string;
+  wiper_intensity?: number;
+  wiper_frequency?: number;
+  wiper_wiping?: boolean;
+  wiper_error?: boolean;
   door_state?: string;
   vehicle_mode?: string;
   speaker_zone?: string;
@@ -1106,6 +1187,11 @@ export interface VehicleStatePatch {
   authentication_state?: string | boolean | null;
   ambient_light?: number | string | null;
   headlight_state?: string | null;
+  wiper_mode?: string | null;
+  wiper_intensity?: number | null;
+  wiper_frequency?: number | null;
+  wiper_wiping?: boolean | null;
+  wiper_error?: boolean | null;
   weather?: string | null;
   window_state?: string | null;
   navigation_active?: boolean | null;
@@ -1157,4 +1243,14 @@ export interface ScenarioSummary {
   text?: string;
   conditions?: string[];
   [key: string]: unknown;
+}
+
+export interface ActiveScenarioSummary {
+  active: boolean;
+  scenario_id: string | null;
+  name: string | null;
+  version: number;
+  activated_at: string | null;
+  evidence_count: number;
+  evidence_types: string[];
 }

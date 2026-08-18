@@ -48,7 +48,7 @@ pending_steps = []
 - `ReviewAction`（`app.models.schemas.ReviewAction`）：CONFIRM, CORRECT, CANCEL
 - `Availability`（`app.models.frontend_contract.Availability`）：AVAILABLE, UNAVAILABLE, NOT_APPLICABLE
 - `LayerNavigationAvailability`（`app.models.schemas.LayerNavigationAvailability`）：AVAILABLE, DEGRADED_UNAVAILABLE, LEGACY_NOT_RECORDED
-- `WorkflowEventType`（`app.models.schemas.WorkflowEventType`）：VOICE_INPUT_RECEIVED, SPECTRUM_ANALYZED, LA_CHECKED, PA_CHECKED, VOICE_TRUST_DECIDED, ASR_COMPLETED, ZONE_PERMISSION_CHECKED, RUNTIME_CAPABILITY_CHECKED, REVIEW_REQUESTED, REVIEW_CONFIRM_REJECTED, REVIEW_CONFIRMED, REVIEW_CORRECTED, REVIEW_CANCELLED, CLARIFICATION_REQUESTED, CLARIFICATION_RESOLVED, FINAL_DECISION_UPDATED, AUDIT_OUTCOME_APPENDED, REDECISION_STARTED, REDECISION_COMPLETED, TOKEN_ISSUED, TOKEN_REJECTED, TOKEN_EXPIRED, TOKEN_CONSUMED, TOKEN_REVOKED, KEY_INVALIDATED, EXECUTION_REQUESTED, PRE_EXECUTION_CHECK_PASSED, PRE_EXECUTION_CHECK_FAILED, EXECUTION_SUCCEEDED, EXECUTION_FAILED, DECISION_SNAPSHOT_CAPTURED, LLM_EXPLANATION_GENERATED
+- `WorkflowEventType`（`app.models.schemas.WorkflowEventType`）：VOICE_INPUT_RECEIVED, SPECTRUM_ANALYZED, LA_CHECKED, PA_CHECKED, VOICE_TRUST_DECIDED, ASR_COMPLETED, ZONE_PERMISSION_CHECKED, RUNTIME_CAPABILITY_CHECKED, REVIEW_REQUESTED, REVIEW_CONFIRM_REJECTED, REVIEW_CONFIRMED, REVIEW_CORRECTED, REVIEW_CANCELLED, INTERACTION_CONFIRMED, CLARIFICATION_REQUESTED, CLARIFICATION_RESOLVED, FINAL_DECISION_UPDATED, AUDIT_OUTCOME_APPENDED, REDECISION_STARTED, REDECISION_COMPLETED, TOKEN_ISSUED, TOKEN_REJECTED, TOKEN_EXPIRED, TOKEN_CONSUMED, TOKEN_REVOKED, KEY_INVALIDATED, EXECUTION_REQUESTED, PRE_EXECUTION_CHECK_PASSED, PRE_EXECUTION_CHECK_FAILED, EXECUTION_SUCCEEDED, EXECUTION_FAILED, DECISION_SNAPSHOT_CAPTURED, LLM_EXPLANATION_GENERATED
 - `ContractStepStatus`（`app.models.frontend_contract.ContractStepStatus`）：PENDING, COMPLETE
 - `ContractStatus`（`app.models.frontend_contract.ContractStatus`）：DRAFT, FROZEN
 - `ErrorCode`（`app.models.frontend_contract.ErrorCode`）：TURN_NOT_FOUND, AUDIT_NOT_FOUND, NODE_NOT_FOUND, NODE_NOT_IN_TURN, REVIEW_NOT_ALLOWED, NO_PERSISTED_REVIEW_CANDIDATES, SELECTED_CANDIDATE_REQUIRED, REVIEW_CANDIDATE_NOT_FOUND, REVIEW_CANDIDATE_NOT_VALID, CORRECTED_TEXT_REQUIRED, TURN_ALREADY_FINALIZED, MODEL_UNAVAILABLE, DATABASE_ERROR, INVALID_FILTER, INTERNAL_ERROR, INVALID_REQUEST, CLARIFICATION_NOT_FOUND, CLARIFICATION_ALREADY_RESOLVED, CLARIFICATION_CANDIDATE_NOT_FOUND
@@ -70,7 +70,7 @@ pending_steps = []
 可空字段由生产 Schema 自动枚举：
 
 - `InputPresentation`：audio_fingerprint, speaker_source, spectrum_result, la_score, synthetic_risk, pa_raw_score, pa_score, replay_risk, trust_score, asr_confidence, asr_confidence_method, zone_permission_result, preliminary_decision
-- `TurnPresentationResponse`：clarification_request
+- `TurnPresentationResponse`：request_routing, interaction_request, clarification_request
 - `RetrievalSummary`：top_k, elapsed_ms, index_implementation, embedding_model, embedding_dimension, degraded, index_build_id, index_config_digest, node_set_digest, layering_mode, mapping_coverage, security_layer_navigation, internal_hnsw_trace_reason
 - `QualityMetricsPresentation`：ecr, ecs, ef, sas, eas, evidence_pair_count, conflict_pair_count, eas_weight_profile, eas_weight_source, eas_weights, evidence_alignment_route
 - `EvidencePresentation`：evidence_subgraph, decision_confidence
@@ -87,14 +87,14 @@ pending_steps = []
 - `ReviewSubmissionResponse`：review_question, command_result
 - `AuditDetailView`：decision_snapshot, execution_before_snapshot, execution_after_snapshot
 - `TimelineItem`：turn_id, event_id, audit_id
-- `AuditVerificationResponse`：terminal_audit_id, terminal_record_hash_valid, terminal_previous_link_valid, failure_reason
+- `AuditVerificationResponse`：terminal_audit_id, terminal_record_hash_valid, terminal_previous_link_valid, signature_valid, failure_reason
 
 ## 四页面模型
 
 ### trusted_input
 
 - `InputPresentation`：input_type, input_source, audio_fingerprint, speaker_zone, speaker_role, speaker_source, spectrum_result, la_score, synthetic_risk, pa_raw_score, pa_score, replay_risk, trust_score, input_trust_label, authorization_effect_applied, asr_raw_text, normalized_text, asr_confidence, asr_confidence_method, zone_permission_result, zone_permission_reasons, preliminary_decision, preliminary_reasons
-- `TurnPresentationResponse`：turn_id, created_at, updated_at, current_stage, processing_status, voice_trust_mode, input, semantic_frame, evidence_demand, retrieval_summary, evidence, gate_result, score_result, validation_result, decision_result, review, authorization, execution, audit, clarification_request
+- `TurnPresentationResponse`：turn_id, created_at, updated_at, current_stage, processing_status, voice_trust_mode, input, semantic_frame, request_routing, evidence_demand, retrieval_summary, evidence, gate_result, score_result, validation_result, decision_result, review, authorization, execution, audit, interaction_request, clarification_request
 
 ### evidence_retrieval
 
@@ -104,7 +104,7 @@ pending_steps = []
 - `EvidencePresentation`：semantic_frame, evidence_demand, evidence_subgraph, conflicts, corrected_weights, decision_confidence, quality_metrics, memory, causal
 - `MemoryPresentation`：availability, layered_graph, relation_edges, degree_statistics, propagation_steps, node_confidences, node_layers, alpha, alpha_source, configuration_version, warnings
 - `CausalPresentation`：availability, mode, corrected_weights_projection, model_build_id, history_sample_count, dag_edges, parent_state_signatures, prior_components, node_weights, entropy, decision_confidence, confidence_status, insufficiency_reason
-- `EvidenceNodeDetail`：turn_id, node_id, evidence_type, layer, source, value, unit, timestamp, expires_at, freshness, consistency, availability, quality_label, integrity_hash, metadata, incoming_edges, outgoing_edges, security_class, security_rank, base_level, safety_adjustment, hnsw_max_layer, layer_memberships, classification_source, formula_source, initial_memory_confidence, memory_initial_confidence, final_memory_confidence, canonicalization_source, merged_node_sources, field_resolution, canonicalization_warnings, incoming_propagation, causal_parents, causal_occurrence_weights
+- `EvidenceNodeDetail`：turn_id, node_id, evidence_type, layer, source, value, unit, timestamp, expires_at, freshness, consistency, availability, quality_label, integrity_hash, metadata, incoming_edges, outgoing_edges, security_class, security_rank, base_level, safety_adjustment, hnsw_max_layer, layer_memberships, classification_source, formula_source, initial_memory_confidence, memory_initial_confidence, final_memory_confidence, canonicalization_source, merged_node_sources, field_resolution, canonicalization_warnings, incoming_propagation, causal_parents, causal_occurrence_weights, intent_ids, knowledge_hits, regulation_hits
 
 ### decision_review
 
@@ -121,10 +121,10 @@ pending_steps = []
 ### audit_log
 
 - `AuditListResponse`：items, total, page, page_size
-- `AuditDetailView`：command_summary, resolved_operations, decision_snapshot, decision_summary, key_evidence, intent_decisions, llm_explanation, clarification_history, authorization_summary, execution_summary, execution_before_snapshot, execution_after_snapshot, execution_changes
+- `AuditDetailView`：command_summary, resolved_operations, decision_snapshot, decision_summary, key_evidence, intent_decisions, llm_explanation, clarification_history, authorization_summary, execution_summary, execution_before_snapshot, execution_after_snapshot, execution_changes, integrity_protection
 - `SemanticFrame`：frame_id, turn_id, raw_text, normalized_text, semantic_confidence, ambiguity_score, semantic_status, review_reasons, review_candidates, unresolved_clauses, security_signals, intents
 - `TimelineItem`：sequence, stage, timestamp, status, summary, turn_id, event_id, audit_id
-- `AuditVerificationResponse`：audit_id, record_hash_valid, previous_link_valid, audit_chain_valid, workflow_chain_valid, terminal_audit_id, terminal_record_hash_valid, terminal_previous_link_valid, relationship_valid, merge_decision_valid, effective_outcome_valid, failure_reason
+- `AuditVerificationResponse`：audit_id, record_hash_valid, previous_link_valid, audit_chain_valid, workflow_chain_valid, terminal_audit_id, terminal_record_hash_valid, terminal_previous_link_valid, relationship_valid, merge_decision_valid, effective_outcome_valid, signature_status, signature_valid, failure_reason
 
 ## Review 语义
 

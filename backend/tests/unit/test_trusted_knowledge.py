@@ -155,12 +155,12 @@ def test_augment_merges_required_evidence(tmp_path: Path) -> None:
     before = set(demand.intent_demands[0].required_types)
     augmented = service.augment(demand)
     after = set(augmented.intent_demands[0].required_types)
-    assert "OCCUPANT_STATE" in after
-    assert "WINDOW_STATE" in after
-    assert after >= before
-    # 追加的证据不再出现在 optional，且 query_vector 已重算
+    knowledge_required = set(augmented.intent_demands[0].knowledge_required_types)
+    assert after == before
+    assert {"OCCUPANT_STATE", "WINDOW_STATE"} <= knowledge_required
+    # 知识必需证据不再出现在 optional，且 query_vector 已重算
     optional = set(augmented.intent_demands[0].optional_types)
-    assert not (after & optional)
+    assert not (knowledge_required & optional)
     assert augmented.intent_demands[0].query_vector
     # 知识库命中信息被记录（供前端展示）
     intent = augmented.intent_demands[0]
@@ -193,9 +193,11 @@ def test_augment_exact_match_only_no_cross_intent_leak(tmp_path) -> None:
     assert intent.knowledge_hits == []
     # 精确匹配（WINDOW_OPEN↔WINDOW.001）仍应正常追加，证明只限制了跨意图
     demand_win = demand_service.build(_frame("WINDOW_OPEN", "打开", "车窗"))
+    before_win = set(demand_win.intent_demands[0].required_types)
     aug_win = service.augment(demand_win)
-    assert "OCCUPANT_STATE" in set(aug_win.intent_demands[0].required_types)
-    assert "WINDOW_STATE" in set(aug_win.intent_demands[0].required_types)
+    assert "OCCUPANT_STATE" in set(aug_win.intent_demands[0].knowledge_required_types)
+    assert "WINDOW_STATE" in set(aug_win.intent_demands[0].knowledge_required_types)
+    assert set(aug_win.intent_demands[0].required_types) == before_win
 
 
 def test_augment_noop_when_file_absent() -> None:

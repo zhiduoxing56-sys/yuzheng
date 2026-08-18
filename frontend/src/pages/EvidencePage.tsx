@@ -5,6 +5,8 @@ import { VisualSectionTab } from "../components/VisualSectionTab";
 import { useSession } from "../stores/sessionStore";
 import type {
   KnowledgeContextSource,
+  KnowledgeConstraintPredicate,
+  KnowledgeConstraintTrace,
   KnowledgeNodeObservability,
   TurnPresentationResponse,
 } from "../types/contract";
@@ -42,11 +44,50 @@ function evidenceLabel(value: string): string {
   return EVIDENCE_LABELS[value] ? `${EVIDENCE_LABELS[value]}（${value}）` : value;
 }
 
+const OPERATOR_LABELS: Record<string, string> = {
+  GT: ">", GTE: "≥", LT: "<", LTE: "≤", EQ: "=", NE: "≠", IN: "属于", NOT_IN: "不属于",
+};
+
+function predicateState(predicate: KnowledgeConstraintPredicate, actual: unknown): "满足" | "不满足" | "未获取" {
+  if (actual === null || actual === undefined) return "未获取";
+  const expected = predicate.value;
+  switch (predicate.op) {
+    case "GT": return typeof actual === "number" && typeof expected === "number" && actual > expected ? "满足" : "不满足";
+    case "GTE": return typeof actual === "number" && typeof expected === "number" && actual >= expected ? "满足" : "不满足";
+    case "LT": return typeof actual === "number" && typeof expected === "number" && actual < expected ? "满足" : "不满足";
+    case "LTE": return typeof actual === "number" && typeof expected === "number" && actual <= expected ? "满足" : "不满足";
+    case "EQ": return actual === expected ? "满足" : "不满足";
+    case "NE": return actual !== expected ? "满足" : "不满足";
+    case "IN": return Array.isArray(expected) && expected.includes(actual) ? "满足" : "不满足";
+    case "NOT_IN": return Array.isArray(expected) && !expected.includes(actual) ? "满足" : "不满足";
+    default: return "不满足";
+  }
+}
+
+function KnowledgeConstraintResultItem({ trace }: { trace: KnowledgeConstraintTrace }) {
+  return <article className="knowledge-result-item knowledge-constraint-result">
+    <header>
+      <div><strong>{trace.node_id}</strong><small>{trace.intent_id || trace.rule_id}</small></div>
+      <span className={trace.gate_hit ? "knowledge-constraint-decision is-hit" : "knowledge-constraint-decision"}>{trace.gate_hit ? "已命中" : "未命中"}</span>
+    </header>
+    <div className="knowledge-constraint-conditions">
+      {trace.predicates.map((predicate, index) => {
+        const key = `${predicate.evidence_type}.${predicate.evidence_field}`;
+        const actual = trace.evidence[key];
+        const state = predicateState(predicate, actual);
+        return <div className="knowledge-constraint-condition" key={`${key}:${index}`}>
+          <div className="knowledge-constraint-expression"><code>{key}</code><b>{OPERATOR_LABELS[predicate.op] || predicate.op}</b></div>
+          <div className="knowledge-constraint-values"><span>要求值 <code>{display(predicate.value)}</code></span><span>实际值 <code>{state === "未获取" ? "未获取" : display(actual)}</code></span><em className={state === "满足" ? "is-satisfied" : state === "不满足" ? "is-unsatisfied" : ""}>{state}</em></div>
+        </div>;
+      })}
+    </div>
+    {(trace.gate_reason || trace.basis_reference) ? <footer><span>{trace.gate_reason}</span>{trace.basis_reference ? <small>{trace.basis_reference}</small> : null}</footer> : null}
+  </article>;
+}
+
 function KnowledgeResultItem({ node }: { node: KnowledgeNodeObservability }) {
   const sentence = node.semantic_description || node.title || node.clause || "该知识节点暂无摘要";
   const details = [
-    ["标题", node.title],
-    ["适用条件", node.conditions?.join("；")],
     ["必需证据", node.required_evidence?.map(evidenceLabel).join("；")],
     ["可选证据", node.optional_evidence?.map(evidenceLabel).join("；")],
     ["来源", node.source],
@@ -109,6 +150,7 @@ export function EvidencePage() {
   const demands = presentation?.evidence_demand?.intent_demands || [];
   const demand = demands[selectedOccurrence] || null;
   const metadata = demand?.knowledge_retrieval_metadata || {};
+  const constraintTraces = (presentation?.gate_result.knowledge_trace || []).filter((trace) => !demand?.intent_id || trace.intent_id === demand.intent_id);
   const finalResults = useMemo(() => {
     const complete = [...(metadata.raw_results || []), ...(metadata.diagnostic_results || []), ...(metadata.eligible_nodes || [])];
     const byId = new Map(complete.map((node) => [node.node_id, node]));
@@ -138,7 +180,9 @@ export function EvidencePage() {
       <div className="knowledge-search-layout">
         <section className="knowledge-layer-panel"><VisualSectionTab>知识检索结果</VisualSectionTab>
           <div className="knowledge-result-list">
-            {finalResults.length ? finalResults.map((node) => <KnowledgeResultItem key={node.node_id} node={node} />) : <p className="knowledge-result-empty">本轮未找到相关安全知识</p>}
+            {constraintTraces.map((trace) => <KnowledgeConstraintResultItem key={`${trace.rule_id}:${trace.node_id}`} trace={trace} />)}
+            {finalResults.map((node) => <KnowledgeResultItem key={node.node_id} node={node} />)}
+            {!constraintTraces.length && !finalResults.length ? <p className="knowledge-result-empty">本轮未找到相关安全知识</p> : null}
           </div>
         </section>
         <div className="knowledge-right-column">

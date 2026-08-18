@@ -19,6 +19,35 @@ class SimulatorVehicleAdapter:
     """线程安全、配置驱动的确定性模拟器；从不发送真实报文。"""
 
     adapter_name = "simulator"
+    supports_multisource_scenario_evidence = True
+
+    _STATE_EVIDENCE_TYPES: dict[str, frozenset[str]] = {
+        "vehicle_speed": frozenset({"VEHICLE_SPEED"}),
+        "gear_position": frozenset({"GEAR_STATE"}),
+        "door_lock_state": frozenset({"DOOR_LOCK_STATE"}),
+        "door_state": frozenset({"DOOR_STATE"}),
+        "occupant_role": frozenset({"AUTHORIZATION_STATE"}),
+        "speaker_zone": frozenset({"AUTHORIZATION_STATE"}),
+        "vehicle_mode": frozenset({"SYSTEM_MODE"}),
+        "authentication_state": frozenset({"AUTHORIZATION_STATE"}),
+        "ambient_light": frozenset({"ENVIRONMENT_CONDITIONS"}),
+        "headlight_state": frozenset({"LIGHTING_STATE"}),
+        "wiper_mode": frozenset({"WIPER_STATE"}),
+        "wiper_intensity": frozenset({"WIPER_STATE"}),
+        "wiper_frequency": frozenset({"WIPER_STATE"}),
+        "wiper_wiping": frozenset({"WIPER_STATE"}),
+        "wiper_error": frozenset({"WIPER_STATE"}),
+        "weather": frozenset({"ENVIRONMENT_CONDITIONS"}),
+        "window_state": frozenset({"WINDOW_STATE"}),
+        "front_obstacle_distance": frozenset({"SURROUNDING_OBJECT_STATE"}),
+        "rear_obstacle_distance": frozenset({"SURROUNDING_OBJECT_STATE"}),
+        "speed_limit": frozenset({"SPEED_LIMIT_STATE"}),
+        "brake_state": frozenset({"SERVICE_BRAKE_STATE"}),
+        "road_condition": frozenset({"ROAD_FRICTION_STATE"}),
+        "emergency_flag": frozenset({"SERVICE_BRAKE_STATE"}),
+        "collision_state": frozenset({"SURROUNDING_OBJECT_STATE"}),
+        "safety_constraint": frozenset({"SYSTEM_MODE"}),
+    }
 
     def __init__(
         self,
@@ -51,7 +80,7 @@ class SimulatorVehicleAdapter:
         # exclude_unset 区分“未提供字段”和“显式设置为 null（证据不可用）”。
         updates = patch.model_dump(exclude_unset=True)
         with self._lock:
-            self._scenario_evidence = ()
+            self._discard_scenario_evidence_for_fields(updates)
             state_data = self._state.model_dump()
             state_data.update(updates)
             state_data["updated_at"] = utc_now()
@@ -65,8 +94,6 @@ class SimulatorVehicleAdapter:
     ) -> VehicleState:
         """Replace the single current simulation state, including fine evidence."""
 
-        if any(item.source != "SIMULATION" for item in evidence):
-            raise ValueError("persistent simulator scenario evidence must use SIMULATION")
         updates = patch.model_dump(exclude_unset=True)
         with self._lock:
             state_data = self._state.model_dump()
@@ -94,6 +121,17 @@ class SimulatorVehicleAdapter:
                 item.model_copy(deep=True) for item in evidence
             )
             return [item.model_copy(deep=True) for item in self._scenario_evidence]
+
+    def _discard_scenario_evidence_for_fields(self, fields: dict[str, Any]) -> None:
+        evidence_types = set().union(
+            *(self._STATE_EVIDENCE_TYPES.get(field, frozenset()) for field in fields)
+        ) if fields else set()
+        if evidence_types:
+            self._scenario_evidence = tuple(
+                item
+                for item in self._scenario_evidence
+                if item.evidence_type not in evidence_types
+            )
 
     @staticmethod
     def _apply_operation(state_data: dict[str, Any], operation: dict[str, Any]) -> None:
@@ -125,11 +163,13 @@ class SimulatorVehicleAdapter:
                 f"模拟器不支持物理命令类型: {command.kind}"
             )
         with self._lock:
-            self._scenario_evidence = ()
             before = self._state.model_copy(deep=True)
             state_data = self._state.model_dump()
             for operation in command.operations:
                 self._apply_operation(state_data, operation)
+            self._discard_scenario_evidence_for_fields(
+                {str(operation["field"]): operation.get("value") for operation in command.operations}
+            )
             state_data["updated_at"] = utc_now()
             self._state = VehicleState.model_validate(state_data)
             result = VehicleExecutionResult(

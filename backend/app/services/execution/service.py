@@ -291,6 +291,9 @@ class ExecutionService:
                         "capability_contract_digest": precheck_capability.contract_digest,
                     }
                 )
+                self.pipeline.reconcile_vehicle_execution(
+                    precheck_capability.physical_command.operations
+                )
             except Exception as exc:
                 failed_state = self.pipeline.vehicle.get_state()
                 physical = (

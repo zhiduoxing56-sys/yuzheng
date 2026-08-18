@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock
 from time import perf_counter
@@ -97,6 +98,8 @@ from app.services.decision.merge import (
     merge_decision,
 )
 from app.services.decision.safety_gate import SafetyGateService
+from app.services.knowledge.constraint_adapter import build_rule_overlay
+from app.services.knowledge.constraint_parameter_loader import load_constraint_parameters
 from app.services.evidence.demand import EvidenceDemandService
 from app.services.evidence.demand_registry import EvidenceDemandRegistry
 from app.services.evidence.recall import MandatoryRecallService
@@ -123,7 +126,8 @@ from app.services.vehicle.carla import CarlaVehicleAdapter
 from app.services.vehicle.capabilities import CanonicalCapabilityRegistry
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 from app.services.vehicle.scenario_summary import scenario_conditions
-from app.services.asr.whisper import ASRModelError, WhisperASRService
+from app.services.asr import build_asr_service
+from app.services.asr.whisper import ASRModelError
 from app.services.asr.text_normalizer import (
     ASRTextNormalizationError,
     TraditionalChineseNormalizer,
@@ -166,6 +170,15 @@ from app.websocket.broker import PipelineEventBroker
 from app.core.redaction import SensitiveDataRedactor
 
 
+@dataclass(slots=True)
+class ActiveScenarioContext:
+    scenario_id: str
+    name: str
+    version: int
+    activated_at: str
+    evidence: tuple[EvidenceObservationInput, ...]
+
+
 class CommandPipeline:
     """Stage-three deterministic command pipeline.
 
@@ -173,6 +186,28 @@ class CommandPipeline:
     A single conservative merge preserves the raw score verdict and produces
     the final decision used by review and authorization.
     """
+
+    _STATE_EVIDENCE_TYPES: dict[str, frozenset[str]] = {
+        "vehicle_speed": frozenset({"VEHICLE_SPEED"}),
+        "gear_position": frozenset({"GEAR_STATE"}),
+        "door_lock_state": frozenset({"DOOR_LOCK_STATE"}),
+        "door_state": frozenset({"DOOR_STATE"}),
+        "ambient_light": frozenset({"ENVIRONMENT_CONDITIONS"}),
+        "headlight_state": frozenset({"LIGHTING_STATE"}),
+        "wiper_mode": frozenset({"WIPER_STATE"}),
+        "wiper_intensity": frozenset({"WIPER_STATE"}),
+        "wiper_frequency": frozenset({"WIPER_STATE"}),
+        "wiper_wiping": frozenset({"WIPER_STATE"}),
+        "wiper_error": frozenset({"WIPER_STATE"}),
+        "weather": frozenset({"ENVIRONMENT_CONDITIONS"}),
+        "window_state": frozenset({"WINDOW_STATE"}),
+        "front_obstacle_distance": frozenset({"SURROUNDING_OBJECT_STATE"}),
+        "rear_obstacle_distance": frozenset({"SURROUNDING_OBJECT_STATE"}),
+        "speed_limit": frozenset({"SPEED_LIMIT_STATE"}),
+        "brake_state": frozenset({"SERVICE_BRAKE_STATE"}),
+        "road_condition": frozenset({"ROAD_FRICTION_STATE"}),
+        "collision_state": frozenset({"SURROUNDING_OBJECT_STATE"}),
+    }
 
     def __init__(
         self,
@@ -184,6 +219,8 @@ class CommandPipeline:
         knowledge_data_path: Path | None = None,
     ) -> None:
         self._command_lock = RLock()
+        self._active_scenario: ActiveScenarioContext | None = None
+        self._active_scenario_version = 0
         audit_database_role = AuditDatabaseRole(audit_database_role)
         quality_config = load_yaml("evidence_quality.yaml")
         self.vehicle_config = load_yaml("vehicle_actions.yaml")
@@ -242,7 +279,7 @@ class CommandPipeline:
         self.zone_permission_service = ZonePermissionService(
             self.voice_config["zone_permission"]
         )
-        self.asr_service = WhisperASRService(self.voice_config["asr"])
+        self.asr_service = build_asr_service(self.voice_config["asr"])
         self.asr_text_normalizer = TraditionalChineseNormalizer()
         self.semantic_service = SemanticOrchestratorService()
         self.request_routing_service = RequestRoutingService()
@@ -294,7 +331,26 @@ class CommandPipeline:
         self.memory_service = DualMemoryService(memory_config)
         self.validation_service = AdvancedValidationService(load_yaml("jailbreak_policy.yaml"))
         self.causal_service = CausalCorrectionService(load_yaml("causal_policy.yaml"))
-        self.gate_service = SafetyGateService(safety_config)
+        knowledge_constraints_root = PROJECT_ROOT / "knowledge-contract-v1"
+        constraint_parameters = load_constraint_parameters(
+            constraints_path=(
+                knowledge_constraints_root
+                / "acceptance"
+                / "knowledge_constraints_v1.jsonl"
+            ),
+            contract_path=(
+                knowledge_constraints_root
+                / "freezes"
+                / "knowledge_constraint_contract_v1.yaml"
+            ),
+        )
+        self.gate_service = SafetyGateService(
+            {
+                **safety_config,
+                "constraint_overlay": build_rule_overlay(constraint_parameters),
+                "constraint_required": True,
+            }
+        )
         self.decision_service = DecisionService(load_yaml("decision_policy.yaml"))
         self.regulation_kb_dir = PROJECT_ROOT / "data" / "regulation_kb_v8"
         self.regulation_kb = RegulationKnowledgeBase(self.embedder)
@@ -956,7 +1012,7 @@ class CommandPipeline:
                 turn_id=turn_id,
                 text="",
                 confidence=None,
-                adapter="whisper_transformers_local_failed",
+                adapter=f"{self.asr_service.adapter}_failed",
                 model_inference_performed=False,
                 model_name=self.asr_service.model_name,
                 inference_duration=0.0,
@@ -1224,6 +1280,7 @@ class CommandPipeline:
             raise RuntimeError("semantic terminal route created EvidenceDemand")
         is_review = terminal_kind == "SEMANTIC_REVIEW"
         is_non_vehicle = terminal_kind == "NON_VEHICLE_CONTROL"
+        is_security_block = terminal_kind == "SECURITY_SIGNAL_BLOCK"
         now = utc_now()
         index_status = self.index.status()
         retrieval = RetrievalMetadata(
@@ -1269,8 +1326,23 @@ class CommandPipeline:
                 )
             ),
         )
-        # This is an audit representation of a route that did not invoke SafetyGate.
-        gate = SafetyGateResult(blocked=False, checks=[], reasons=[])
+        # This is an audit representation of a terminal route.  A security signal
+        # has already been produced by the frozen semantic guard, so it is never
+        # allowed to be converted into a non-vehicle PASS.
+        security_reason = "SECURITY_SIGNAL_DETECTED"
+        gate = SafetyGateResult(
+            blocked=is_security_block,
+            checks=(
+                [GateCheck(
+                    rule_id=security_reason,
+                    hit=True,
+                    reason="检测到身份伪造或安全约束绕过声明。",
+                )]
+                if is_security_block else []
+            ),
+            reasons=[security_reason] if is_security_block else [],
+            hit_rules=[security_reason] if is_security_block else [],
+        )
         factors = DecisionScoreFactors(
             semantic_quality=frame.semantic_confidence,
             evidence_coverage=None,
@@ -1280,12 +1352,14 @@ class CommandPipeline:
         )
         decision = DecisionResult(
             turn_id=frame.turn_id,
-            decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
-            score_decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
-            final_decision=DecisionLabel.REVIEW if is_review else DecisionLabel.PASS,
+            decision=(DecisionLabel.BLOCK if is_security_block else DecisionLabel.REVIEW if is_review else DecisionLabel.PASS),
+            score_decision=(DecisionLabel.BLOCK if is_security_block else DecisionLabel.REVIEW if is_review else DecisionLabel.PASS),
+            final_decision=(DecisionLabel.BLOCK if is_security_block else DecisionLabel.REVIEW if is_review else DecisionLabel.PASS),
             decision_sources=[],
             decision_merge_reason=(
-                "SEMANTIC_REVIEW terminal; downstream services were not invoked"
+                "SECURITY_SIGNAL terminal; security declaration was blocked before vehicle services"
+                if is_security_block
+                else "SEMANTIC_REVIEW terminal; downstream services were not invoked"
                 if is_review
                 else (
                     "NON_VEHICLE_CONTROL passed through; downstream vehicle services were not invoked"
@@ -1295,10 +1369,12 @@ class CommandPipeline:
             ),
             safety_score=1,
             soft_safety_score=1,
-            gate_blocked=False,
+            gate_blocked=is_security_block,
             score_factors=factors,
             explanations=[
-                "语义信息不完整或存在歧义；需要用户复核。"
+                "检测到身份伪造或安全约束绕过声明，已拒绝该请求。"
+                if is_security_block
+                else "语义信息不完整或存在歧义；需要用户复核。"
                 if is_review
                 else (
                     "本安全网关放行，未涉及受本系统保护的车辆物理控制，交由原车语音助手继续处理。"
@@ -1307,7 +1383,9 @@ class CommandPipeline:
                 )
             ],
             reason_codes=(
-                ["SEMANTIC_REVIEW_TERMINAL"]
+                [security_reason]
+                if is_security_block
+                else ["SEMANTIC_REVIEW_TERMINAL"]
                 if is_review
                 else (
                     ["NON_VEHICLE_CONTROL_PASS"]
@@ -1330,7 +1408,9 @@ class CommandPipeline:
             update={
                 "eligible_for_learning": False,
                 "exclusion_reasons": [
-                    "semantic review terminal"
+                    "security signal terminal"
+                    if is_security_block
+                    else "semantic review terminal"
                     if is_review
                     else "known non-executable semantic terminal"
                 ],
@@ -1417,9 +1497,11 @@ class CommandPipeline:
         self._subgraphs[frame.turn_id] = subgraph
         self._turns[frame.turn_id] = response
         emit(
-            "SEMANTIC_REVIEW_REQUIRED" if is_review else "KNOWN_NON_EXECUTABLE_COMPLETED",
+            "SECURITY_SIGNAL_BLOCKED" if is_security_block else "SEMANTIC_REVIEW_REQUIRED" if is_review else "KNOWN_NON_EXECUTABLE_COMPLETED",
             (
-                "语义结果需要复核，已在证据需求构建前终止。"
+                "检测到安全绕过声明，已在车辆服务前阻断。"
+                if is_security_block
+                else "语义结果需要复核，已在证据需求构建前终止。"
                 if is_review
                 else (
                     "本安全网关放行，交由原车语音助手继续处理。"
@@ -1557,12 +1639,13 @@ class CommandPipeline:
     ) -> TextCommandResponse:
         overall_started = perf_counter()
         turn_started_at = utc_now()
-        state = (
-            self.vehicle.update_state(trusted_context.state_overrides)
-            if trusted_context is not None
-            and trusted_context.state_overrides is not None
-            else self.vehicle.get_state()
-        )
+        if trusted_context is not None and trusted_context.state_overrides is not None:
+            self._discard_active_scenario_evidence_for_fields(
+                trusted_context.state_overrides.model_dump(exclude_unset=True)
+            )
+            state = self.vehicle.update_state(trusted_context.state_overrides)
+        else:
+            state = self.vehicle.get_state()
         runtime_safety_context = RuntimeSafetyContext.from_vehicle_state(state)
         input_trust = input_trust_override or VoiceTrustResult(
             turn_id=turn_id,
@@ -1639,7 +1722,11 @@ class CommandPipeline:
                 terminal_kind=(
                     "SEMANTIC_REVIEW"
                     if any(unit.kind == SemanticUnitKind.UNCERTAIN for unit in request_routing.units)
-                    else "NON_VEHICLE_CONTROL"
+                    else (
+                        "SECURITY_SIGNAL_BLOCK"
+                        if frame.security_signals
+                        else "NON_VEHICLE_CONTROL"
+                    )
                 ),
                 request_routing=request_routing,
             )
@@ -1910,7 +1997,33 @@ class CommandPipeline:
         recall_records = resolution_projection.mandatory_recall_records
         recalled_types = resolution_projection.recalled_types_union
         missing_types = resolution_projection.missing_required_types_union
+        missing_knowledge_types = (
+            resolution_projection.missing_knowledge_required_types_union
+        )
         required_types = resolution_projection.required_types_union
+        # A KnowledgeNode requirement governs only whether that retrieved node
+        # can be used as supporting context.  It never changes the command-level
+        # safety envelope held in ``required_types``.
+        for index, (intent_demand, resolution) in enumerate(
+            zip(demand.intent_demands, intent_evidence_resolutions)
+        ):
+            missing_local = set(resolution.missing_knowledge_required_types)
+            demand.intent_demands[index] = intent_demand.model_copy(
+                update={
+                    "knowledge_hits": [
+                        {
+                            **hit,
+                            "applicability_status": (
+                                "INSUFFICIENT_CONTEXT"
+                                if missing_local
+                                & set(hit.get("required_evidence", []))
+                                else "EVALUABLE"
+                            ),
+                        }
+                        for hit in intent_demand.knowledge_hits
+                    ]
+                }
+            )
         evidence = list(evidence_by_id.values())
         evidence = self.index.classify_nodes(evidence)
         retrieval_metadata = self.index.finalize_retrieval_metadata(
@@ -1920,7 +2033,11 @@ class CommandPipeline:
         emit(
             "MANDATORY_SUPPLEMENTED",
             "强制证据覆盖检查完成",
-            {"recalled_types": recalled_types, "missing_types": missing_types},
+            {
+                "recalled_types": recalled_types,
+                "missing_types": missing_types,
+                "missing_knowledge_types": missing_knowledge_types,
+            },
         )
         existing_ids = {node.node_id for node in evidence}
         for evidence_type in required_types:
@@ -1948,7 +2065,7 @@ class CommandPipeline:
         evaluated, quality_metrics, physical_conflicts = self.quality_service.evaluate(
             evidence,
             required_types,
-            resolution_projection.required_node_ids,
+            resolution_projection.resolved_physical_node_ids,
             (
                 resolution_projection.required_semantic_similarities
                 if required_types
@@ -1993,11 +2110,16 @@ class CommandPipeline:
             occurrence_metrics = self.quality_service.evaluate_occurrence(
                 occurrence_nodes,
                 occurrence_required_types,
-                resolution_projection.required_node_ids_by_occurrence[occurrence],
+                resolution_projection.resolved_node_ids_by_occurrence[occurrence],
                 occurrence_similarities,
                 scene_nodes=[*snapshot_nodes, *override_nodes],
                 physical_conflicts=physical_conflicts,
-            ).model_copy(update=availability_snapshot)
+            )
+            occurrence_metrics = occurrence_metrics.model_copy(
+                update={
+                    **availability_snapshot,
+                }
+            )
             quality_metrics_by_occurrence[occurrence] = occurrence_metrics
         emit(
             "EVIDENCE_QUALITY_EVALUATED",
@@ -2550,6 +2672,7 @@ class CommandPipeline:
             spectrum_analysis=spectrum_analysis,
             zone_permission_result=zone_permission,
             audio_input_metadata=audio_input_metadata,
+            active_scenario=self.active_scenario_summary(),
             semantic_frame=frame,
             request_routing=request_routing,
             evidence_demand=demand,
@@ -2941,10 +3064,49 @@ class CommandPipeline:
         return self.vehicle.get_state()
 
     def _current_simulation_evidence(self) -> list[EvidenceObservationInput]:
-        provider = getattr(self.vehicle, "current_simulation_evidence", None)
-        if not callable(provider):
+        context = self._active_scenario
+        if context is None:
             return []
-        return [item.model_copy(deep=True) for item in provider()]
+        return [item.model_copy(deep=True) for item in context.evidence]
+
+    def active_scenario_summary(self) -> dict[str, Any]:
+        with self._command_lock:
+            context = self._active_scenario
+            if context is None:
+                return {"active": False, "scenario_id": None, "name": None,
+                        "version": self._active_scenario_version, "activated_at": None,
+                        "evidence_count": 0, "evidence_types": []}
+            return {"active": True, "scenario_id": context.scenario_id,
+                    "name": context.name, "version": context.version,
+                    "activated_at": context.activated_at,
+                    "evidence_count": len(context.evidence),
+                    "evidence_types": sorted({item.evidence_type for item in context.evidence})}
+
+    def _replace_active_scenario(self, scenario_id: str, name: str,
+                                 evidence: list[EvidenceObservationInput]) -> None:
+        self._active_scenario_version += 1
+        self._active_scenario = ActiveScenarioContext(
+            scenario_id=scenario_id, name=name, version=self._active_scenario_version,
+            activated_at=utc_now().isoformat(),
+            evidence=tuple(item.model_copy(deep=True) for item in evidence),
+        )
+
+    def _discard_active_scenario_evidence_for_fields(self, fields: dict[str, Any]) -> None:
+        context = self._active_scenario
+        if context is None:
+            return
+        types = set().union(*(self._STATE_EVIDENCE_TYPES.get(field, frozenset()) for field in fields)) if fields else set()
+        if not types:
+            return
+        remaining = [item for item in context.evidence if item.evidence_type not in types]
+        if len(remaining) != len(context.evidence):
+            self._replace_active_scenario(context.scenario_id, context.name, remaining)
+
+    def reconcile_vehicle_execution(self, operations: tuple[dict[str, Any], ...]) -> None:
+        with self._command_lock:
+            self._discard_active_scenario_evidence_for_fields(
+                {str(operation["field"]): operation.get("value") for operation in operations}
+            )
 
     @staticmethod
     def _present_explanation_context_value(value: Any) -> bool:
@@ -3062,10 +3224,16 @@ class CommandPipeline:
         self, observations: list[EvidenceObservationInput]
     ) -> list[EvidenceObservationInput]:
         with self._command_lock:
-            setter = getattr(self.vehicle, "set_simulation_evidence", None)
-            if not callable(setter):
-                raise RuntimeError("当前车辆适配器不支持仿真补充上下文")
-            return setter(observations)
+            if any(item.source != "SIMULATION" for item in observations):
+                raise ValueError("手动仿真上下文必须使用 SIMULATION 来源")
+            context = self._active_scenario
+            if context is None:
+                self._replace_active_scenario("manual", "手动仿真上下文", observations)
+            else:
+                replaced_types = {item.evidence_type for item in observations}
+                retained = [item for item in context.evidence if item.evidence_type not in replaced_types]
+                self._replace_active_scenario(context.scenario_id, context.name, [*retained, *observations])
+            return self._current_simulation_evidence()
 
     def get_simulation_evidence(self) -> list[EvidenceObservationInput]:
         with self._command_lock:
@@ -3075,9 +3243,11 @@ class CommandPipeline:
         with self._command_lock:
             update_turn_id = make_id("STATE_UPDATE")
             self.evidence_repository.begin_turn(update_turn_id)
-            state = self.vehicle.update_state(
-                self._link_weather_ambient_light(patch)
+            effective_patch = self._link_weather_ambient_light(patch)
+            self._discard_active_scenario_evidence_for_fields(
+                effective_patch.model_dump(exclude_unset=True)
             )
+            state = self.vehicle.update_state(effective_patch)
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
                 None,
@@ -3091,6 +3261,8 @@ class CommandPipeline:
         with self._command_lock:
             reset_turn_id = make_id("STATE_RESET")
             self.evidence_repository.begin_turn(reset_turn_id)
+            self._active_scenario = None
+            self._active_scenario_version += 1
             state = self.vehicle.reset()
             nodes = self.evidence_repository.ingest_vehicle_state(
                 state,
@@ -3107,7 +3279,7 @@ class CommandPipeline:
             {
                 "scenario_id": scenario_id,
                 "name": scenario.get("name", scenario_id),
-                "text": scenario.get("text", ""),
+                "text": scenario.get("input_text", ""),
                 "conditions": scenario_conditions(scenario),
             }
             for scenario_id, scenario in values.items()
@@ -3126,14 +3298,10 @@ class CommandPipeline:
                 EvidenceObservationInput.model_validate(value)
                 for value in scenario.get("evidence_overrides", [])
             ]
-            activate = getattr(self.vehicle, "activate_scenario", None)
-            persistent_simulation = bool(
-                callable(activate)
-                and all(item.source == "SIMULATION" for item in observations)
+            state = self.vehicle.update_state(self._link_weather_ambient_light(patch))
+            self._replace_active_scenario(
+                scenario_id, str(scenario.get("name", scenario_id)), observations
             )
-            if not persistent_simulation:
-                return self.update_vehicle_state(patch)
-            state = activate(patch, observations)
             activation_turn_id = make_id("SCENARIO_ACTIVATE")
             self.evidence_repository.begin_turn(activation_turn_id)
             snapshot_nodes = self.evidence_repository.ingest_vehicle_state(
@@ -3163,7 +3331,7 @@ class CommandPipeline:
         )
         return self.process_text(
             TextCommandRequest(
-                text=str(scenario.get("text", "")),
+                text=str(scenario.get("input_text", "")),
                 speaker_role=state.occupant_role or "unknown",
                 speaker_zone=state.speaker_zone or "unknown",
                 session_id=session_id,

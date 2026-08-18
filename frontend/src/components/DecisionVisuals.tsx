@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
-import type { SemanticFrame, SemanticIntent } from "../types/contract";
+import type { BayesianIntentDiagnostic, SemanticFrame, SemanticIntent } from "../types/contract";
 import type { CommandInputMode, DecisionExplanationView, DecisionResultView, DecisionVisualState } from "../types/visualModels";
 
 const INPUT_TABS: Array<{ mode: CommandInputMode; label: string }> = [
@@ -156,6 +156,12 @@ function diagnosticDisplay(value: string | null) {
   return value?.trim() || "--";
 }
 
+function bayesianPercent(value: number | null | undefined): string {
+  return value === null || value === undefined || Number.isNaN(value)
+    ? "--"
+    : `${(value * 100).toFixed(2)}%`;
+}
+
 function decisionDisplay(value: string | null | undefined): string {
   const normalized = value?.trim().toUpperCase();
   return normalized ? DECISION_LABELS[normalized] || "未识别状态" : "暂无结果";
@@ -191,8 +197,32 @@ function mergeReasonDisplay(value: string | null | undefined): string {
   );
 }
 
-export function DecisionResultDisplay({ result, selector, explanation, onExplanationRetry }: { result: DecisionResultView; selector?: ReactNode; explanation?: DecisionExplanationView; onExplanationRetry?: () => void }) {
+function recordValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function readableFacts(facts: Record<string, unknown> | undefined): Array<[string, string]> {
+  if (!facts) return [];
+  const runtime = recordValue(facts.key_runtime_state);
+  const environment = recordValue(facts.environment);
+  const gateRules = Array.isArray(facts.hit_safety_rules) ? facts.hit_safety_rules as Array<Record<string, unknown>> : [];
+  const mandatory = recordValue(facts.mandatory_evidence);
+  const execution = recordValue(facts.execution);
+  const values: Array<[string, unknown]> = [
+    ["车速", runtime.speed_kmh], ["挡位", runtime.gear], ["雨刮状态", runtime.wiper_state],
+    ["前照灯状态", runtime.headlight_state], ["天气", environment.weather], ["道路状态", environment.road_condition],
+    ["命中安全规则", gateRules.map((item) => item.rule).filter(Boolean).join("、")],
+    ["缺失强制证据", Array.isArray(mandatory.missing_types) ? mandatory.missing_types.join("、") : null],
+    ["执行结果", execution.result ? formatSemanticValue(execution.result) : null],
+  ];
+  return values.filter(([, value]) => value !== null && value !== undefined && value !== "" && value !== "--")
+    .map(([label, value]) => [label, formatSemanticValue(value)]);
+}
+
+export function DecisionResultDisplay({ result, selector, explanation, bayesian, onExplanationRetry }: { result: DecisionResultView; selector?: ReactNode; explanation?: DecisionExplanationView; bayesian?: BayesianIntentDiagnostic | null; onExplanationRetry?: () => void }) {
   const state = result.state ? DECISION_STATE_VIEW[result.state] : null;
+  const bayesianFactors = [...(bayesian?.factor_contributions || [])]
+    .sort((left, right) => right.contribution - left.contribution);
   return <section className={`decision-result-section state-${result.state || "empty"}`} aria-labelledby="decision-result-heading">
     <div className="decision-result-heading-row">
       <h1 id="decision-result-heading" className="visual-gradient-title">裁决结果</h1>
@@ -206,9 +236,6 @@ export function DecisionResultDisplay({ result, selector, explanation, onExplana
       <div><dt>安全门</dt><dd>{result.gateBlocked == null ? "暂无结果" : result.gateBlocked ? "已阻断" : "已通过"}</dd></div>
       <div><dt>证据对齐</dt><dd>{decisionDisplay(result.evidenceAlignment)}</dd></div>
       <div><dt>评分判断</dt><dd>{decisionDisplay(result.scoreDecision)}</dd></div>
-      <div><dt>最终裁决</dt><dd>{decisionDisplay(result.finalDecision)}</dd></div>
-      <div className="decision-merge-basis"><dt>裁决来源</dt><dd>{result.decisionSources?.length ? result.decisionSources.map(decisionSourceDisplay).join("、") : "暂无来源"}</dd></div>
-      <div className="decision-merge-basis"><dt>合并原因</dt><dd>{mergeReasonDisplay(result.mergeReason)}</dd></div>
     </dl>
     <div className="decision-reason"><h2>具体原因：</h2>
       <div className={`decision-reason-content is-${explanation?.status.toLowerCase() || "idle"}`}>
@@ -218,6 +245,10 @@ export function DecisionResultDisplay({ result, selector, explanation, onExplana
               : <span>暂无</span>}
       </div>
     </div>
+    {readableFacts(explanation?.facts).length > 0 && <details className="decision-diagnostic-score decision-fact-bundle"><summary>查看裁决依据</summary><dl>{readableFacts(explanation?.facts).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></details>}
+    <details className="decision-diagnostic-score decision-bayesian-risk"><summary>贝叶斯风险</summary>
+      <div className="decision-bayesian-inline"><span>贝叶斯风险概率 <strong>{bayesianPercent(bayesian?.risk_probability)}</strong></span><i aria-hidden="true">｜</i><span>风险因素：{bayesianFactors.length ? bayesianFactors.map((factor, index) => <span key={factor.factor_id}>{index > 0 ? " · " : ""}{factor.label} <strong>{bayesianPercent(factor.contribution)}</strong></span>) : "--"}</span></div>
+    </details>
     <details className="decision-diagnostic-score"><summary>诊断评分（不覆盖安全门）</summary>
       <div className="decision-dimension-table"><table><thead><tr><th>维度</th><th>得分</th></tr></thead><tbody>{result.dimensions.map((row) => <tr key={row.id}><td>{row.dimension}</td><td>{diagnosticDisplay(row.detail)}</td></tr>)}</tbody></table></div>
       <p className="decision-score">五维安全评分： <strong>{diagnosticDisplay(result.score)}</strong></p>

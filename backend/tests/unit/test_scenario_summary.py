@@ -1,11 +1,12 @@
 from app.services.vehicle.scenario_summary import scenario_conditions
 
 
-def test_scenario_conditions_render_state_and_explicit_missing_value() -> None:
+def test_scenario_conditions_render_only_non_empty_state_values() -> None:
     conditions = scenario_conditions(
         {
             "state": {
                 "vehicle_speed": None,
+                "headlight_state": "",
                 "gear_position": "P",
                 "weather": "CLEAR",
                 "occupant_role": "driver",
@@ -14,10 +15,29 @@ def test_scenario_conditions_render_state_and_explicit_missing_value() -> None:
     )
 
     assert conditions == [
-        "车速：未提供",
         "挡位：P（驻车）",
         "天气：晴朗",
         "身份：驾驶员",
+    ]
+
+
+def test_scenario_conditions_skip_empty_nested_groups_but_keep_false_and_zero() -> None:
+    conditions = scenario_conditions(
+        {
+            "state": {"vehicle_speed": 0, "emergency_flag": False},
+            "evidence_overrides": [
+                {"evidence_type": "ENVIRONMENT_CONDITIONS", "value": {"time_of_day": "", "visibility": None}},
+                {"evidence_type": "SURROUNDING_OBJECT_STATE", "value": {"objects": []}},
+                {"evidence_type": "ROAD_FRICTION_STATE", "value": {}},
+                {"evidence_type": "AUTHORIZATION_STATE", "value": {"authorized_for_request": False}},
+            ],
+        }
+    )
+
+    assert conditions == [
+        "车速：0 km/h",
+        "紧急标志：否",
+        "补充授权：{'authorized_for_request': False}",
     ]
 
 

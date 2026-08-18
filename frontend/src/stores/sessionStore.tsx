@@ -78,6 +78,7 @@ function migrateLegacyState(): void {
 }
 
 export interface RecentTurnSummary { turnId: string; instructionSummary: string | null; decision: DecisionLabel | null; createdAt: string | null; }
+export interface PendingExecutionDemo { turnId: string; token: string; interactionId: string; intentId: string | undefined; label: string; }
 
 function recentTurnsKey(sessionId: string): string { return `yuzheng.v2.turn.recent.${sessionId}`; }
 function readRecentTurns(sessionId: string): RecentTurnSummary[] {
@@ -99,6 +100,8 @@ export interface SessionState {
   eventsByTurn: Record<string, PipelineEvent[]>;
   newSession: () => void;
   setActiveTurn: (turnId: string | null, summary?: Omit<RecentTurnSummary, "turnId">) => void;
+  pendingExecutionDemo: PendingExecutionDemo | null;
+  setPendingExecutionDemo: (value: PendingExecutionDemo | null) => void;
   getPipelineEvents: (turnId: string) => PipelineEvent[];
   addPipelineEvent: (event: PipelineEvent) => void;
   clearPipelineEventsForTurn: (turnId: string) => void;
@@ -116,6 +119,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
     const stored = readSessionStoredString(ACTIVE_TURN_STORAGE_KEY);
     return validTurnId(stored) ? stored : null;
   });
+  // Deliberately memory-only: authorization material must never enter web storage.
+  const [pendingExecutionDemo, setPendingExecutionDemo] = useState<PendingExecutionDemo | null>(null);
   const [recentTurns, setRecentTurns] = useState<RecentTurnSummary[]>(() => readRecentTurns(readSessionId()));
   const recentTurnIds = useMemo(() => recentTurns.map((item) => item.turnId), [recentTurns]);
   const [websocketStatus, setWebsocketStatus] = useState<ConnectionStatus>("disconnected");
@@ -193,18 +198,20 @@ export function SessionProvider({ children }: PropsWithChildren) {
     sessionId,
     sessionEpoch,
     activeTurnId,
+    pendingExecutionDemo,
     recentTurnIds,
     recentTurns,
     websocketStatus,
     eventsByTurn,
     newSession,
     setActiveTurn,
+    setPendingExecutionDemo,
     getPipelineEvents,
     addPipelineEvent,
     clearPipelineEventsForTurn,
     clearAllPipelineEvents,
     setWebsocketStatus,
-  }), [sessionId, sessionEpoch, activeTurnId, recentTurnIds, recentTurns, websocketStatus, eventsByTurn, newSession, setActiveTurn, getPipelineEvents, addPipelineEvent, clearPipelineEventsForTurn, clearAllPipelineEvents]);
+  }), [sessionId, sessionEpoch, activeTurnId, pendingExecutionDemo, recentTurnIds, recentTurns, websocketStatus, eventsByTurn, newSession, setActiveTurn, getPipelineEvents, addPipelineEvent, clearPipelineEventsForTurn, clearAllPipelineEvents]);
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

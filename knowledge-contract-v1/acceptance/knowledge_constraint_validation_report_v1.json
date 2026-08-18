@@ -1,0 +1,9 @@
+{
+  "total_nodes": 5,
+  "error_count": 0,
+  "errors": [],
+  "contract_hash_335lines": "3DFF279543199F64BB09C674D1F646B0F7B1E74DB0BDF51937CC7B40D52845D2",
+  "contract_lines": 335,
+  "acceptance_cases": 15,
+  "verdict": "PASS"
+}

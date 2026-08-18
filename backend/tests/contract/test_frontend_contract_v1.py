@@ -103,6 +103,8 @@ def test_01_presentation_returns_complete_same_turn_snapshot(contract_context, p
         "execution",
         "audit",
     } <= body.keys()
+    assert "knowledge_trace" in body["gate_result"]
+    assert isinstance(body["gate_result"]["knowledge_trace"], list)
 
 
 def test_02_presentation_does_not_rerun_pipeline(contract_context, prepared, monkeypatch):

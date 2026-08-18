@@ -240,6 +240,16 @@
             "title": "Input Type",
             "type": "string"
           },
+          "interaction_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InteractionRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "pipeline": {
             "anyOf": [
               {
@@ -567,6 +577,9 @@
           "execution_summary": {
             "$ref": "#/components/schemas/AuditExecutionSummary"
           },
+          "integrity_protection": {
+            "$ref": "#/components/schemas/AuditIntegrityProtection"
+          },
           "intent_decisions": {
             "items": {
               "$ref": "#/components/schemas/AuditIntentDecision"
@@ -597,7 +610,8 @@
           "decision_summary",
           "llm_explanation",
           "authorization_summary",
-          "execution_summary"
+          "execution_summary",
+          "integrity_protection"
         ],
         "title": "AuditDetailView",
         "type": "object"
@@ -790,6 +804,67 @@
           "status"
         ],
         "title": "AuditExecutionSummary",
+        "type": "object"
+      },
+      "AuditIntegrityProtection": {
+        "additionalProperties": false,
+        "properties": {
+          "current_hash": {
+            "title": "Current Hash",
+            "type": "string"
+          },
+          "previous_hash": {
+            "title": "Previous Hash",
+            "type": "string"
+          },
+          "protection_status": {
+            "enum": [
+              "LEGACY_HASH_CHAIN",
+              "HASH_CHAIN_AND_SIGNATURE"
+            ],
+            "title": "Protection Status",
+            "type": "string"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature"
+          },
+          "signature_algorithm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Algorithm"
+          },
+          "signature_key_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Key Id"
+          }
+        },
+        "required": [
+          "previous_hash",
+          "current_hash",
+          "protection_status"
+        ],
+        "title": "AuditIntegrityProtection",
         "type": "object"
       },
       "AuditIntentDecision": {
@@ -1011,6 +1086,11 @@
       "AuditRecord": {
         "additionalProperties": false,
         "properties": {
+          "active_scenario": {
+            "additionalProperties": true,
+            "title": "Active Scenario",
+            "type": "object"
+          },
           "advanced_explanations": {
             "items": {
               "type": "string"
@@ -1338,6 +1418,16 @@
             "title": "Record Type",
             "type": "string"
           },
+          "request_routing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestRouting"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "retrieval_metadata": {
             "anyOf": [
               {
@@ -1385,6 +1475,39 @@
           },
           "semantic_frame": {
             "$ref": "#/components/schemas/SemanticFrame"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature"
+          },
+          "signature_algorithm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Algorithm"
+          },
+          "signature_key_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Key Id"
           },
           "spectrum_analysis": {
             "anyOf": [
@@ -1713,6 +1836,22 @@
             "default": true,
             "title": "Relationship Valid",
             "type": "boolean"
+          },
+          "signature_status": {
+            "default": "LEGACY_HASH_CHAIN",
+            "title": "Signature Status",
+            "type": "string"
+          },
+          "signature_valid": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Valid"
           },
           "terminal_audit_id": {
             "anyOf": [
@@ -2738,6 +2877,8 @@
               {
                 "enum": [
                   "REQUIRED",
+                  "KNOWLEDGE_REQUIRED",
+                  "ASSESSMENT",
                   "OPTIONAL"
                 ],
                 "type": "string"
@@ -2779,6 +2920,37 @@
           "candidate_source": {
             "$ref": "#/components/schemas/ClarificationCandidateSource"
           },
+          "canonical_intent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Intent Id"
+          },
+          "canonical_runtime_identity": {
+            "anyOf": [
+              {
+                "enum": [
+                  "FORMAL",
+                  "KNOWN_NON_EXECUTABLE"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Runtime Identity"
+          },
+          "canonical_slots": {
+            "additionalProperties": true,
+            "title": "Canonical Slots",
+            "type": "object"
+          },
           "confidence": {
             "anyOf": [
               {
@@ -2797,6 +2969,28 @@
             "minLength": 1,
             "title": "Display Text",
             "type": "string"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "group_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label"
           },
           "source_rank": {
             "minimum": 1.0,
@@ -2830,7 +3024,7 @@
             "items": {
               "$ref": "#/components/schemas/ClarificationCandidate"
             },
-            "maxItems": 4,
+            "maxItems": 16,
             "title": "Candidates",
             "type": "array"
           },
@@ -3125,6 +3319,13 @@
               "$ref": "#/components/schemas/DecisionSource"
             },
             "title": "Decision Sources",
+            "type": "array"
+          },
+          "execution_tokens": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutionTokenView"
+            },
+            "title": "Execution Tokens",
             "type": "array"
           },
           "explanations": {
@@ -3605,6 +3806,16 @@
           "required": {
             "title": "Required",
             "type": "boolean"
+          },
+          "requirement_level": {
+            "default": "ASSESSMENT",
+            "enum": [
+              "HARD_REQUIRED",
+              "KNOWLEDGE_REQUIRED",
+              "ASSESSMENT"
+            ],
+            "title": "Requirement Level",
+            "type": "string"
           },
           "retrieval_origin": {
             "$ref": "#/components/schemas/RetrievalOrigin"
@@ -4101,6 +4312,21 @@
             "title": "Integrity Hash",
             "type": "string"
           },
+          "intent_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Intent Ids",
+            "type": "array"
+          },
+          "knowledge_hits": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Knowledge Hits",
+            "type": "array"
+          },
           "layer": {
             "title": "Layer",
             "type": "string"
@@ -4150,6 +4376,13 @@
           "quality_label": {
             "title": "Quality Label",
             "type": "string"
+          },
+          "regulation_hits": {
+            "items": {
+              "$ref": "#/components/schemas/RegulationHit"
+            },
+            "title": "Regulation Hits",
+            "type": "array"
           },
           "safety_adjustment": {
             "anyOf": [
@@ -4676,6 +4909,46 @@
         "title": "ExecutionPresentation",
         "type": "object"
       },
+      "ExecutionTokenView": {
+        "additionalProperties": false,
+        "description": "多意图放行时为每个意图签发的执行令牌展示视图。",
+        "properties": {
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          },
+          "area": {
+            "default": "unknown",
+            "title": "Area",
+            "type": "string"
+          },
+          "intent_id": {
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "label": {
+            "default": "",
+            "title": "Label",
+            "type": "string"
+          },
+          "target": {
+            "default": "",
+            "title": "Target",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "intent_id"
+        ],
+        "title": "ExecutionTokenView",
+        "type": "object"
+      },
       "GateCheck": {
         "additionalProperties": false,
         "properties": {
@@ -5120,6 +5393,8 @@
           "requirement_level": {
             "enum": [
               "REQUIRED",
+              "KNOWLEDGE_REQUIRED",
+              "ASSESSMENT",
               "OPTIONAL"
             ],
             "title": "Requirement Level",
@@ -5130,6 +5405,7 @@
               "RETRIEVED",
               "MANDATORY_RECALLED",
               "MISSING",
+              "KNOWLEDGE_MISSING",
               "OPTIONAL_NOT_FOUND"
             ],
             "title": "Resolution Status",
@@ -5175,6 +5451,13 @@
             "title": "Area",
             "type": "string"
           },
+          "assessment_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assessment Types",
+            "type": "array"
+          },
           "clause_index": {
             "minimum": 0.0,
             "title": "Clause Index",
@@ -5183,6 +5466,53 @@
           "intent_id": {
             "title": "Intent Id",
             "type": "string"
+          },
+          "knowledge_augmented_optional_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Knowledge Augmented Optional Types",
+            "type": "array"
+          },
+          "knowledge_augmented_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Knowledge Augmented Types",
+            "type": "array"
+          },
+          "knowledge_demand_sources": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Knowledge Demand Sources",
+            "type": "array"
+          },
+          "knowledge_hits": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Knowledge Hits",
+            "type": "array"
+          },
+          "knowledge_query_text": {
+            "default": "",
+            "title": "Knowledge Query Text",
+            "type": "string"
+          },
+          "knowledge_required_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Knowledge Required Types",
+            "type": "array"
+          },
+          "knowledge_retrieval_metadata": {
+            "additionalProperties": true,
+            "title": "Knowledge Retrieval Metadata",
+            "type": "object"
           },
           "optional_types": {
             "items": {
@@ -5271,6 +5601,13 @@
             "title": "Area",
             "type": "string"
           },
+          "assessment_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assessment Types",
+            "type": "array"
+          },
           "clause_index": {
             "minimum": 0.0,
             "title": "Clause Index",
@@ -5286,6 +5623,46 @@
           "intent_id": {
             "title": "Intent Id",
             "type": "string"
+          },
+          "knowledge_augmented_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Knowledge Augmented Types",
+            "type": "array"
+          },
+          "knowledge_demand_sources": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Knowledge Demand Sources",
+            "type": "array"
+          },
+          "knowledge_hits": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Knowledge Hits",
+            "type": "array"
+          },
+          "knowledge_query_text": {
+            "default": "",
+            "title": "Knowledge Query Text",
+            "type": "string"
+          },
+          "knowledge_required_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Knowledge Required Types",
+            "type": "array"
+          },
+          "knowledge_retrieval_metadata": {
+            "additionalProperties": true,
+            "title": "Knowledge Retrieval Metadata",
+            "type": "object"
           },
           "optional_types": {
             "items": {
@@ -5367,6 +5744,13 @@
               "$ref": "#/components/schemas/MandatoryRecallRecord"
             },
             "title": "Mandatory Recall Records",
+            "type": "array"
+          },
+          "missing_knowledge_required_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Knowledge Required Types",
             "type": "array"
           },
           "missing_required_types": {
@@ -5556,6 +5940,220 @@
         ],
         "title": "IntentSafetyAssessmentPresentation",
         "type": "object"
+      },
+      "InteractionAction": {
+        "enum": [
+          "SELECT_CANDIDATE",
+          "REPHRASE",
+          "CANCEL",
+          "CONFIRM",
+          "CLOSE",
+          "EXECUTE",
+          "SUBMIT_PARAMETERS"
+        ],
+        "title": "InteractionAction",
+        "type": "string"
+      },
+      "InteractionCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "canonical_intent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Intent Id"
+          },
+          "canonical_slots": {
+            "additionalProperties": true,
+            "title": "Canonical Slots",
+            "type": "object"
+          },
+          "canonical_text": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Canonical Text",
+            "type": "string"
+          },
+          "display_text": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Display Text",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "display_text",
+          "canonical_text",
+          "source"
+        ],
+        "title": "InteractionCandidate",
+        "type": "object"
+      },
+      "InteractionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_actions": {
+            "items": {
+              "$ref": "#/components/schemas/InteractionAction"
+            },
+            "title": "Allowed Actions",
+            "type": "array"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/InteractionCandidate"
+            },
+            "maxItems": 16,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "canonical_operation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Operation"
+          },
+          "consumed": {
+            "default": false,
+            "title": "Consumed",
+            "type": "boolean"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "intent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent Id"
+          },
+          "interaction_id": {
+            "title": "Interaction Id",
+            "type": "string"
+          },
+          "interaction_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InteractionType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "reason_details": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Reason Details",
+            "type": "array"
+          },
+          "state": {
+            "$ref": "#/components/schemas/InteractionState"
+          },
+          "turn_id": {
+            "title": "Turn Id",
+            "type": "string"
+          },
+          "unit_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Index"
+          },
+          "user_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "turn_id",
+          "state"
+        ],
+        "title": "InteractionRequest",
+        "type": "object"
+      },
+      "InteractionState": {
+        "description": "The only backend-authoritative state for a turn's user interaction.",
+        "enum": [
+          "NEEDS_CLARIFICATION",
+          "PASS",
+          "NEEDS_REVIEW",
+          "BLOCK"
+        ],
+        "title": "InteractionState",
+        "type": "string"
+      },
+      "InteractionType": {
+        "description": "The sole user-facing interaction taxonomy.\n\n``None`` means the turn is terminal and deliberately has no modal.\nDecision labels and semantic reason codes are internal inputs to the\ninteraction generator; clients must never infer this value themselves.",
+        "enum": [
+          "MULTI_INTENT_SELECTION",
+          "PARAMETER_COMPLETION",
+          "SEMANTIC_DISAMBIGUATION",
+          "UNRESOLVED_VEHICLE_CONTROL",
+          "SAFETY_REVIEW",
+          "EXECUTION_CONFIRMATION"
+        ],
+        "title": "InteractionType",
+        "type": "string"
       },
       "InterpreterGenerationMetadata": {
         "additionalProperties": false,
@@ -6706,6 +7304,32 @@
         "title": "OccurrenceLayerNavigation",
         "type": "object"
       },
+      "OrderedSemanticUnit": {
+        "additionalProperties": false,
+        "description": "The 4B normalizer's ordered, text-only production contract.",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/SemanticUnitKind"
+          },
+          "normalized_text": {
+            "minLength": 1,
+            "title": "Normalized Text",
+            "type": "string"
+          },
+          "unit_index": {
+            "minimum": 0.0,
+            "title": "Unit Index",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "unit_index",
+          "kind",
+          "normalized_text"
+        ],
+        "title": "OrderedSemanticUnit",
+        "type": "object"
+      },
       "ParentStateStatistics": {
         "additionalProperties": false,
         "properties": {
@@ -6981,6 +7605,121 @@
           "generation_mode"
         ],
         "title": "RecoveryRecommendation",
+        "type": "object"
+      },
+      "RegulationHit": {
+        "additionalProperties": false,
+        "description": "法规检索命中的单条条文。",
+        "properties": {
+          "clause": {
+            "title": "Clause",
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "evidence_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Types",
+            "type": "array"
+          },
+          "score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "standard_id": {
+            "title": "Standard Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "standard_id",
+          "clause",
+          "content",
+          "source",
+          "score"
+        ],
+        "title": "RegulationHit",
+        "type": "object"
+      },
+      "RegulationRationale": {
+        "additionalProperties": false,
+        "description": "一条指令检索到的法规依据集合（附加展示，不参与裁决）。",
+        "properties": {
+          "demand_text": {
+            "title": "Demand Text",
+            "type": "string"
+          },
+          "hits": {
+            "items": {
+              "$ref": "#/components/schemas/RegulationHit"
+            },
+            "title": "Hits",
+            "type": "array"
+          },
+          "missing_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "demand_text"
+        ],
+        "title": "RegulationRationale",
+        "type": "object"
+      },
+      "RequestRouting": {
+        "additionalProperties": false,
+        "properties": {
+          "contains_vehicle_control": {
+            "default": false,
+            "title": "Contains Vehicle Control",
+            "type": "boolean"
+          },
+          "enters_vehicle_safety_chain": {
+            "default": false,
+            "title": "Enters Vehicle Safety Chain",
+            "type": "boolean"
+          },
+          "model_call_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Model Call Count",
+            "type": "integer"
+          },
+          "model_metrics": {
+            "additionalProperties": true,
+            "title": "Model Metrics",
+            "type": "object"
+          },
+          "raw_text": {
+            "title": "Raw Text",
+            "type": "string"
+          },
+          "units": {
+            "items": {
+              "$ref": "#/components/schemas/OrderedSemanticUnit"
+            },
+            "title": "Units",
+            "type": "array"
+          }
+        },
+        "required": [
+          "raw_text"
+        ],
+        "title": "RequestRouting",
         "type": "object"
       },
       "RetrievalCandidate": {
@@ -8944,14 +9683,41 @@
             "title": "Clause Text",
             "type": "string"
           },
+          "control_attribute": {
+            "default": "unknown",
+            "title": "Control Attribute",
+            "type": "string"
+          },
           "control_domain": {
             "default": "unknown",
             "title": "Control Domain",
             "type": "string"
           },
+          "direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direction"
+          },
           "intent_id": {
             "title": "Intent Id",
             "type": "string"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
           },
           "risk_level": {
             "default": "R1",
@@ -8964,6 +9730,15 @@
             },
             "title": "Risk Tags",
             "type": "array"
+          },
+          "runtime_identity": {
+            "default": "FORMAL",
+            "enum": [
+              "FORMAL",
+              "KNOWN_NON_EXECUTABLE"
+            ],
+            "title": "Runtime Identity",
+            "type": "string"
           },
           "semantic_confidence": {
             "maximum": 1.0,
@@ -8996,6 +9771,16 @@
         ],
         "title": "SemanticIntent",
         "type": "object"
+      },
+      "SemanticUnitKind": {
+        "enum": [
+          "CONTEXT",
+          "ASSISTANT",
+          "UNCERTAIN",
+          "VEHICLE_CONTROL"
+        ],
+        "title": "SemanticUnitKind",
+        "type": "string"
       },
       "SpectrumAnalysisResult": {
         "additionalProperties": false,
@@ -9221,6 +10006,16 @@
             "title": "Input Type",
             "type": "string"
           },
+          "interaction_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InteractionRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "interpreter_result": {
             "anyOf": [
               {
@@ -9278,6 +10073,26 @@
             },
             "title": "Query Vectors",
             "type": "array"
+          },
+          "regulation_rationale": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegulationRationale"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_routing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestRouting"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "retrieval_metadata": {
             "$ref": "#/components/schemas/RetrievalMetadata"
@@ -9576,9 +10391,29 @@
           "input": {
             "$ref": "#/components/schemas/InputPresentation"
           },
+          "interaction_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InteractionRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "processing_status": {
             "title": "Processing Status",
             "type": "string"
+          },
+          "request_routing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestRouting"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "retrieval_summary": {
             "$ref": "#/components/schemas/RetrievalSummary"
@@ -9798,6 +10633,38 @@
         "title": "TurnWorkflowStatus",
         "type": "object"
       },
+      "UserReason": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "details": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Details",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "description"
+        ],
+        "title": "UserReason",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -9984,10 +10851,43 @@
           "before_state": {
             "$ref": "#/components/schemas/VehicleState"
           },
+          "capability_contract_digest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capability Contract Digest"
+          },
+          "control_attribute": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Attribute"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
             "type": "string"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direction"
           },
           "duration_ms": {
             "minimum": 0.0,
@@ -10002,6 +10902,28 @@
             "title": "Feedback",
             "type": "string"
           },
+          "intent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent Id"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
           "simulated": {
             "title": "Simulated",
             "type": "boolean"
@@ -10013,6 +10935,15 @@
           "target": {
             "title": "Target",
             "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
           }
         },
         "required": [
@@ -10033,6 +10964,18 @@
       "VehicleState": {
         "additionalProperties": false,
         "properties": {
+          "ac_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "OFF",
+            "title": "Ac State"
+          },
           "ambient_light": {
             "anyOf": [
               {
@@ -10078,6 +11021,18 @@
             "default": "RELEASED",
             "title": "Brake State"
           },
+          "collision_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collision At"
+          },
           "collision_state": {
             "anyOf": [
               {
@@ -10092,6 +11047,17 @@
             ],
             "default": "NONE",
             "title": "Collision State"
+          },
+          "collision_target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collision Target"
           },
           "display_state": {
             "anyOf": [
@@ -10327,6 +11293,18 @@
             "title": "State Epoch Id",
             "type": "string"
           },
+          "sunroof_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "CLOSED",
+            "title": "Sunroof State"
+          },
           "surround_camera_state": {
             "anyOf": [
               {
@@ -10338,6 +11316,14 @@
             ],
             "default": "AVAILABLE",
             "title": "Surround Camera State"
+          },
+          "surrounding_objects": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Surrounding Objects",
+            "type": "array"
           },
           "ultrasonic_distance": {
             "anyOf": [
@@ -10405,6 +11391,68 @@
             ],
             "default": "CLOSED",
             "title": "Window State"
+          },
+          "wiper_error": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": false,
+            "title": "Wiper Error"
+          },
+          "wiper_frequency": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": 0,
+            "title": "Wiper Frequency"
+          },
+          "wiper_intensity": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": 0,
+            "title": "Wiper Intensity"
+          },
+          "wiper_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "OFF",
+            "title": "Wiper Mode"
+          },
+          "wiper_wiping": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": false,
+            "title": "Wiper Wiping"
           }
         },
         "title": "VehicleState",
@@ -10613,6 +11661,7 @@
           "REVIEW_CONFIRMED",
           "REVIEW_CORRECTED",
           "REVIEW_CANCELLED",
+          "INTERACTION_CONFIRMED",
           "CLARIFICATION_REQUESTED",
           "CLARIFICATION_RESOLVED",
           "FINAL_DECISION_UPDATED",

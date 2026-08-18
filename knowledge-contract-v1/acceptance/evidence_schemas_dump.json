@@ -1,0 +1,372 @@
+{
+ "VEHICLE_SPEED": {
+  "kind": "number",
+  "fields": null
+ },
+ "VEHICLE_ACCELERATION": {
+  "kind": "object",
+  "fields": [
+   "longitudinal",
+   "lateral",
+   "vertical"
+  ]
+ },
+ "GEAR_STATE": {
+  "kind": "object",
+  "fields": [
+   "current_gear",
+   "selected_gear",
+   "change_mode"
+  ]
+ },
+ "SERVICE_BRAKE_STATE": {
+  "kind": "object",
+  "fields": [
+   "brake_state",
+   "pedal_position",
+   "emergency_braking_detected"
+  ]
+ },
+ "PARKING_BRAKE_STATE": {
+  "kind": "object",
+  "fields": [
+   "engaged",
+   "auto_apply_enabled"
+  ]
+ },
+ "STEERING_STATE": {
+  "kind": "object",
+  "fields": [
+   "steering_wheel_angle",
+   "axle_steering_angle",
+   "rear_axle_steering_angle",
+   "steering_rate"
+  ]
+ },
+ "ESC_STATE": {
+  "kind": "object",
+  "fields": [
+   "enabled",
+   "engaged",
+   "state",
+   "error"
+  ]
+ },
+ "ROAD_FRICTION_STATE": {
+  "kind": "object",
+  "fields": [
+   "road_condition",
+   "wetness",
+   "friction_scale_factor",
+   "lower_bound",
+   "most_probable",
+   "upper_bound"
+  ]
+ },
+ "CRUISE_STATE": {
+  "kind": "object",
+  "fields": [
+   "enabled",
+   "active",
+   "cruise_type",
+   "state",
+   "target_speed",
+   "target_time_gap",
+   "lead_vehicle_distance",
+   "error"
+  ]
+ },
+ "DOOR_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "is_open",
+   "state",
+   "position"
+  ]
+ },
+ "DOOR_LOCK_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "locked",
+   "lock_state",
+   "child_lock_active"
+  ]
+ },
+ "WINDOW_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "is_open",
+   "state",
+   "position",
+   "child_lock_active"
+  ]
+ },
+ "SUNROOF_STATE": {
+  "kind": "object",
+  "fields": [
+   "position",
+   "tilt"
+  ]
+ },
+ "TRUNK_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "is_open",
+   "state",
+   "position"
+  ]
+ },
+ "TRUNK_LOCK_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "locked",
+   "lock_state"
+  ]
+ },
+ "HOOD_STATE": {
+  "kind": "object",
+  "fields": [
+   "is_open",
+   "state",
+   "position"
+  ]
+ },
+ "MIRROR_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "folded",
+   "locked",
+   "pan",
+   "tilt",
+   "yaw"
+  ]
+ },
+ "MIRROR_HEATING_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "heating_on"
+  ]
+ },
+ "SEAT_POSITION_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "position",
+   "height",
+   "tilt",
+   "recline",
+   "lumbar_height",
+   "lumbar_support"
+  ]
+ },
+ "STEERING_WHEEL_POSITION_STATE": {
+  "kind": "object",
+  "fields": [
+   "extension",
+   "tilt"
+  ]
+ },
+ "HVAC_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "active",
+   "recirculation_active",
+   "target_temperature",
+   "fan_speed",
+   "air_distribution"
+  ]
+ },
+ "DEFROST_STATE": {
+  "kind": "object",
+  "fields": [
+   "front_active",
+   "rear_active"
+  ]
+ },
+ "WINDSHIELD_HEATING_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "heating_on"
+  ]
+ },
+ "LIGHTING_STATE": {
+  "kind": "object",
+  "fields": [
+   "headlight_state",
+   "high_beam",
+   "fog",
+   "parking",
+   "hazard",
+   "direction_indicator",
+   "light_switch",
+   "low_beam_on",
+   "high_beam_on",
+   "high_beam_switch_on",
+   "front_fog_on",
+   "rear_fog_on",
+   "parking_on",
+   "hazard_signaling",
+   "left_indicator_signaling",
+   "right_indicator_signaling"
+  ]
+ },
+ "WIPER_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "mode",
+   "intensity",
+   "frequency",
+   "wiping",
+   "error"
+  ]
+ },
+ "OCCUPANT_STATE": {
+  "kind": "object",
+  "fields": [
+   "area",
+   "occupied",
+   "occupancy_status",
+   "belted",
+   "is_driver",
+   "steering_control"
+  ]
+ },
+ "DRIVER_MONITORING_STATE": {
+  "kind": "object",
+  "fields": [
+   "hands_on_wheel",
+   "hands_on_state",
+   "hands_on_warning",
+   "drowsiness_state",
+   "drowsiness_warning",
+   "distraction_state",
+   "distraction_warning"
+  ]
+ },
+ "SURROUNDING_OBJECT_STATE": {
+  "kind": "object",
+  "fields": [
+   "objects",
+   "front_obstacle_distance",
+   "rear_obstacle_distance",
+   "collision_state"
+  ]
+ },
+ "LANE_STATE": {
+  "kind": "object",
+  "fields": [
+   "current_lane_id",
+   "lane_type",
+   "left_adjacent_lane_ids",
+   "right_adjacent_lane_ids",
+   "boundaries",
+   "logical_lane_ids",
+   "lane_state"
+  ]
+ },
+ "ROAD_STRUCTURE_STATE": {
+  "kind": "object",
+  "fields": [
+   "road_id",
+   "road_type",
+   "junction_id",
+   "at_junction",
+   "traffic_rule",
+   "lane_section_count",
+   "surface_reference",
+   "surface_purpose"
+  ]
+ },
+ "TRAFFIC_LIGHT_STATE": {
+  "kind": "object",
+  "fields": [
+   "traffic_light_id",
+   "state",
+   "color",
+   "lane_ids"
+  ]
+ },
+ "SPEED_LIMIT_STATE": {
+  "kind": "number",
+  "fields": null
+ },
+ "FREE_SPACE_STATE": {
+  "kind": "object",
+  "fields": [
+   "region",
+   "free_space_probability",
+   "geometry"
+  ]
+ },
+ "ENVIRONMENT_CONDITIONS": {
+  "kind": "object",
+  "fields": [
+   "ambient_illumination",
+   "visibility",
+   "weather",
+   "precipitation",
+   "fog",
+   "precipitation_type",
+   "precipitation_intensity",
+   "fog_visibility",
+   "time_of_day",
+   "ambient_temperature",
+   "atmospheric_pressure",
+   "relative_humidity",
+   "sun_azimuth",
+   "sun_elevation",
+   "sun_illuminance"
+  ]
+ },
+ "COLLISION_ASSIST_STATE": {
+  "kind": "object",
+  "fields": [
+   "feature",
+   "area",
+   "enabled",
+   "state",
+   "warning_level",
+   "error_state"
+  ]
+ },
+ "LANE_ASSIST_STATE": {
+  "kind": "object",
+  "fields": [
+   "feature",
+   "enabled",
+   "state",
+   "error_state"
+  ]
+ },
+ "AUTHORIZATION_STATE": {
+  "kind": "object",
+  "fields": [
+   "authentication_state",
+   "authenticated",
+   "subject_role",
+   "subject_zone",
+   "intent_authorizations",
+   "authorized_for_request"
+  ]
+ },
+ "SYSTEM_MODE": {
+  "kind": "object",
+  "fields": [
+   "vehicle_mode",
+   "safety_constraint",
+   "simulation",
+   "test_mode",
+   "degraded"
+  ]
+ }
+}

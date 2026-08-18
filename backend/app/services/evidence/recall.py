@@ -76,9 +76,25 @@ class MandatoryRecallService:
         final_nodes = list(candidates)
         records: list[MandatoryRecallRecord] = []
         missing_types: list[str] = []
+        missing_knowledge_types: list[str] = []
         bindings: list[IntentEvidenceBinding] = []
 
-        for evidence_type in demand.required_types:
+        hard_required = set(demand.required_types)
+        demanded_types = list(
+            dict.fromkeys(
+                [*demand.required_types, *demand.knowledge_required_types]
+            )
+        )
+        for evidence_type in demanded_types:
+            requirement_level = (
+                "REQUIRED" if evidence_type in hard_required else "KNOWLEDGE_REQUIRED"
+            )
+            missing_status = (
+                "MISSING" if requirement_level == "REQUIRED" else "KNOWLEDGE_MISSING"
+            )
+            effective_missing_hard_gate = (
+                missing_hard_gate if requirement_level == "REQUIRED" else False
+            )
             require_canonical_evidence_type(evidence_type)
             matching_candidates = self._matching_candidates(
                 candidates, demand, evidence_type
@@ -103,18 +119,22 @@ class MandatoryRecallService:
                 missing = self.repository.get_or_create_missing(
                     evidence_type,
                     turn_id,
-                    missing_hard_gate=missing_hard_gate,
+                    missing_hard_gate=effective_missing_hard_gate,
                 )
                 final_nodes.append(missing)
-                missing_types.append(evidence_type)
+                (
+                    missing_types
+                    if requirement_level == "REQUIRED"
+                    else missing_knowledge_types
+                ).append(evidence_type)
                 bindings.append(
                     IntentEvidenceBinding(
                         clause_index=demand.clause_index,
                         intent_id=demand.intent_id,
                         evidence_type=evidence_type,
-                        requirement_level="REQUIRED",
+                        requirement_level=requirement_level,
                         node_id=missing.node_id,
-                        resolution_status="MISSING",
+                        resolution_status=missing_status,
                         retrieval_origin=RetrievalOrigin.NONE,
                         semantic_similarity=None,
                     )
@@ -145,7 +165,7 @@ class MandatoryRecallService:
                         clause_index=demand.clause_index,
                         intent_id=demand.intent_id,
                         evidence_type=evidence_type,
-                        requirement_level="REQUIRED",
+                        requirement_level=requirement_level,
                         node_id=selected.node_id,
                         resolution_status="RETRIEVED",
                         retrieval_origin=RetrievalOrigin.HNSW,
@@ -178,18 +198,22 @@ class MandatoryRecallService:
                     missing = self.repository.get_or_create_missing(
                         evidence_type,
                         turn_id,
-                        missing_hard_gate=missing_hard_gate,
+                        missing_hard_gate=effective_missing_hard_gate,
                     )
                     final_nodes.append(missing)
-                    missing_types.append(evidence_type)
+                    (
+                        missing_types
+                        if requirement_level == "REQUIRED"
+                        else missing_knowledge_types
+                    ).append(evidence_type)
                     bindings.append(
                         IntentEvidenceBinding(
                             clause_index=demand.clause_index,
                             intent_id=demand.intent_id,
                             evidence_type=evidence_type,
-                            requirement_level="REQUIRED",
+                            requirement_level=requirement_level,
                             node_id=missing.node_id,
-                            resolution_status="MISSING",
+                            resolution_status=missing_status,
                             retrieval_origin=RetrievalOrigin.NONE,
                             semantic_similarity=None,
                         )
@@ -218,7 +242,7 @@ class MandatoryRecallService:
                         clause_index=demand.clause_index,
                         intent_id=demand.intent_id,
                         evidence_type=evidence_type,
-                        requirement_level="REQUIRED",
+                        requirement_level=requirement_level,
                         node_id=latest.node_id,
                         resolution_status="MANDATORY_RECALLED",
                         retrieval_origin=RetrievalOrigin.MANDATORY_RECALL,
@@ -248,18 +272,22 @@ class MandatoryRecallService:
             missing = self.repository.get_or_create_missing(
                 evidence_type,
                 turn_id,
-                missing_hard_gate=missing_hard_gate,
+                missing_hard_gate=effective_missing_hard_gate,
             )
             final_nodes.append(missing)
-            missing_types.append(evidence_type)
+            (
+                missing_types
+                if requirement_level == "REQUIRED"
+                else missing_knowledge_types
+            ).append(evidence_type)
             bindings.append(
                 IntentEvidenceBinding(
                     clause_index=demand.clause_index,
                     intent_id=demand.intent_id,
                     evidence_type=evidence_type,
-                    requirement_level="REQUIRED",
+                    requirement_level=requirement_level,
                     node_id=missing.node_id,
-                    resolution_status="MISSING",
+                    resolution_status=missing_status,
                     retrieval_origin=RetrievalOrigin.NONE,
                     semantic_similarity=None,
                 )
@@ -278,7 +306,15 @@ class MandatoryRecallService:
                 )
             )
 
-        for evidence_type in demand.optional_types:
+        assessment_types = list(
+            dict.fromkeys([*demand.assessment_types, *demand.optional_types])
+        )
+        for evidence_type in assessment_types:
+            if (
+                evidence_type in hard_required
+                or evidence_type in demand.knowledge_required_types
+            ):
+                continue
             require_canonical_evidence_type(evidence_type)
             optional_candidates = self._matching_candidates(
                 candidates, demand, evidence_type
@@ -292,7 +328,7 @@ class MandatoryRecallService:
                     clause_index=demand.clause_index,
                     intent_id=demand.intent_id,
                     evidence_type=evidence_type,
-                    requirement_level="OPTIONAL",
+                    requirement_level="ASSESSMENT",
                     node_id=selected.node_id if selected is not None else None,
                     resolution_status=(
                         "RETRIEVED" if selected is not None else "OPTIONAL_NOT_FOUND"
@@ -317,4 +353,5 @@ class MandatoryRecallService:
             bindings=bindings,
             mandatory_recall_records=records,
             missing_required_types=missing_types,
+            missing_knowledge_required_types=missing_knowledge_types,
         )

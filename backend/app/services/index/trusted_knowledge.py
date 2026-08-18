@@ -720,6 +720,9 @@ class TrustedKnowledgeIndexService:
             "chapter": node.chapter,
             "clause": node.clause,
             "trust_level": node.trust_level,
+            "evidence": dict(node.evidence),
+            "when": dict(node.when),
+            "effect": dict(node.effect),
         }
 
     def _diagnostic_search_all(
@@ -812,7 +815,7 @@ class TrustedKnowledgeIndexService:
         frame: SemanticFrame | None = None,
         context_evidence_nodes: list[EvidenceNode] | None = None,
     ) -> EvidenceDemand:
-        """把命中知识节点的 required_evidence 并集追加进各 intent 的 required_types。
+        """把知识证据追加到独立层级，不允许知识命中隐式制造硬前置条件。
 
         只做确定性精确匹配：知识节点 canonical_action 必须与意图 intent_id 完全一致，
         避免跨意图串扰（如「打开车门」误命中「打开车窗」节点导致其证据被强制追加）。
@@ -940,14 +943,18 @@ class TrustedKnowledgeIndexService:
                 )
                 for evidence in node.required_evidence:
                     source_map.setdefault((evidence, "REQUIRED"), []).append(node.node_id)
-                    if evidence not in intent_demand.required_types and evidence not in added_required:
+                    if (
+                        evidence not in intent_demand.required_types
+                        and evidence not in intent_demand.knowledge_required_types
+                        and evidence not in added_required
+                    ):
                         added_required.append(evidence)
                 for evidence in node.optional_evidence:
                     source_map.setdefault((evidence, "OPTIONAL"), []).append(node.node_id)
                     if (
                         evidence not in intent_demand.required_types
                         and evidence not in added_required
-                        and evidence not in intent_demand.optional_types
+                        and evidence not in intent_demand.assessment_types
                         and evidence not in added_optional
                     ):
                         added_optional.append(evidence)
@@ -965,10 +972,18 @@ class TrustedKnowledgeIndexService:
             ]
             draft = intent_demand.model_copy(
                 update={
-                    "required_types": [*intent_demand.required_types, *added_required],
+                    "knowledge_required_types": [
+                        *intent_demand.knowledge_required_types,
+                        *added_required,
+                    ],
+                    "assessment_types": [
+                        item
+                        for item in intent_demand.assessment_types
+                        if item not in required_set
+                    ] + added_optional,
                     "optional_types": [
                         item
-                        for item in intent_demand.optional_types
+                        for item in intent_demand.assessment_types
                         if item not in required_set
                     ] + added_optional,
                     "knowledge_augmented_types": added_required,
