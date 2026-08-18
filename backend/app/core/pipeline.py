@@ -342,6 +342,7 @@ class CommandPipeline:
                 / "freezes"
                 / "knowledge_constraint_contract_v1.yaml"
             ),
+            manifest_path=knowledge_constraints_root / "MANIFEST.json",
         )
         self.gate_service = SafetyGateService(
             {

@@ -8,3 +8,4 @@ data/nlu/spec/intent_registry_unified_v1.yaml text eol=lf
 data/nlu/spec/audits/known_non_executable_semantic_freeze_final_v4.yaml text eol=lf
 data/nlu/spec/intent_registry_r4_final.yaml text eol=lf
 data/nlu/spec/audits/known_non_executable_product_removals_v2.yaml text eol=lf
+data/knowledge_constraints/v1/** text eol=lf

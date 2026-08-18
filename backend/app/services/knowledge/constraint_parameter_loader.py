@@ -15,6 +15,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 from app.core.config import PROJECT_ROOT
 
@@ -44,12 +45,48 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(canonical).hexdigest().upper()
 
 
+def _verify_manifest(manifest_path: Path) -> None:
+    """校验冻结包全部受管文件，拒绝缺失、越界、重复或篡改。"""
+    if not manifest_path.exists():
+        raise ConstraintParameterError(f"MANIFEST 文件缺失: {manifest_path}")
+    try:
+        entries: list[dict[str, Any]] = json.loads(
+            manifest_path.read_text(encoding="utf-8")
+        )
+    except (json.JSONDecodeError, OSError) as exc:
+        raise ConstraintParameterError(f"MANIFEST 不可解析: {manifest_path}") from exc
+    if not isinstance(entries, list) or not entries:
+        raise ConstraintParameterError("MANIFEST 必须是非空列表")
+
+    root = manifest_path.parent.resolve()
+    seen: set[str] = set()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ConstraintParameterError("MANIFEST 条目必须是对象")
+        relative = entry.get("path")
+        expected = entry.get("sha256")
+        if not isinstance(relative, str) or not isinstance(expected, str):
+            raise ConstraintParameterError("MANIFEST 条目缺少 path 或 sha256")
+        if relative in seen:
+            raise ConstraintParameterError(f"MANIFEST 路径重复: {relative}")
+        seen.add(relative)
+        target = (root / relative).resolve()
+        if root not in target.parents or not target.is_file():
+            raise ConstraintParameterError(f"MANIFEST 文件缺失或越界: {relative}")
+        actual = _sha256(target)
+        if actual != expected.upper():
+            raise ConstraintParameterError(f"MANIFEST 哈希不符: {relative}")
+
+
 def load_constraint_parameters(
     constraints_path: Path,
     contract_path: Path | None = None,
     require_contract_hash: bool = True,
+    manifest_path: Path | None = None,
 ) -> dict:
     """加载约束参数。任何不一致 → ConstraintParameterError（拒绝启动）。"""
+    if manifest_path is not None:
+        _verify_manifest(manifest_path)
     # 1. 合同哈希校验（如提供合同路径）
     if require_contract_hash and contract_path is not None:
         if not contract_path.exists():
@@ -126,6 +163,7 @@ def load_default() -> dict:
     return load_constraint_parameters(
         constraints_path=kc / "acceptance" / "knowledge_constraints_v1.jsonl",
         contract_path=kc / "freezes" / "knowledge_constraint_contract_v1.yaml",
+        manifest_path=kc / "MANIFEST.json",
     )
 
 

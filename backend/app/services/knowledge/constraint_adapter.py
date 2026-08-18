@@ -84,6 +84,7 @@ def load_knowledge_overlay() -> dict:
     params = load_constraint_parameters(
         constraints_path=kc / "acceptance" / "knowledge_constraints_v1.jsonl",
         contract_path=kc / "freezes" / "knowledge_constraint_contract_v1.yaml",
+        manifest_path=kc / "MANIFEST.json",
     )
     return build_rule_overlay(params)
 
