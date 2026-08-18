@@ -8,9 +8,11 @@ PC 麦克风或 PCM WAV 输入依次经过格式校验、16 kHz 单声道重采�
 
 - LA：完整 ID 为 `Sara1708/deepfake-audio-wav2vec2`，revision `6c43629c953d6ff008501bf5f3eb983ac2321ad6`，来源为 <https://huggingface.co/Sara1708/deepfake-audio-wav2vec2>，使用其 `stage2_best.pt` 单一检查点。仓库缓存不含独立 `config.json`，运行配置显式固定 `id2label={0:bonafide,1:spoof}`、`label2id={bonafide:0,spoof:1}`；映射依据为项目推理代码。该模型只作为原型 LA 能力，不宣称跨设备、跨语言或通用准确率。
 - PA：`ASVspoof-2021-PA-LFCC-LCNN-official`，系统唯一 PA。结构和权重来自 <https://github.com/asvspoof-challenge/2021/tree/main/PA/Baseline-LFCC-LCNN> 与 <https://www.asvspoof.org/asvspoof2021/pre_trained_PA_LFCC-LCNN.zip>；训练任务为 ASVspoof 2019 PA。权重路径 `data/models/asvspoof2021_pa_lfcc_lcnn.pt`，SHA-256 `1c6d6f30ed1042e584508a9adecc0e514983fff64cdfb3ae3de848064b6e91e0`。训练标签为 `0=spoof、1=bonafide`，官方输出是越高越接近 bonafide 的未校准标量。BSD 3-Clause 版权与许可全文保留在 `THIRD_PARTY_NOTICES.md`。
-- ASR：`openai/whisper-base@e37978b`，显式 `language=zh`、`task=transcribe`。
+- ASR：`FunAudioLLM/SenseVoiceSmall@3847d57`，通过 `FunASR 1.4.2` 在 CPU 上执行，显式 `language=zh`、`use_itn=true`。模型固定缓存到 `%LOCALAPPDATA%/yuzheng/models/sensevoice-small`；使用纯英文缓存路径是为了规避 Windows SentencePiece 对中文路径的兼容问题。
 
-LA/ASR 只读加载本地缓存，PA 加载仓库内固定权重；三者均在进程内复用。加载、摘要校验或推理失败会返回明确服务错误，不生成固定正常分数。PA 不回退到通用深度伪造模型。没有候选模型切换、模型投票、加权融合或替代 ASR 框架。
+LA/ASR 只读加载本地缓存，PA 加载仓库内固定权重；三者均在进程内复用。加载、摘要校验或推理失败会返回明确服务错误，不生成固定正常分数。SenseVoice 的语言、情绪、声音事件及 ITN 控制标签会从车控转写文本中移除；当前适配器不把模型内部路径分数伪装成整句概率，因此 `asr_confidence=null`。PA 不回退到通用深度伪造模型，ASR 运行时也不静默回退 Whisper；如需回滚，必须显式把 `config/voice.yaml` 的 `adapter` 改为 `whisper`。
+
+前端音频上传和麦克风采集接口不变，仍读取 `asr_result.transcribed_text`，因此不需要额外的前端操作或模型选择步骤。
 
 输入必须是 PCM WAV；服务执行采样宽度校验、单声道转换和 16 kHz 重采样。PA LFCC 使用预加重 0.97、1024 点 FFT、320 点 Hamming 窗、160 点 hop、20 个线性滤波器、20 个 LFCC 系数及一/二阶差分。频谱服务从真实波形计算 RMS、频带能量、高频异常、静音和削波。频谱异常分数独立记录，不改写 LA 或 PA 模型分数。
 

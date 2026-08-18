@@ -19,6 +19,14 @@ const node = {
 const presentation = {
   turn_id: "TURN_1",
   semantic_frame: { raw_text: "打开右后车门" },
+  gate_result: {
+    knowledge_trace: [{
+      rule_id: "MOVING_DOOR_OPEN_PROHIBITED", node_id: "知识.车门.行驶开门限制.001", intent_id: "DOOR_OPEN",
+      evidence: { "VEHICLE_SPEED.value": 35 },
+      predicates: [{ evidence_type: "VEHICLE_SPEED", evidence_field: "value", op: "GT", value: 0 }],
+      gate_hit: true, gate_reason: "车辆行驶中禁止开门", basis_reference: "freezes/safety_rules.yaml",
+    }],
+  },
   evidence_demand: { intent_demands: [{
     clause_index: 0, intent_id: "DOOR_OPEN", action: "打开", target: "车门", area: "RIGHT_REAR", query_text: "证据查询句",
     knowledge_query_text: "意图=DOOR_OPEN；动作=打开；对象=车门；区域=RIGHT_REAR；运动状态=行驶",
@@ -66,13 +74,25 @@ describe("安全知识检索页面", () => {
     expect(screen.queryByText("强制召回审计")).toBeNull();
   });
 
-  it("点击最终结果展开业务详情", async () => {
+  it("点击最终结果展开证据与来源详情", async () => {
     const user = userEvent.setup(); renderPage();
     await user.click(await screen.findByText("开门前检查速度与周边目标"));
-    expect(screen.getByText("车门开启速度核查")).toBeTruthy();
-    expect(screen.getByText("车辆运动")).toBeTruthy();
+    expect(screen.getByText("必需证据")).toBeTruthy();
+    expect(screen.getByText("可选证据")).toBeTruthy();
     expect(screen.getByText("标准")).toBeTruthy();
     expect(screen.queryByText("82.00%")).toBeNull();
+  });
+
+  it("在知识结果中显示知识约束的字段、要求值和实际值", async () => {
+    renderPage();
+    expect(await screen.findByText("知识.车门.行驶开门限制.001")).toBeTruthy();
+    expect(screen.getByText("VEHICLE_SPEED.value")).toBeTruthy();
+    expect(screen.getByText("要求值")).toBeTruthy();
+    expect(screen.getByText("实际值")).toBeTruthy();
+    expect(screen.getByText("35")).toBeTruthy();
+    expect(screen.getByText("满足")).toBeTruthy();
+    expect(screen.queryByText("标题")).toBeNull();
+    expect(screen.queryByText("适用条件")).toBeNull();
   });
 
   it("展示未进入查询字段及中文排除原因", async () => {

@@ -30,6 +30,10 @@ class KnowledgeNode(BaseModel):
     trust_level: str = ""
     vector: list[float] | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+    command: dict[str, Any] = Field(default_factory=dict)
+    evidence: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    when: dict[str, list[dict[str, Any]]] = Field(default_factory=dict)
+    effect: dict[str, Any] = Field(default_factory=dict)
 
     @property
     def is_trusted(self) -> bool:
@@ -42,7 +46,7 @@ class KnowledgeNode(BaseModel):
         # 以 knowledge_id、约束策略和 L1/L2 可信等级表达已审核状态，而不是
         # 再重复写入 review_status。三个标记必须同时存在，避免把候选节点放行。
         if (
-            self.node_type == "安全知识"
+            self.node_type in {"安全知识", "rule"}
             and isinstance(self.metadata.get("knowledge_id"), str)
             and bool(self.metadata["knowledge_id"].strip())
             and self.metadata.get("constraint")

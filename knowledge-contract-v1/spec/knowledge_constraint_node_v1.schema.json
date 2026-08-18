@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "knowledge-contract-v1/spec/knowledge_constraint_node_v1.schema.json",
+  "title": "语证知识约束节点 v1 机器结构规范（对齐队友 knowledge_constraint_contract_v1）",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "node_id",
+    "node_type",
+    "title",
+    "source",
+    "command",
+    "evidence",
+    "when",
+    "effect"
+  ],
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "pattern": "^知识\\..+"
+    },
+    "node_type": {
+      "type": "string",
+      "enum": [
+        "安全知识"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "chapter": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clause": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intent_id",
+        "action",
+        "target"
+      ],
+      "properties": {
+        "intent_id": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "area": {
+          "type": "string",
+          "default": "ANY"
+        },
+        "mode": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ],
+          "default": "ANY"
+        },
+        "value": {
+          "default": "ANY"
+        },
+        "direction": {
+          "type": "string",
+          "default": "ANY"
+        },
+        "control_attribute": {
+          "type": "string",
+          "default": "ANY"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "field"
+          ],
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "when": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "all": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/predicate"
+          }
+        },
+        "any": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/predicate"
+          }
+        }
+      },
+      "not": {
+        "required": [
+          "all",
+          "any"
+        ]
+      }
+    },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "then",
+        "else",
+        "reason_code",
+        "reason"
+      ],
+      "properties": {
+        "then": {
+          "type": "string",
+          "enum": [
+            "ALLOW",
+            "BLOCK",
+            "REVIEW"
+          ]
+        },
+        "else": {
+          "type": "string",
+          "enum": [
+            "ALLOW",
+            "BLOCK",
+            "REVIEW"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "pattern": "^[A-Z0-9_]+$"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "required_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "conditions": {
+      "type": "array"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "constraint": {
+          "type": "string"
+        },
+        "knowledge_id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "op",
+        "value"
+      ],
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "op": {
+          "type": "string",
+          "enum": [
+            "EQ",
+            "NE",
+            "GT",
+            "GTE",
+            "LT",
+            "LTE",
+            "IN",
+            "NOT_IN"
+          ]
+        },
+        "value": {}
+      }
+    }
+  }
+}

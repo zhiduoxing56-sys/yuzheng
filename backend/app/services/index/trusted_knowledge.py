@@ -720,6 +720,9 @@ class TrustedKnowledgeIndexService:
             "chapter": node.chapter,
             "clause": node.clause,
             "trust_level": node.trust_level,
+            "evidence": dict(node.evidence),
+            "when": dict(node.when),
+            "effect": dict(node.effect),
         }
 
     def _diagnostic_search_all(

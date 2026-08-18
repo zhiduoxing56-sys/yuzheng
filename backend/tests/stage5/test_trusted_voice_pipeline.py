@@ -238,7 +238,7 @@ def test_single_real_la_and_pa_models_are_invoked(
     )
 
 
-def test_real_whisper_transcribes_chinese_command(
+def test_real_sensevoice_transcribes_chinese_command(
     stage5_pipeline: CommandPipeline, real_sample_results: dict[str, dict]
 ) -> None:
     sample = real_sample_results["edge_tts_open_door.wav"]["decoded"]
@@ -246,13 +246,12 @@ def test_real_whisper_transcribes_chinese_command(
         "TURN_ASR", sample.waveform, sample.sample_rate
     )
     assert result.model_inference_performed is True
-    assert result.model_name == "openai/whisper-base"
+    assert result.model_name == "FunAudioLLM/SenseVoiceSmall"
     assert "門" in result.transcribed_text or "门" in result.transcribed_text
-    assert result.asr_confidence is not None
-    assert 0 <= result.asr_confidence <= 1
-    assert result.asr_confidence_method == "mean_generated_token_probability"
-    assert result.mean_token_logprob is not None
-    assert result.confidence_token_count > 0
+    assert result.asr_confidence is None
+    assert result.asr_confidence_method is None
+    assert result.mean_token_logprob is None
+    assert result.confidence_token_count == 0
     assert result.inference_duration > 0
 
 
@@ -596,7 +595,7 @@ def test_audio_api_returns_report_fields_and_persists_audit(
     body = response.json()
     assert response.status_code == 200
     assert body["voice_trust"]["input_trust_label"] == "REVIEW"
-    assert body["asr_result"]["model_name"] == "openai/whisper-base"
+    assert body["asr_result"]["model_name"] == "FunAudioLLM/SenseVoiceSmall"
     assert body["voice_trust"]["model_metadata"]["la"]["model_status"] == "AVAILABLE"
     assert body["voice_trust"]["model_metadata"]["pa"]["model_status"] == "AVAILABLE"
     assert body["evidence_subgraph"]["turn_id"] == body["turn_id"]

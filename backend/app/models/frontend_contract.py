@@ -359,6 +359,7 @@ class GateResultPresentation(StrictModel):
     hit_rules: list[str] = Field(default_factory=list)
     reasons: list[str] = Field(default_factory=list)
     observed: dict[str, Any] = Field(default_factory=dict)
+    knowledge_trace: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class ScoreResultPresentation(StrictModel):

@@ -67,4 +67,50 @@ describe("DecisionResultDisplay", () => {
     expect(screen.getByText("车辆行驶中开启车门风险较高，因此本次指令被拒绝")).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("拒绝");
   });
+
+  it("places the compact Bayesian risk row between basis and diagnostic score", async () => {
+    const { container } = render(<DecisionResultDisplay
+      result={{ ...result("reject"), dimensions: [{ id: "C_sem", dimension: "语义清晰度", detail: "0.9000" }] }}
+      explanation={{ status: "AVAILABLE", text: "风险较高", retryable: false, facts: { key_runtime_state: { speed_kmh: 80 } } }}
+      bayesian={{
+        clause_index: 0,
+        intent_id: "HEADLIGHT_SET_MODE",
+        action: "设置",
+        target: "前照灯",
+        supported: true,
+        profile_id: "HEADLIGHT_OFF",
+        model_version: "display-noisy-or-v1",
+        risk_probability: 0.833972,
+        safe_probability: 0.166028,
+        entropy: 0.648537,
+        estimate_mode: "FULL_EVIDENCE",
+        base_risk: 0.01,
+        missing_evidence_types: [],
+        evidence_inputs: [],
+        factor_contributions: [
+          { factor_id: "vehicle_speed", label: "车辆速度", risk_with_factor: 0.833972, risk_without_factor: 0.755841, contribution: 0.078131 },
+          { factor_id: "low_light", label: "低照度", risk_with_factor: 0.833972, risk_without_factor: 0.335888, contribution: 0.498084 },
+          { factor_id: "poor_visibility", label: "低能见度", risk_with_factor: 0.833972, risk_without_factor: 0.8317, contribution: 0.002272 },
+        ],
+        explanation: "全部配置因素均由本轮可用证据计算。",
+      }}
+    />);
+
+    expect([...container.querySelectorAll("details > summary")].map((item) => item.textContent)).toEqual([
+      "查看裁决依据",
+      "贝叶斯风险",
+      "诊断评分（不覆盖安全门）",
+    ]);
+    await userEvent.click(screen.getByText("贝叶斯风险"));
+    const row = container.querySelector(".decision-bayesian-inline");
+    expect(row?.textContent).toBe("贝叶斯风险概率 83.40%｜风险因素：低照度 49.81% · 车辆速度 7.81% · 低能见度 0.23%");
+    expect(row?.textContent).not.toContain("安全概率");
+    expect(row?.textContent).not.toContain("熵");
+  });
+
+  it("keeps the Bayesian row minimal when no data is available", async () => {
+    const { container } = render(<DecisionResultDisplay result={result(null)} bayesian={null} />);
+    await userEvent.click(screen.getByText("贝叶斯风险"));
+    expect(container.querySelector(".decision-bayesian-inline")?.textContent).toBe("贝叶斯风险概率 --｜风险因素：--");
+  });
 });

@@ -174,6 +174,17 @@ export function CarlaPage() {
     return next;
   }, [draft]);
 
+  const loadedScenario = useMemo(
+    () => activeScenario?.active && activeScenario.scenario_id
+      ? scenarios.find((item) => item.scenario_id === activeScenario.scenario_id) || null
+      : null,
+    [activeScenario, scenarios],
+  );
+  const loadedScenarioConditions = useMemo(
+    () => loadedScenario?.conditions?.filter((condition) => condition.trim()) || [],
+    [loadedScenario],
+  );
+
   const applyAll = useCallback(async () => {
     if (!dirtyFields.size) { setFeedback("当前没有待应用的设置"); setError(false); return; }
     const activeErrors = Object.fromEntries(Object.entries(validationErrors).filter(([key]) => dirtyFields.has(key as DraftKey)));
@@ -210,7 +221,7 @@ export function CarlaPage() {
   return <section className="visual-page-frame carla-page">
     <header className="carla-page-header"><div><h1 className="visual-gradient-title">CARLA 模拟画面</h1><p>车辆真实状态与下一次指令上下文统一管理</p></div><button className="carla-button" onClick={() => navigate("/decision")}>前往裁决页</button></header>
     <div className="carla-scenario-strip"><label><span>场景预设</span><select value={scenarioId} disabled={busy} onChange={(event) => setScenarioId(event.target.value)}>{scenarios.map((item) => { const optionText = scenarioOptionText(item); return <option key={item.scenario_id} value={item.scenario_id} title={optionText}>{optionText}</option>; })}</select></label><button className="carla-button carla-button-secondary" disabled={busy || !scenarioId} onClick={activateScenario}>载入场景</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={() => void refresh()}>刷新状态</button><button className="carla-button carla-button-secondary" disabled={busy} onClick={resetAll}>一键重置</button></div>
-    <div className="carla-unified-layout"><div><div className="carla-live-frame"><img src="/carla/stream" alt="CARLA 自动驾驶模拟器实时画面" /></div><section className="carla-active-scenario" aria-label="当前激活场景">{activeScenario?.active ? <><strong>当前场景：{activeScenario.name}</strong><span>版本 {activeScenario.version} · 覆盖证据 {activeScenario.evidence_count} 条</span><small>{activeScenario.evidence_types.join("、")}</small></> : <span>当前未激活场景</span>}</section></div><section className="carla-unified-state-panel"><div className="carla-panel-heading"><div><h2>车辆与场景状态</h2><p>修改后的字段会标记为待应用；补充上下文用于下一次新指令。</p></div></div>
+    <div className="carla-unified-layout"><div><div className="carla-live-frame"><img src="/carla/stream" alt="CARLA 自动驾驶模拟器实时画面" /></div><section className="carla-active-scenario" aria-label="当前激活场景">{activeScenario?.active ? <><strong>当前场景：{activeScenario.name || loadedScenario?.name || activeScenario.scenario_id}</strong>{loadedScenarioConditions.length ? <div className="carla-active-scenario-conditions">{loadedScenarioConditions.map((condition, index) => <span key={`${condition}-${index}`}>{condition}</span>)}</div> : null}</> : <strong className="carla-active-scenario-empty">当前未载入场景</strong>}</section></div><section className="carla-unified-state-panel"><div className="carla-panel-heading"><div><h2>车辆与场景状态</h2><p>修改后的字段会标记为待应用；补充上下文用于下一次新指令。</p></div></div>
       <div className="carla-unified-table-wrap"><table className="carla-unified-table"><thead><tr><th>状态</th><th>当前值 / 待应用值</th><th>数据来源</th></tr></thead><tbody>
         <GroupRow>车辆控制</GroupRow>
         {row("speed", "车速（km/h）", "CARLA 控制", input("speed", "车速（km/h）", { min: "0", max: "200" }))}

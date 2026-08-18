@@ -74,13 +74,18 @@ pa:
     delta_order: 2
 
 asr:
-  model_name: openai/whisper-base
-  revision: e37978b90ca9030d5170a5c07aadb050351a65bb
-  source: https://huggingface.co/openai/whisper-base
-  version: e37978b
+  adapter: sensevoice
+  model_name: FunAudioLLM/SenseVoiceSmall
+  revision: 3847d57b6bdf2dd8875cb1508d2af43d80a16bf7
+  source: https://huggingface.co/FunAudioLLM/SenseVoiceSmall
+  version: 3847d57
+  # SentencePiece 在 Windows 上不能可靠读取含中文的模型目录，因此使用纯英文用户缓存路径。
+  model_path: "%LOCALAPPDATA%/yuzheng/models/sensevoice-small"
   language: zh
-  task: transcribe
-  maximum_new_tokens: 64
+  use_itn: true
+  device: cpu
+  ncpu: 4
+  batch_size_seconds: 15
 
 trust:
   weights:

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { submitAudioCommand, submitMicrophoneCommand, submitTextCommand } from "../api/command";
-import { executeTurn, getDecisionExplanation, getTurnPresentation, retryDecisionExplanation, submitTurnInteraction } from "../api/turns";
+import { executeTurn, getBayesianDiagnostic, getDecisionExplanation, getTurnPresentation, retryDecisionExplanation, submitTurnInteraction } from "../api/turns";
 import { InteractionModal } from "../components/InteractionModal";
 import { CommandInputSwitcher, DecisionResultDisplay, SemanticFrameDisplay } from "../components/DecisionVisuals";
 import { useSession } from "../stores/sessionStore";
-import type { AudioCommandResponse, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
+import type { AudioCommandResponse, BayesianIntentDiagnostic, ExecutionTokenView, InteractionAction, InteractionRequest, RequestRouting, SemanticFrame, TextCommandResponse, TurnPresentationResponse } from "../types/contract";
 import type { CommandInputMode, DecisionExplanationView, DecisionResultView } from "../types/visualModels";
 
 interface CurrentTurnData {
@@ -91,6 +91,7 @@ export function DecisionPage() {
   const [currentTurn, setCurrentTurn] = useState<CurrentTurnData | null>(null);
   const [result, setResult] = useState<DecisionResultView>(EMPTY_RESULT);
   const [explanation, setExplanation] = useState<DecisionExplanationView>(EMPTY_EXPLANATION);
+  const [bayesian, setBayesian] = useState<BayesianIntentDiagnostic | null>(null);
   const [explanationAttempt, setExplanationAttempt] = useState(0);
   const [tokens, setTokens] = useState<BoundExecutionToken[]>([]);
   const [executionOutcome, setExecutionOutcome] = useState<ExecutionOutcome>({ state: "IDLE", reason: null });
@@ -200,6 +201,20 @@ export function DecisionPage() {
     return () => { controller.abort(); if (timer) clearTimeout(timer); };
   }, [explanationAttempt, turnId]);
 
+  useEffect(() => {
+    if (!turnId) { setBayesian(null); return; }
+    const controller = new AbortController();
+    setBayesian(null);
+    void getBayesianDiagnostic(turnId, controller.signal)
+      .then((response) => {
+        if (!controller.signal.aborted) {
+          setBayesian(response.diagnostics.find((item) => item.supported) || null);
+        }
+      })
+      .catch(() => { if (!controller.signal.aborted) setBayesian(null); });
+    return () => controller.abort();
+  }, [turnId]);
+
   const submit = useCallback(() => {
     const controller = new AbortController(); activeRequestRef.current?.abort(); activeRequestRef.current = controller;
     setBusy(true); setHasError(false); setFeedback("正在解析语义帧…");
@@ -265,7 +280,7 @@ export function DecisionPage() {
       <SemanticFrameDisplay frame={currentTurn?.semantic_frame || null} />
     </div>
     <div className="decision-result-column"><div className="decision-child-detail-card">
-      <DecisionResultDisplay result={result} explanation={explanation} onExplanationRetry={retryExplanation} />
+      <DecisionResultDisplay result={result} explanation={explanation} bayesian={bayesian} onExplanationRetry={retryExplanation} />
       <section className="decision-execution-panel" aria-labelledby="execution-acceptance-heading"><h2 id="execution-acceptance-heading">执行验收</h2><div className="decision-execution-grid"><div className="decision-execution-modes">{([['NORMAL', '正常执行'], ['REUSE', '重复使用同一授权'], ['STATE_CHANGED', '签发后改变状态']] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={executionMode === value} onClick={() => setExecutionMode(value)}>{label}</button>)}</div><div className="decision-execution-state">{pendingExecutionDemo?.turnId === turnId ? executionMode === 'STATE_CHANGED' ? '授权已签发，等待状态变化' : '授权已签发，等待执行' : tokens.length ? interaction ? '等待确认执行' : '等待授权签发' : '未签发授权'}</div><div className={`decision-execution-outcome is-${executionOutcome.state.toLowerCase()}`}>{executionOutcome.state === 'PENDING' ? '正在核验授权与当前状态…' : executionOutcome.state === 'ACCEPTED' ? <>已执行｜{executionOutcome.reason}</> : executionOutcome.state === 'REJECTED' ? <>已拒绝｜{executionOutcome.reason}</> : tokens.length ? '尚无执行结果' : '本轮未签发授权，无法执行所选测试'}</div></div>{pendingExecutionDemo?.turnId === turnId && <div className="decision-execution-actions">{executionMode === 'STATE_CHANGED' && <button type="button" className="decision-execution-button" onClick={() => navigate('/carla')}>前往模拟器修改状态</button>}<button type="button" className="decision-execution-button" disabled={execBusyTurnId === turnId} onClick={executeDemo}>{executionMode === 'REUSE' && executionOutcome.state === 'ACCEPTED' ? '再次执行同一授权' : '按原授权执行'}</button></div>}</section>
     </div></div>
   </div></div>{interaction ? <InteractionModal error={clarificationError} onSubmit={resolve} request={interaction} busy={clarificationBusy} executionDemoEnabled={executionMode !== "NORMAL"} onExecutionDemoEnabledChange={(enabled) => setExecutionMode(enabled ? "REUSE" : "NORMAL")} /> : null}</>;

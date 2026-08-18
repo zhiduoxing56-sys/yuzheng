@@ -275,6 +275,9 @@ export interface KnowledgeNodeObservability {
   similarity?: number;
   result_scope?: "ONLINE_TOP_K" | "DIAGNOSTIC_ONLY";
   threshold_status?: "ACCEPTED" | "BELOW_THRESHOLD" | "NOT_IN_ONLINE_TOP_K";
+  evidence?: Record<string, { type?: string; field?: string }>;
+  when?: Record<string, Array<{ field?: string; op?: string; value?: unknown }>>;
+  effect?: Record<string, unknown>;
 }
 
 export interface KnowledgeContextSource {
@@ -461,6 +464,26 @@ export interface GateResultPresentation {
   hit_rules?: string[];
   reasons?: string[];
   observed?: Record<string, unknown>;
+  knowledge_trace?: KnowledgeConstraintTrace[];
+}
+
+export interface KnowledgeConstraintPredicate {
+  evidence_type: string;
+  evidence_field: string;
+  op: "GT" | "GTE" | "LT" | "LTE" | "EQ" | "NE" | "IN" | "NOT_IN" | string;
+  value: unknown;
+}
+
+export interface KnowledgeConstraintTrace {
+  rule_id: string;
+  node_id: string;
+  intent_id?: string | null;
+  runtime_parameter_source?: string;
+  basis_reference?: string;
+  evidence: Record<string, unknown>;
+  predicates: KnowledgeConstraintPredicate[];
+  gate_hit: boolean;
+  gate_reason?: string;
 }
 
 export interface GateCheck {
@@ -754,6 +777,57 @@ export interface CausalPresentation {
   decision_confidence: number | null;
   confidence_status: string;
   insufficiency_reason: string | null;
+}
+
+export interface BayesianEvidenceInput {
+  factor_id: string;
+  label: string;
+  evidence_type: string;
+  evidence_field: string | null;
+  source_node_id: string | null;
+  observed_value: unknown;
+  normalized_risk: number;
+  reliability: number;
+  weight: number;
+  used_prior: boolean;
+  prior_risk: number;
+}
+
+export interface BayesianFactorContribution {
+  factor_id: string;
+  label: string;
+  risk_with_factor: number;
+  risk_without_factor: number;
+  contribution: number;
+}
+
+export interface BayesianIntentDiagnostic {
+  clause_index: number;
+  intent_id: string;
+  action: string;
+  target: string;
+  supported: boolean;
+  profile_id: string | null;
+  model_version: string | null;
+  risk_probability: number | null;
+  safe_probability: number | null;
+  entropy: number | null;
+  estimate_mode: "FULL_EVIDENCE" | "PARTIAL_PRIOR" | "UNSUPPORTED";
+  base_risk: number | null;
+  missing_evidence_types: string[];
+  evidence_inputs: BayesianEvidenceInput[];
+  factor_contributions: BayesianFactorContribution[];
+  explanation: string;
+}
+
+export interface BayesianDiagnosticResponse {
+  turn_id: string;
+  display_only: true;
+  affects_decision: false;
+  calculation_stage: "POST_DECISION_READ_ONLY";
+  formula: string;
+  generated_at: string;
+  diagnostics: BayesianIntentDiagnostic[];
 }
 
 export interface RegulationHit {

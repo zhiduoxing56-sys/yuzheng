@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
-import type { SemanticFrame, SemanticIntent } from "../types/contract";
+import type { BayesianIntentDiagnostic, SemanticFrame, SemanticIntent } from "../types/contract";
 import type { CommandInputMode, DecisionExplanationView, DecisionResultView, DecisionVisualState } from "../types/visualModels";
 
 const INPUT_TABS: Array<{ mode: CommandInputMode; label: string }> = [
@@ -156,6 +156,12 @@ function diagnosticDisplay(value: string | null) {
   return value?.trim() || "--";
 }
 
+function bayesianPercent(value: number | null | undefined): string {
+  return value === null || value === undefined || Number.isNaN(value)
+    ? "--"
+    : `${(value * 100).toFixed(2)}%`;
+}
+
 function decisionDisplay(value: string | null | undefined): string {
   const normalized = value?.trim().toUpperCase();
   return normalized ? DECISION_LABELS[normalized] || "未识别状态" : "暂无结果";
@@ -213,8 +219,10 @@ function readableFacts(facts: Record<string, unknown> | undefined): Array<[strin
     .map(([label, value]) => [label, formatSemanticValue(value)]);
 }
 
-export function DecisionResultDisplay({ result, selector, explanation, onExplanationRetry }: { result: DecisionResultView; selector?: ReactNode; explanation?: DecisionExplanationView; onExplanationRetry?: () => void }) {
+export function DecisionResultDisplay({ result, selector, explanation, bayesian, onExplanationRetry }: { result: DecisionResultView; selector?: ReactNode; explanation?: DecisionExplanationView; bayesian?: BayesianIntentDiagnostic | null; onExplanationRetry?: () => void }) {
   const state = result.state ? DECISION_STATE_VIEW[result.state] : null;
+  const bayesianFactors = [...(bayesian?.factor_contributions || [])]
+    .sort((left, right) => right.contribution - left.contribution);
   return <section className={`decision-result-section state-${result.state || "empty"}`} aria-labelledby="decision-result-heading">
     <div className="decision-result-heading-row">
       <h1 id="decision-result-heading" className="visual-gradient-title">裁决结果</h1>
@@ -238,6 +246,9 @@ export function DecisionResultDisplay({ result, selector, explanation, onExplana
       </div>
     </div>
     {readableFacts(explanation?.facts).length > 0 && <details className="decision-diagnostic-score decision-fact-bundle"><summary>查看裁决依据</summary><dl>{readableFacts(explanation?.facts).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></details>}
+    <details className="decision-diagnostic-score decision-bayesian-risk"><summary>贝叶斯风险</summary>
+      <div className="decision-bayesian-inline"><span>贝叶斯风险概率 <strong>{bayesianPercent(bayesian?.risk_probability)}</strong></span><i aria-hidden="true">｜</i><span>风险因素：{bayesianFactors.length ? bayesianFactors.map((factor, index) => <span key={factor.factor_id}>{index > 0 ? " · " : ""}{factor.label} <strong>{bayesianPercent(factor.contribution)}</strong></span>) : "--"}</span></div>
+    </details>
     <details className="decision-diagnostic-score"><summary>诊断评分（不覆盖安全门）</summary>
       <div className="decision-dimension-table"><table><thead><tr><th>维度</th><th>得分</th></tr></thead><tbody>{result.dimensions.map((row) => <tr key={row.id}><td>{row.dimension}</td><td>{diagnosticDisplay(row.detail)}</td></tr>)}</tbody></table></div>
       <p className="decision-score">五维安全评分： <strong>{diagnosticDisplay(result.score)}</strong></p>

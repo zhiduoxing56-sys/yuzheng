@@ -8,10 +8,22 @@ import type {
   WorkflowChainVerification,
   InteractionAction,
   DecisionExplanationStatusResponse,
+  BayesianDiagnosticResponse,
 } from "../types/contract";
 
 export function getTurnPresentation(turnId: string, signal?: AbortSignal): Promise<TurnPresentationResponse> {
   return apiClient.get<TurnPresentationResponse>(`/api/turns/${encodeURIComponent(turnId)}/presentation`, undefined, { signal, timeoutMs: 45_000 });
+}
+
+export function getBayesianDiagnostic(
+  turnId: string,
+  signal?: AbortSignal,
+): Promise<BayesianDiagnosticResponse> {
+  return apiClient.get<BayesianDiagnosticResponse>(
+    `/api/turns/${encodeURIComponent(turnId)}/bayesian-diagnostic`,
+    undefined,
+    { signal, timeoutMs: 10_000 },
+  );
 }
 
 export function getDecisionExplanation(

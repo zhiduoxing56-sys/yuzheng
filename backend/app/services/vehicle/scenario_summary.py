@@ -98,10 +98,24 @@ def _display_value(value: Any) -> str:
     return _VALUE_LABELS.get(str(value), str(value))
 
 
+def _has_display_value(value: Any) -> bool:
+    """Whether a configured value contains something useful to present."""
+
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, dict):
+        return any(_has_display_value(item) for item in value.values())
+    if isinstance(value, (list, tuple, set)):
+        return any(_has_display_value(item) for item in value)
+    return True
+
+
 def _state_conditions(state: dict[str, Any]) -> list[str]:
     conditions: list[str] = []
     for key, label, unit in _STATE_FIELDS:
-        if key not in state:
+        if key not in state or not _has_display_value(state[key]):
             continue
         rendered = _FIELD_VALUE_LABELS.get(key, {}).get(
             str(state[key]), _display_value(state[key])
@@ -122,12 +136,12 @@ def _environment_condition(value: dict[str, Any]) -> str:
         ("fog", "雾", None),
     )
     for key, label, unit in fields:
-        if key not in value:
+        if key not in value or not _has_display_value(value[key]):
             continue
         rendered = _display_value(value[key])
         suffix = f" {unit}" if unit and value[key] is not None else ""
         parts.append(f"{label}{rendered}{suffix}")
-    return "环境：" + "、".join(parts)
+    return "环境：" + "、".join(parts) if parts else ""
 
 
 def _road_condition(value: dict[str, Any]) -> str:
@@ -138,32 +152,35 @@ def _road_condition(value: dict[str, Any]) -> str:
         ("friction_scale_factor", "摩擦系数"),
         ("most_probable", "最可能摩擦系数"),
     ):
-        if key in value:
+        if key in value and _has_display_value(value[key]):
             parts.append(f"{label}{_display_value(value[key])}")
-    return "道路：" + "、".join(parts)
+    return "道路：" + "、".join(parts) if parts else ""
 
 
 def _surrounding_condition(value: dict[str, Any]) -> str:
     objects = value.get("objects")
     if not isinstance(objects, list) or not objects:
-        return "周边目标：无"
+        return ""
     summaries: list[str] = []
     for item in objects:
+        if not _has_display_value(item):
+            continue
         if not isinstance(item, dict):
             summaries.append(_display_value(item))
             continue
         parts = [
             _display_value(item[key])
             for key in ("region", "entity_kind")
-            if key in item
+            if key in item and _has_display_value(item[key])
         ]
-        if "distance" in item:
+        if "distance" in item and _has_display_value(item["distance"]):
             parts.append(f"距离{_display_value(item['distance'])} m")
         for key in ("motion_state", "risk_level"):
-            if key in item:
+            if key in item and _has_display_value(item[key]):
                 parts.append(_display_value(item[key]))
-        summaries.append("".join(parts))
-    return "周边目标：" + "；".join(summaries)
+        if parts:
+            summaries.append("".join(parts))
+    return "周边目标：" + "；".join(summaries) if summaries else ""
 
 
 def _system_condition(value: dict[str, Any]) -> str:
@@ -173,9 +190,9 @@ def _system_condition(value: dict[str, Any]) -> str:
         ("safety_constraint", "安全约束"),
         ("simulation", "仿真标志"),
     ):
-        if key in value:
+        if key in value and _has_display_value(value[key]):
             parts.append(f"{label}{_display_value(value[key])}")
-    return "系统：" + "、".join(parts)
+    return "系统：" + "、".join(parts) if parts else ""
 
 
 def _evidence_condition(observation: dict[str, Any]) -> str:
@@ -192,17 +209,20 @@ def _evidence_condition(observation: dict[str, Any]) -> str:
         if evidence_type == "SYSTEM_MODE":
             return _system_condition(value)
         if evidence_type == "WIPER_STATE":
-            return "雨刮：" + "、".join(
+            parts = [
                 f"{label}{_display_value(value[key])}"
                 for key, label in (
                     ("mode", "模式"),
                     ("wiping", "工作"),
                     ("error", "故障"),
                 )
-                if key in value
-            )
-        if evidence_type == "GEAR_STATE" and "current_gear" in value:
+                if key in value and _has_display_value(value[key])
+            ]
+            return "雨刮：" + "、".join(parts) if parts else ""
+        if evidence_type == "GEAR_STATE" and "current_gear" in value and _has_display_value(value["current_gear"]):
             return f"补充挡位（{source}）：{_display_value(value['current_gear'])}"
+    if not _has_display_value(value):
+        return ""
     evidence_labels = {
         "VEHICLE_SPEED": "补充车速",
         "GEAR_STATE": "补充挡位",
@@ -221,8 +241,10 @@ def scenario_conditions(scenario: dict[str, Any]) -> list[str]:
     conditions = _state_conditions(state if isinstance(state, dict) else {})
     if isinstance(observations, list):
         conditions.extend(
-            _evidence_condition(item)
+            condition
             for item in observations
             if isinstance(item, dict)
+            for condition in [_evidence_condition(item)]
+            if condition
         )
     return conditions

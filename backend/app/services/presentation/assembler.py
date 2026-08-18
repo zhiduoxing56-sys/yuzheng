@@ -523,6 +523,7 @@ class PresentationAssembler:
             hit_rules=gate.hit_rules,
             reasons=gate.reasons,
             observed=gate.observed_values,
+            knowledge_trace=gate.knowledge_trace,
         )
 
     @staticmethod

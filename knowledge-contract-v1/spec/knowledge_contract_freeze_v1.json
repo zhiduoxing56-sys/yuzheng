@@ -1,0 +1,48 @@
+{
+  "contract_version": "knowledge-contract-v1",
+  "created_at": "2026-08-16",
+  "semantic_registry": {
+    "version": "unified-semantic-runtime-v1",
+    "path": "freezes/intent_registry_unified_v1.yaml",
+    "sha256": "e93caf0a41db28c1e3fc4da204783f87961ddd7b256fd96585934515d82b699a",
+    "summary": "149 intents; FORMAL=72, KNOWN_NON_EXECUTABLE=77 (PRODUCTION_UNIFIED_SEMANTIC_REGISTRY)"
+  },
+  "evidence_catalog": {
+    "version": "evidence-type-catalog-v1",
+    "path": "freezes/evidence_type_catalog_v1.yaml",
+    "sha256": "ad55a932a72569b957610d24540f349b3511ef960ac24336aa263fef7e096fed",
+    "summary": "38 canonical evidence types (FORMAL_CANONICAL_CATALOG)"
+  },
+  "evidence_runtime_mapping": {
+    "version": "evidence-runtime-mapping-v1",
+    "path": "freezes/evidence_runtime_mapping_v1.yaml",
+    "sha256": "a80c3d1e88b8ef195471d64dbf0cbacb26874ee106fdc7df92fa6829e8881c6d",
+    "summary": "FORMAL_RUNTIME_MAPPING; common_evidence_envelope + per-type value_schema"
+  },
+  "evidence_demand_registry": {
+    "version": "evidence-demand-registry-v1",
+    "path": "freezes/evidence_demand_registry_v1.yaml",
+    "sha256": "3b5a7e4d3726922a536aeff109a483bcc2901118ce6b70c6e308c54b0dcdb17f",
+    "summary": "FORMAL_EVIDENCE_DEMAND_REGISTRY; per-intent mandatory/recommended + global_dynamic_rules"
+  },
+  "node_schema": {
+    "version": "knowledge-constraint-node-v1",
+    "path": "spec/knowledge_constraint_node_v1.schema.json",
+    "sha256": "computed-on-freeze"
+  },
+  "updated_at": "2026-08-16 (队友权威版替换)",
+  "safety_rules": {
+    "version": "safety-rules-v1",
+    "path": "freezes/safety_rules.yaml",
+    "sha256": "99c488c18671fd42d90641110c28edb6e9b81fcded32c936d8dac01b1e361322",
+    "summary": "业务安全规则（含真实阈值：low_light_lux=20, threshold_m=5/1.5, dense_fog_values, trust=0.45）"
+  },
+  "constraint_contract": {
+    "version": "knowledge-constraint-v1",
+    "path": "freezes/knowledge_constraint_contract_v1.yaml",
+    "sha256": "3DFF279543199F64BB09C674D1F646B0F7B1E74DB0BDF51937CC7B40D52845D2",
+    "lines": 335,
+    "summary": "权威版 FORMAL_KNOWLEDGE_CONSTRAINT_CONTRACT（含兼容字段示例 semantic_description/canonical_action/conditions/required_evidence/metadata）",
+    "verified_at": "2026-08-16"
+  }
+}

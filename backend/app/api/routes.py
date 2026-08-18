@@ -65,6 +65,7 @@ from app.models.read_models import (
     CompactTimelineItem,
     CompactTimelineResponse,
 )
+from app.models.bayesian_diagnostic import BayesianDiagnosticResponse
 from app.api.errors import ContractError
 from app.services.authorization.service import AuthorizationTokenError
 from app.services.asr.whisper import ASRModelError
@@ -77,11 +78,13 @@ from app.core.performance import mark_stage
 from app.services.presentation.assembler import PresentationAssembler
 from app.services.review.adapter import adapt_review_submission
 from app.services.read_cache import BoundedSingleFlightCache
+from app.services.bayesian_diagnostic import BayesianDiagnosticService
 
 
 def build_router(pipeline: CommandPipeline) -> APIRouter:
     router = APIRouter(prefix="/api")
     presentation = PresentationAssembler(pipeline)
+    bayesian_diagnostic = BayesianDiagnosticService()
     read_cache: BoundedSingleFlightCache[object] = BoundedSingleFlightCache(128)
     contract_errors = {
         404: {"model": ErrorResponse},
@@ -403,6 +406,23 @@ def build_router(pipeline: CommandPipeline) -> APIRouter:
                 "无法组装轮次展示数据",
                 turn_id=turn_id,
             ) from exc
+
+    @router.get(
+        "/turns/{turn_id}/bayesian-diagnostic",
+        response_model=BayesianDiagnosticResponse,
+        responses=contract_errors,
+    )
+    def turn_bayesian_diagnostic(turn_id: str) -> BayesianDiagnosticResponse:
+        """裁决完成后的只读展示诊断；结果不进入 Gate、评分、授权或执行。"""
+        record = pipeline.audit_repository.get_by_turn(turn_id)
+        if record is None:
+            raise ContractError(
+                404,
+                ErrorCode.TURN_NOT_FOUND,
+                "未找到指定轮次",
+                turn_id=turn_id,
+            )
+        return bayesian_diagnostic.evaluate_record(record)
 
     @router.get(
         "/turns/{turn_id}/decision-explanation",

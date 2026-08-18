@@ -699,6 +699,9 @@ class SafetyGateService:
             if overlay_entry is None:
                 continue
             node_id = overlay_entry.get("_constraint_node_id", "")
+            intent_id = overlay_entry.get("_constraint_intent_id")
+            if intent_id and not any(intent.intent_id == intent_id for intent in frame.intents):
+                continue
             preds = overlay_entry.get("_constraint_predicates", [])
             ev_actual = {}
             for p in preds:
@@ -718,7 +721,7 @@ class SafetyGateService:
                 "runtime_parameter_source": node_id,   # 运行时参数实际来源：知识节点
                 "basis_reference": overlay_entry.get("_constraint_threshold_ref", ""),  # 冻结依据
                 "reason_code": rule_id,
-                "intent_id": frame.intents[0].intent_id if frame.intents else None,
+                "intent_id": intent_id,
                 "evidence": ev_actual,
                 "predicates": preds,
                 "gate_hit": check.hit,
@@ -758,5 +761,4 @@ def _knowledge_threshold(rule: dict, key: str, fallback, rule_id: str):
             f"知识约束参数缺失: rule={rule_id} key={key} — 拒绝启动（禁止回退硬编码值）"
         )
     return kp[key]
-
 

@@ -1,0 +1,62 @@
+gate_rules:
+  - id: SEMANTIC_MODEL_DEGRADED_HIGH_RISK
+    evaluator: semantic_model_degraded
+    reason: 真实语义模型降级，高风险车控指令被安全门阻断
+  - id: MANDATORY_EVIDENCE_AVAILABLE
+    evaluator: mandatory_missing
+    reason: 强制证据缺失
+  - id: MANDATORY_EVIDENCE_INTEGRITY
+    evaluator: mandatory_tampered
+    reason: 强制证据被篡改
+  - id: LEVEL3_JAILBREAK_CONFLICT
+    evaluator: level3_jailbreak
+    reason: 检测到三级越狱冲突
+  - id: MANDATORY_EVIDENCE_FRESHNESS
+    evaluator: mandatory_stale
+    reason: 强制证据陈旧且补召失败
+  - id: MANDATORY_TRUST_THRESHOLD
+    evaluator: mandatory_trust
+    threshold: 0.45
+    reason: 强制证据平均可信度低于阈值
+  - id: MOVING_DOOR_OPEN_PROHIBITED
+    evaluator: moving_door
+    intent_ids: [DOOR_OPEN, DOOR_SET_POSITION]
+    reason: 行驶中禁止打开车门
+  - id: REVERSE_CAMERA_DISPLAY_OFF_PROHIBITED
+    evaluator: reverse_camera_display_off
+    intent_ids: [DISPLAY_OFF]
+    reason: 倒车影像开启时禁止关闭显示屏
+  - id: LOW_LIGHT_HEADLIGHT_OFF_PROHIBITED
+    evaluator: low_light_headlight
+    intent_ids: [HEADLIGHT_SET_MODE]
+    off_intent_ids: [LOW_BEAM_OFF, HIGH_BEAM_OFF]
+    mode: "OFF"
+    low_light_lux: 20
+    reason: 夜间或低照度行驶中禁止关闭前照灯/近光灯/远光灯
+  - id: DENSE_FOG_FRONT_DEFOG_OFF_PROHIBITED
+    evaluator: dense_fog_defog
+    intent_ids: [DEFROST_OFF]
+    dense_fog_values: [DENSE_FOG, HEAVY_FOG, FOG, 浓雾, 大雾]
+    reason: 浓雾环境禁止关闭前挡风除雾
+  - id: NON_DRIVER_DRIVING_CONTROL_PROHIBITED
+    evaluator: non_driver_control
+    reason: 非驾驶员不得执行驾驶控制动作
+  - id: REAL_ROAD_SAFETY_BYPASS_PROHIBITED
+    evaluator: real_road_bypass
+    reason: 真实道路场景禁止关闭或绕过安全约束
+  - id: UNAUTHORIZED_DIRECT_INTERFACE_PROHIBITED
+    evaluator: unauthorized_direct_interface
+    reason: 未授权请求直接调用车辆接口
+  - id: UNAUTHORIZED_CONTROL_FRAME_PROHIBITED
+    evaluator: unauthorized_control_frame
+    reason: 未授权请求发送车辆控制报文
+  - id: FRONT_OBSTACLE_ACCELERATION_PROHIBITED
+    evaluator: acceleration_obstacle
+    intent_ids: [ACCELERATE]
+    threshold_m: 5
+    reason: 前方障碍距离过近，禁止加速
+  - id: REAR_STATE_DECELERATION_CONFLICT
+    evaluator: deceleration_rear_conflict
+    intent_ids: [DECELERATE, BRAKE]
+    threshold_m: 1.5
+    reason: 制动或减速时关键后方状态冲突

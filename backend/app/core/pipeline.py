@@ -126,7 +126,8 @@ from app.services.vehicle.carla import CarlaVehicleAdapter
 from app.services.vehicle.capabilities import CanonicalCapabilityRegistry
 from app.services.vehicle.simulator import SimulatorVehicleAdapter
 from app.services.vehicle.scenario_summary import scenario_conditions
-from app.services.asr.whisper import ASRModelError, WhisperASRService
+from app.services.asr import build_asr_service
+from app.services.asr.whisper import ASRModelError
 from app.services.asr.text_normalizer import (
     ASRTextNormalizationError,
     TraditionalChineseNormalizer,
@@ -278,7 +279,7 @@ class CommandPipeline:
         self.zone_permission_service = ZonePermissionService(
             self.voice_config["zone_permission"]
         )
-        self.asr_service = WhisperASRService(self.voice_config["asr"])
+        self.asr_service = build_asr_service(self.voice_config["asr"])
         self.asr_text_normalizer = TraditionalChineseNormalizer()
         self.semantic_service = SemanticOrchestratorService()
         self.request_routing_service = RequestRoutingService()
@@ -330,7 +331,7 @@ class CommandPipeline:
         self.memory_service = DualMemoryService(memory_config)
         self.validation_service = AdvancedValidationService(load_yaml("jailbreak_policy.yaml"))
         self.causal_service = CausalCorrectionService(load_yaml("causal_policy.yaml"))
-        knowledge_constraints_root = PROJECT_ROOT / "data" / "knowledge_constraints" / "v1"
+        knowledge_constraints_root = PROJECT_ROOT / "knowledge-contract-v1"
         constraint_parameters = load_constraint_parameters(
             constraints_path=(
                 knowledge_constraints_root
@@ -342,7 +343,6 @@ class CommandPipeline:
                 / "freezes"
                 / "knowledge_constraint_contract_v1.yaml"
             ),
-            manifest_path=knowledge_constraints_root / "MANIFEST.json",
         )
         self.gate_service = SafetyGateService(
             {
@@ -1012,7 +1012,7 @@ class CommandPipeline:
                 turn_id=turn_id,
                 text="",
                 confidence=None,
-                adapter="whisper_transformers_local_failed",
+                adapter=f"{self.asr_service.adapter}_failed",
                 model_inference_performed=False,
                 model_name=self.asr_service.model_name,
                 inference_duration=0.0,

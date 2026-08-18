@@ -73,6 +73,9 @@ def _verify_manifest(manifest_path: Path) -> None:
         target = (root / relative).resolve()
         if root not in target.parents or not target.is_file():
             raise ConstraintParameterError(f"MANIFEST 文件缺失或越界: {relative}")
+        # 清单无法可靠地包含自身的最终哈希；其余受管文件仍须逐一校验。
+        if target == manifest_path.resolve():
+            continue
         actual = _sha256(target)
         if actual != expected.upper():
             raise ConstraintParameterError(f"MANIFEST 哈希不符: {relative}")

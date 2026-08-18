@@ -53,6 +53,7 @@ def build_rule_overlay(constraint_params: dict) -> dict:
     for rc, e in constraint_params.items():
         entry: dict[str, Any] = {
             "_constraint_node_id": e["node_id"],
+            "_constraint_intent_id": e["intent_id"],
             "_constraint_threshold_ref": e["threshold_ref"],
             "_constraint_predicates": [],
         }
